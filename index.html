@@ -75,7 +75,8 @@
   .slot { aspect-ratio: 1; min-width: 0; min-height: 0; overflow: hidden; border: 1.5px dashed #5a4238; border-radius: 8px; display: grid; place-items: center; position: relative; background: #170f10; padding: 0; }
   .slot img { width: 66%; height: 66%; max-width: 66%; max-height: 66%; object-fit: contain; }
   .squadRow .slot img { max-width: 66%; }
-  .slot b { position: absolute; bottom: 1px; font-size: 9.5px; color: #ffd27a; }
+  .slot b { position: absolute; bottom: 1px; font-size: 9.5px; color: #ffd27a; white-space: nowrap; }
+  .slot.empty small { margin-top: 10px; text-align: center; line-height: 1.3; }
   .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
   .actions .btn { font-size: 12px; min-height: 40px; padding: 2px 4px; line-height: 1.2; word-break: keep-all; }
   #cardGrid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-content: start; }
@@ -218,6 +219,10 @@
   .mutBtn { flex-basis: 100%; min-height: 62px; display: flex !important; align-items: center; gap: 10px; text-align: left; padding: 6px 10px; }
   .mutBtn .mutPic { width: 44px; height: 44px; object-fit: contain; flex: none; }
   .mutBtn .mt { display: flex; flex-direction: column; line-height: 1.25; } .mutBtn small { font-size: 10px; color: #c9b9a2; font-weight: 400; } .mutBtn b { font-size: 17px; } .mutBtn em { font-style: normal; font-size: 12px; font-weight: 400; color: #e8dccb; }
+  .slotRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .slotBtn { display: flex !important; flex-direction: column; align-items: center; padding: 6px 2px !important; min-height: 58px; line-height: 1.25; }
+  .slotBtn b { font-size: 13px; } .slotBtn small { font-size: 10.5px; font-weight: 400; color: #d8c8b4; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+  .slotBtn em { font-style: normal; font-weight: 800; } .slotBtn em.up { color: #9fff6a; } .slotBtn em.dn { color: #ff8a7a; } .slotBtn.on { opacity: .55; }
   .forgeBox { position:relative; height:150px; display:flex; align-items:center; justify-content:center; }
   .forgeBox img.card { width:96px; height:96px; object-fit:contain; animation: fshake .12s linear infinite; }
   .forgeBox img.fx { position:absolute; width:130px; height:130px; object-fit:contain; animation: fxin .5s ease-out forwards; }
@@ -880,6 +885,10 @@ function persist() { try { localStorage.setItem('virus-v4', JSON.stringify({ ...
 })();
 const geneById = id => save.genes.find(g => g.uid === id);
 const squadGenes = () => save.squad.map(geneById).filter(Boolean);
+// ★ 카드 자리는 고정 3칸: [몸통, 껍질, 가시]. 빈 칸은 null (빼도 다른 카드가 자리를 옮기지 않는다)
+const slotGenes = () => [0, 1, 2].map(i => geneById(save.squad[i]) || null);
+const slotFill = () => { const a = slotGenes(), f = a.find(Boolean); return f ? a.map(x => x || f) : []; };
+const unSquad = uid => { save.squad = [0, 1, 2].map(i => save.squad[i] === uid ? null : (save.squad[i] || null)); };
 const organById = id => ORGANS.find(o => o.id === id);
 const doneCount = () => ORGANS.filter(o => o.id !== 'brain' && save.done[o.id]).length;
 const hasLegacy = s => Object.values(save.legacy || {}).some(x => x === s || (STRAINS[x] && STRAINS[x].parents || []).includes(s));
@@ -910,7 +919,7 @@ function gacha() {
 const mergeMate = g => g.star < 3 && !STRAINS[g.strain].hero ? save.genes.filter(x => x !== g && x.strain === g.strain && x.star === g.star && !x.mix === !g.mix && x.mix === g.mix).sort((a, b) => save.squad.includes(a.uid) - save.squad.includes(b.uid) || power(a) - power(b))[0] : null;
 function mergeStar(g) {
   const m = mergeMate(g); if (!m) return null;
-  save.genes = save.genes.filter(x => x !== m); save.squad = save.squad.filter(id => id !== m.uid);
+  save.genes = save.genes.filter(x => x !== m); unSquad(m.uid);
   g.star++; g.grow = Math.max(g.grow || 0, m.grow || 0); g.q = +Math.max(g.q, m.q).toFixed(2);
   for (const k of m.passives) if (!g.passives.includes(k) && g.passives.length < 3) g.passives.push(k);
   if (!g.branch && m.branch && g.star >= 2) g.branch = m.branch;
@@ -938,7 +947,7 @@ function levelUp(g, clone) { const rk = riskOf(g), c = lvCost(g) + (rk && clone 
   if ((g.lv || 1) < MAXLV) { g.lv = (g.lv || 1) + 1; return 'lv'; }
   if (rk) { const r = Math.random() * 100;
     if (r >= rk.ok + rk.fail) { if (clone) return 'saved';
-      save.genes = save.genes.filter(x => x !== g); save.squad = save.squad.filter(u => u !== g.uid); return 'destroy'; }
+      save.genes = save.genes.filter(x => x !== g); unSquad(g.uid); return 'destroy'; }
     if (r >= rk.ok) return 'fail'; }
   g.star++; g.lv = 1; return 'star'; }
 function shakeEl(el) { if (el) el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(0)' }], { duration: 130, iterations: 9 }); }
@@ -1528,7 +1537,7 @@ function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; sh
 
 /* ---------- [systems/mine.js] ★ 내 바이러스: 연구소의 카드 3장(몸통·껍질·가시)을 합성한 단 하나의 계통으로 싸운다 ----------
    몸통 → 방어(체력)·정체성(역할), 껍질 → 속도·은신, 가시 → 감염력. 배양력은 셋의 합. 스킬은 꽂은 카드에서 하나씩 추출. */
-const SLOT_NAME = ['몸통', '껍질', '가시'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력'];
+const SLOT_NAME = ['몸통', '껍질', '가시'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력'], SLOT_ICON = ['❤', '💨', '⚔'], SLOT_STAT = ['체력', '빠르기', '공격력'], SLOT_KEY = ['hp', 'spd', 'atk'];
 // 부품 그림(몸통 6 · 껍질 2 · 가시 6)을 겹쳐 내 바이러스 모습을 만든다
 const VP_CORE = { adeno: 0, measles: 0, herpes: 1, rsv: 1, retro: 1, noro: 2, hepb: 2, rota: 3, flu: 3, rabies: 4, rhino: 5, hpv: 5 };
 const VP_COAT = { herpes: 'env', flu: 'env', rsv: 'env', measles: 'env', retro: 'env', hepb: 'env', rabies: 'env', adeno: 'hex', hpv: 'hex', rota: 'hex', noro: '', rhino: '' };
@@ -1568,7 +1577,7 @@ function buildMine(cards) {
   const mix = (x, y, z, wb, wc, wk) => x * wb + y * wc + z * wk;
   STRAINS.mine = { ...B, name: '내 바이러스', hybrid: false, hero: false, rarity: 0, parents: null,
     hp: mix(sb.hp, sc.hp, sk.hp, 0.6, 0.2, 0.2), atk: mix(sb.atk, sc.atk, sk.atk, 0.2, 0.2, 0.6), spd: mix(sb.spd, sc.spd, sk.spd, 0.2, 0.6, 0.2) / RULES.spdScale,
-    count: Math.round(Math.min(260, sb.count + sc.count + sk.count)), size: 11, stealth: !!(STRAINS[c.strain].stealth || B.stealth), split: !!(B.split || STRAINS[k.strain].split) };
+    count: Math.round(Math.min(260, [...new Set(cards)].reduce((a, x) => a + geneStats(x).count, 0))), size: 11, stealth: !!(STRAINS[c.strain].stealth || B.stealth), split: !!(B.split || STRAINS[k.strain].split) };
   ROLE_OF.mine = ROLE_OF[b.strain]; SCOLOR.mine = SCOLOR[b.strain] || '#e8a0ff';
   const vb = VSHAPE[b.strain] || {}, vk = VSHAPE[k.strain] || {}, vc = VSHAPE[c.strain] || {};
   VSHAPE.mine = { sp: vk.sp || 12, len: vk.len || 0.3, knob: vk.knob || 0.1, body: vc.body === 'env' ? 'env' : (vb.body || 'round'), spikeCol: SCOLOR[k.strain] };
@@ -1609,10 +1618,10 @@ function drawTut(time) {   // 손가락 표시: 할 곳을 톡톡 가리킨다
 const HUB_TIPS = [
   { id: 'lab', when: () => doneCount() >= 1 || save.dnaSpent, tab: 'body', sel: '#tabLab', txt: '<b>연구소</b>에서 DNA로 카드를 강화하고 새 바이러스를 뽑을 수 있어요. 강한 카드를 꽂을수록 내 바이러스가 강해져요.' },
   { id: 'lab1', when: () => true, tab: 'lab', sel: '#squadRow .slot:nth-child(1)', step: '1/5', txt: '여기가 <b>내 바이러스</b>예요. 오른쪽 <b>카드 3장을 합친 모습</b>이고, 게임에는 이 바이러스 하나가 나가요.' },
-  { id: 'lab2', when: () => true, tab: 'lab', sel: '#squadRow .slot:nth-child(2)', step: '2/5', txt: '<b>몸통</b> 카드는 <b>체력</b>과 <b>타입</b>을 정해요. 타입은 버티기형 · 공격형 · 회복형 · 물량형 · 숨기형 다섯 가지예요.' },
-  { id: 'lab3', when: () => true, tab: 'lab', sel: '#squadRow .slot:nth-child(3)', step: '3/5', txt: '<b>껍질</b> 카드는 <b>빠르기</b>와 <b>숨기</b>를 정해요. 빠를수록 목표에 빨리 닿아요.' },
-  { id: 'lab4', when: () => true, tab: 'lab', sel: '#squadRow .slot:nth-child(4)', step: '4/5', txt: '<b>가시</b> 카드는 <b>공격력</b>을 정해요. 셀수록 감염이 빨리 차고 탑도 잘 부숴요.' },
-  { id: 'lab5', when: () => true, tab: 'lab', sel: '#cardGrid .card', step: '5/5', txt: '아래 카드를 누르면 <b>꽂기 · 강화</b>를 할 수 있어요. 세 장 모두 바꿀 수 있고, 카드마다 <b>스킬</b>도 하나씩 따라와요.' },
+  { id: 'lab2', when: () => true, tab: 'lab', sel: '#squadRow .slot:nth-child(2)', step: '2/5', txt: '❤ <b>몸통</b> 자리 = <b>체력 담당</b>. 여기 꽂은 카드가 내 바이러스의 <b>타입</b>(버티기형·공격형 등)도 정해요.' },
+  { id: 'lab3', when: () => true, tab: 'lab', sel: '#squadRow .slot:nth-child(3)', step: '3/5', txt: '💨 <b>껍질</b> 자리 = <b>빠르기 담당</b>. 빠른 카드를 꽂을수록 목표에 빨리 닿아요.' },
+  { id: 'lab4', when: () => true, tab: 'lab', sel: '#squadRow .slot:nth-child(4)', step: '4/5', txt: '⚔ <b>가시</b> 자리 = <b>공격력 담당</b>. 센 카드를 꽂을수록 감염이 빨리 차고 탑도 잘 부숴요.' },
+  { id: 'lab5', when: () => true, tab: 'lab', sel: '#cardGrid .card', step: '5/5', txt: '아래 카드를 누르면 <b>몸통·껍질·가시 중 원하는 자리</b>를 골라 꽂을 수 있어요. 바뀌는 숫자도 미리 보여 줘요.' },
   { id: 'fit', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .fitBox', txt: '기관마다 <b>적성</b>이 있어요. 몸통 타입이 맞으면 능력 +25%, 그 기관의 움직이는 지형 피해가 절반이에요.' },
   { id: 'stars', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .starList', txt: '<b>별 3개</b>에 도전하세요: 감염 성공 · 들키지 않고 잠입 · 시간 30% 남기기. 처음 딴 별마다 DNA +30.' },
 ];
@@ -1862,7 +1871,7 @@ function breakout() {
   const R = run, tot = Math.floor(nestTotal()); if (tot < 1) return toast('둥지가 비었어요');
   if (!R.single || R.botMut || window.__botMut) { const k = Object.keys(MUTS); return doBreakout(R.botMut === 'none' ? null : k[Math.floor(Math.random() * k.length)]); }
   // 내 카드 3장이 하나씩 힘을 빌려준다: 몸통 → 버티기 쪽, 껍질 → 움직임 쪽, 가시 → 공격 쪽
-  const POOL = [['armor', 'regen', 'bloom'], ['sprint', 'cloak'], ['toxic', 'hijack']], cards = squadGenes().slice(0, 3);
+  const POOL = [['armor', 'regen', 'bloom'], ['sprint', 'cloak'], ['toxic', 'hijack']], cards = slotFill();
   const keys = POOL.map(p => p[Math.floor(Math.random() * p.length)]); paused = true; R.mutPause = true; sfx('skill');
   ui.modal(`<h3 style="margin:2px 0">돌격! 강화를 하나 고르세요</h3><div class="sub">${tot}마리가 돌격해요${R.gap > 0 ? ' · <b style="color:#9fff6a">면역이 쉬는 틈! 기습 +30%</b>' : ''}<br>내 카드 3장이 힘을 하나씩 빌려줘요</div>
     <div class="row">${keys.map((k, i) => `<button class="btn mutBtn" data-m="${k}">${cards[i] ? pimg(cards[i], 'mutPic') : ''}<span class="mt"><small>${SLOT_NAME[i]} 카드의 힘</small><b>${MUTS[k].icon} ${MUTS[k].name}</b><em>${MUTS[k].desc}</em></span></button>`).join('')}</div>`);
@@ -1969,8 +1978,8 @@ function layoutTowers(organ, n, w) {
 }
 function startRun() {
   const organ = organById(save.sel); if (!organOpen(organ)) return toast('대뇌는 다른 기관 5곳을 감염시킨 뒤 열립니다');
-  { let leg = false; save.squad = save.squad.filter(u => { const g = geneById(u); if (!g || !STRAINS[g.strain].legend) return true; if (leg) return false; leg = true; return true; }); }
-  const cards = squadGenes().slice(0, 3); if (!cards.length) return toast('연구소에서 내 바이러스에 카드를 꽂아 주세요');
+  { let leg = false; save.squad = [0, 1, 2].map(i => { const u = save.squad[i], g = geneById(u); if (!g) return null; if (!STRAINS[g.strain].legend) return u; if (leg) return null; leg = true; return u; }); }
+  const cards = slotFill(); if (!cards.length) return toast('연구소에서 내 바이러스에 카드를 꽂아 주세요');
   const genes = TA() ? [buildMine(cards)] : cards;
   const fit = TA() && fitOf(organ.id, ROLE_OF.mine); if (fit) { STRAINS.mine.atk *= 1.25; STRAINS.mine.hp *= 1.25; }
   const st = stageInfo(organ);
@@ -2550,7 +2559,7 @@ function showStory(i) {
   el.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > 20) go(e.deltaY > 0 ? 1 : -1); }, { passive: true }); })();
 function introDone(fromStory) {
   save.introSeen = true; persist(); const el = $('intro'); el.classList.add('out'); setTimeout(() => { el.hidden = true; INTRO.on = false; }, 650);
-  if (fromStory && !save.tutDone) { save.sel = 'nose'; if (!save.squad.length) autoSquad(); startRun(); } else ui.showHub('body');
+  if (fromStory && !save.tutDone) { save.sel = 'nose'; if (!squadGenes().length) autoSquad(); startRun(); } else ui.showHub('body');
 }
 $('inGo').onclick = () => { audioInit(); playBgm('lab'); sfx('reveal'); if (!save.introSeen) showStory(0); else introDone(false); };
 
@@ -2706,7 +2715,7 @@ const ui = {
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
       <div class="sub">${o.fact}</div>
-      ${ORGAN_FIT[o.id] ? `<div class="fitBox">${roleBadge0(ORGAN_FIT[o.id].role)}<b>여기엔 ${ROLES[ORGAN_FIT[o.id].role].name} 몸통이 좋아요</b> <span>맞으면 힘 +25%, 길의 방해는 절반</span>${(() => { const sq = squadGenes(); if (!sq.length) return ''; const ok = ROLE_OF[sq[0].strain] === ORGAN_FIT[o.id].role; return `<em class="${ok ? 'ok' : 'no'}">${ok ? '✓ 지금 내 몸통이 딱 맞아요' : '✗ 지금 내 몸통은 ' + ((ROLES[ROLE_OF[sq[0].strain]] || {}).name || '-') + ' — 연구소에서 바꿔 보세요'}</em>`; })()}</div>` : ''}
+      ${ORGAN_FIT[o.id] ? `<div class="fitBox">${roleBadge0(ORGAN_FIT[o.id].role)}<b>여기엔 ${ROLES[ORGAN_FIT[o.id].role].name} 몸통이 좋아요</b> <span>맞으면 힘 +25%, 길의 방해는 절반</span>${(() => { const sq = slotFill(); if (!sq.length) return ''; const ok = ROLE_OF[sq[0].strain] === ORGAN_FIT[o.id].role; return `<em class="${ok ? 'ok' : 'no'}">${ok ? '✓ 지금 내 몸통이 딱 맞아요' : '✗ 지금 내 몸통은 ' + ((ROLES[ROLE_OF[sq[0].strain]] || {}).name || '-') + ' — 연구소에서 바꿔 보세요'}</em>`; })()}</div>` : ''}
       <div class="starList">${STAR_COND.map((t, i) => `<span class="${starsOf(o.id)[i] ? 'on' : ''}">★ ${t}</span>`).join('')}</div>
       <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초 안에</span>` : ''}<span class="chip">🎯 목표 ${Math.round(st.quota)}</span>${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: 판막</span>` : ''}<span class="chip">면역 탑 최대 ${st.towers}개</span>${doneCount() ? `<span class="chip warn">🚨 몸의 경계 ${doneCount()}단계 · 탑 +${Math.round(ALERT_STEP * 100 * doneCount())}%</span>` : ''}${o.valves ? `<span class="chip warn">판막 ${o.valves}</span>` : ''}${save.done[o.id] ? '<span class="chip ok">감염 완료 · 재도전 가능</span>' : ''}</div>
       ${st.legs.length ? `<div class="feat">${st.legs.map(l => `<span class="chip ok" style="white-space:normal">✅ 도움: ${l.text} <small>(${l.global ? '몸 전체' : '이 기관'} · 흔적 ${LEGACY[l.s].name})</small></span>`).join('')}</div>`
@@ -2760,14 +2769,14 @@ const ui = {
         <div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); });
   },
   renderLab() {
-    const sq = squadGenes(), strains = squadStrains();
-    const ms = sq.length ? mineStats(sq.slice(0, 3)) : null;
+    const sq = slotGenes(), strains = squadStrains();
+    const ms = slotFill().length ? mineStats(slotFill()) : null;
     $('squadRow').innerHTML = `<div class="slot mineSlot">${ms ? `<img src="${ms.img.toDataURL()}" alt="">` : '<span style="font-size:22px;color:#6e5a4a">?</span>'}<b>내 바이러스</b>${ms ? `<small style="color:#ffd24a;display:block;line-height:1;margin:1px 0 0;font-size:9px">외형 ${'★'.repeat(STRAINS.mine.tier || 1)}</small>` : ''}</div>`
-      + [0, 1, 2].map(i => { const g = sq[i]; return g ? `<button class="slot" data-u="${g.uid}"><span class="slab">${SLOT_NAME[i]}</span>${pimg(g)}<b>${stars(g.star)}</b></button>` : `<div class="slot"><span class="slab">${SLOT_NAME[i]}</span><small>${SLOT_DESC[i]}</small></div>`; }).join('');
+      + [0, 1, 2].map(i => { const g = sq[i]; return g ? `<button class="slot" data-u="${g.uid}"><span class="slab">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>${pimg(g)}<b>${SLOT_STAT[i]} 담당</b></button>` : `<div class="slot empty"><span class="slab">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span><small>${SLOT_STAT[i]} 담당<br>아래 카드를<br>눌러 꽂기</small></div>`; }).join('');
     $('squadRow').querySelectorAll('button.slot').forEach(b => b.onclick = () => ui.detail(geneById(+b.dataset.u)));
-    const pot = sq.reduce((s, g) => s + geneStats(g).count * geneStats(g).atk, 0) * (strains.length === 1 ? RULES.monoBonus : 1);
-    $('squadHint').innerHTML = !ms ? '아래 카드를 눌러 <b>몸통 → 껍질 → 가시</b> 순서로 꽂으세요. 세 장이 합쳐져 내 바이러스가 돼요.'
-      : `체력 <b>${ms.s.hp}</b> · 빠르기 <b>${ms.s.spd}</b> · 공격력 <b>${ms.s.atk.toFixed(2)}</b> · <b>${ms.s.count}</b>마리 · 타입 <b style="color:${(ROLES[ms.role] || {}).col || '#ffe2a8'}">${(ROLES[ms.role] || {}).name || ms.role}</b>${(() => { const o = organById(save.sel), f = ORGAN_FIT[o.id]; if (!f) return ''; return ` · ${o.name} 적성 ${ms.role === f.role ? '<b style="color:#9fff6a">✓ +25%</b>' : `<b style="color:#ff9c8a">✗</b> (${ROLES[f.role].name} 몸통 유리)`}`; })()}<br>쓸 수 있는 스킬: ${[...new Map(sq.slice(0, 3).map(g => [g.strain, g])).values()].map(g => `<b style="color:#ffe2a8">${STRAINS[g.strain].skill.name}</b>`).join(' · ')}`;
+    const pot = sq.filter(Boolean).reduce((s, g) => s + geneStats(g).count * geneStats(g).atk, 0) * (strains.length === 1 ? RULES.monoBonus : 1);
+    $('squadHint').innerHTML = !ms ? '아래 카드를 눌러 <b>❤ 몸통 · 💨 껍질 · ⚔ 가시</b> 중 원하는 자리에 꽂으세요. 세 장이 합쳐져 내 바이러스가 돼요.'
+      : `체력 <b>${ms.s.hp}</b> · 빠르기 <b>${ms.s.spd}</b> · 공격력 <b>${ms.s.atk.toFixed(2)}</b> · <b>${ms.s.count}</b>마리 · 타입 <b style="color:${(ROLES[ms.role] || {}).col || '#ffe2a8'}">${(ROLES[ms.role] || {}).name || ms.role}</b>${(() => { const o = organById(save.sel), f = ORGAN_FIT[o.id]; if (!f) return ''; return ` · ${o.name} 적성 ${ms.role === f.role ? '<b style="color:#9fff6a">✓ +25%</b>' : `<b style="color:#ff9c8a">✗</b> (${ROLES[f.role].name} 몸통 유리)`}`; })()}<br>쓸 수 있는 스킬: ${[...new Map(sq.filter(Boolean).map(g => [g.strain, g])).values()].map(g => `<b style="color:#ffe2a8">${STRAINS[g.strain].skill.name}</b>`).join(' · ')}`;
     $('bCatch').innerHTML = `감염 뽑기 · ${RULES.gacha}<small style="display:block;font-size:10px;font-weight:400;color:#ffcf4a">전설 1.5% · 천장 ${PITY - (save.pity || 0)}회</small>`;
     $('bBreed').textContent = !unlocked('breed') ? `🔒 교배 (기관 ${UNLOCK.breed[0]}곳)` : breedPick.length ? '교배 취소' : `교배 · ${RULES.breed}`;
     $('tabHero').classList.toggle('locked', !unlocked('hero'));
@@ -2786,6 +2795,16 @@ const ui = {
       el.onclick = () => ui.cardTap(g);
       grid.appendChild(el);
     }
+  },
+  // 자리 3개 버튼: 이 카드를 그 자리에 두면 내 바이러스가 어떻게 바뀌는지 미리 보여 준다
+  slotPickHtml(g) {
+    const cur = save.squad.indexOf(g.uid), base = slotFill(), bs = base.length ? mineStats(base) : null;
+    const btns = [0, 1, 2].map(i => { const sq = slotGenes(); if (cur >= 0) { sq[cur] = sq[i]; } sq[i] = g; const f = sq.find(Boolean), fill = sq.map(x => x || f), ns = mineStats(fill), k = SLOT_KEY[i];
+      const fmt = v => k === 'atk' ? v.toFixed(2) : Math.round(v), from = bs ? bs.s[k] : 0, to = ns.s[k], up = to > from + 1e-6, dn = to < from - 1e-6;
+      const roleTxt = i === 0 && bs && bs.role !== ns.role ? ` · 타입 → <b style="color:${(ROLES[ns.role] || {}).col}">${(ROLES[ns.role] || {}).name}</b>` : i === 0 ? ` · 타입 <b style="color:${(ROLES[ns.role] || {}).col}">${(ROLES[ns.role] || {}).name}</b>` : '';
+      return `<button class="btn slotBtn${cur === i ? ' on' : ''}" data-slot="${i}" ${cur === i ? 'disabled' : ''}><b>${SLOT_ICON[i]} ${cur === i ? SLOT_NAME[i] + ' ✓' : cur >= 0 ? ['몸통으로', '껍질로', '가시로'][i] : SLOT_NAME[i] + '에 꽂기'}</b><small>${SLOT_STAT[i]} ${bs ? fmt(from) + ' → ' : ''}<em class="${up ? 'up' : dn ? 'dn' : ''}">${fmt(to)}</em>${roleTxt}</small></button>`; }).join('');
+    if (base.length) mineStats(base);   // 미리보기 계산 뒤 원래 모습으로 되돌림
+    return `<div class="sub" style="margin:2px 0 4px">어느 자리에 둘까요? <small>(몸통=체력·타입 · 껍질=빠르기 · 가시=공격력)</small></div><div class="slotRow">${btns}</div>`;
   },
   statHtml(g) {
     const d = STRAINS[g.strain], s = geneStats(g);
@@ -2807,15 +2826,16 @@ const ui = {
       ${riskOf(g) ? `<div style="flex-basis:100%"><div class="odds"><span style="color:#9fff6a">성공 ${riskOf(g).ok}%</span><span style="color:#c9b9a2">실패 ${riskOf(g).fail}%</span><span style="color:#ff6a5a">파괴 ${riskOf(g).boom}%</span></div>
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;justify-content:center;margin-bottom:4px"><input type="checkbox" id="mClone" ${ui.cloneOn ? 'checked' : ''}> 🧪 복제본 보관 (+🧬${cloneCost(g)}) · 파괴돼도 지금 모습으로 복구</label></div>` : ''}
       <button class="btn green" id="mAbs" ${dupes(g).length && (g.grow || 0) < RULES.growMax ? '' : 'disabled'} style="flex-basis:100%">${dupes(g).length ? `같은 카드 합치기 · ${STRAINS[g.strain].name} ${dupes(g).length}장 → 마릿수 ↑` : `같은 카드 합치기 · 같은 카드가 없어요`}</button>
-      <button class="btn ${inSquad ? '' : 'green'}" id="mSquad">${inSquad ? '빼기' : '내 바이러스에 꽂기'}</button><button class="btn" id="mClose">닫기</button></div>`);
+      </div><div class="slotPick">${ui.slotPickHtml(g)}</div><div class="row" style="margin-top:4px">${inSquad ? '<button class="btn" id="mOut">빼기</button>' : ''}<button class="btn" id="mClose">닫기</button></div>`);
     if ($('mClone')) $('mClone').onchange = e => { ui.cloneOn = e.target.checked; };
     $('mLv').onclick = () => { if (riskOf(g)) return ui.forge(g, !!ui.cloneOn);
       const r = levelUp(g); if (r === 'dna') { sfx('fail'); return toast('DNA가 부족해요'); } if (r === 'max') return; sfx(r === 'star' ? 'clear' : 'up'); persist(); ui.showHub();
       if (r === 'star') { ui.fx(`승급! ${d.name} ${stars(g.star)}`, '#ffd27a'); } else toast(`${d.name} Lv${g.lv}`); ui.detail(g); };
-    $('mSquad').onclick = () => { const i = save.squad.indexOf(g.uid);
-      if (i >= 0) save.squad.splice(i, 1); else { if (save.squad.length >= RULES.slots) return toast(`편성은 ${RULES.slots}개까지`);
-        if (d.legend && squadGenes().some(x => STRAINS[x.strain].legend)) return toast('전설 바이러스는 1장만 꽂을 수 있어요'); save.squad.push(g.uid); }
-      persist(); ui.closeModal(); ui.showHub(); };
+    document.querySelectorAll('#modal [data-slot]').forEach(b => b.onclick = () => { const i = +b.dataset.slot, cur = save.squad.indexOf(g.uid), sq = [0, 1, 2].map(k => save.squad[k] || null);
+      if (cur === i) return; if (d.legend && cur < 0 && squadGenes().some(x => STRAINS[x.strain].legend && x.uid !== sq[i])) return toast('전설 바이러스는 1장만 꽂을 수 있어요');
+      if (cur >= 0) { sq[cur] = sq[i]; sq[i] = g.uid; toast(`${SLOT_NAME[cur]} ↔ ${SLOT_NAME[i]} 자리를 바꿨어요`); } else { sq[i] = g.uid; toast(`${SLOT_NAME[i]} 자리에 꽂았어요`); }
+      save.squad = sq; sfx('up'); persist(); ui.closeModal(); ui.showHub(); });
+    if ($('mOut')) $('mOut').onclick = () => { unSquad(g.uid); persist(); ui.closeModal(); ui.showHub(); };
     $('mClose').onclick = ui.closeModal;
     $('mAbs').onclick = () => { const r = absorb(g); if (!r) return; persist(); ui.showHub(); ui.detail(g); ui.fx(`배양율 ▲ ×${g.grow} → ×${1 + g.grow}`, '#d7ffb0'); };
   },
@@ -2881,7 +2901,7 @@ const ui = {
   },
   doBreed(a, b) {
     const r = breed(a, b), sa = geneStats(a), sb2 = geneStats(b);
-    save.genes = save.genes.filter(x => x !== a && x !== b); save.squad = save.squad.filter(id => id !== a.uid && id !== b.uid);
+    save.genes = save.genes.filter(x => x !== a && x !== b); unSquad(a.uid); unSquad(b.uid);
     if (r.fail) { const back = Math.round(RULES.breed * 0.3); save.dna += back; persist(); ui.showHub();
       return ui.modal(`<img class="hero" src="assets/${has('jar_broken') ? 'jar_broken' : 'defective'}.png" alt=""><h3>교배 실패 · 결손 입자</h3><div class="sub">성공 확률 ${Math.round(r.p * 100)}%였어요. 게놈 유형이 다를수록 어렵습니다. DNA ${back} 환급.</div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); }
     save.genes.push(r.child); persist(); ui.showHub(); const c = r.child, sc = geneStats(c);
@@ -3178,7 +3198,7 @@ function autoSquad() {                                   // 가장 강한 계통
   const out = [];
   let leg = false;
   for (const [, gs] of ranked) for (const g of gs) if (out.length < RULES.slots) { if (STRAINS[g.strain].legend) { if (leg) continue; leg = true; } out.push(g.uid); }
-  save.squad = out;
+  save.squad = [0, 1, 2].map(i => out[i] || null);
 }
 
 // 소리 켜고 끄기 (허브 🔊 버튼 · 일시정지 메뉴)
@@ -3245,7 +3265,7 @@ canvas.addEventListener('pointerdown', e => {
 });
 window.addEventListener('resize', () => { fit(); if (!run) ui.showHub(); });
 
-loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); if (!save.squad.length) autoSquad(); fit(); ui.showHub('body'); requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; if (has('intro_bg')) $('inTop').style.display = 'none'; else if (has('title_logo')) document.querySelector('.inTitle').innerHTML = '<img src="assets/title_logo.png" alt="진화하는 바이러스">'; requestAnimationFrame(introLoop); });
+loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); save.squad = [0, 1, 2].map(i => (save.squad || [])[i] || null); if (!squadGenes().length) autoSquad(); fit(); ui.showHub('body'); requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; if (has('intro_bg')) $('inTop').style.display = 'none'; else if (has('title_logo')) document.querySelector('.inTitle').innerHTML = '<img src="assets/title_logo.png" alt="진화하는 바이러스">'; requestAnimationFrame(introLoop); });
 </script>
 </body>
 </html>
