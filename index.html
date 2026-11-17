@@ -481,7 +481,7 @@ function legacyFor(organ) {                              // 이 기관에 걸리
     if (f.global) out.push({ s, text: f.global, global: true }); }
   return out;
 }
-const RARITY = [{ name:'일반', w:60, color:'#c9b9a2' }, { name:'희귀', w:30, color:'#7fc0ff' }, { name:'영웅', w:10, color:'#e9a3ff' }];
+const RARITY = [{ name:'일반', w:50, color:'#c9b9a2' }, { name:'희귀', w:35, color:'#7fc0ff' }, { name:'영웅', w:13.5, color:'#e9a3ff' }];
 const PASSIVES = {
   rapid:   { name:'고속 복제', from:'rhino',  desc:'출격 수 +15%' },
   capsidP: { name:'캡시드 경화', from:'adeno', desc:'받는 피해 −15%' },
@@ -910,8 +910,11 @@ function gacha() {
   for (let i = 0; i < RARITY.length; i++) if (RARITY[i].w > 0 && (r -= RARITY[i].w) <= 0) { tier = i; break; }
   save.pity = (save.pity || 0) + 1; if (save.pity >= PITY) tier = LEG_TIER();   // 천장: 50번째 뽑기는 전설 확정
   if (tier === LEG_TIER()) save.pity = 0;
-  const pool = Object.keys(STRAINS).filter(k => k !== 'mine' && STRAINS[k].rarity === tier);
-  const g = newGene(pool[Math.floor(Math.random() * pool.length)], Math.random() < 0.04 ? 2 : 1);
+  const pool = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && STRAINS[k].rarity === tier);   // 슈퍼바이러스는 뽑기에서 제외
+  // 아직 없는 바이러스가 나올 확률을 높인다: 같은 등급에 안 가진 종류가 있으면 70% 확률로 그중에서
+  const owned = new Set(save.genes.map(x => x.strain)), fresh = pool.filter(k => !owned.has(k));
+  const pick = fresh.length && Math.random() < 0.7 ? fresh : pool;
+  const g = newGene(pick[Math.floor(Math.random() * pick.length)], Math.random() < 0.06 ? 2 : 1);
   return g;
 }
 // 흡수 합성: 같은 계통(편성 안 된 것 중 가장 약한 것)을 먹여 증식 단계 +1(★2 이상 재료는 +2), 형질 30% 이전
