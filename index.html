@@ -112,7 +112,7 @@
   @keyframes fwin { 0% { filter: brightness(3); transform: scale(1.12); } 100% { filter: none; transform: none; } }
   @keyframes flose { 0%, 100% { transform: none; } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); filter: grayscale(1); } 80% { transform: translateX(4px); } }
   .hinfo h3 { margin: 0; font-size: 16px; } .hst { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; font-size: 11.5px; margin: 5px 0; } .hst b { color: #ffd27a; font-family: Cinzel, serif; }
-  .tails { display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 5px; align-items: stretch; } .tails .tl { writing-mode: vertical-rl; font-size: 10.5px; color: #ffe2a8; text-align: center; }
+  .tails { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; align-items: stretch; } .tails .tl { grid-column: 1 / -1; font-size: 11px; color: #ffe2a8; text-align: left; }
   .tslot { border: 1.5px solid #6e5a4a; border-radius: 7px; background: #170f10; padding: 3px 2px; display: flex; flex-direction: column; align-items: center; gap: 1px; min-height: 66px; justify-content: center; font-size: 10.5px; }
   .tslot img { height: 26px; } .tslot small { font-size: 9px; color: #b59f86; } .tslot.empty { border-style: dashed; color: #ffcf6a; } .tslot.empty b { font-size: 20px; } .tslot.lock { opacity: .5; } .tslot.lock img { height: 18px; }
   .tailPick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; max-height: 46vh; overflow: auto; margin-top: 6px; } .tailPick button { border: 1px solid #4a3a30; border-radius: 7px; background: #170f10; padding: 4px 2px; font-size: 10px; } .tailPick img { height: 34px; display: block; margin: 0 auto; } .tailPick small { display: block; color: #9fe8ff; font-size: 9px; }
@@ -214,6 +214,10 @@
   .starList { display:flex; gap:4px; flex-wrap:wrap; margin:3px 0 } .starList span { font-size:11px; padding:2px 6px; border-radius:10px; border:1px solid #3a2a20; color:#6a5a4a } .starList span.on { color:#ffd24a; border-color:#8a6a2a }
   .legBurst { position:absolute; inset:-20px; pointer-events:none; border-radius:16px; background: radial-gradient(circle at 50% 35%, rgba(255,207,74,.55), rgba(255,140,40,.15) 45%, transparent 70%); animation: legb 1.6s ease-out infinite alternate; }
   @keyframes legb { from { opacity:.5; transform:scale(.96) } to { opacity:1; transform:scale(1.04) } }
+  .row .btn.mutBtn { flex: 1 1 100%; width: 100%; }
+  .mutBtn { flex-basis: 100%; min-height: 62px; display: flex !important; align-items: center; gap: 10px; text-align: left; padding: 6px 10px; }
+  .mutBtn .mutPic { width: 44px; height: 44px; object-fit: contain; flex: none; }
+  .mutBtn .mt { display: flex; flex-direction: column; line-height: 1.25; } .mutBtn small { font-size: 10px; color: #c9b9a2; font-weight: 400; } .mutBtn b { font-size: 17px; } .mutBtn em { font-style: normal; font-size: 12px; font-weight: 400; color: #e8dccb; }
   .forgeBox { position:relative; height:150px; display:flex; align-items:center; justify-content:center; }
   .forgeBox img.card { width:96px; height:96px; object-fit:contain; animation: fshake .12s linear infinite; }
   .forgeBox img.fx { position:absolute; width:130px; height:130px; object-fit:contain; animation: fxin .5s ease-out forwards; }
@@ -246,6 +250,7 @@
   .inStory .pic img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 0 18px rgba(232,160,255,.35)); }
   .inStory .pic.trio img { max-width: 31%; }
   .inStory .txt { font-size: 17px; line-height: 1.6; color: #f5e8d0; word-break: keep-all; animation: inFade .6s ease; } .inStory .txt b { color: #ffd27a; }
+  .inStory .swipeHint { font-size: 11px; color: #9c8a76; margin: -6px 0 10px; }
   .inStory .dots { margin: 18px 0 12px; letter-spacing: 6px; color: #5a4a3a; } .inStory .dots i { font-style: normal; color: #ffd27a; }
   .inStory .row { width: 100%; max-width: 340px; }
   @keyframes inFade { from { opacity: 0; transform: translateY(10px); } }
@@ -293,14 +298,14 @@
   <!-- 런 HUD -->
   <div class="hud" id="top" hidden>
     <div class="plate stage"><b id="stName"></b><small id="stSub"></small></div>
-    <div class="plate" id="goalBox"><div class="t"><span id="goalLbl">감염도</span><span id="goalTxt" style="font-family: Cinzel, serif">0/0</span></div><div class="bar" id="goalBar"><i></i></div></div>
+    <div class="plate" id="goalBox"><div class="t"><span id="goalLbl">감염</span><span id="goalTxt" style="font-family: Cinzel, serif">0/0</span></div><div class="bar" id="goalBar"><i></i></div></div>
     <button class="plate sq" id="btnSpeed" aria-label="배속">1×</button>
     <button class="plate sq" id="btnPause" aria-label="일시정지"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" width="3.5" height="14" fill="#eadcc2"/><rect x="7.5" width="3.5" height="14" fill="#eadcc2"/></svg></button>
   </div>
   <div class="hud" id="legRow" hidden></div>
   <div class="hud" id="info2" hidden>
     <div class="plate">생존 <b id="liveTxt" style="color:#ffd27a">0</b></div>
-    <div class="plate" id="timerTag" hidden><span>환자 복약까지</span> <b id="timerTxt">0:00</b><div class="tbar"><i></i></div></div>
+    <div class="plate" id="timerTag" hidden><span>약 들어오기까지</span> <b id="timerTxt">0:00</b><div class="tbar"><i></i></div></div>
     <div class="plate" id="domTag" hidden></div>
     <div class="plate" id="alertTag" hidden></div>
   </div>
@@ -430,19 +435,19 @@ const BRANCHES = {
             B:{ name:'세포 불멸화', desc:'각질 재생 +4초', look:'끝없이 자라는 각질 꼬리' } },
 };
 // 감염 흔적: 어떤 계통이 기관을 감염시켰는지에 따라 같은 숙주의 몸 전체가 바뀐다
-const LEGACY = {
-  rhino:  { name:'점막 손상', desc:'코·인두와 폐 감염 목표 −15%' },
-  adeno:  { name:'림프 비대', desc:'림프절 탑 −1' },
-  noro:   { name:'탈수', desc:'혈관이 취약해짐(목표 −20%), 모든 탑 공속 −5%' },
-  herpes: { name:'잠복 감염', desc:'매 출격마다 헤르페스 8마리가 재활성화되어 합류' },
-  flu:    { name:'상피 손상', desc:'2차 감염: 폐·피부 탑 −1' },
-  rota:   { name:'장벽 손상', desc:'위장·간 목표 −15%, 위장 판막 제거' },
-  retro:  { name:'면역 결핍', desc:'T세포·NK 등장 확률 −50%' },
-  rabies: { name:'신경 경로 확보', desc:'대뇌가 기관 4곳만 감염해도 열림' },
-  rsv:    { name:'기도 점막 손상', desc:'폐 감염 목표 −20%' },
-  measles:{ name:'면역 기억 상실', desc:'모든 기관에서 면역 경보 상승 −30%' },
-  hepb:   { name:'간경화', desc:'간 탑 −1, 목표 −10%' },
-  hpv:    { name:'피부 사마귀', desc:'피부 상처 목표 −20%' },
+const LEGACY = {   // help: 다음 판에 어떤 도움이 되는지(먼저 보여 줌) · desc: 왜 그런지(뒤에 작게)
+  rhino:  { name:'점막 손상', help:'코·폐 목표가 15% 줄어요', desc:'코와 목 점막이 상해서 다음에 들어가기 쉬워요' },
+  adeno:  { name:'림프 비대', help:'림프절의 면역 탑이 1개 줄어요', desc:'림프절이 부어서 탑을 덜 지어요' },
+  noro:   { name:'탈수', help:'혈관 목표 20% 줄고, 모든 탑이 조금 느려져요', desc:'몸에 물이 빠져서 약해졌어요' },
+  herpes: { name:'잠복 감염', help:'출격할 때마다 헤르페스 8마리가 공짜로 따라와요', desc:'몸속에 숨어 있던 바이러스가 다시 깨어나요' },
+  flu:    { name:'상피 손상', help:'폐·피부의 면역 탑이 1개 줄어요', desc:'겉 피부층이 상해서 다른 병도 잘 들어와요' },
+  rota:   { name:'장벽 손상', help:'위장·간 목표 15% 줄고, 위장의 문이 사라져요', desc:'장 벽이 상해서 길이 열렸어요' },
+  retro:  { name:'면역 결핍', help:'강한 면역 탑(T세포·NK)이 절반만 나와요', desc:'면역 세포 자체가 약해졌어요' },
+  rabies: { name:'신경 길 확보', help:'뇌가 기관 4곳만 감염해도 열려요', desc:'신경을 타고 뇌로 가는 길을 찾았어요' },
+  rsv:    { name:'기도 손상', help:'폐 목표가 20% 줄어요', desc:'숨길이 상해서 들어가기 쉬워요' },
+  measles:{ name:'면역 기억 상실', help:'모든 기관에서 덜 들켜요 (들킬 위험 30% 천천히)', desc:'면역이 예전 일을 잊어버렸어요' },
+  hepb:   { name:'간 손상', help:'간 목표 10% 줄고, 간의 면역 탑이 1개 줄어요', desc:'간이 굳어서 제 역할을 못 해요' },
+  hpv:    { name:'피부 사마귀', help:'피부 목표가 20% 줄어요', desc:'피부에 틈이 생겼어요' },
 };
 // 감염 흔적의 실제 효과 (어느 기관에 무엇을) — 지도·HUD·밸런스가 모두 이 표를 쓴다
 const LEG_FX = {
@@ -502,7 +507,7 @@ for (const r of RECIPES) {
     skill: { id: r.ids[0], ids: r.ids, name: r.skill, aim: r.ids.includes('hostify'), cd: Math.round(Math.max(A.skill.cd, B.skill.cd) * 1.1), desc: `${A.skill.name} + ${B.skill.name}을 동시에 발동` } };
   SCOLOR[r.id] = r.color;
   BRANCHES[r.id] = { A:{ name:'변종 각성', desc:'감염력 +20%', look:'몸 둘레에 빛나는 가시 왕관' }, B:{ name:'변종 결속', desc:'방어력 +30%', look:'그림자 분신이 붙은 몸' } };
-  LEGACY[r.id] = { name: `${LEGACY[r.a].name}+${LEGACY[r.b].name}`, desc: `${LEGACY[r.a].desc} / ${LEGACY[r.b].desc}` };
+  LEGACY[r.id] = { name: `${LEGACY[r.a].name}+${LEGACY[r.b].name}`, help: `${LEGACY[r.a].help} / ${LEGACY[r.b].help}`, desc: `${LEGACY[r.a].desc} / ${LEGACY[r.b].desc}` };
   const fa = LEG_FX[r.a], fb = LEG_FX[r.b];
   LEG_FX[r.id] = { organs: [...new Set([...(fa.organs || []), ...(fb.organs || [])])], q: Math.min(fa.q || 1, fb.q || 1), tw: Math.min(fa.tw || 0, fb.tw || 0),
     short: [fa.short, fb.short].filter(Boolean).join(', '), global: [fa.global, fb.global].filter(Boolean).join(', ') || undefined, noValve: fa.noValve || fb.noValve };
@@ -564,21 +569,21 @@ const HOSTS = [
 ];
 const ORGANS = [
   { id:'nose',  name:'코·인두 점막', diff:0.5, path:'h', towers:3, valves:0, x:-17, y:22, ax:50, ay:25.6, lab:'매우 취약',
-    w:{ cilia:4, neutro:3, macro:1, dendri:1 }, tint:'#3a1c20', fact:'호흡기 바이러스 대부분이 들어오는 첫 관문. 얇고 습한 점막.' },
+    w:{ cilia:4, neutro:3, macro:1, dendri:1 }, tint:'#3a1c20', fact:'바이러스가 제일 처음 들어오는 문이에요. 얇고 촉촉해서 들어가기 쉬워요.' },
   { id:'lung',  name:'폐',          diff:0.9,  path:'v', towers:4, valves:0, x:-17, y:34, ax:42, ay:37, lab:'취약',
-    w:{ cilia:3, macro:3, neutro:2, dendri:1 }, tint:'#2a1a24', fact:'섬모가 점액을 밀어내고 폐포 대식세포가 지킨다.' },
+    w:{ cilia:3, macro:3, neutro:2, dendri:1 }, tint:'#2a1a24', fact:'숨을 쉴 때마다 길이 커졌다 작아져요. 작은 털(섬모)이 밀어내요.' },
   { id:'gut',   name:'위장·장 점막', diff:1.0,  path:'h', towers:4, valves:1, x:117, y:42, ax:55, ay:45.7, lab:'보통',
-    w:{ neutro:3, macro:2, complement:2, nk:1 }, tint:'#33201a', fact:'위산과 유문 판막이 통과를 늦춘다. 노로·로타의 주 무대.' },
+    w:{ neutro:3, macro:2, complement:2, nk:1 }, tint:'#33201a', fact:'길이 꿀렁꿀렁 움직이고 위산이 있어요. 버티는 힘이 필요해요.' },
   { id:'liver', name:'간',          diff:1.1,  path:'s', towers:5, valves:0, x:-17, y:46, ax:43.7, ay:43.8, lab:'보통',
-    w:{ macro:2, neutro:2, nk:2, complement:1 }, tint:'#2e1414', fact:'쿠퍼 세포(간의 대식세포)가 혈액을 거른다. 간염 바이러스의 표적.' },
+    w:{ macro:2, neutro:2, nk:2, complement:1 }, tint:'#2e1414', fact:'몸의 청소부예요. 녹이는 물질이 길 위를 왔다 갔다 해요.' },
   { id:'blood', name:'혈관',        diff:1.2,  path:'v', towers:4, valves:2, x:-17, y:58, ax:28, ay:44, lab:'다소 강함',
-    w:{ neutro:3, complement:3, nk:2 }, tint:'#3a0e14', fact:'정맥 판막이 주기적으로 흐름을 막고 보체가 떠다닌다.' },
+    w:{ neutro:3, complement:3, nk:2 }, tint:'#3a0e14', fact:'심장이 뛸 때마다 물살 방향이 바뀌어요. 문(판막)이 길을 막기도 해요.' },
   { id:'skin',  name:'피부 상처',    diff:1.35, path:'h', towers:5, valves:0, x:117, y:60, ax:59.6, ay:62.4, lab:'강함',
-    w:{ dendri:3, neutro:3, macro:2 }, tint:'#2e2218', fact:'온전한 피부는 강한 장벽. 상처로만 들어갈 수 있고 랑게르한스 세포가 감시한다.' },
+    w:{ dendri:3, neutro:3, macro:2 }, tint:'#2e2218', fact:'튼튼한 벽이에요. 딱딱한 각질이 자라서 길을 막아요.' },
   { id:'lymph', name:'림프절',       diff:1.5,  path:'s', towers:6, valves:1, x:117, y:28, ax:49.5, ay:30.6, lab:'매우 강함',
-    w:{ tcell:3, nk:3, dendri:2, complement:2, macro:1 }, tint:'#1e1e2a', fact:'면역 세포의 본부. T세포와 NK세포가 몰려 있다.' },
+    w:{ tcell:3, nk:3, dendri:2, complement:2, macro:1 }, tint:'#1e1e2a', fact:'면역 세포들의 본부예요. 그물이 훑고 지나가요.' },
   { id:'brain', name:'대뇌',         diff:1.8,  path:'s', towers:6, valves:2, x:117, y:14, ax:50, ay:20,  lab:'최종',
-    w:{ macro:3, tcell:3, dendri:2, complement:2, nk:1 }, tint:'#24142a', fact:'혈뇌장벽이 관문처럼 닫힌다. 미세아교세포가 지킨다. 다른 기관 5곳을 감염시켜야 열린다.' },
+    w:{ macro:3, tcell:3, dendri:2, complement:2, nk:1 }, tint:'#24142a', fact:'마지막 목표예요. 번개가 떨어지고 문이 잘 안 열려요. 다른 기관 5곳을 감염시켜야 갈 수 있어요.' },
 ];
 const BRAIN_UNLOCK = 5;
 
@@ -1570,15 +1575,15 @@ function mineStats(cards) { if (!cards.length) return null; const keep = STRAINS
 /* ---------- [ui/tutorial.js] ★ 첫 판 튜토리얼: 한 단계씩 직접 해 보며 배운다 (언제든 건너뛰기) ---------- */
 // ★ 튜토리얼: 첫 판(코)에서 한 단계씩 직접 해 보며 배운다. 읽는 단계는 시간이 멈추고, 손가락 표시가 할 곳을 가리킨다
 const TUT = [
-  { t: '이동', txt: '화면 아무 곳이나 <b>누른 채 끌면</b> 조이스틱이에요. 손가락 표시를 따라 내 바이러스를 <b>길 위쪽으로</b> 움직여 보세요.', pt: R => { const S = R.sth.scout; return [S.x, S.y - 70]; }, done: R => (R.tutMoved || 0) > 90 },
-  { t: '보초', txt: '노란 부채꼴은 <b>보초의 시야</b>예요. 시야 안에서 <b>움직이거나 감염하면 들켜요</b>. 멈춰 있으면 안전해요.<br><small>연습 중이라 지금은 보초가 멈춰 있어요.</small>', pt: R => { const s = (R.sth.sents || [])[0]; if (!s) return null; const v = sentView(s); return [v.x, v.y]; }, next: true },
-  { t: '감염', txt: '길 <b>벽에 붙어 멈추면</b> 벽이 감염돼요. 성공하면 <b>입구부터 그 자리까지</b> 전부 보라색이 되고, 그만큼 모든 바이러스가 <b>강해져요</b>.', pt: R => { const n = nearestOnPath(R.sth.scout.x, R.sth.scout.y), [x, y, nx, ny] = pathAt(n.d); return [x + nx * 18, y + ny * 18]; }, done: R => segDone() > (map.free || 0) },
-  { t: '공격 개시', txt: '보라 <b>감염 구역 안에선 보초가 못 봐요</b>. 더 깊이 먹을수록 강해지지만 들킬 위험도 커져요. 준비되면 <b>공격 개시</b>!<br><small>실전에선 잠복기 시간이 끝나면 자동으로 시작돼요.</small>', hi: '#dpAtk', done: R => !stealthOn() },
-  { t: '둥지', txt: '<b>내 바이러스 카드</b>를 누르면 충전된 만큼 <b>둥지</b>에 모여 저절로 불어나요. 몇 번 더 눌러 모아 보세요.', hi: '.dp[data-i]', done: R => nestTotal() >= 20 },
-  { t: '면역의 반격', txt: '면역도 가만있지 않아요. <b>탑</b>을 짓고, 가끔 <b>둥지를 습격</b>해 숫자를 줄여요. 너무 오래 모으기만 하면 손해예요.', next: true },
-  { t: '면역 공백 · 돌격', txt: '화면 테두리가 <b>초록색</b>이면 <b>면역 공백</b>! 이때 <b>돌격</b>하면 전부 기습 +30%예요. 지금 눌러 보세요.<br>돌격할 때마다 <b>변이 카드 3장 중 1장</b>을 골라요 — 지금 필요한 능력을 고르는 게 승부!', hi: '#dpAll', on: R => { R.gapT = 0.3; }, done: R => (R.released || 0) > 0 },
-  { t: '탑 물어뜯기 · 스킬', txt: '바이러스는 탑 옆을 지나며 <b>탑을 물어뜯어 무너뜨려요</b>. 아래 <b>스킬 카드</b>는 꽂은 카드에서 뽑아 온 능력이에요. 위험할 때 누르세요.', hi: '.sk2', next: true },
-  { t: '목표', txt: '위쪽 <b>감염도</b>를 목표까지 채우면 승리! <b>복약 시간</b>이 끝나면 약이 들어와 실패예요. 이제 혼자 해 보세요!', hi: '#goalBar', next: true, last: true },
+  { t: '움직이기', txt: '화면 아무 데나 <b>손가락을 대고 끌어</b> 보세요. 끄는 방향으로 내 바이러스가 움직여요.<br>👆 표시가 있는 <b>위쪽</b>으로 가 보세요.', pt: R => { const S = R.sth.scout; return [S.x, S.y - 70]; }, done: R => (R.tutMoved || 0) > 90 },
+  { t: '보초 피하기', txt: '<b>노란 부채꼴</b>은 보초가 보는 곳이에요. 이 안에서 <b>움직이면 들켜요</b>. 가만히 있으면 괜찮아요.<br><small>연습이라 지금은 보초가 멈춰 있어요.</small> 이 상자의 <b>[다음 ▶]</b>을 누르세요.', pt: R => { const s = (R.sth.sents || [])[0]; if (!s) return null; const v = sentView(s); return [v.x, v.y]; }, next: true },
+  { t: '벽 감염시키기', txt: '길 가장자리 <b>벽에 붙어서 잠깐 멈춰</b> 보세요. 벽이 <b>보라색</b>으로 물들면 성공!<br>보라색 길이 길수록 내 바이러스가 세져요.', pt: R => { const n = nearestOnPath(R.sth.scout.x, R.sth.scout.y), [x, y, nx, ny] = pathAt(n.d); return [x + nx * 18, y + ny * 18]; }, done: R => segDone() > (map.free || 0) },
+  { t: '공격 시작', txt: '보라색 길 안에서는 보초가 못 봐요. 준비가 됐으면 <b>오른쪽 아래 빨간 [공격 개시]</b> 버튼을 누르세요.<br><small>진짜 게임에서는 시간이 다 되면 저절로 시작돼요.</small>', hi: '#dpAtk', done: R => !stealthOn() },
+  { t: '바이러스 모으기', txt: '<b>왼쪽 아래 [내 바이러스] 카드</b>를 몇 번 눌러 보세요. 누를 때마다 바이러스가 <b>둥지</b>에 모이고, 모인 바이러스는 <b>저절로 늘어나요</b>.', hi: '.dp[data-i]', done: R => nestTotal() >= 20 },
+  { t: '면역의 반격', txt: '면역도 반격해요. 길옆에 <b>탑</b>을 짓고, 가끔 <b>둥지를 덮쳐서</b> 바이러스를 줄여요. 너무 오래 모으기만 하면 손해예요.<br>이 상자의 <b>[다음 ▶]</b>을 누르세요.', next: true },
+  { t: '돌격!', txt: '화면 테두리가 <b>초록색</b>이 되면 면역이 잠깐 쉬는 때예요. 지금 <b>오른쪽 아래 빨간 [돌격]</b> 버튼을 누르세요!<br>누르면 <b>강화 3개 중 1개</b>를 고르게 돼요.', hi: '#dpAll', on: R => { R.gapT = 0.3; }, done: R => (R.released || 0) > 0 },
+  { t: '탑 부수기 · 스킬', txt: '바이러스는 지나가면서 <b>탑을 물어뜯어 무너뜨려요</b>. <b>아래 가운데 카드</b>는 스킬이에요. 위험할 때 눌러 보세요.<br>이 상자의 <b>[다음 ▶]</b>을 누르세요.', hi: '.sk2', next: true },
+  { t: '이기는 법', txt: '<b>맨 위 감염 막대</b>를 끝까지 채우면 이겨요! <b>오른쪽 위 시간</b>이 다 되면 약이 들어와서 져요.<br>이제 혼자 해 볼까요? <b>[시작!]</b>을 누르세요.', hi: '#goalBar', next: true, last: true },
 ];
 function tutStart() { if (save.tutDone || !run || !run.ta) return; run.tutOn = true; run.tutStep = 0; tutShow(); }
 function tutShow() { const R = run, st = TUT[R.tutStep]; document.querySelectorAll('.coachHi').forEach(e => e.classList.remove('coachHi')); if (!st) return tutEnd();
@@ -1703,11 +1708,11 @@ function stealthEnd(why, voluntary) {
   playBgm(R.st.organ.id === 'brain' ? 'brain' : 'assault'); sfx(safe ? 'breakout' : 'alarm');
   if (safe) { banner(voluntary ? '기습 개시! 면역이 아직 모른다' : why + ' · 숨어 있어 기습 성공'); R.plan.next = 5; }
   else { R.tpow = 1 + (R.tpow - 1) * 0.5; banner((voluntary ? '노출된 채 공격 개시' : why) + ' · 선발 포획!');
-    const S = T.scout; R.rings.push({ x: S.x, y: S.y, r: 10, R: 120, t: 0.8, color: '#e0453f' }); float(S.x, S.y - 60, '선발이 붙잡혔다 · 조직 흡수 효과 절반', '#ffb4a8', 14);
+    const S = T.scout; R.rings.push({ x: S.x, y: S.y, r: 10, R: 120, t: 0.8, color: '#e0453f' }); float(S.x, S.y - 60, '들켰어요! 감염한 벽 효과가 절반이 돼요', '#ffb4a8', 14);
     const d = nearestOnPath(S.x, S.y).d; immuneBuild(d - 60); immuneBuild(d - 60); R.plan.next = 1; }
   if (safe) { const n = nearestOnPath(T.scout.x, T.scout.y), u = spawnUnit(T.lead, { d: n.d, lane: clamp(n.off, -14, 14) }); }
-  $('goalLbl').textContent = R.st.qm < 1 ? `감염도 −${Math.round((1 - R.st.qm) * 100)}%` : '감염도'; $('goalBar').classList.remove('alarm');
-  $('hint').textContent = `카드 탭: 둥지로 보내 불리기 · 돌격: 둥지에 넣은 순서(①②③)대로 출발 · 공백 때 돌격하면 기습 · 힘 +${Math.round((R.tpow - 1) * 100)}%`;
+  $('goalLbl').textContent = R.st.qm < 1 ? `감염 (목표 −${Math.round((1 - R.st.qm) * 100)}%)` : '감염'; $('goalBar').classList.remove('alarm');
+  $('hint').textContent = `카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [돌격]을 누르면 +30%`;
   ui.renderDeploy(); ui.tick();
 }
 function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
@@ -1838,21 +1843,23 @@ function toNest(gr, quiet) {
 }
 // ★ 돌파 변이: 돌격할 때마다 변이 카드 3장 중 1장을 골라 이번 돌격에 건다 (고르는 동안 시간 정지)
 const MUTS = {
-  sprint: { name: '질주 변이', icon: '💨', desc: '10초간 이동 속도 +35%', go: R => { const b = R.sb.mine; b.spd = 10; b.spdMul = 1.35; } },
-  armor:  { name: '갑각 변이', icon: '🛡', desc: '10초간 받는 피해 −35%', go: R => { const b = R.sb.mine; b.shield = 10; b.shieldMul = 0.65; } },
-  toxic:  { name: '독성 변이', icon: '☣', desc: '10초간 감염력 ×1.5', go: R => { R.sb.mine.tox = 10; } },
-  bloom:  { name: '폭증 변이', icon: '🧫', desc: '이번 돌격 개체 +30%', bloom: 1.3 },
-  cloak:  { name: '은신 변이', icon: '👁', desc: '5초간 탑에게 보이지 않음', go: R => { R.sb.mine.stealth = Math.max(R.sb.mine.stealth || 0, 5); } },
-  hijack: { name: '숙주 변이', icon: '🦠', desc: '맨 앞 탑 1개를 8초간 아군으로', go: R => { const t = R.towers.filter(t => !t.converted && !TOWERS[t.type].aura).sort((a, b) => nearestOnPath(a.x, a.y).d - nearestOnPath(b.x, b.y).d).find(t => nearestOnPath(t.x, t.y).d > (R.frontD || 0)) || R.towers.find(t => !t.converted);
+  sprint: { name: '빨라지기', icon: '💨', desc: '10초 동안 35% 더 빨리 달려요', go: R => { const b = R.sb.mine; b.spd = 10; b.spdMul = 1.35; } },
+  armor:  { name: '덜 아프기', icon: '🛡', desc: '10초 동안 받는 피해가 35% 줄어요', go: R => { const b = R.sb.mine; b.shield = 10; b.shieldMul = 0.65; } },
+  toxic:  { name: '공격력 올리기', icon: '⚔', desc: '10초 동안 공격력이 1.5배예요', go: R => { R.sb.mine.tox = 10; } },
+  bloom:  { name: '마릿수 늘리기', icon: '🧫', desc: '이번 돌격 바이러스가 30% 더 많아요', bloom: 1.3 },
+  cloak:  { name: '투명해지기', icon: '👻', desc: '5초 동안 탑이 나를 못 봐요', go: R => { R.sb.mine.stealth = Math.max(R.sb.mine.stealth || 0, 5); } },
+  hijack: { name: '탑 빼앗기', icon: '🦠', desc: '맨 앞 탑 하나가 8초 동안 내 편이 돼요', go: R => { const t = R.towers.filter(t => !t.converted && !TOWERS[t.type].aura).sort((a, b) => nearestOnPath(a.x, a.y).d - nearestOnPath(b.x, b.y).d).find(t => nearestOnPath(t.x, t.y).d > (R.frontD || 0)) || R.towers.find(t => !t.converted);
     if (t) { t.converted = 8; float(t.x, t.y - 50, '숙주화!', '#b9f27a', 16); } } },
-  regen:  { name: '재생 변이', icon: '✚', desc: '10초간 매초 체력 회복', go: R => { R.sb.mine.regen = 10; } },
+  regen:  { name: '체력 채우기', icon: '✚', desc: '10초 동안 계속 체력이 차요', go: R => { R.sb.mine.regen = 10; } },
 };
 function breakout() {
   const R = run, tot = Math.floor(nestTotal()); if (tot < 1) return toast('둥지가 비었어요');
   if (!R.single || R.botMut || window.__botMut) { const k = Object.keys(MUTS); return doBreakout(R.botMut === 'none' ? null : k[Math.floor(Math.random() * k.length)]); }
-  const keys = Object.keys(MUTS).sort(() => Math.random() - 0.5).slice(0, 3); paused = true; R.mutPause = true; sfx('skill');
-  ui.modal(`<h3 style="margin:2px 0">돌격 변이 — 하나를 고르세요</h3><div class="sub">${tot}마리가 돌격합니다${R.gap > 0 ? ' · <b style="color:#9fff6a">면역 공백 기습!</b>' : ''}</div>
-    <div class="row">${keys.map(k => `<button class="btn ${k === 'bloom' ? 'green' : 'blue'}" data-m="${k}" style="flex-basis:100%;min-height:58px;text-align:left;padding:8px 12px"><b style="font-size:16px">${MUTS[k].icon} ${MUTS[k].name}</b><br><span style="font-weight:400;font-size:12px">${MUTS[k].desc}</span></button>`).join('')}</div>`);
+  // 내 카드 3장이 하나씩 힘을 빌려준다: 몸통 → 버티기 쪽, 껍질 → 움직임 쪽, 가시 → 공격 쪽
+  const POOL = [['armor', 'regen', 'bloom'], ['sprint', 'cloak'], ['toxic', 'hijack']], cards = squadGenes().slice(0, 3);
+  const keys = POOL.map(p => p[Math.floor(Math.random() * p.length)]); paused = true; R.mutPause = true; sfx('skill');
+  ui.modal(`<h3 style="margin:2px 0">돌격! 강화를 하나 고르세요</h3><div class="sub">${tot}마리가 돌격해요${R.gap > 0 ? ' · <b style="color:#9fff6a">면역이 쉬는 틈! 기습 +30%</b>' : ''}<br>내 카드 3장이 힘을 하나씩 빌려줘요</div>
+    <div class="row">${keys.map((k, i) => `<button class="btn mutBtn" data-m="${k}">${cards[i] ? pimg(cards[i], 'mutPic') : ''}<span class="mt"><small>${SLOT_NAME[i]} 카드의 힘</small><b>${MUTS[k].icon} ${MUTS[k].name}</b><em>${MUTS[k].desc}</em></span></button>`).join('')}</div>`);
   document.querySelectorAll('#modal [data-m], .modal [data-m]').forEach(b => b.onclick = () => { ui.closeModal(); paused = false; doBreakout(b.dataset.m); });
 }
 function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른다. 면역 공백 때면 전부 기습
@@ -1994,7 +2001,7 @@ function startRun() {
   run.fit = fit; run.muts = []; playBgm(runBgm()); initHazard(); run.parts = []; initPeri();
   const r0 = run; if (TA()) setTimeout(() => run === r0 && !run.over && float(W / 2, H * 0.36, fit ? `적성 맞음! ${(ROLES[ORGAN_FIT[organ.id].role] || {}).name} 몸통 · 능력 +25% · 몸의 반응 절반` : `적성: ${(ROLES[(ORGAN_FIT[organ.id] || {}).role] || {}).name || '-'} 몸통이 유리해요`, fit ? '#9fff6a' : '#ffd27a', 15), 900);
   ui.showRun(); tutStart();
-  if (st.legs.length) { banner('감염 흔적 발동'); st.legs.forEach((l, i) => setTimeout(() => run && float(W / 2, H * 0.42 + i * 26, `${LEGACY[l.s].name} · ${l.text}`, '#b9f27a', 15), 300 + i * 350)); }
+  if (st.legs.length) { banner('지난번에 남긴 흔적이 도와줘요!'); st.legs.forEach((l, i) => setTimeout(() => run && float(W / 2, H * 0.42 + i * 26, `✅ ${l.text} (${LEGACY[l.s].name})`, '#b9f27a', 15), 300 + i * 350)); }
 }
 function spawnUnit(gene, o = {}) {
   if (run.units.length > 320) { run.units = run.units.filter(u => u.alive); if (run.units.length > 320) return null; }
@@ -2116,7 +2123,7 @@ function update(dt) {
     for (const gr of R.groups) { gr.charge = Math.min(1, gr.charge + dt / RULES.ta.charge * (gr.reawake ? 0.6 : 1)); if (gr.reawake && gr.charge >= 1) release(gr, true); }
     stepNest(dt);
     R.gapT -= dt; R.gap = Math.max(0, R.gap - dt);
-    if (R.gapT <= 0) { R.gapT = RULES.ta.gapEvery; R.gap = RULES.ta.gapDur; banner(nestOn() ? '면역 공백! 지금 돌격하면 기습 +30%' : '면역 공백! 지금 방출하면 기습 +30%'); }
+    if (R.gapT <= 0) { R.gapT = RULES.ta.gapEvery; R.gap = RULES.ta.gapDur; banner('면역이 쉬는 틈! 지금 돌격하면 +30%'); }
     if ((R.acT = (R.acT || 0) + dt) > 0.5) { R.acT = 0; autoCast(); }
     if (!R.endAt && R.time >= R.T) { R.endAt = R.time + 1.6; R.medicated = true; banner('환자가 약을 복용했다!'); R.av = { t: 0, fired: false, x: W / 2, y: (TOP + H - BOTTOM) / 2, final: true }; }
     if (!R.endAt && R.cleared) { R.endAt = R.time + 2; R.left = Math.max(0, R.T - R.time); toast(`남은 ${Math.ceil(R.left)}초 보너스`); }
@@ -2520,16 +2527,21 @@ function introLoop(now) {
   requestAnimationFrame(introLoop);
 }
 const STORY = [
-  { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.png')}" alt="">`, txt: '당신은 막 깨어난 <b>작은 바이러스</b>.<br>카드 세 장 — <b>몸통 · 껍질 · 가시</b> — 를 조합해<br>스스로를 진화시킬 수 있다.' },
-  { pic: () => `<img src="assets/${has('story_2') ? 'story_2.png' : bodyOf() ? bodyOf().img + '_skin.jpg' : 'bodymap_skin.jpg'}" alt="">`, txt: '목표는 <b>사람의 몸</b>.<br>코에서 시작해 <b>8개 기관</b>을 차례로 감염시키고,<br>마지막엔 <b>대뇌</b>를 노린다.' },
-  { pic: () => has('story_3') ? '<img src="assets/story_3.png" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '하지만 <b>면역계는 당신을 보고 배운다</b>.<br>들키지 않게 숨어들고,<br><b>빈틈</b>을 노려 한 번에 돌격하라.' },
+  { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.png')}" alt="">`, txt: '당신은 막 깨어난 <b>아기 바이러스</b>예요.<br>세 가지 바이러스의 능력을 <b>조합</b>해서<br>스스로 진화할 수 있어요.' },
+  { pic: () => `<img src="assets/${has('story_2') ? 'story_2.png' : bodyOf() ? bodyOf().img + '_skin.jpg' : 'bodymap_skin.jpg'}" alt="">`, txt: '목표는 <b>사람의 몸</b>이에요.<br>코에서 시작해서 <b>기관 8곳</b>을 하나씩 감염시키고,<br>마지막엔 <b>뇌</b>까지 가 봐요.' },
+  { pic: () => has('story_3') ? '<img src="assets/story_3.png" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '그런데 <b>면역 세포</b>도 가만있지 않아요.<br>당신을 보면서 점점 배워요.<br>몰래 숨어들었다가, <b>빈틈</b>이 보이면 한꺼번에 돌격해요!' },
 ];
 function showStory(i) {
   const el = $('inStory'), S = STORY[i]; if (!S) return introDone(true); el.hidden = false; $('inTop').hidden = true; $('inBot').hidden = true;
-  el.innerHTML = `<div class="pic${S.trio && !has('story_3') ? ' trio' : ''}">${S.pic()}</div><div class="txt">${S.txt}</div><div class="dots">${STORY.map((_, k) => k === i ? '<i>●</i>' : '●').join('')}</div>
+  el.innerHTML = `<div class="pic${S.trio && !has('story_3') ? ' trio' : ''}">${S.pic()}</div><div class="txt">${S.txt}</div><div class="dots">${STORY.map((_, k) => k === i ? '<i>●</i>' : '●').join('')}</div><div class="swipeHint">밀거나 스크롤해서 넘겨요 ›</div>
     <div class="row"><button class="btn" id="stSkip">건너뛰기</button><button class="btn red" id="stNext" style="flex:2">${i === STORY.length - 1 ? '감염 시작!' : '다음 ▶'}</button></div>`;
-  $('stNext').onclick = () => showStory(i + 1); $('stSkip').onclick = () => introDone(true);
+  $('stNext').onclick = () => showStory(i + 1); $('stSkip').onclick = () => introDone(true); INTRO.si = i;
 }
+// 프롤로그: 밀기(스와이프)·휠 스크롤로도 넘긴다
+(() => { const el = $('inStory'); let sx = 0, sy = 0, lock = 0; const go = d => { const now = performance.now(); if (now < lock || el.hidden) return; lock = now + 450; if (d > 0) showStory((INTRO.si || 0) + 1); else if ((INTRO.si || 0) > 0) showStory(INTRO.si - 1); };
+  el.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.max(Math.abs(dx), Math.abs(dy)) < 40) return; go(Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : -1) : (dy < 0 ? 1 : -1)); });
+  el.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > 20) go(e.deltaY > 0 ? 1 : -1); }, { passive: true }); })();
 function introDone(fromStory) {
   save.introSeen = true; persist(); const el = $('intro'); el.classList.add('out'); setTimeout(() => { el.hidden = true; INTRO.on = false; }, 650);
   if (fromStory && !save.tutDone) { save.sel = 'nose'; if (!save.squad.length) autoSquad(); startRun(); } else ui.showHub('body');
@@ -2688,11 +2700,11 @@ const ui = {
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
       <div class="sub">${o.fact}</div>
-      ${ORGAN_FIT[o.id] ? `<div class="fitBox">${roleBadge0(ORGAN_FIT[o.id].role)}<b>적성: ${ROLES[ORGAN_FIT[o.id].role].name} 몸통</b> <span>${ORGAN_FIT[o.id].why} · 맞으면 능력 +25%, 몸의 반응 절반</span>${(() => { const sq = squadGenes(); if (!sq.length) return ''; const ok = ROLE_OF[sq[0].strain] === ORGAN_FIT[o.id].role; return `<em class="${ok ? 'ok' : 'no'}">${ok ? '✓ 지금 몸통 적성 맞음' : '✗ 지금 몸통은 ' + ((ROLES[ROLE_OF[sq[0].strain]] || {}).name || '-')}</em>`; })()}</div>` : ''}
+      ${ORGAN_FIT[o.id] ? `<div class="fitBox">${roleBadge0(ORGAN_FIT[o.id].role)}<b>여기엔 ${ROLES[ORGAN_FIT[o.id].role].name} 몸통이 좋아요</b> <span>맞으면 힘 +25%, 길의 방해는 절반</span>${(() => { const sq = squadGenes(); if (!sq.length) return ''; const ok = ROLE_OF[sq[0].strain] === ORGAN_FIT[o.id].role; return `<em class="${ok ? 'ok' : 'no'}">${ok ? '✓ 지금 내 몸통이 딱 맞아요' : '✗ 지금 내 몸통은 ' + ((ROLES[ROLE_OF[sq[0].strain]] || {}).name || '-') + ' — 연구소에서 바꿔 보세요'}</em>`; })()}</div>` : ''}
       <div class="starList">${STAR_COND.map((t, i) => `<span class="${starsOf(o.id)[i] ? 'on' : ''}">★ ${t}</span>`).join('')}</div>
-      <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">복약까지 ${timeLimit(o)}초</span>` : ''}<span class="chip">감염 목표 ${st.quota.toFixed(1)}</span>${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: 판막</span>` : ''}<span class="chip">반응 탑 최대 ${st.towers}개</span>${o.valves ? `<span class="chip warn">판막 ${o.valves}</span>` : ''}<span class="chip">주력: ${towerNames.join(', ')}</span>${save.done[o.id] ? '<span class="chip ok">감염 완료 · 재도전 가능</span>' : ''}</div>
-      ${st.legs.length ? `<div class="feat">${st.legs.map(l => `<span class="chip ok" style="white-space:normal">${l.global ? '몸 전체' : '이 기관'} · ${LEGACY[l.s].name} (${STRAINS[l.s].name}): ${l.text}</span>`).join('')}</div>`
-        : `<div class="sub" style="margin-top:4px">기관을 감염시키면 우점 계통의 '감염 흔적'이 몸에 번져 다른 기관이 약해집니다. 예: 노로 → 탈수로 혈관 약화, 로타 → 위장 판막 제거.</div>`}`;
+      <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초 안에</span>` : ''}<span class="chip">🎯 목표 ${Math.round(st.quota)}</span>${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: 판막</span>` : ''}<span class="chip">면역 탑 최대 ${st.towers}개</span>${o.valves ? `<span class="chip warn">판막 ${o.valves}</span>` : ''}${save.done[o.id] ? '<span class="chip ok">감염 완료 · 재도전 가능</span>' : ''}</div>
+      ${st.legs.length ? `<div class="feat">${st.legs.map(l => `<span class="chip ok" style="white-space:normal">✅ 도움: ${l.text} <small>(${l.global ? '몸 전체' : '이 기관'} · 흔적 ${LEGACY[l.s].name})</small></span>`).join('')}</div>`
+        : `<div class="sub" style="margin-top:4px">💡 기관을 감염시키면 몸에 흔적이 남아서 다른 기관이 쉬워져요.</div>`}`;
   },
   renderHero(fx) {
     const sel = save.heroSel && heroOf(save.heroSel).own ? save.heroSel : 'zero', H0 = HEROES[sel], o = heroOf(sel), hs = heroStats(sel), lv = o.lv, maxed = lv >= FORGE.max;
@@ -2893,10 +2905,10 @@ const ui = {
     $('bottom').classList.toggle('ta', !!run.ta); $('outChooser').classList.toggle('taOut', !!run.ta);
     $('hub').hidden = true; $('result').hidden = true; $('hubTip').hidden = true; ['top', 'info2', 'bottom'].forEach(id => $(id).hidden = false);
     const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
-    $('hint').textContent = stealthOn() ? '잠입: 화면을 끌면 조이스틱 · 멈춰서 벽에 붙으면 감염 · 감염 구역 안에선 보초가 못 봐요' : run.ta ? '탭: 충전된 만큼 방출 · 초록 테두리(면역 공백) 때 기습 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길 ⇄ 를 눌러 길 바꾸기' : '부대를 눌러 출격 순서를 정하세요';
+    $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [돌격]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길 ⇄ 를 눌러 길 바꾸기' : '부대를 눌러 출격 순서를 정하세요';
     $('timerTag').hidden = !run.ta; ui.renderDeploy(); ui.renderSkills(); ui.tick();
-    $('goalLbl').textContent = st.qm < 1 ? `감염도 −${Math.round((1 - st.qm) * 100)}%` : '감염도';
-    $('legRow').hidden = !st.legs.length; $('legRow').innerHTML = st.legs.map(l => `<span class="chip">흔적 ${LEGACY[l.s].name}: ${l.text}</span>`).join('');
+    $('goalLbl').textContent = st.qm < 1 ? `감염 (목표 −${Math.round((1 - st.qm) * 100)}%)` : '감염';
+    $('legRow').hidden = !st.legs.length; $('legRow').innerHTML = st.legs.map(l => `<span class="chip">✅ ${l.text}</span>`).join('');
   },
   renderDeploy() {
     const hg = run.hero.gene;
@@ -2965,12 +2977,12 @@ const ui = {
     if (!run) return;
     const R = run;
     if (stealthOn()) { const T = R.sth, a = Math.min(100, T.alarm), L = Math.max(0, T.latent), cs = Math.ceil(L), safe = scoutSafe();
-      $('goalLbl').textContent = '경보'; $('goalTxt').textContent = Math.round(a) + '%'; $('goalBar').classList.add('alarm'); $('goalBar').classList.remove('done'); $('goalBar').querySelector('i').style.width = a + '%';
-      $('timerTag').hidden = false; $('timerTag').querySelector('span').textContent = '잠복기'; $('timerTxt').textContent = `${Math.floor(cs / 60)}:${String(cs % 60).padStart(2, '0')}`; $('timerTag').querySelector('i').style.width = (L / T.L * 100) + '%'; $('timerTag').classList.toggle('hurry', L <= 8);
-      $('liveTxt').parentElement.innerHTML = `조직 흡수 <b id="liveTxt" style="color:#e8a0ff">${absorbedN()}</b> · <span style="color:#ffd27a">힘 +${Math.round((tPow() - 1) * 100)}%</span>`;
-      const at = $('alertTag'); at.hidden = false; at.textContent = safe ? '은신 중' : '노출됨'; at.style.color = safe ? '#b9f27a' : '#ffb4a8'; at.style.borderColor = safe ? '#4f7a2a' : '#c23a3f';
+      $('goalLbl').textContent = '들킬 위험'; $('goalTxt').textContent = Math.round(a) + '%'; $('goalBar').classList.add('alarm'); $('goalBar').classList.remove('done'); $('goalBar').querySelector('i').style.width = a + '%';
+      $('timerTag').hidden = false; $('timerTag').querySelector('span').textContent = '숨어들 시간'; $('timerTxt').textContent = `${Math.floor(cs / 60)}:${String(cs % 60).padStart(2, '0')}`; $('timerTag').querySelector('i').style.width = (L / T.L * 100) + '%'; $('timerTag').classList.toggle('hurry', L <= 8);
+      $('liveTxt').parentElement.innerHTML = `감염한 벽 <b id="liveTxt" style="color:#e8a0ff">${absorbedN()}</b> · <span style="color:#ffd27a">힘 +${Math.round((tPow() - 1) * 100)}%</span>`;
+      const at = $('alertTag'); at.hidden = false; at.textContent = safe ? '숨는 중' : '보이는 중'; at.style.color = safe ? '#b9f27a' : '#ffb4a8'; at.style.borderColor = safe ? '#4f7a2a' : '#c23a3f';
       $('domTag').hidden = true; $('queueTxt').textContent = ''; return; }
-    if (R.sth && !R.sth.restored) { R.sth.restored = true; $('timerTag').querySelector('span').textContent = '환자 복약까지'; $('liveTxt').parentElement.innerHTML = `생존 <b id="liveTxt" style="color:#ffd27a">0</b>${R.tpow > 1 ? ` · <span style="color:#ffd27a">흡수 힘 +${Math.round((R.tpow - 1) * 100)}%</span>` : ''}`; $('alertTag').style.color = ''; $('alertTag').style.borderColor = ''; }
+    if (R.sth && !R.sth.restored) { R.sth.restored = true; $('timerTag').querySelector('span').textContent = '약 들어오기까지'; $('liveTxt').parentElement.innerHTML = `살아 있는 바이러스 <b id="liveTxt" style="color:#ffd27a">0</b>${R.tpow > 1 ? ` · <span style="color:#ffd27a">힘 +${Math.round((R.tpow - 1) * 100)}%</span>` : ''}`; $('alertTag').style.color = ''; $('alertTag').style.borderColor = ''; }
     $('liveTxt').textContent = R.units.filter(u => u.alive).length + leftN();
     $('goalTxt').textContent = `${R.infAmt.toFixed(1)}/${R.st.quota.toFixed(1)}`;
     $('goalBar').querySelector('i').style.width = Math.min(100, R.infAmt / R.st.quota * 100) + '%';
@@ -3007,10 +3019,10 @@ const ui = {
       <div class="resHead">별 모으기</div>
       <div class="starRow">${['성공하기', '안 들키고 숨어들기', '시간 30% 남기기'].map((t, i) => `<div class="${R.starCond[i] ? 'on' : ''}${R.starNew[i] ? ' new' : ''}"><b>★</b><small>${t}${R.starNew[i] ? ' NEW' : ''}</small></div>`).join('')}</div>
       <div class="resTip">💡 ${tip}</div>
-      ${R.muts && R.muts.length ? `<div class="sub">이번에 고른 변이: ${R.muts.map(k => MUTS[k].icon + ' ' + MUTS[k].name).join(' → ')}</div>` : ''}
+      ${R.muts && R.muts.length ? `<div class="sub">이번에 고른 강화: ${R.muts.map(k => MUTS[k].icon + ' ' + MUTS[k].name).join(' → ')}</div>` : ''}
       ${ending ? `<div class="ending">엔딩 ${ending.isNew ? '새로 열림' : '다시 봄'}: <b>${ending.name}</b>${hostDone && save.host > 0 ? `<br><span class="sub">이 사람의 몸을 전부 감염시켰어요! 다음 사람(${HOSTS[save.host].name})으로 넘어가요.<br>${hostRule().icon} <b>${hostRule().title}</b> — ${hostRule().desc}</span>` : ''}</div>` : ''}
       ${R.newUnlocks && R.newUnlocks.length ? `<div class="ending" style="border-color:#e8c45a">🔓 새 기능 열림: <b>${R.newUnlocks.join(' · ')}</b></div>` : ''}
-      ${R.legacyNew ? `<div class="ending" style="border-color:#4f7a2a">남긴 흔적: <b>${LEGACY[R.legacyNew].name}</b><br><span class="sub">${LEGACY[R.legacyNew].desc} (다음 판부터 도움이 돼요)</span></div>` : ''}
+      ${R.legacyNew ? `<div class="ending" style="border-color:#4f7a2a">✅ <b>다음 판 도움: ${LEGACY[R.legacyNew].help}</b><br><span class="sub">몸에 남긴 흔적 "${LEGACY[R.legacyNew].name}" — ${LEGACY[R.legacyNew].desc}</span></div>` : ''}
       <div class="row">${hostDone ? '' : `<button class="btn ${win ? 'red' : 'green'}" id="bRetry" style="min-height:50px">↻ ${win ? '이 기관 다시' : '다시 도전'}</button>`}<button class="btn ${win ? 'green' : 'red'}" id="bBack" style="min-height:50px">${win ? '다음 기관으로' : '연구소에서 강화'}</button></div>`;
     const organId = R.st.organ.id;
     if ($('bRetry')) $('bRetry').onclick = () => { save.sel = organId; $('result').hidden = true; run = null; paused = false; startRun(); };
@@ -3101,7 +3113,7 @@ function playCatch(g) {
     done = true; const d = STRAINS[g.strain], rar = RARITY[d.rarity]; card.hidden = false; if (d.legend) jingle('jg_legend'); else sfx('reveal');
     card.innerHTML = `${d.legend ? '<div class="legBurst"></div>' : ''}<span class="rar" style="color:${rar.color}; border-color:${rar.color}${d.legend ? ';box-shadow:0 0 18px #ffcf4a' : ''}">${d.legend ? '★ 전설 ★' : rar.name}${g.star > 1 ? ' · ★2 행운' : ''}${g.seed ? ' · 변이 시드' : ''}</span>
       <div>${pimg(g)}</div><h3 style="margin: 2px 0 0">${d.name} ${stars(g.star)}</h3>
-      ${d.legend ? `<div class="skillbox" style="border-color:#c79a45"><b style="color:#ffcf4a">전용 스킬 · ${d.skill.name}</b> ${d.skill.desc}</div>` : ''}${g.merged ? `<div class="skillbox" style="border-color:#4f7a2a"><b style="color:#d7ffb0">이미 있는 ${d.name} 카드에 자동으로 합쳤어요!</b> 마릿수가 늘어요 (합친 횟수 ${g.merged.grow})</div>` : ''}<div class="sub">${d.role}${g.merged ? '' : save.genes.filter(x => x.strain === g.strain).length > 1 ? ' · 이미 보유한 계통 (같은 계통 편성으로 감염 집중)' : ' · 새 계통!'}</div>${ui.statHtml(g)}
+      ${d.legend ? `<div class="skillbox" style="border-color:#c79a45"><b style="color:#ffcf4a">전용 스킬 · ${d.skill.name}</b> ${d.skill.desc}</div>` : ''}${g.merged ? `<div class="skillbox" style="border-color:#4f7a2a"><b style="color:#d7ffb0">이미 있는 ${d.name} 카드에 자동으로 합쳤어요!</b> 마릿수가 늘어요 (합친 횟수 ${g.merged.grow})</div>` : ''}<div class="sub">${d.role}${g.merged ? '' : save.genes.filter(x => x.strain === g.strain).length > 1 ? ' · 이미 가진 바이러스' : ' · 새 바이러스!'}</div>${ui.statHtml(g)}
       <div class="row"><button class="btn red" id="cAgain">한 번 더 · ${RULES.gacha}</button><button class="btn" id="cOk">확인</button></div>`;
     $('cOk').onclick = e => { e.stopPropagation(); box.hidden = true; ui.showHub('lab'); };
     $('cAgain').onclick = e => { e.stopPropagation(); if (save.dna < RULES.gacha) return toast('DNA가 부족해요'); save.dna -= RULES.gacha; const n = gacha(); addCard(n); persist(); box.hidden = true; playCatch(n); };
