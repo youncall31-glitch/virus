@@ -196,13 +196,13 @@
   #outChooser button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; font-size: 11px; font-weight: 800; border-radius: 6px; border: 1.5px solid #6e5a4a; background: #1c1314; }
   #outChooser button.on { border-color: #7fd1ff; } #outChooser img { height: 36px; } #outChooser small { font-size: 9.5px; color: #b59f86; font-weight: 400; }
   @keyframes popfx { 0% { transform: scale(.3); opacity: 0 } 20% { transform: scale(1.2); opacity: 1 } 80% { opacity: 1 } 100% { transform: translateY(-30px); opacity: 0 } }
-  .resBar { position: relative; height: 22px; border-radius: 11px; background: #1a120e; border: 1px solid #4f3a28; overflow: hidden; margin: 8px 0 }
+  .resBar { position: relative; height: 22px; border-radius: 11px; background: #1a120e; border: 1px solid #4f3a28; overflow: hidden; margin: 2px 0; flex: none }
   .resBar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #8a2a5a, #e86a9a); }
   .resBar span { position: relative; display: block; text-align: center; font-size: 12px; line-height: 22px; font-weight: 800; text-shadow: 0 1px 2px #000; }
-  .resDna { text-align: center; font-size: 15px; margin: 6px 0 2px } .resDna b { font-size: 24px; color: #9fff6a } .resDna small { display: block; font-size: 11px; color: #9c8a76 }
-  .resList { margin: 4px auto 6px; max-width: 300px; font-size: 12px } .resList div { display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px dashed #3a2a20 } .resList b { color: #d7ffb0 }
+  .resDna { text-align: center; font-size: 15px; margin: 0 } .resDna b { font-size: 24px; color: #9fff6a } .resDna small { display: block; font-size: 11px; color: #9c8a76 }
+  .resList { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: 11.5px } .resList span { padding: 2px 8px; border-radius: 10px; background: #1a120e; border: 1px solid #3a2a20 } .resList b { color: #d7ffb0 }
   .resHead { text-align: center; font-size: 12px; color: #c9b9a2; margin-top: 6px }
-  .resTip { margin: 8px 0; padding: 7px 10px; border-radius: 10px; background: #1f1712; border: 1px solid #6a5030; font-size: 13px; line-height: 1.5; word-break: keep-all }
+  .resTip { margin: 0; padding: 6px 10px; border-radius: 10px; background: #1f1712; border: 1px solid #6a5030; font-size: 13px; line-height: 1.5; word-break: keep-all }
   .resList, .resTip, .resDna small, .resBar span { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
   .starRow { display:flex; gap:6px; margin:6px 0 }
   .starRow div { flex:1; text-align:center; border:1px solid #3a2a20; border-radius:8px; padding:4px 2px; background:#1a120e; color:#5a4a3a }
@@ -263,9 +263,13 @@
   #banner.on { opacity: 1; }
 
   /* ---------- 결과 · 모달 · 뽑기 ---------- */
-  #result { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 20px 16px; gap: 10px; background: rgba(13,8,9,.95); }
+  #result { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); gap: 8px; background: rgba(13,8,9,.96); }
+  #result .resBody { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; justify-content: safe center; }
+  #result .resBtns { flex: none; margin-top: 0; } #result .resBtns .btn { min-height: 54px !important; font-size: 17px; }
+  #result .ending { padding: 6px 10px; font-size: 12.5px; margin: 0; } #result .ending .sub { font-size: 11px; }
+  #result .starRow { margin: 2px 0; } #result .starRow div { padding: 2px; } #result .starRow div b { font-size: 18px; }
   #result[hidden] { display: none; }
-  #result h1 { margin: 0; font-size: 24px; } .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  #result h1 { margin: 0; font-size: 21px; text-align: center; } .chips { display: flex; flex-wrap: wrap; gap: 5px; }
   .ending { border: 1px solid #c79a45; border-radius: 8px; padding: 10px; background: #1d1510; font-size: 13px; line-height: 1.6; }
   .modal { position: absolute; inset: 0; background: rgba(0,0,0,.72); display: grid; place-items: center; padding: 14px; z-index: 6; }
   .modal[hidden] { display: none; }
@@ -3013,11 +3017,11 @@ const ui = {
       : !R.fit && fitRole ? `이 기관은 <b>${fitRole}</b> 몸통 카드가 유리해요. 연구소에서 몸통 카드를 바꿔 보세요.`
       : R.sth && R.sth.caught ? '숨어들 때 들켰어요. 노란 부채꼴(보초 시야) 안에서는 멈춰 있으세요.'
       : pct < 50 ? '연구소에서 DNA로 카드를 강화하면 훨씬 세져요.' : '거의 다 왔어요! 화면 테두리가 초록색일 때 돌격하면 더 세요.';
-    $('result').innerHTML = `<h1>${win ? `🎉 ${R.st.organ.name} 감염 성공!` : '😵 아쉽게 실패했어요'}</h1>
+    $('result').innerHTML = `<div class="resBody"><h1>${win ? `🎉 ${R.st.organ.name} 감염 성공!` : '😵 아쉽게 실패했어요'}</h1>
       <div class="sub" style="text-align:center">${win ? '목표만큼 감염시켰어요.' : R.medicated ? '시간이 다 돼서 약이 들어왔어요.' : '면역 탑에 막혔어요.'}</div>
       <div class="resBar"><i style="width:${pct}%"></i><span>목표의 ${pct}% 감염</span></div>
       <div class="resDna">받은 DNA <b>+${credits}</b> 🧬<small>DNA로 연구소에서 카드를 강화해요</small></div>
-      <div class="resList">${dl.map(([t, v]) => `<div><span>${t}</span><b>+${v}</b></div>`).join('')}</div>
+      <div class="resList">${dl.map(([t, v]) => `<span>${t} <b>+${v}</b></span>`).join('')}</div>
       <div class="resHead">별 모으기</div>
       <div class="starRow">${['성공하기', '안 들키고 숨어들기', '시간 30% 남기기'].map((t, i) => `<div class="${R.starCond[i] ? 'on' : ''}${R.starNew[i] ? ' new' : ''}"><b>★</b><small>${t}${R.starNew[i] ? ' NEW' : ''}</small></div>`).join('')}</div>
       <div class="resTip">💡 ${tip}</div>
@@ -3026,7 +3030,7 @@ const ui = {
       ${R.newUnlocks && R.newUnlocks.length ? `<div class="ending" style="border-color:#e8c45a">🔓 새 기능 열림: <b>${R.newUnlocks.join(' · ')}</b></div>` : ''}
       ${win && !hostDone && save.done[R.st.organ.id] ? `<div class="ending" style="border-color:#b0503a">🚨 <b>몸이 눈치챘어요! 다음 기관부터 면역 탑이 ${Math.round(ALERT_STEP * 100)}% 더 세져요</b><br><span class="sub">몸의 경계 ${doneCount()}단계 · 감염시킬수록 면역이 깨어나요</span></div>` : ''}
       ${R.legacyNew ? `<div class="ending" style="border-color:#4f7a2a">✅ <b>다음 판 도움: ${LEGACY[R.legacyNew].help}</b><br><span class="sub">몸에 남긴 흔적 "${LEGACY[R.legacyNew].name}" — ${LEGACY[R.legacyNew].desc}</span></div>` : ''}
-      <div class="row">${hostDone ? '' : `<button class="btn ${win ? 'red' : 'green'}" id="bRetry" style="min-height:50px">↻ ${win ? '이 기관 다시' : '다시 도전'}</button>`}<button class="btn ${win ? 'green' : 'red'}" id="bBack" style="min-height:50px">${win ? '다음 기관으로' : '연구소에서 강화'}</button></div>`;
+      </div><div class="row resBtns">${hostDone ? '' : `<button class="btn ${win ? '' : 'red'}" id="bRetry" style="min-height:50px;${win ? 'flex:1 1 30%' : ''}">↻ ${win ? '다시' : '다시 도전'}</button>`}<button class="btn ${win ? 'red' : ''}" id="bBack" style="min-height:50px;${win ? 'flex:2 1 60%' : ''}">${win ? '다음 기관으로 ▶' : '연구소에서 강화'}</button></div>`;
     const organId = R.st.organ.id;
     if ($('bRetry')) $('bRetry').onclick = () => { save.sel = organId; $('result').hidden = true; run = null; paused = false; startRun(); };
     $('bBack').onclick = () => ui.showHub(win ? 'body' : 'lab');
