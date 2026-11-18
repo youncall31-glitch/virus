@@ -484,6 +484,25 @@
   .skillbox .short { font-size: 13px; font-weight: 800; color: #ffe2a8; margin-top: 2px; }
   .skillbox ul.help { margin: 3px 0 0; padding-left: 16px; } .skillbox ul.help li { margin: 1px 0; }
   #catch { position: absolute; inset: 0; z-index: 7; background: #060304; }
+  .dx { position: absolute; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #2a1620ee, #0a0507f5 75%); touch-action: none; user-select: none; display: flex; flex-direction: column; align-items: center; padding-top: 6vh; gap: 2.2vh; }
+  .dxTitle { text-align: center; font-size: 20px; font-weight: 900; color: #ffe2a8; } .dxTitle small { display: block; font-size: 12.5px; color: #b59f86; font-weight: 400; margin-top: 3px; }
+  .dxHint { position: absolute; bottom: 6vh; left: 0; right: 0; text-align: center; color: #ffe2a8; font-size: 15px; } .dxHint small { display: block; color: #b59f86; font-size: 12px; margin-top: 3px; }
+  .dxMsg { font-size: 16px; color: #d8c8b0; min-height: 22px; text-align: center; }
+  .kit { position: relative; width: 140px; height: 330px; border-radius: 24px; background: linear-gradient(#f4f0ea, #d8d2c8); transform: rotate(-4deg); box-shadow: 0 10px 30px rgba(0,0,0,.6); animation: kitIn .45s cubic-bezier(.2,1.3,.4,1); transition: box-shadow .3s; }
+  .kit.bump { animation: kitBump .4s ease; } @keyframes kitIn { from { transform: translateY(60px) rotate(-4deg); opacity: 0; } } @keyframes kitBump { 30% { transform: rotate(-7deg) scale(1.08); } 60% { transform: rotate(-2deg) scale(.98); } }
+  .kTop { position: absolute; left: 0; right: 0; top: 34px; text-align: center; font-size: 12px; color: #7a6a5a; font-weight: 900; }
+  .kWin { position: absolute; left: 36px; right: 36px; top: 70px; height: 140px; border-radius: 10px; background: #fbfaf7; box-shadow: inset 0 2px 6px rgba(0,0,0,.25); }
+  .kWin i { position: absolute; left: 8px; right: 8px; height: 9px; border-radius: 3px; } .kC { top: 34px; background: #d0303a; animation: kC .6s ease .3s backwards; } @keyframes kC { from { opacity: 0; } }
+  .kT { top: 90px; opacity: 0; transition: background .3s, box-shadow .3s; } .kWin b { position: absolute; left: -24px; top: 30px; font-size: 13px; color: #7a6a5a; } .kWin b.t { top: 86px; }
+  .kWell { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); width: 42px; height: 42px; border-radius: 50%; background: #e8e2d8; box-shadow: inset 0 3px 8px rgba(0,0,0,.35); }
+  .lens { position: relative; width: min(72vw, 290px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #2a3a2a, #081008 75%); box-shadow: 0 0 0 12px #2a2a30, 0 0 0 16px #555, 0 0 40px 16px color-mix(in srgb, var(--c) 60%, transparent); overflow: hidden; animation: kitIn .4s ease; }
+  .lImg { position: absolute; inset: 14%; display: grid; place-items: center; } .lImg img { width: 100%; height: 100%; object-fit: contain; }
+  .lens .lx, .lens .ly { position: absolute; background: rgba(255,255,255,.15); } .lens .lx { left: 50%; top: 0; bottom: 0; width: 1px; } .lens .ly { top: 50%; left: 0; right: 0; height: 1px; }
+  .dial { position: absolute; right: 16px; top: 24vh; width: 40px; height: 34vh; border-radius: 20px; background: #1d1216; border: 2px solid #5a3a40; } .dial span { position: absolute; top: -20px; width: 100%; text-align: center; font-size: 11px; color: #b59f86; }
+  .dial i { position: absolute; left: -6px; right: -6px; height: 22px; border-radius: 8px; background: #ffe2a8; box-shadow: 0 0 10px #ffe2a8; transform: translateY(50%); }
+  .clues { display: flex; flex-direction: column; gap: 5px; align-items: center; min-height: 90px; } .cl { opacity: 0; transform: translateY(8px); transition: all .3s; font-size: 14px; color: #ffe2a8; background: #22141bdd; border: 1px solid #5a3a40; border-radius: 10px; padding: 4px 12px; } .cl.on { opacity: 1; transform: none; }
+  .cl .role { display: inline-block; vertical-align: -3px; } .dx b, .dx small b { display: inline; font-size: inherit; font-weight: 900; color: inherit; } .dxMsg b { color: inherit; } .dxTitle small, .dxHint small { display: block !important; }
+  .dx.flash::after { content: ''; position: absolute; inset: 0; background: radial-gradient(#fff8, #ffcf4a33 40%, transparent 70%); animation: sqFl .9s ease forwards; pointer-events: none; }
   .sqz { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(4,2,3,.72); touch-action: none; user-select: none; }
   .sqCard { --g: #a8a8a8; --gs: 10px; position: relative; width: min(62vw, 230px); aspect-ratio: 3 / 4.2; border-radius: 18px; overflow: hidden; box-shadow: 0 0 var(--gs) var(--g), 0 0 0 3px var(--g); transition: box-shadow .25s; animation: sqBob 1.6s ease-in-out infinite; }
   .sqCard.hold { animation: sqShake .09s linear infinite; } .sqCard.up { animation: sqUp .35s ease; } .sqCard.opened { animation: sqOpen .5s ease forwards; }
@@ -4168,6 +4187,54 @@ function squeeze(g, parent, onDone) {
   el.onpointerup = el.onpointercancel = () => { y0 = null; card.classList.remove('hold'); if (!opened && p > 0.82) open(); };
   set();
 }
+// ★ 영웅 이상이 나오면 두 단계로 쪼는다
+//   1) 감염 진단 키트: C줄 → T줄이 서서히 떠오름. T줄 색이 등급(파랑 → 보라 → 금으로 올라감). 문지르면 빨리 진해짐
+//   2) 현미경: 흐릿한 정체를 초점 다이얼(화면 아무 데나 위로 끌기)로 맞춤. 초점이 맞을수록 단서(타입 → 강한 기관 → 이름)가 하나씩
+const DX_COL = [RARITY[1].color, RARITY[2].color, '#ffcf4a'];
+const highTier = g => STRAINS[g.strain].legend || g.mut ? 3 : STRAINS[g.strain].rarity;
+function diagnose(g, parent, onDone) {
+  const d = STRAINS[g.strain], tier = highTier(g), el = document.createElement('div'); el.className = 'dx';
+  el.innerHTML = `<div class="dxTitle">🧪 감염 진단 키트<small>두 번째 줄이 떠오를까…?</small></div>
+    <div class="kit"><span class="kTop">VIRUS TEST</span><div class="kWin"><i class="kC"></i><b>C</b><i class="kT"></i><b class="t">T</b></div><span class="kWell"></span></div>
+    <div class="dxMsg">희미하게… 무언가 떠오른다</div><div class="dxHint">👆 키트를 문지르면 빨리 진해져요<small>두 번 누르면 건너뛰기</small></div>`;
+  parent.appendChild(el);
+  const kit = el.querySelector('.kit'), T = el.querySelector('.kT'), msg = el.querySelector('.dxMsg');
+  let p = 0, stage = -1, phase = 1, raf = 0, last = performance.now(), lastTap = 0, rub = 0, px = null, py = null, done = false;
+  const maxStage = tier >= 3 ? 2 : tier >= 2 ? 1 : 0, STG = [0.18, 0.5, 0.8], TXT = ['파란 줄…? 희귀 이상', '보라 줄! <b>영웅</b> 이상!', '금빛 줄?! <b>전설</b>!!'];
+  const kitSet = () => { let s2 = -1; for (let k = 0; k <= maxStage; k++) if (p >= STG[k]) s2 = k;
+    T.style.opacity = Math.min(1, 0.08 + p * 1.1); T.style.background = s2 >= 0 ? DX_COL[s2] : '#c8c0b8'; T.style.boxShadow = s2 >= 0 ? `0 0 ${8 + s2 * 8}px ${DX_COL[s2]}` : 'none';
+    if (s2 > stage) { stage = s2; msg.innerHTML = TXT[s2]; msg.style.color = DX_COL[s2]; kit.classList.remove('bump'); void kit.offsetWidth; kit.classList.add('bump'); sfx(s2 >= 2 ? 'clear' : 'up'); buzz(s2 >= 2 ? [40, 30, 100] : 30 + s2 * 20); kit.style.boxShadow = `0 10px 30px rgba(0,0,0,.6), 0 0 ${30 + s2 * 20}px ${DX_COL[s2]}`; } };
+  const toScope = () => { phase = 2; el.querySelector('.dxMsg').innerHTML = `<b style="color:${DX_COL[maxStage]}">두 줄 확정!</b> 현미경으로 정체 확인`; setTimeout(scope, 700); };
+  const loop = now => { const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (phase === 1) { p = Math.min(1, p + dt * 0.32 + Math.min(rub, dt * 0.9)); rub = 0; kitSet(); if (p >= 1) { phase = 1.5; toScope(); } }
+    if (!done) raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop);
+  // 2단계: 현미경
+  let f = 0, fy = null, clue = 0;
+  const scope = () => { if (done) return;
+    const [good] = tropOf(g.strain), role = ROLE_OF[g.strain], rr = ROLES[role] || {};
+    const clues = [`${roleBadge0(role)} <b style="color:${rr.col || '#fff'}">${rr.name || '?'}</b> 타입`, `👍 <b>${good.map(o => ORG_SHORT[o]).join('·') || '?'}</b>에서 강함`, `<b style="font-size:17px">${(g.mut ? '변성 ' : '') + sname(g.strain)}</b>`];
+    el.innerHTML = `<div class="dxTitle">🔬 현미경 관찰<small>초점을 맞추면 정체가 또렷해져요</small></div>
+      <div class="lens" style="--c:${DX_COL[maxStage]}"><div class="lImg">${pimg(g)}</div><i class="lx"></i><i class="ly"></i></div>
+      <div class="dial"><i></i><span>초점</span></div>
+      <div class="clues">${clues.map((c, k) => `<div class="cl" data-k="${k}">${k === 2 ? '' : '🔎 '}${c}</div>`).join('')}</div>
+      <div class="dxHint">👆 화면을 <b>위로</b> 끌어 초점 맞추기<small>두 번 누르면 바로 보기</small></div>`;
+    const img = el.querySelector('.lImg'), knob = el.querySelector('.dial i'), cls = el.querySelectorAll('.cl');
+    const fset = () => { img.style.filter = `blur(${(1 - f) * 16}px) saturate(${1 + (1 - f) * 1.2}) brightness(${0.6 + f * 0.4})`; knob.style.bottom = `${8 + f * 76}%`;
+      const c2 = f >= 0.95 ? 3 : f >= 0.62 ? 2 : f >= 0.3 ? 1 : 0; while (clue < c2) { cls[clue].classList.add('on'); clue++; sfx('tap'); buzz(clue === 3 ? [30, 20, 60] : 20); }
+      if (f >= 1) reveal(); };
+    el.onpointerdown = e => { e.stopPropagation(); const now = performance.now(); if (now - lastTap < 300) { f = 1; return fset(); } lastTap = now; fy = e.clientY + f * innerHeight * 0.45; };
+    el.onpointermove = e => { if (fy == null || done) return; const nf = clamp((fy - e.clientY) / (innerHeight * 0.45), 0, 1); if (nf > f) { f = nf; fset(); } };
+    el.onpointerup = el.onpointercancel = () => { fy = null; if (!done && f > 0.85) { f = 1; fset(); } };
+    fset(); };
+  const reveal = () => { if (done) return; done = true; cancelAnimationFrame(raf); el.classList.add('flash');
+    if (tier >= 3) { jingle('jg_legend'); buzz([60, 40, 140]); } else { sfx('reveal'); buzz(50); }
+    setTimeout(() => { el.remove(); onDone(); }, tier >= 3 ? 1000 : 600); };
+  el.onclick = e => e.stopPropagation();
+  el.onpointerdown = e => { e.stopPropagation(); const now = performance.now(); if (now - lastTap < 300) { p = 1; return; } lastTap = now; px = e.clientX; py = e.clientY; };
+  el.onpointermove = e => { if (px == null || phase !== 1) return; rub += Math.hypot(e.clientX - px, e.clientY - py) / 9000; px = e.clientX; py = e.clientY; if (Math.random() < 0.15) buzz(5); };
+  el.onpointerup = el.onpointercancel = () => { px = null; };
+}
 // ★ 연속 뽑기 연출: 에취!(10번은 두 번) → 비말 구름 → 뒷면 카드가 날아와 한 장씩 뒤집힘 → 가장 좋은 카드는 마지막에 크게
 function playMulti(res, n) {
   skPopHide();
@@ -4185,11 +4252,12 @@ function playMulti(res, n) {
   // 가장 좋은 카드(희귀 이상)는 마지막에 직접 쪼아서 연다
   let sq = false; const startSq = () => { if (sq || done) return; sq = true; T.forEach(clearTimeout); cells.forEach((c, k) => { if (k < cells.length - 1) c.classList.add('open'); });
     ov.querySelector('.mpSkip').style.opacity = 0; cells[cells.length - 1].classList.add('tease');
-    squeeze(bestR.g, ov, () => { cells[cells.length - 1].classList.add('open'); if (bestLeg) ov.classList.add('flash'); T.push(setTimeout(finish, 900)); }); };
+    diagnose(bestR.g, ov, () => { cells[cells.length - 1].classList.add('open'); if (bestLeg) ov.classList.add('flash'); T.push(setTimeout(finish, 900)); }); };
   cells.forEach((c, k) => { const last = k === cells.length - 1, at = 1350 + k * 150 + (last ? 450 : 0);
-    if (last) { T.push(setTimeout(startSq, at)); return; }
+    if (last && bestHi) { T.push(setTimeout(startSq, at)); return; }
     T.push(setTimeout(() => { c.classList.add('open'); sfx('tap'); if (last) buzz(30); }, at)); });
-  ov.onclick = () => startSq();
+  if (!bestHi) T.push(setTimeout(finish, 1350 + cells.length * 150 + 1500));
+  ov.onclick = () => bestHi ? startSq() : finish();
 }
 function showMulti(res, n, still) {
   const best = Math.max(...res.map(r => STRAINS[r.g.strain].rarity)), leg = res.some(r => STRAINS[r.g.strain].legend);
@@ -4263,7 +4331,7 @@ function playCatch(g) {
       if (sealed) { c.save(); c.translate(jx, jy + 54 * js); c.fillStyle = '#e0cfa4'; c.strokeStyle = '#3a2416'; c.lineWidth = 2; c.beginPath(); c.rect(-40 * js, -12, 80 * js, 24); c.fill(); c.stroke();
         c.font = `800 ${14 * js}px 'Nanum Myeongjo', serif`; c.textAlign = 'center'; c.fillStyle = '#3a1a10'; c.fillText('???', 0, 5); c.restore(); }
     }
-    if (t > 3.8 && !done && !sqOn) { sqOn = true; squeeze(g, box, () => reveal()); }
+    if (t > 3.8 && !done && !sqOn) { sqOn = true; if (highTier(g) >= 2) diagnose(g, box, () => reveal()); else reveal(); }
     if (!done || t < 4.2) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
