@@ -170,6 +170,7 @@
   #legRow .chip { font-size: 10px; padding: 2px 7px; background: rgba(20,30,14,.85); border-color: #4f7a2a; color: #cfffa8; }
   #timerTag { grid-column: 3; position: relative; justify-content: space-between; gap: 6px; padding: 2px 10px 6px !important; } #timerTag span { font-size: 10.5px; } #timerTag b { font-family: Cinzel, serif; font-size: 15px; color: #9fe8ff; }
   #timerTag .tbar { position: absolute; left: 8px; right: 8px; bottom: 3px; height: 3px; margin: 0; background: #0c0607; border-radius: 2px; overflow: hidden; } #timerTag .tbar i { display: block; height: 100%; background: linear-gradient(90deg, #3fa0ff, #9fe8ff); }
+  #goalBar.bump { filter: brightness(1.6); transition: filter .05s; } #goalBar { transition: filter .25s; }
   #timerTag.hurry { border-color: #e0453f; animation: pulse3 .6s infinite; } #timerTag.hurry b { color: #ff8d7a; } @keyframes pulse3 { 50% { box-shadow: 0 0 14px rgba(224,69,63,.9); } }
   .dp.full { border-color: #ffcf6a; box-shadow: 0 0 10px rgba(255,207,106,.7); } .dp.gapOn { border-color: #9fff6a !important; box-shadow: 0 0 14px rgba(159,255,106,.9) !important; }
   .sk .auto { position: absolute; top: -4px; right: 2px; font-size: 8.5px; padding: 0 4px; border-radius: 6px; background: #12304a; color: #9fe8ff; border: 1px solid #3f7aa0; font-style: normal; } .sk { position: relative; }
@@ -1578,6 +1579,9 @@ function label(t, x, y, c) { ctx.save(); ctx.font = "800 12px 'Nanum Myeongjo', 
 
 /* ---------- [render/juice.js] ★ 손맛: 화면 흔들림 · 터지는 입자 · 탑 붕괴 · 승리 연출 ---------- */
 function shake(a) { if (run) run.shk = Math.max(run.shk || 0, a); }
+// 손맛: 휴대폰 진동(설정에서 끌 수 있음) · 순간 멈춤(히트스톱)
+function buzz(p) { try { if (sndOpt().vib !== false && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+function hitStop(t) { if (run) run.hitStop = Math.max(run.hitStop || 0, t); }
 function pop(u, col) { sfx('pop'); const c = col || SCOLOR[u.strain] || '#ffd27a'; for (let i = 0; i < 6; i++) { const a = Math.random() * TAU, sp = rand(40, 110); run.parts.push({ x: u.x, y: u.y - 8, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, t: 0.45, c, r: rand(1.5, 3) }); } }
 function stepJuice(dt) { const R = run; R.parts = R.parts || []; for (const p of R.parts) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt; } R.parts = R.parts.filter(p => p.t > 0);
   R.shk = Math.max(0, (R.shk || 0) - dt * 18); for (const c of R.collapse || []) c.t -= dt; if (R.collapse) R.collapse = R.collapse.filter(c => c.t > 0); if (R.winFx) R.winFx.t += dt; R.flashT = Math.max(0, (R.flashT || 0) - dt); }
@@ -1593,7 +1597,7 @@ function drawJuiceOver(time) { const R = run;
     if (t < 2.2) { ctx.globalAlpha = Math.min(1, t * 3) * Math.max(0, 1 - (t - 1.6) * 2); ctx.translate(W / 2, H * 0.4); const sc = t < 0.25 ? t / 0.25 * 1.3 : 1.3 - Math.min(0.3, (t - 0.25) * 1.5); ctx.scale(sc, sc);
       ctx.font = "800 34px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 7; ctx.strokeStyle = '#2a0a1e'; ctx.strokeText('감염 성공!', 0, 0); const g = ctx.createLinearGradient(0, -30, 0, 10); g.addColorStop(0, '#fff2c0'); g.addColorStop(1, '#ffb04a'); ctx.fillStyle = g; ctx.fillText('감염 성공!', 0, 0); }
     ctx.restore(); } }
-function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; shake(10); R.flashT = 0.35; R.flashC = '255,220,140';
+function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; shake(10); buzz([60, 40, 140]); hitStop(0.18); R.flashT = 0.35; R.flashC = '255,220,140';
   const [gx, gy] = map.goal; for (let i = 0; i < 46; i++) { const a = Math.random() * TAU, sp = rand(80, 320); R.parts.push({ x: gx, y: gy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, t: rand(0.7, 1.3), c: ['#e8a0ff', '#ffd27a', '#9fff6a', '#ff8fd0'][i % 4], r: rand(2, 4.5) }); } }
 
 /* ---------- [systems/mine.js] ★ 내 바이러스: 연구소의 카드 3장(몸통·껍질·가시)을 합성한 단 하나의 계통으로 싸운다 ----------
@@ -1670,6 +1674,8 @@ function tutHi() { const st = run && run.tutOn && TUT[run.tutStep]; if (!st || !
 // 스포트라이트: 할 곳(버튼 또는 게임 화면 속 지점)만 밝게, 나머지는 어둡게. 말풍선은 할 곳을 가리지 않는 쪽(위/아래)에
 function tutSpot() {
   const sp = $('tutSpot'), R = run, st = R && R.tutOn && TUT[R.tutStep]; if (!st || $('coach').hidden) { sp.hidden = true; return; }
+  // 강화 고르기 같은 창이 떠 있으면 어둡게 가리지 않고 말풍선도 잠깐 숨긴다 (창을 먼저 고르게)
+  const mo = !$('modal').hidden; $('coach').style.visibility = mo ? 'hidden' : ''; if (mo) { sp.hidden = true; return; }
   const sr = $('stage').getBoundingClientRect(); let x, y, w, h, round = true;
   if (st.hi) { const el = [...document.querySelectorAll(st.hi)].find(e => e.offsetParent); if (el) { const r = el.getBoundingClientRect(); x = r.left - sr.left - 6; y = r.top - sr.top - 6; w = r.width + 12; h = r.height + 12; round = false; } }
   if (x == null && st.pt) { const p = st.pt(R); if (p) { const cr = canvas.getBoundingClientRect(), k = cr.width / W; const rad = 46; x = cr.left - sr.left + p[0] * k - rad; y = cr.top - sr.top + p[1] * k - rad; w = h = rad * 2; } }
@@ -1678,7 +1684,7 @@ function tutSpot() {
   sp.className = ''; Object.assign(sp.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', borderRadius: round ? '50%' : '14px' });
   $('coach').classList.toggle('atBottom', y + h / 2 < sr.height * 0.45);
 }
-function tutEnd(skip) { $('tutSpot').hidden = true; if (run) { run.tutOn = false; if (run.tutPause) { run.tutPause = false; paused = false; } } save.tutDone = true; persist(); $('coach').hidden = true; document.querySelectorAll('.coachHi').forEach(e => e.classList.remove('coachHi')); if (skip) toast('튜토리얼을 건너뛰었어요'); }
+function tutEnd(skip) { $('tutSpot').hidden = true; $('coach').style.visibility = ''; if (run) { run.tutOn = false; if (run.tutPause) { run.tutPause = false; paused = false; } } save.tutDone = true; persist(); $('coach').hidden = true; document.querySelectorAll('.coachHi').forEach(e => e.classList.remove('coachHi')); if (skip) toast('튜토리얼을 건너뛰었어요'); }
 function tutTick() { const R = run; if (!R || !R.tutOn) return; const st = TUT[R.tutStep]; if (st && st.done && st.done(R)) { R.tutStep++; tutShow(); } }
 const tutHold = () => run && run.tutOn && run.tutStep < 4;   // 잠입 연습 동안엔 보초·잠복기가 멈춘다
 function drawTut(time) {   // 손가락 표시: 할 곳을 톡톡 가리킨다
@@ -1795,7 +1801,7 @@ function stealthEnd(why, voluntary) {
   playBgm(R.st.organ.id === 'brain' ? 'brain' : 'assault'); sfx(safe ? 'breakout' : 'alarm');
   if (safe) { banner(voluntary ? '기습 개시! 면역이 아직 모른다' : why + ' · 숨어 있어 기습 성공'); R.plan.next = 5; }
   else { R.tpow = 1 + (R.tpow - 1) * 0.5; banner((voluntary ? '노출된 채 공격 개시' : why) + ' · 선발 포획!');
-    const S = T.scout; R.rings.push({ x: S.x, y: S.y, r: 10, R: 120, t: 0.8, color: '#e0453f' }); float(S.x, S.y - 60, '들켰어요! 감염한 벽 효과가 절반이 돼요', '#ffb4a8', 14);
+    const S = T.scout; buzz([90, 50, 90]); R.rings.push({ x: S.x, y: S.y, r: 10, R: 120, t: 0.8, color: '#e0453f' }); float(S.x, S.y - 60, '들켰어요! 감염한 벽 효과가 절반이 돼요', '#ffb4a8', 14);
     const d = nearestOnPath(S.x, S.y).d; immuneBuild(d - 60); immuneBuild(d - 60); R.plan.next = 1; }
   if (safe) { const n = nearestOnPath(T.scout.x, T.scout.y), u = spawnUnit(T.lead, { d: n.d, lane: clamp(n.off, -14, 14) }); }
   $('goalLbl').textContent = R.st.qm < 1 ? `감염 (목표 −${Math.round((1 - R.st.qm) * 100)}%)` : '감염'; $('goalBar').classList.remove('alarm');
@@ -1904,7 +1910,7 @@ function biteTowers(dt) {
     tg.hp -= u.atk * TOWER_HP.bite * m; tg.bitten = 0.2; sfx('bite'); u.atkT = 0.28; u.atkTx = tg.x; u.atkTy = tg.y - 18; u.atkCd = 0.75 + Math.random() * 0.3; u.biting = 0.5;
     if (Math.random() < 0.35) R.fx.push({ x: tg.x + rand(-10, 10), y: tg.y - 18 + rand(-10, 8), t: 0.22, s: 10, color: SCOLOR[u.strain] || '#e8a0ff' }); }
   for (const t of R.towers.filter(t => t.hp <= 0)) {
-    R.koN = (R.koN || 0) + 1; sfx('collapse'); (R.collapse = R.collapse || []).push({ type: t.type, x: t.x, y: t.y, t: 0.9, dir: Math.random() < 0.5 ? -1 : 1 }); shake(6); for (let i = 0; i < 10; i++) { const a = rand(-Math.PI, 0), sp = rand(60, 160); R.parts.push({ x: t.x, y: t.y - 20, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.6, c: i % 2 ? '#8a7a6a' : TOWERS[t.type].color, r: rand(2, 4) }); }
+    R.koN = (R.koN || 0) + 1; sfx('collapse'); buzz(25); hitStop(0.07); (R.collapse = R.collapse || []).push({ type: t.type, x: t.x, y: t.y, t: 0.9, dir: Math.random() < 0.5 ? -1 : 1 }); shake(6); for (let i = 0; i < 10; i++) { const a = rand(-Math.PI, 0), sp = rand(60, 160); R.parts.push({ x: t.x, y: t.y - 20, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.6, c: i % 2 ? '#8a7a6a' : TOWERS[t.type].color, r: rand(2, 4) }); }
     R.towers = R.towers.filter(x => x !== t); R.rings.push({ x: t.x, y: t.y - 20, r: 8, R: 70, t: 0.7, color: '#c06ad0' }); burst(t.x, t.y - 20, 10, '#e8a0ff');
     float(t.x, t.y - 50, `${TOWERS[t.type].name} 붕괴!`, '#e8a0ff', 15);
     R.ruins = R.ruins || []; R.ruins.push({ x: t.x, y: t.y, t: TOWER_HP.block });
@@ -1950,7 +1956,7 @@ function breakout() {
   document.querySelectorAll('#modal [data-m], .modal [data-m]').forEach(b => b.onclick = () => { ui.closeModal(); paused = false; doBreakout(b.dataset.m); });
 }
 function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른다. 면역 공백 때면 전부 기습
-  const R = run, M = mut ? MUTS[mut] : null; sfx('breakout'); if (M) { R.muts.push(mut); if (M.go) M.go(R); }
+  const R = run, M = mut ? MUTS[mut] : null; sfx('breakout'); buzz(45); if (M) { R.muts.push(mut); if (M.go) M.go(R); }
   if (M && M.bloom) for (const k in R.nest) R.nest[k] *= M.bloom;
   const tot = Math.floor(nestTotal());
   for (const gr of R.groups) { const n = Math.min(400, Math.floor(R.nest[gr.strain] || 0)); if (!(n > 0)) continue;
@@ -1967,7 +1973,7 @@ function stepNest(dt) {
     if (!isFinite(n)) { R.nest[gr.strain] = 0; continue; } R.nest[gr.strain] = Math.min(cap, n + n * NEST.grow * (1 + 0.012 * geneStats(gr.gene).count) * dt); }
   R.raidT = (R.raidT ?? NEST.raidEvery) - dt;
   if (R.raidT <= 0) { R.raidT = NEST.raidEvery; const tot = nestTotal(); if (R.towers.length && tot >= 4) { let lost = 0; for (const k in R.nest) { const c = R.nest[k] * NEST.raidCut; R.nest[k] -= c; lost += c; }
-      const [x, y] = pathAt(Math.max(map.d0 || 0, (R.frontD || 0) - 60)); float(x, y - 40, `대식세포 습격! 둥지 −${Math.round(lost)}`, '#ff8d7a', 15); R.rings.push({ x, y, r: 10, R: 80, t: 0.6, color: '#e0453f' }); } }
+      const [x, y] = pathAt(Math.max(map.d0 || 0, (R.frontD || 0) - 60)); float(x, y - 40, `대식세포 습격! 둥지 −${Math.round(lost)}`, '#ff8d7a', 15); buzz(30); shake(4); R.rings.push({ x, y, r: 10, R: 80, t: 0.6, color: '#e0453f' }); } }
 }
 function release(gr, quiet) {
   if (nestOn() && !gr.reawake) return toNest(gr, quiet);
@@ -2364,6 +2370,10 @@ function damage(u, dmg, src) {
       for (let i = 0; i < 2; i++) spawnUnit(u.gene, { d: u.d - i * 3, lane: u.lane + (i ? 6 : -6), copy: true, hpMul: 0.3, small: true }); } }
 }
 // ★ 감염: 바이러스 간섭 — 먼저 자리 잡은 계통(우점)이 있으면 다른 계통은 효율 ×0.35
+function goalMile(R) {   // 감염 50%·80% 넘을 때 한 번씩 알림 + 막대 반짝
+  const k = R.infAmt / R.st.quota, ms = [[0.5, '절반 감염! 계속 밀어붙여요'], [0.8, '거의 다 왔어요! 80%']];
+  R.mile = R.mile || 0; while (R.mile < ms.length && k >= ms[R.mile][0]) { if (k < 1) { banner(ms[R.mile][1]); sfx('up'); buzz(20); } R.mile++; }
+  const b = $('goalBar'); if (b && !b.classList.contains('bump')) { b.classList.add('bump'); setTimeout(() => b.classList.remove('bump'), 160); } }
 function infect(u) {
   const R = run; u.alive = false; R.infected++; sfx('infect');
   let amt = u.atk * (R.sb[u.strain].rash ? 2 : 1) * (R.sb[u.strain].asym ? 1.5 : 1) * (R.sb[u.strain].tox ? 1.5 : 1) * (u.zeroAura ? 1 + u.zeroAura : 1);
@@ -2373,7 +2383,7 @@ function infect(u) {
   // ★ 연쇄 감염 콤보: 같은 계통이 1.2초 안에 연달아 들어가면 보너스가 쌓인다
   const C = R.combo; if (C.s === u.strain && R.time - C.t < 1.2) C.n++; else { C.s = u.strain; C.n = 1; } C.t = R.time; C.best = Math.max(C.best, C.n);
   const cb = Math.min(0.3 + 0.1 * perk('combo'), 0.02 * (C.n - 1)); amt *= 1 + cb; if (C.n >= 5 && C.n % 5 === 0) float(map.goal[0], map.goal[1] - 64, `${STRAINS[u.strain].name} 콤보 ${C.n} ×${(1 + cb).toFixed(2)}`, '#ffcf6a', 15 + Math.min(8, C.n / 5));
-  R.infAmt += amt; R.infBy[u.strain] = (R.infBy[u.strain] || 0) + amt; R.infCnt[u.strain] = (R.infCnt[u.strain] || 0) + 1;
+  R.infAmt += amt; goalMile(R); R.infBy[u.strain] = (R.infBy[u.strain] || 0) + amt; R.infCnt[u.strain] = (R.infCnt[u.strain] || 0) + 1;
   if (!R.dominant) { const top = Object.entries(R.infBy).sort((a, b) => b[1] - a[1])[0]; if (top[1] >= 1) { R.dominant = top[0]; toast(`${STRAINS[top[0]].name} 우점! 다른 계통은 바이러스 간섭으로 감염 ×${RULES.interfere}`); } }
   if (u.decoy) return;
   const calm = (u.br === 'measlesA' && R.sb.measles.rash) ? 0 : 1;
@@ -2407,6 +2417,7 @@ function endRun() {
   const cr = { inf: Math.round(R.infAmt * 6 / (R.ta ? RULES.ta.quotaMul : 1)), reach: Math.round(R.infected * 0.3 / (R.ta ? 3 : 1)), win: win ? Math.round(40 + st.organ.diff * 30 + save.host * 20) : 0, first: first ? 80 : 0 };
   // 실패 위로금: 목표에 가까울수록 크게 (70% 도달 시 승리 보너스의 약 60%)
   const prog = Math.min(1, R.infAmt / st.quota); cr.near = win ? 0 : Math.round((40 + st.organ.diff * 30 + save.host * 20) * 0.6 * Math.pow(prog / 0.7, 1.3) * (prog >= 0.15 ? 1 : 0));
+  if (!win) cr.near = Math.max(12, cr.near);   // 아무리 못해도 최소 12 (3판이면 뽑기 1번) → 막힘 방지
   cr.time = R.ta && win ? Math.round((R.left || 0) * RULES.ta.clearBonus) : 0;
   // ★ 별 3개: 감염 성공 / 들키지 않고 잠입 / 시간 30% 남기고 — 처음 딴 별마다 DNA +30
   save.stars = save.stars || {}; const oldS = save.stars[st.organ.id] || [false, false, false];
@@ -2711,9 +2722,12 @@ const runBgm = () => run && run.sth && !run.sth.done ? 'stealth' : run && run.st
 document.addEventListener('pointerdown', audioInit, { capture: true });
 document.addEventListener('click', e => { if (e.target.closest && e.target.closest('button')) sfx('tap'); }, { capture: true });
 
+let last0 = 0;
 function frame(now) {
   acc += Math.min(0.25, (now - last) / 1000); last = now;
+  if (run && run.hitStop > 0) { run.hitStop -= Math.min(0.1, (now - last0) / 1000); acc = 0; } else
   while (acc >= STEP) { for (let i = 0; i < speedMul; i++) update(STEP); acc -= STEP; }
+  last0 = now;
   render(now / 1000);
   if ((hudT += 1) % 6 === 0) ui.tick();
   endWatch(now); if (run && run.tutOn) tutSpot(); else if (!$('tutSpot').hidden) $('tutSpot').hidden = true;
@@ -3147,12 +3161,12 @@ const ui = {
       <div class="resHead">별 모으기</div>
       <div class="starRow">${['성공하기', '안 들키고 숨어들기', '시간 30% 남기기'].map((t, i) => `<div class="${R.starCond[i] ? 'on' : ''}${R.starNew[i] ? ' new' : ''}"><b>★</b><small>${t}${R.starNew[i] ? ' NEW' : ''}</small></div>`).join('')}</div>
       <div class="resTip">💡 ${tip}</div>
-      ${R.muts && R.muts.length ? `<div class="sub">이번에 고른 강화: ${R.muts.map(k => MUTS[k].icon + ' ' + MUTS[k].name).join(' → ')}</div>` : ''}
+      ${R.muts && R.muts.length ? `<div class="sub">이번에 고른 강화: ${Object.entries(R.muts.reduce((o, k) => (o[k] = (o[k] || 0) + 1, o), {})).map(([k, n]) => `${MUTS[k].icon} ${MUTS[k].name}${n > 1 ? ' ×' + n : ''}`).join(' · ')}</div>` : ''}
       ${ending ? `<div class="ending">엔딩 ${ending.isNew ? '새로 열림' : '다시 봄'}: <b>${ending.name}</b>${hostDone && save.host > 0 ? `<br><span class="sub">이 사람의 몸을 전부 감염시켰어요! 다음 사람(${HOSTS[save.host].name})으로 넘어가요.<br>${hostRule().icon} <b>${hostRule().title}</b> — ${hostRule().desc}</span>` : ''}</div>` : ''}
       ${R.newUnlocks && R.newUnlocks.length ? `<div class="ending" style="border-color:#e8c45a">🔓 새 기능 열림: <b>${R.newUnlocks.join(' · ')}</b></div>` : ''}
       ${win && !hostDone && save.done[R.st.organ.id] ? `<div class="ending" style="border-color:#b0503a">🚨 <b>몸이 눈치챘어요! 다음 기관부터 면역 탑이 ${Math.round(ALERT_STEP * 100)}% 더 세져요</b><br><span class="sub">몸의 경계 ${doneCount()}단계 · 감염시킬수록 면역이 깨어나요</span></div>` : ''}
       ${R.legacyNew ? `<div class="ending" style="border-color:#4f7a2a">✅ <b>다음 판 도움: ${LEGACY[R.legacyNew].help}</b><br><span class="sub">몸에 남긴 흔적 "${LEGACY[R.legacyNew].name}" — ${LEGACY[R.legacyNew].desc}</span></div>` : ''}
-      </div><div class="row resBtns">${hostDone ? '' : `<button class="btn ${win ? '' : 'red'}" id="bRetry" style="min-height:50px;${win ? 'flex:1 1 30%' : ''}">↻ ${win ? '다시' : '다시 도전'}</button>`}<button class="btn ${win ? 'red' : ''}" id="bBack" style="min-height:50px;${win ? 'flex:2 1 60%' : ''}">${win ? '다음 기관으로 ▶' : '연구소에서 강화'}</button></div>`;
+      </div><div class="row resBtns">${hostDone ? '' : `<button class="btn ${win ? '' : 'red'}" id="bRetry" style="min-height:50px;${win ? 'flex:1 1 30%' : ''}">↻ ${win ? '다시' : '다시 도전'}</button>`}<button class="btn ${win ? 'red' : ''}" id="bBack" style="min-height:50px;${win ? 'flex:2 1 60%' : ''}">${hostDone ? '다음 사람으로 ▶' : win ? '다음 기관으로 ▶' : '연구소에서 강화'}</button></div>`;
     const organId = R.st.organ.id;
     if ($('bRetry')) $('bRetry').onclick = () => { save.sel = organId; $('result').hidden = true; run = null; paused = false; startRun(); };
     $('bBack').onclick = () => ui.showHub(win ? 'body' : 'lab');
@@ -3293,22 +3307,26 @@ function playCatch(g) {
   requestAnimationFrame(step);
 }
 
-function autoSquad() {                                   // 가장 강한 계통 하나에 집중 (간섭 회피) + 부족하면 다른 계통으로 채움
-  const byStrain = {};
-  for (const g of save.genes) (byStrain[g.strain] ||= []).push(g);
-  const ranked = Object.entries(byStrain).map(([s, gs]) => [s, gs.sort((a, b) => power(b) - power(a))]).sort((a, b) => b[1].slice(0, 5).reduce((x, g) => x + power(g), 0) - a[1].slice(0, 5).reduce((x, g) => x + power(g), 0));
-  const out = [];
-  let leg = false;
-  for (const [, gs] of ranked) for (const g of gs) if (out.length < RULES.slots) { if (STRAINS[g.strain].legend) { if (leg) continue; leg = true; } out.push(g.uid); }
-  save.squad = [0, 1, 2].map(i => out[i] || null);
+function autoSquad() {   // 고른 기관에 맞춰 카드 3장과 자리(몸통·껍질·가시)를 함께 고른다: 잘 먹히는 바이러스·적성 몸통 우대
+  const org = save.sel || 'nose', S = new Map(save.genes.filter(g => !STRAINS[g.strain].hero).map(g => [g, geneStats(g)]));
+  const tf = g => 1 + 0.15 * tropScore(g.strain, org);
+  const pool = [...S.keys()].sort((a, b) => power(b) * tf(b) - power(a) * tf(a)).slice(0, 12);
+  let best = null, bs = -1;
+  for (const b of pool) for (const c of pool) for (const k of pool) {
+    if (b === c || c === k || b === k) continue; const L = [b, c, k].filter(g => STRAINS[g.strain].legend).length; if (L > 1) continue;
+    const x = S.get(b), y = S.get(c), z = S.get(k), hp = x.hp * 0.6 + y.hp * 0.2 + z.hp * 0.2, atk = x.atk * 0.2 + y.atk * 0.2 + z.atk * 0.6, spd = x.spd * 0.2 + y.spd * 0.6 + z.spd * 0.2;
+    const cnt = Math.min(260, x.count + y.count + z.count), fit = fitOf(org, ROLE_OF[b.strain]) ? 1.25 : 1, tr = clamp(1 + 0.15 * (tropScore(b.strain, org) + tropScore(c.strain, org) + tropScore(k.strain, org)), 0.7, 1.45);
+    const sc = atk * cnt * Math.sqrt(hp) * Math.sqrt(spd) * fit * fit * tr * tr; if (sc > bs) { bs = sc; best = [b, c, k]; } }
+  if (!best) best = pool.slice(0, 3);
+  save.squad = [0, 1, 2].map(i => best[i] ? best[i].uid : null);
 }
 
 // 소리 켜고 끄기 (허브 🔊 버튼 · 일시정지 메뉴)
-const sndBtns = () => { const o = sndOpt(); return `<button class="btn ${o.bgm ? 'green' : ''}" id="sBgm">🎵 음악 ${o.bgm ? '켬' : '끔'}</button><button class="btn ${o.sfx ? 'green' : ''}" id="sSfx">🔊 효과음 ${o.sfx ? '켬' : '끔'}</button>`; };
-function bindSnd(after) { const o = sndOpt(), ref = () => { persist(); applyVol(); updSndIcon(); if (after) after(); else { $('sBgm').outerHTML = sndBtns().split('</button>')[0] + '</button>'; $('sSfx').outerHTML = sndBtns().split('</button>')[1] + '</button>'; bindSnd(); } };
-  $('sBgm').onclick = () => { o.bgm = !o.bgm; if (o.bgm && SND.want) playBgm(SND.want, true); ref(); }; $('sSfx').onclick = () => { o.sfx = !o.sfx; ref(); }; }
+const sndBtns = () => { const o = sndOpt(); return `<button class="btn ${o.bgm ? 'green' : ''}" id="sBgm">🎵 음악 ${o.bgm ? '켬' : '끔'}</button><button class="btn ${o.sfx ? 'green' : ''}" id="sSfx">🔊 효과음 ${o.sfx ? '켬' : '끔'}</button><button class="btn ${o.vib !== false ? 'green' : ''}" id="sVib">📳 진동 ${o.vib !== false ? '켬' : '끔'}</button>`; };
+function bindSnd(after) { const o = sndOpt(), ref = () => { persist(); applyVol(); updSndIcon(); if (after) after(); else { $('sBgm').outerHTML = sndBtns().split('</button>')[0] + '</button>'; $('sSfx').outerHTML = sndBtns().split('</button>')[1] + '</button>'; $('sVib').outerHTML = sndBtns().split('</button>')[2] + '</button>'; bindSnd(); } };
+  $('sBgm').onclick = () => { o.bgm = !o.bgm; if (o.bgm && SND.want) playBgm(SND.want, true); ref(); }; $('sSfx').onclick = () => { o.sfx = !o.sfx; ref(); }; if ($('sVib')) $('sVib').onclick = () => { o.vib = o.vib === false; if (o.vib) buzz(30); ref(); }; }
 const updSndIcon = () => { const o = sndOpt(); $('bSnd').textContent = o.bgm || o.sfx ? '🔊' : '🔇'; };
-$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">소리</h3><div class="row">${sndBtns()}</div><div class="row"><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sClose').onclick = ui.closeModal; };
+$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">소리 · 진동</h3><div class="row">${sndBtns()}</div><div class="row"><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sClose').onclick = ui.closeModal; };
 updSndIcon();
 $('bReset').onclick = () => {
   ui.modal(`<h3 style="margin:0 0 6px">처음부터 다시 할까요?</h3><div class="sub">바이러스, DNA, 감염한 기관, 슈퍼바이러스 강화, 영구 변이, 도감이 모두 지워지고 처음 상태로 돌아갑니다. 되돌릴 수 없어요.</div>
@@ -3328,7 +3346,7 @@ $('bDex').onclick = () => { if (!unlocked('breed')) return lockMsg('breed');
     <div class="dex">${RECIPES.map(r => got[r.id] ? `<div>${pimg({ strain: r.id, star: 1, passives: [] })}<b>${r.name}</b><span>${STRAINS[r.a].name} + ${STRAINS[r.b].name}<br>${r.skill}</span></div>`
       : `<div class="lock"><div class="qm">?</div><b>???</b><span>힌트: ${STRAINS[r.a].name} + ?<br>${STRAINS[r.a].role} 계열</span></div>`).join('')}</div>
     <div class="row"><button class="btn" onclick="ui.closeModal()">닫기</button></div>`); };
-$('bAuto').onclick = () => { autoSquad(); persist(); ui.showHub(); };
+$('bAuto').onclick = () => { autoSquad(); persist(); ui.showHub(); toast(`${organById(save.sel || 'nose').name}에 맞춰 골랐어요`); };
 $('bCatch').onclick = () => { if (save.dna < RULES.gacha) return toast('DNA가 부족해요'); save.dna -= RULES.gacha; const g = gacha(); addCard(g); persist(); playCatch(g); };
 $('bBreed').onclick = () => { if (!unlocked('breed')) return lockMsg('breed'); if (breedPick.length) breedPick = []; else { if (save.dna < RULES.breed) return toast('DNA가 부족해요'); breedPick = ['ready']; toast('교배할 첫 번째 바이러스를 고르세요'); } ui.showHub(); };
 $('bGo').onclick = startRun;
