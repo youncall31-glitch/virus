@@ -658,7 +658,7 @@ const NAMES = [...[0, 1, 2, 3, 4, 5].flatMap(i => ['vp_core_' + i, 'vp_spike_' +
   'phage_mini','decoy_shell','gutstorm','shadowdoc','ironcarrier','frenzyrash','pneumostorm','undying',
   ...['rhino','adeno','noro','herpes','flu','rota','retro','rabies','rsv','measles','hepb','hpv'].flatMap(s => [s + '_A', s + '_B']),
   ...['zero','mimi','phage'].flatMap(h => ['hero_' + h, 'hero_' + h + '10', 'hero_' + h + '15']), 'aura','forge','forge_ok','forge_fail','enzyme',
-  ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
+  ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'boss_' + o), 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
   'gacha_bg','bodymap_skin','bodymap_h0_skin','bodymap_h1_skin','bodymap_h3_skin','ring_common','ring_rare','ring_hero','ring_new','fx_sneeze','jar','jar_sealed','jar_broken','glove','bodymap',
   ...Object.keys({ inf:1, hp:1, cnt:1, cd:1, dna:1, forge:1, capsule:1, combo:1 }).map(k => 'perk_' + k), 'tab_body','tab_lab','tab_hero','codex','deploy_all','combo','legacy','lock','ebola','corona','hero_smallpox','flu1918', ...Object.keys(NEWV),'intro_bg','title_logo','story_2','story_3', ...[0, 1, 2, 3].map(i => 'vp_core_L' + i)];
 const JPG = new Set(['intro_bg', 'ground', 'dirt', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h3_skin']);
@@ -1575,6 +1575,98 @@ function drawHazard(time) {
   if (z.fire > 0) { const k = 1 - z.fire / 0.8; ctx.globalAlpha = 0.5 * (1 - k); ctx.strokeStyle = z.color; ctx.lineWidth = 14; ctx.beginPath(); ctx.arc(map.goal[0], map.goal[1], 40 + k * Math.max(W, H), 0, TAU); ctx.stroke(); }
   ctx.restore();
 }
+/* ---------- [systems/boss.js] ★ 기관 보스: 목표 바로 앞을 지키는 문지기 ----------
+   살아 있으면 목표에 들어가는 감염이 ×0.75, 쓰러뜨리면 남은 시간 동안 ×1.25 + DNA 보너스.
+   바이러스가 옆을 지나가며 물어뜯어 체력을 깎는다. 기관마다 고유 기술 하나 (2초 전에 예고). */
+const BOSS = {
+  nose:  { name: '콧물 대왕',        ico: '🤧', tw: 'cilia',  color: '#9fe8ff', skill: 'slime', every: 11, sk: '끈끈한 콧물', warn: '콧물이 쏟아진다! 앞쪽이 느려져요' },
+  lung:  { name: '폐포 대식 거인',    ico: '🫁', tw: 'macro',  color: '#ffb38a', skill: 'inhale', every: 10, sk: '들이마시기', warn: '거인이 숨을 들이쉰다! 가까이 있으면 아파요' },
+  gut:   { name: '위산 마왕',         ico: '🧪', tw: 'neutro', color: '#b8ff3a', skill: 'acid', every: 10, sk: '위산 폭탄', warn: '위산 폭탄이 떨어진다! 초록 원을 피해요' },
+  liver: { name: '쿠퍼 군주',         ico: '🧹', tw: 'macro',  color: '#9fe8ff', skill: 'heal', every: 12, sk: '해독 회복', warn: '군주가 탑들을 고친다!' },
+  blood: { name: '응고 거인',         ico: '🩸', tw: 'complement', color: '#ff6a6a', skill: 'clot', every: 12, sk: '피떡 막기', warn: '피가 굳는다! 앞길이 잠깐 막혀요' },
+  skin:  { name: '랑게르한스 파수꾼', ico: '🛡', tw: 'dendri', color: '#e0b07a', skill: 'call', every: 14, sk: '지원 요청', warn: '파수꾼이 지원을 부른다! 탑이 생겨요' },
+  lymph: { name: '킬러 T 대장',       ico: '🎯', tw: 'tcell',  color: '#b9a8ff', skill: 'snipe', every: 9, sk: '정밀 사격', warn: '대장이 조준한다! 튼튼한 바이러스부터 노려요' },
+  brain: { name: '미세아교 여왕',     ico: '👑', tw: 'nk',     color: '#7fc0ff', skill: 'queen', every: 10, sk: '번개 · 보호막', warn: '여왕이 번개를 모은다!' },
+};
+const BOSS_RULE = { hp: 150, near: 74, gateMul: 0.75, koMul: 1.25, dna: 40, dmg: 9, rate: 0.9, range: 150 };
+function initBoss() {
+  const R = run, B = BOSS[R.st.organ.id]; R.boss = null; if (!B || !R.ta || !save.tutDone) return;   // 첫 튜토리얼 판엔 보스 없음
+  const d = map.len - 95, [x, y, nx, ny] = pathAt(d), side = (x + nx * 46 > 40 && x + nx * 46 < W - 40) ? 1 : -1;
+  const hp = BOSS_RULE.hp * R.st.mul * (1 + 0.5 * R.st.organ.diff);
+  R.boss = { ...B, id: R.st.organ.id, d, x: x + nx * 46 * side, y: y + ny * 46 * side + 10, hp, maxHp: hp, t: B.every, cd: 1, warned: false, on: false, dead: false, hitT: 0, shield: 0, fx: [] };
+}
+function bossAlive() { const b = run && run.boss; return !!(b && b.on && !b.dead); }
+function stepBoss(dt) {
+  const R = run, b = R.boss; if (!b || b.dead) return;
+  if (!b.on) { if (stealthOn() || R.tutOn) return; b.on = true; banner(`${b.ico} 보스 ${b.name} 등장! 목표 앞을 지켜요`); sfx('alarm'); buzz(60); }
+  b.hitT = Math.max(0, b.hitT - dt); b.shield = Math.max(0, b.shield - dt); b.fx = b.fx.filter(f => (f.t -= dt) > 0);
+  // 물어뜯기: 옆을 지나는 바이러스 (탑을 물지 않은 녀석만)
+  const nn = BOSS_RULE.near * BOSS_RULE.near;
+  for (const u of R.units) { if (!u.alive || u.atkCd > 0 || u.decoy || R.sb[u.strain].stealth > 0) continue; const dx = b.x - u.x, dy = b.y - 20 - u.y; if (dx * dx + dy * dy > nn) continue;
+    const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
+    if (b.shield <= 0) { b.hp -= u.atk * TOWER_HP.bite * m; b.hitT = 0.15; } sfx('bite'); u.atkT = 0.28; u.atkTx = b.x; u.atkTy = b.y - 20; u.atkCd = 0.75 + Math.random() * 0.3;   // 보스는 지나가며 물기만 (멈추지 않음: 길이 꽉 막히지 않게)
+    if (Math.random() < 0.3) R.fx.push({ x: b.x + rand(-16, 16), y: b.y - 24 + rand(-14, 10), t: 0.22, s: 12, color: b.shield > 0 ? '#7fc0ff' : SCOLOR[u.strain] || '#e8a0ff' }); }
+  if (b.hp <= 0) return bossDown();
+  if (R.stunT > 0) return;
+  // 평타: 가까운 바이러스 3마리에게 사격
+  b.cd -= dt; if (b.cd <= 0) { b.cd = BOSS_RULE.rate * (R.gap > 0 ? 1.8 : 1);
+    const c = R.units.filter(u => u.alive && u.revealed && u.d > 0 && Math.hypot(u.x - b.x, u.y - b.y) < BOSS_RULE.range).sort((p, q) => q.d - p.d).slice(0, 3);
+    for (const tg of c) R.shots.push({ x: b.x, y: b.y - 40, tg, dmg: BOSS_RULE.dmg * R.st.mul * RULES.dmgScale, splash: 0, color: b.color, sp: 560 }); if (c.length) sfx('shot'); }
+  // 고유 기술
+  b.t -= dt; if (b.t <= 2 && !b.warned) { b.warned = true; banner(`${b.ico} ${b.warn}`); b.aim = bossAim(b); }
+  if (b.t <= 0) { b.t = b.every * (R.fit ? 1.25 : 1); b.warned = false; bossSkill(b); }
+}
+function bossAim(b) { const R = run, al = R.units.filter(u => u.alive && u.d > 0); if (!al.length) return null; const c = al.sort((p, q) => q.d - p.d)[Math.floor(al.length * 0.3)] || al[0]; return { d: c.d, x: c.x, y: c.y }; }
+function bossSkill(b) {
+  const R = run, al = R.units.filter(u => u.alive && !u.hero && u.d > 0), fit = R.fit ? 0.6 : 1; shake(6); sfx('wave'); buzz(30);
+  const ring = (x, y, r) => R.rings.push({ x, y, r: 10, R: r, t: 0.6, color: b.color });
+  switch (b.skill) {
+    case 'slime': { const a = b.aim || bossAim(b); if (!a) break; let n = 0; for (const u of al) if (Math.abs(u.d - a.d) < 180) { u.slimeT = 4 * fit; n++; } ring(a.x, a.y, 150); float(a.x, a.y - 40, `${b.sk}! ${n}마리 느려짐`, b.color, 15); break; }
+    case 'inhale': { let n = 0; for (const u of al) { const l = Math.hypot(u.x - b.x, u.y - b.y); if (l < 220) { hurtU(u, 0.3 * fit, b.color); n++; } } ring(b.x, b.y - 20, 220); float(b.x, b.y - 70, `${b.sk}! ${n}마리 다침`, b.color, 15); break; }
+    case 'acid': { const a = b.aim || bossAim(b); if (!a) break; b.fx.push({ kind: 'acid', x: a.x, y: a.y, d: a.d, t: 4 }); float(a.x, a.y - 40, b.sk, b.color, 15); break; }
+    case 'heal': { let n = 0; for (const t of R.towers) { t.hp = Math.min(t.maxHp, t.hp + t.maxHp * 0.4); ring(t.x, t.y - 20, 50); n++; } b.hp = Math.min(b.maxHp, b.hp + b.maxHp * 0.06 * fit); float(b.x, b.y - 70, `${b.sk}! 탑 ${n}개 회복`, b.color, 15); break; }
+    case 'clot': { const d = Math.max((R.frontD || 0) + 40, b.d - 260); b.fx.push({ kind: 'clot', d, t: 3 * fit }); const [x, y] = pathAt(d); ring(x, y, 90); float(x, y - 40, `${b.sk}!`, b.color, 15); break; }
+    case 'call': { for (let i = 0; i < 2; i++) { const P = R.plan; if (P) P.n++; immuneBuild(); } float(b.x, b.y - 70, `${b.sk}! 탑이 늘었어요`, b.color, 15); break; }
+    case 'snipe': { const tg = al.sort((p, q) => q.maxHp - p.maxHp).slice(0, Math.round(8 * fit)); for (const u of tg) { b.fx.push({ kind: 'beam', x: u.x, y: u.y, t: 0.35 }); u.alive = false; pop(u, b.color); } float(b.x, b.y - 70, `${b.sk}! ${tg.length}마리`, b.color, 15); break; }
+    case 'queen': { const tg = al.sort((p, q) => q.d - p.d).slice(0, 12); for (const u of tg) { b.fx.push({ kind: 'beam', x: u.x, y: u.y, t: 0.35 }); hurtU(u, 0.4 * fit, b.color); }
+      if (b.hp < b.maxHp * 0.5) { b.shield = 4; float(b.x, b.y - 90, '보호막! 4초 동안 안 다쳐요', '#7fc0ff', 14); } float(b.x, b.y - 70, '번개!', b.color, 15); break; }
+  }
+}
+// 보스가 만든 바닥 효과: 위산 웅덩이(피해) · 피떡(통과 불가)
+function bossFloor(dt) {
+  const b = run.boss; if (!b) return; for (const u of run.units) if (u.slimeT > 0) u.slimeT -= dt; for (const f of b.fx) {
+    if (f.kind === 'acid') for (const u of run.units) if (u.alive && !u.hero && Math.hypot(u.x - f.x, u.y - f.y) < 70) hurtU(u, 0.12 * dt * (run.fit ? 0.6 : 1), b.color); }
+}
+function bossBlock(u, nd) { const b = run.boss; if (!b || b.dead) return nd; for (const f of b.fx) if (f.kind === 'clot' && u.d < f.d && nd >= f.d) return f.d - rand(2, 10); return nd; }
+function bossDown() {
+  const R = run, b = R.boss; b.dead = true; b.hp = 0; R.bossKO = true; shake(12); hitStop(0.2); buzz([80, 40, 160]); sfx('collapse'); sfx('clear'); R.flashT = 0.3; R.flashC = '255,220,140';
+  for (let i = 0; i < 36; i++) { const a = Math.random() * TAU, sp = rand(80, 260); R.parts.push({ x: b.x, y: b.y - 30, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 80, t: rand(0.6, 1.1), c: [b.color, '#ffd27a', '#e8a0ff'][i % 3], r: rand(2, 4.5) }); }
+  R.rings.push({ x: b.x, y: b.y - 30, r: 10, R: 160, t: 0.8, color: '#ffd27a' });
+  banner(`${b.ico} ${b.name} 쓰러짐! 이제 감염 ×${BOSS_RULE.koMul}`); float(b.x, b.y - 80, '보스 처치!', '#ffd27a', 22);
+}
+function bossInfMul() { const b = run.boss; if (!b || !b.on) return 1; return b.dead ? BOSS_RULE.koMul : BOSS_RULE.gateMul; }
+function drawBoss(time) {
+  const R = run, b = R.boss; if (!b || stealthOn()) return;
+  for (const f of b.fx) { ctx.save();
+    if (f.kind === 'acid') { ctx.globalAlpha = 0.3 + 0.1 * Math.sin(time * 6); ctx.fillStyle = b.color; ctx.beginPath(); ctx.arc(f.x, f.y, 70, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.8; ctx.strokeStyle = b.color; ctx.lineWidth = 2; ctx.stroke(); }
+    if (f.kind === 'clot') { const [x, y, nx, ny] = pathAt(f.d); ctx.strokeStyle = '#8a1020'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - nx * 26, y - ny * 26); ctx.lineTo(x + nx * 26, y + ny * 26); ctx.stroke(); label('막힘', x, y - 26, '#ff8d7a'); }
+    if (f.kind === 'beam') { ctx.globalAlpha = f.t / 0.35; ctx.strokeStyle = b.color; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(b.x, b.y - 50); ctx.lineTo(f.x, f.y); ctx.stroke(); }
+    ctx.restore(); }
+  if (b.warned && b.aim && (b.skill === 'slime' || b.skill === 'acid')) { ctx.save(); ctx.globalAlpha = 0.3 + 0.3 * Math.abs(Math.sin(time * 10)); ctx.strokeStyle = b.color; ctx.setLineDash([6, 6]); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(b.aim.x, b.aim.y, b.skill === 'acid' ? 70 : 110, 0, TAU); ctx.stroke(); ctx.restore(); }
+  if (b.dead) { ctx.save(); ctx.globalAlpha = 0.4; drawSprite(ctx, IMG[b.tw], b.x, b.y, 60, 1, true); ctx.restore(); return; }
+  const sz = 78, bob = Math.sin(time * 2) * 2, img = IMG['boss_' + b.id] || IMG[b.tw];
+  ctx.save();   // 바닥 그림자 · 왕관 빛
+  const gl = ctx.createRadialGradient(b.x, b.y - 30, 6, b.x, b.y - 30, 70); gl.addColorStop(0, b.color + '55'); gl.addColorStop(1, b.color + '00'); ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(b.x, b.y - 30, 70, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 0.5; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(b.x, b.y + 2, 30, 10, 0, 0, TAU); ctx.fill(); ctx.restore();
+  ctx.save(); if (b.hitT > 0) ctx.filter = 'brightness(1.8)'; drawSprite(ctx, img, b.x + (b.hitT > 0 ? rand(-2, 2) : 0), b.y + bob, sz, 1, true); ctx.restore();
+  if (!IMG['boss_' + b.id]) { ctx.save(); ctx.font = '22px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('👑', b.x, b.y - sz - 2 + bob); ctx.restore(); }
+  if (b.shield > 0) { ctx.save(); ctx.globalAlpha = 0.35 + 0.15 * Math.sin(time * 12); ctx.strokeStyle = '#7fc0ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(b.x, b.y - 36, 52, 0, TAU); ctx.stroke(); ctx.restore(); }
+  // 체력바 + 이름
+  const bw = 96, bx = clamp(b.x - bw / 2, 6, W - bw - 6), by = b.y - sz - 26 < TOP + 18 ? b.y + 30 : b.y - sz - 26; ctx.save(); ctx.fillStyle = '#000a'; ctx.fillRect(bx - 2, by - 2, bw + 4, 10);
+  ctx.fillStyle = b.shield > 0 ? '#7fc0ff' : '#e0453f'; ctx.fillRect(bx, by, bw * Math.max(0, b.hp / b.maxHp), 6); ctx.restore();
+  label(`${b.name}`, bx + bw / 2, by > b.y ? by + 20 : by - 6, '#ffd27a');
+  if (b.warned) label(`${b.sk} ${Math.max(0, Math.ceil(b.t))}`, bx + bw / 2, by > b.y ? by + 36 : b.y + 22, b.color);
+}
 function label(t, x, y, c) { ctx.save(); ctx.font = "800 12px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(t, x, y); ctx.fillStyle = c; ctx.fillText(t, x, y); ctx.restore(); }
 
 /* ---------- [render/juice.js] ★ 손맛: 화면 흔들림 · 터지는 입자 · 탑 붕괴 · 승리 연출 ---------- */
@@ -2092,7 +2184,7 @@ function startRun() {
   if (TA()) { run.ta = true; run.T = timeLimit(organ); run.antiviral = save.host === 1 ? [0.35, 0.7] : []; run.gapT = 8; run.gap = 0; run.released = 0; for (const g of groups) { g.list = []; } }
   aiming = null; placing = null; paused = false;
   if (run.ta) initStealth();
-  run.fit = fit; run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); run.parts = []; initPeri();
+  run.fit = fit; run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); initBoss(); run.parts = []; initPeri();
   const r0 = run; if (TA()) setTimeout(() => run === r0 && !run.over && float(W / 2, H * 0.36, (fit ? `타입 딱 맞음! 힘 +25%` : `${(ROLES[(ORGAN_FIT[organ.id] || {}).role] || {}).name || '-'} 몸통이 유리해요`) + (trop !== 1 ? ` · 궁합 ${trop > 1 ? '+' : ''}${Math.round((trop - 1) * 100)}%` : ''), fit || trop > 1 ? '#9fff6a' : '#ffd27a', 15), 900);
   ui.showRun(); tutStart();
   if (st.legs.length) { banner('지난번에 남긴 흔적이 도와줘요!'); st.legs.forEach((l, i) => setTimeout(() => run && float(W / 2, H * 0.42 + i * 26, `✅ ${l.text} (${LEGACY[l.s].name})`, '#b9f27a', 15), 300 + i * 350)); }
@@ -2266,7 +2358,7 @@ function update(dt) {
     u.hitT = Math.max(0, u.hitT - dt); u.inv = Math.max(0, u.inv - dt); u.boost = Math.max(0, u.boost - dt); u.cloak = Math.max(0, u.cloak - dt); u.mark = Math.max(0, (u.mark || 0) - dt);
     const B = R.sb[u.strain]; if (u.decoy && R.time - u.born > 6) { u.alive = false; continue; }
     if (B.regen) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.12 * dt); if (u.gene.passives.includes('wartP')) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.01 * dt);
-    let s = (R.mvMul || 1) * (u.mvS || 1) * (u.cil ? (R.fit ? 0.75 : CILIA.slow) : 1) * (u.sq > 0 ? (R.fit ? 0.7 : 0.25) : 1) * u.spd * (u.biting > 0 && ROLE_OF[u.strain] !== 'tank' ? 0.55 : 1) * B.spdMul * (B.dive ? 1.3 : 1) * (u.boost > 0 ? 1.3 : 1) * (u.br === 'rabiesA' ? 1 + 0.8 * (1 - u.hp / u.maxHp) : 1);
+    let s = (R.mvMul || 1) * (u.mvS || 1) * (u.cil ? (R.fit ? 0.75 : CILIA.slow) : 1) * (u.sq > 0 ? (R.fit ? 0.7 : 0.25) : 1) * (u.slimeT > 0 ? 0.45 : 1) * u.spd * (u.biting > 0 && ROLE_OF[u.strain] !== 'tank' ? 0.55 : 1) * B.spdMul * (B.dive ? 1.3 : 1) * (u.boost > 0 ? 1.3 : 1) * (u.br === 'rabiesA' ? 1 + 0.8 * (1 - u.hp / u.maxHp) : 1);
     if (u.gene.passives.includes('neuroP') && u.d > map.neuroFrom) s *= 1.3;
     if (marked(u)) s *= 0.85;
     if (u.inZone > 0) { u.inZone -= dt; s *= (R.hz && R.hz.slow) || 1; }
@@ -2275,7 +2367,7 @@ function update(dt) {
     if (u.fk >= 0) { const f = map.forks[u.fk]; u.fd += s * dt;
       if (u.fd >= f.len) { u.d = f.d2 + (u.fd - f.len); u.fk = -1; } else { u.d = f.d1 + (f.d2 - f.d1) * u.fd / f.len; pos = pathAt(u.fd, f); } }
     if (!pos) {
-      let nd = u.d + s * dt;
+      let nd = bossBlock(u, u.d + s * dt);
       for (const v of map.valves) if (v.closed && !u.valvePass && !B.dive && u.d < v.d && nd >= v.d - 4 - u.stack) nd = Math.max(u.d, v.d - 4 - u.stack);
       if (R.plates) for (const p of R.plates) if (p.hp > 0 && !u.hero && u.d < p.d && nd >= p.d - 4 - u.stack) nd = Math.max(u.d, p.d - 4 - u.stack);
       { const z = R.hz; if (z && z.type === 'gate' && z.closedNow && !B.dive && !u.hero && u.d < z.d && nd >= z.d - 4 - u.stack) nd = Math.max(u.d, z.d - 4 - u.stack); }
@@ -2292,7 +2384,7 @@ function update(dt) {
   }
 
   // 탑
-  stepHazard(dt); stepPeri(dt); stepMove(dt); biteTowers(dt);
+  stepHazard(dt); stepPeri(dt); stepMove(dt); biteTowers(dt); stepBoss(dt); bossFloor(dt);
   const sP = Math.min(1.3, 1 + 0.01 * R.alert), sS = Math.min(1.3, 1 + 0.006 * R.alert);
   const conv = R.towers.filter(t => t.converted > 0), slime = R.outposts.filter(o => o.type === 'out_slime'), decoys = R.outposts.filter(o => o.type === 'out_decoy' && o.hp > 0);
   for (const t of R.towers) {
@@ -2383,7 +2475,7 @@ function infect(u) {
   // ★ 연쇄 감염 콤보: 같은 계통이 1.2초 안에 연달아 들어가면 보너스가 쌓인다
   const C = R.combo; if (C.s === u.strain && R.time - C.t < 1.2) C.n++; else { C.s = u.strain; C.n = 1; } C.t = R.time; C.best = Math.max(C.best, C.n);
   const cb = Math.min(0.3 + 0.1 * perk('combo'), 0.02 * (C.n - 1)); amt *= 1 + cb; if (C.n >= 5 && C.n % 5 === 0) float(map.goal[0], map.goal[1] - 64, `${STRAINS[u.strain].name} 콤보 ${C.n} ×${(1 + cb).toFixed(2)}`, '#ffcf6a', 15 + Math.min(8, C.n / 5));
-  R.infAmt += amt; goalMile(R); R.infBy[u.strain] = (R.infBy[u.strain] || 0) + amt; R.infCnt[u.strain] = (R.infCnt[u.strain] || 0) + 1;
+  amt *= bossInfMul(); R.infAmt += amt; goalMile(R); R.infBy[u.strain] = (R.infBy[u.strain] || 0) + amt; R.infCnt[u.strain] = (R.infCnt[u.strain] || 0) + 1;
   if (!R.dominant) { const top = Object.entries(R.infBy).sort((a, b) => b[1] - a[1])[0]; if (top[1] >= 1) { R.dominant = top[0]; toast(`${STRAINS[top[0]].name} 우점! 다른 계통은 바이러스 간섭으로 감염 ×${RULES.interfere}`); } }
   if (u.decoy) return;
   const calm = (u.br === 'measlesA' && R.sb.measles.rash) ? 0 : 1;
@@ -2424,8 +2516,9 @@ function endRun() {
   const cond = [win, win && !!R.sth && !R.sth.caught, win && (R.left || 0) / (R.T || 1) >= 0.3];
   R.starCond = cond; R.starNew = cond.map((c, i) => c && !oldS[i]); save.stars[st.organ.id] = oldS.map((o, i) => o || cond[i]);
   cr.star = R.starNew.filter(Boolean).length * 30;
-  cr.perk = Math.round((cr.inf + cr.reach + cr.win + cr.first + cr.time + cr.near + cr.star) * 0.08 * perk('dna'));
-  const credits = cr.inf + cr.reach + cr.win + cr.first + cr.time + cr.near + cr.star + cr.perk; R.cr = cr;
+  cr.boss = R.bossKO ? BOSS_RULE.dna + (save.bossKO && save.bossKO[st.organ.id] ? 0 : BOSS_RULE.dna) : 0; if (R.bossKO) { save.bossKO = save.bossKO || {}; R.bossFirst = !save.bossKO[st.organ.id]; save.bossKO[st.organ.id] = true; }
+  cr.perk = Math.round((cr.inf + cr.reach + cr.win + cr.first + cr.time + cr.near + cr.star + cr.boss) * 0.08 * perk('dna'));
+  const credits = cr.inf + cr.reach + cr.win + cr.first + cr.time + cr.near + cr.star + cr.boss + cr.perk; R.cr = cr;
   save.dna += credits;
   const progC = {}, byCat = {};
   for (const g of R.genes) { const c = catOf(g.strain); if (!c) continue; byCat[c] = byCat[c] || { inf: 0, n: 0 }; byCat[c].n += geneStats(g).count; }
@@ -2449,7 +2542,7 @@ function endRun() {
   }
   R.newUnlocks = Object.entries(UNLOCK).filter(([k, v]) => before < v[0] && progN() >= v[0]).map(([k, v]) => v[1]);
   persist();
-  setTimeout(() => ui.showResult({ win, credits, ending, hostDone }), 500);
+  setTimeout(() => { if (run === R) ui.showResult({ win, credits, ending, hostDone }); }, 500);
 }
 const ENDINGS = [
   { id:'zombie', name:'좀비 바이러스(가상)', test: c => (c.rabies || 0) >= 5 },
@@ -2489,7 +2582,7 @@ function render(time) {
     ctx.restore(); }
     if (v.closed || warn) { ctx.save(); ctx.font = "700 11px 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const tx = v.closed ? '판막 닫힘' : '판막 곧 닫힘'; ctx.strokeText(tx, x, y - 26); ctx.fillStyle = v.closed ? '#ff8d8a' : '#ffd27a'; ctx.fillText(tx, x, y - 26); ctx.restore(); }
   }
-  drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time);
+  drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time); drawBoss(time);
   for (const f of map.forks) drawSwitch(f, time);
   for (const t of R.towers) {
     const a = TOWERS[t.type].aura;
@@ -2825,7 +2918,7 @@ const ui = {
       <div class="sub">${o.fact}</div>
       ${ORGAN_FIT[o.id] ? `<div class="fitBox">${roleBadge0(ORGAN_FIT[o.id].role)}<b>여기엔 ${ROLES[ORGAN_FIT[o.id].role].name} 몸통이 좋아요</b> <span>맞으면 힘 +25%, 길의 방해는 절반</span>${(() => { const sq = slotFill(); if (!sq.length) return ''; const ok = ROLE_OF[sq[0].strain] === ORGAN_FIT[o.id].role; return `<em class="${ok ? 'ok' : 'no'}">${ok ? '✓ 지금 내 몸통이 딱 맞아요' : '✗ 지금 내 몸통은 ' + ((ROLES[ROLE_OF[sq[0].strain]] || {}).name || '-') + ' — 연구소에서 바꿔 보세요'}</em>`; })()}</div>` : ''}
       ${ui.tropHtml(o.id)}
-      <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초 안에</span>` : ''}<span class="chip">🎯 목표 ${Math.round(st.quota)}</span>${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: 판막</span>` : ''}<span class="chip">면역 탑 최대 ${st.towers}개</span>${doneCount() ? `<span class="chip warn">🚨 몸의 경계 ${doneCount()}단계 · 탑 +${Math.round(ALERT_STEP * 100 * doneCount())}%</span>` : ''}${o.valves ? `<span class="chip warn">판막 ${o.valves}</span>` : ''}${save.done[o.id] ? '<span class="chip ok">감염 완료 · 재도전 가능</span>' : ''}</div>
+      <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초 안에</span>` : ''}<span class="chip">🎯 목표 ${Math.round(st.quota)}</span>${BOSS[o.id] ? `<span class="chip" style="border-color:#a0303a;color:#ffb4a8">${BOSS[o.id].ico} 보스 ${BOSS[o.id].name}${(save.bossKO || {})[o.id] ? ' ✓' : ''}</span>` : ''}${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">몸의 반응: 판막</span>` : ''}<span class="chip">면역 탑 최대 ${st.towers}개</span>${doneCount() ? `<span class="chip warn">🚨 몸의 경계 ${doneCount()}단계 · 탑 +${Math.round(ALERT_STEP * 100 * doneCount())}%</span>` : ''}${o.valves ? `<span class="chip warn">판막 ${o.valves}</span>` : ''}${save.done[o.id] ? '<span class="chip ok">감염 완료 · 재도전 가능</span>' : ''}</div>
       ${st.legs.length ? `<div class="feat">${st.legs.map(l => `<span class="chip ok" style="white-space:normal">✅ 도움: ${l.text} <small>(${l.global ? '몸 전체' : '이 기관'} · 흔적 ${LEGACY[l.s].name})</small></span>`).join('')}</div>`
         : ''}`;
   },
@@ -3147,7 +3240,7 @@ const ui = {
     const R = run, by = Object.entries(R.infBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${STRAINS[k].name} ${v.toFixed(1)}`).join(' · ') || '없음';
     $('result').hidden = false;
     const pct = Math.min(100, Math.round(R.infAmt / R.st.quota * 100)), C = R.cr, fitRole = (ROLES[(ORGAN_FIT[R.st.organ.id] || {}).role] || {}).name || '';
-    const dl = [['감염시킨 만큼', C.inf], ['목표까지 들어간 바이러스', C.reach], ['성공 보상', C.win], ['처음 성공 보너스', C.first], ['빨리 끝낸 보너스', C.time], ['아깝다! 보너스', C.near], ['새로 딴 별', C.star], ['DNA 강화 효과', C.perk]].filter(x => x[1] > 0);
+    const dl = [['감염시킨 만큼', C.inf], ['목표까지 들어간 바이러스', C.reach], ['성공 보상', C.win], ['처음 성공 보너스', C.first], ['빨리 끝낸 보너스', C.time], ['아깝다! 보너스', C.near], ['새로 딴 별', C.star], ['보스 처치', C.boss], ['DNA 강화 효과', C.perk]].filter(x => x[1] > 0);
     const tip = win ? (R.starCond && !R.starCond[1] ? '보초에게 안 들키고 숨어들면 별을 하나 더 받아요.' : R.starCond && !R.starCond[2] ? '시간을 30% 넘게 남기고 이기면 별을 하나 더 받아요.' : '인체 지도에서 다음 기관을 골라 보세요.')
       : (R.trop || 1) < 1 ? `꽂은 카드 중에 <b>${ORG_SHORT[R.st.organ.id]}에 안 먹히는 바이러스</b>가 있어요. 지도에서 '잘 먹히는 바이러스'를 확인해 보세요.`
       : !R.fit && fitRole ? `이 기관은 <b>${fitRole}</b> 몸통 카드가 유리해요. 연구소에서 몸통 카드를 바꿔 보세요.`
