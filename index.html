@@ -287,8 +287,16 @@
   .inSub { margin-top: 14px; font-family: 'Jua', 'Do Hyeon', sans-serif; font-size: 18px; letter-spacing: 5px; color: #ffe6a8; text-shadow: 0 2px 0 #2a0a24, 0 0 12px rgba(255,180,80,.7); }
   .inBot { position: absolute; left: 0; right: 0; bottom: 7%; text-align: center; padding: 0 24px; }
   .inTag { font-size: 14px; color: #f5e8d0; text-shadow: 0 2px 4px #000; margin-bottom: 14px; word-break: keep-all; }
-  .inGo { width: 100%; max-width: 320px; min-height: 58px; font-size: 20px; animation: inPulse 1.6s ease-in-out infinite; }
-  @keyframes inPulse { 50% { transform: scale(1.04); box-shadow: 0 0 26px rgba(255,80,60,.7); } }
+  .inGo { width: 100%; max-width: 300px; min-height: 60px; font-size: 24px; animation: inPulse 1.6s ease-in-out infinite; }
+  /* 시작 버튼: 배경·제목과 같은 말랑한 만화풍 (분홍 점액 알약 + 굵은 검은 테두리) */
+  .btn.inGo { font-family: 'Jua', 'Do Hyeon', 'Apple SD Gothic Neo', sans-serif; font-weight: 400; letter-spacing: 1px; color: #fff; border: 3.5px solid #2a0a24; border-radius: 999px;
+    background: radial-gradient(120% 90% at 50% 10%, #ffd6f2 0%, #ff86d0 30%, #e04aac 62%, #a52a8a 100%);
+    box-shadow: inset 0 -6px 0 rgba(90,10,70,.45), inset 0 4px 0 rgba(255,255,255,.45), 0 6px 0 #2a0a24, 0 0 26px rgba(255,120,210,.55);
+    text-shadow: 2px 0 0 #2a0a24, -2px 0 0 #2a0a24, 0 2px 0 #2a0a24, 0 -2px 0 #2a0a24, 0 4px 0 #2a0a24; }
+  .btn.inGo:active { transform: translateY(4px); box-shadow: inset 0 -4px 0 rgba(90,10,70,.45), inset 0 4px 0 rgba(255,255,255,.45), 0 2px 0 #2a0a24, 0 0 20px rgba(255,120,210,.5); }
+  .inTag { font-family: 'Jua', 'Do Hyeon', sans-serif; font-size: 16px !important; color: #fff3fb !important; text-shadow: 0 2px 0 #2a0a24, 0 0 8px rgba(30,6,24,.9) !important; }
+  .inHint { color: #f0d0e8 !important; text-shadow: 0 1px 2px #000; }
+  @keyframes inPulse { 50% { transform: scale(1.04); box-shadow: inset 0 -6px 0 rgba(90,10,70,.45), inset 0 4px 0 rgba(255,255,255,.45), 0 6px 0 #2a0a24, 0 0 38px rgba(255,140,220,.85); } }
   .inHint { margin-top: 10px; font-size: 11px; color: #9c8a76; }
   .inStory { position: absolute; inset: 0; background: rgba(8,4,6,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
   .inStory[hidden] { display: none; }
