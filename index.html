@@ -174,6 +174,7 @@
   #timerTag { grid-column: 3; position: relative; justify-content: space-between; gap: 6px; padding: 2px 10px 6px !important; } #timerTag span { font-size: 10.5px; } #timerTag b { font-family: Cinzel, serif; font-size: 15px; color: #9fe8ff; }
   #timerTag .tbar { position: absolute; left: 8px; right: 8px; bottom: 3px; height: 3px; margin: 0; background: #0c0607; border-radius: 2px; overflow: hidden; } #timerTag .tbar i { display: block; height: 100%; background: linear-gradient(90deg, #3fa0ff, #9fe8ff); }
   #goalBar.bump { filter: brightness(1.6); transition: filter .05s; } #goalBar { transition: filter .25s; }
+  .odds2 { max-height: 62vh; overflow-y: auto; text-align: left; font-size: 12px; } .odT { padding: 5px 0; border-bottom: 1px solid #3a2a22; } .odT div { color: #c8b8a0; font-size: 11.5px; margin-top: 2px; } .odds2 ul { padding-left: 16px; margin: 6px 0; color: #e8d8c0; } .odds2 li { margin: 3px 0; }
   .mpg { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; margin: 4px 0; }
   .mpc { position: relative; border: 1.5px solid var(--c); border-radius: 8px; background: #160c0e; padding: 3px 2px 4px; text-align: center; animation: mpIn .35s ease both; box-shadow: inset 0 0 10px color-mix(in srgb, var(--c) 30%, transparent); }
   .mpc img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; } .mpc b { display: block; font-size: 10.5px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .mpc small { font-size: 9.5px; }
@@ -422,7 +423,8 @@
  * 인체 지도에서 침투 기관 선택 → 기관마다 다른 길·난이도·목표 그림 → 군중 침투
  * 주석의 [모듈] 단위로 자르면 설계서의 파일 구조가 된다.
  * ===================================================================== */
-const W = 540, DPR = Math.min(2, window.devicePixelRatio || 1), TAU = Math.PI * 2;
+const W = 540, TAU = Math.PI * 2;
+let DPR = Math.min(2, window.devicePixelRatio || 1), LOWQ = false;   // LOWQ: 느린 폰이면 자동으로 화질·효과를 줄임
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const $ = id => document.getElementById(id);
@@ -1738,7 +1740,7 @@ function shake(a) { if (run) run.shk = Math.max(run.shk || 0, a); }
 function buzz(p) { try { if (sndOpt().vib !== false && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
 function hitStop(t) { if (run) run.hitStop = Math.max(run.hitStop || 0, t); }
 function pop(u, col) { sfx('pop'); const c = col || SCOLOR[u.strain] || '#ffd27a'; for (let i = 0; i < 6; i++) { const a = Math.random() * TAU, sp = rand(40, 110); run.parts.push({ x: u.x, y: u.y - 8, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, t: 0.45, c, r: rand(1.5, 3) }); } }
-function stepJuice(dt) { const R = run; R.parts = R.parts || []; for (const p of R.parts) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt; } R.parts = R.parts.filter(p => p.t > 0);
+function stepJuice(dt) { const R = run; R.parts = R.parts || []; const cap = LOWQ ? 70 : 220; if (R.parts.length > cap) R.parts.splice(0, R.parts.length - cap); for (const p of R.parts) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt; } R.parts = R.parts.filter(p => p.t > 0);
   R.shk = Math.max(0, (R.shk || 0) - dt * 18); for (const c of R.collapse || []) c.t -= dt; if (R.collapse) R.collapse = R.collapse.filter(c => c.t > 0); if (R.winFx) R.winFx.t += dt; R.flashT = Math.max(0, (R.flashT || 0) - dt); }
 function drawJuiceUnder(time) { const R = run;
   for (const c of R.collapse || []) { const k = 1 - c.t / 0.9; ctx.save(); ctx.globalAlpha = 1 - k; ctx.translate(c.x + Math.sin(k * 40) * 3 * (1 - k), c.y + 4 + k * 14); ctx.rotate(c.dir * k * 0.9); ctx.scale(1 + k * 0.2, 1 - k * 0.6);
@@ -1752,7 +1754,7 @@ function drawJuiceOver(time) { const R = run;
     if (t < 2.2) { ctx.globalAlpha = Math.min(1, t * 3) * Math.max(0, 1 - (t - 1.6) * 2); ctx.translate(W / 2, H * 0.4); const sc = t < 0.25 ? t / 0.25 * 1.3 : 1.3 - Math.min(0.3, (t - 0.25) * 1.5); ctx.scale(sc, sc);
       ctx.font = "800 34px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 7; ctx.strokeStyle = '#2a0a1e'; ctx.strokeText('감염 성공!', 0, 0); const g = ctx.createLinearGradient(0, -30, 0, 10); g.addColorStop(0, '#fff2c0'); g.addColorStop(1, '#ffb04a'); ctx.fillStyle = g; ctx.fillText('감염 성공!', 0, 0); }
     ctx.restore(); } }
-function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; shake(10); buzz([60, 40, 140]); hitStop(0.18); R.flashT = 0.35; R.flashC = '255,220,140';
+function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; shake(10); buzz([60, 40, 140]); hitStop(0.18); R.slowT = 0.9;   // 마지막 감염: 잠깐 슬로모션 R.flashT = 0.35; R.flashC = '255,220,140';
   const [gx, gy] = map.goal; for (let i = 0; i < 46; i++) { const a = Math.random() * TAU, sp = rand(80, 320); R.parts.push({ x: gx, y: gy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, t: rand(0.7, 1.3), c: ['#e8a0ff', '#ffd27a', '#9fff6a', '#ff8fd0'][i % 4], r: rand(2, 4.5) }); } }
 
 /* ---------- [systems/mine.js] ★ 내 바이러스: 연구소의 카드 3장(몸통·껍질·가시)을 합성한 단 하나의 계통으로 싸운다 ----------
@@ -2054,6 +2056,29 @@ function mutate(k) { const R = run, g = R.groups.find(x => x.strain === k); if (
   banner(`항원 변이! ${STRAINS[k].name} ${R.variant[k]}차 — 전용 면역이 놓친다`); }
 // ★ 바이러스도 탑을 갉아먹는다: 탑 옆을 지나가는 바이러스가 조금씩 깎고, 무너지면 그 자리는 10초간 감염 세포 → 면역은 다른 자리에 다시 짓는다
 const TOWER_HP = { base: 45, bite: 0.6, near: 48, block: 10, rebuild: 2.5 };
+// ★ 타격감: 연속 물기 카운터 · 돌격 첫 충돌 "콰직!"
+function biteHit(R, t) {
+  const C = R.biteC || (R.biteC = { n: 0, t: 0, shown: 0 }); C.n = R.time - C.t < 1.2 ? C.n + 1 : 1; C.t = R.time;
+  if (C.n >= 10 && C.n - C.shown >= 10) { C.shown = C.n; C.pop = 0.5; }
+  if (R.charge > 0 && !t.hitFirst) { t.hitFirst = true; R.charge = 0; shake(9); hitStop(0.09); buzz(35); sfx('collapse');
+    R.rings.push({ x: t.x, y: t.y - 20, r: 8, R: 90, t: 0.5, color: '#ffd27a' }); R.slam = { x: clamp(t.x, 70, W - 70), y: Math.max(TOP + 50, t.y - 60), t: 0.8 };
+    for (let i = 0; i < 14; i++) { const a = rand(-Math.PI, 0), sp = rand(80, 220); R.parts.push({ x: t.x, y: t.y - 20, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.5, c: i % 2 ? '#ffd27a' : '#e8a0ff', r: rand(2, 4) }); } }
+}
+function drawCracks(t) {   // 체력 66%·33% 아래로 금이 한 단계씩 (탑마다 모양이 다름)
+  const r = t.hp / (t.maxHp || 1), st = r < 0.33 ? 2 : r < 0.66 ? 1 : 0; if (!st) return;
+  if (!t.cr) { const rnd = mulberry(Math.round(t.x * 7 + t.y * 13)); t.cr = [0, 1, 2, 3].map(i => { let x = (rnd() - 0.5) * 18, y = -8 - rnd() * 28; const pts = [[x, y]]; for (let j = 0; j < 4; j++) { x += (rnd() - 0.5) * 12; y += (rnd() - 0.6) * 10; pts.push([x, y]); } return pts; }); }
+  ctx.save(); ctx.lineJoin = 'round';
+  for (const pts of t.cr.slice(0, st * 2)) { for (const [w, c] of [[3.2, 'rgba(255,230,200,.35)'], [1.6, '#1a0608']]) { ctx.lineWidth = w; ctx.strokeStyle = c; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); } }
+  ctx.restore();
+}
+function drawHitFx(time) {
+  const R = run, C = R.biteC;
+  if (C && R.time - C.t < 1.2 && C.n >= 10) { const p = C.pop > 0 ? (C.pop -= 1 / 60, 1 + C.pop * 0.8) : 1; ctx.save(); ctx.translate(W / 2, H - BOTTOM - 26); ctx.scale(p, p); ctx.rotate(-0.04);
+    ctx.font = "900 20px 'Jua', 'Apple SD Gothic Neo', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#2a0a24'; const tx = `물어뜯기 ×${C.n}`; ctx.strokeText(tx, 0, 0);
+    ctx.fillStyle = C.n >= 50 ? '#ffd27a' : C.n >= 25 ? '#ff9ee0' : '#ffffff'; ctx.fillText(tx, 0, 0); ctx.restore(); }
+  if (R.slam && R.slam.t > 0) { const s = R.slam, k = 1 - s.t / 0.8; s.t -= 1 / 60; ctx.save(); ctx.globalAlpha = Math.min(1, s.t * 3); ctx.translate(s.x, s.y - k * 20); const sc = k < 0.15 ? 0.6 + k / 0.15 * 0.9 : 1.5 - (k - 0.15) * 0.4; ctx.scale(sc, sc); ctx.rotate(-0.12);
+    ctx.font = "900 30px 'Jua', 'Apple SD Gothic Neo', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 7; ctx.strokeStyle = '#2a0a24'; ctx.strokeText('콰직!', 0, 0); ctx.fillStyle = '#ffd27a'; ctx.fillText('콰직!', 0, 0); ctx.restore(); }
+}
 function biteTowers(dt) {
   const R = run, P = R.plan; if (!R.towers.length) return;
   // 탑 옆을 지나는 바이러스는 걸음을 늦추고 탑에 달려들어 문다(공격 모션). 한 번 물 때마다 피해
@@ -2062,7 +2087,7 @@ function biteTowers(dt) {
     let tg = null, bd = TOWER_HP.near * TOWER_HP.near; for (const t of R.towers) { if (t.converted > 0) continue; const dx = t.x - u.x, dy = t.y - 18 - u.y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; tg = t; } }
     if (!tg) continue;
     const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
-    tg.hp -= u.atk * TOWER_HP.bite * m; tg.bitten = 0.2; sfx('bite'); u.atkT = 0.28; u.atkTx = tg.x; u.atkTy = tg.y - 18; u.atkCd = 0.75 + Math.random() * 0.3; u.biting = 0.5;
+    tg.hp -= u.atk * TOWER_HP.bite * m; tg.bitten = 0.2; tg.squash = 0.16; sfx('bite'); biteHit(R, tg); u.atkT = 0.28; u.atkTx = tg.x; u.atkTy = tg.y - 18; u.atkCd = 0.75 + Math.random() * 0.3; u.biting = 0.5;
     if (Math.random() < 0.35) R.fx.push({ x: tg.x + rand(-10, 10), y: tg.y - 18 + rand(-10, 8), t: 0.22, s: 10, color: SCOLOR[u.strain] || '#e8a0ff' }); }
   for (const t of R.towers.filter(t => t.hp <= 0)) {
     R.koN = (R.koN || 0) + 1; sfx('collapse'); buzz(25); hitStop(0.07); (R.collapse = R.collapse || []).push({ type: t.type, x: t.x, y: t.y, t: 0.9, dir: Math.random() < 0.5 ? -1 : 1 }); shake(6); for (let i = 0; i < 10; i++) { const a = rand(-Math.PI, 0), sp = rand(60, 160); R.parts.push({ x: t.x, y: t.y - 20, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.6, c: i % 2 ? '#8a7a6a' : TOWERS[t.type].color, r: rand(2, 4) }); }
@@ -2117,7 +2142,7 @@ function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른
   for (const gr of R.groups) { const n = Math.min(400, Math.floor(R.nest[gr.strain] || 0)); if (!(n > 0)) continue;
     for (let i = 0; i < n; i++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]);
     gr.amb = (gr.amb || 0) + (R.gap > 0 ? n : 0); gr.go = true; gr.rate = 26; gr.wait = Math.max(0, (R.nestOrder || []).indexOf(gr.strain)) * 0.8; R.released += n; R.nest[gr.strain] -= n; }
-  R.nestOrder = [];
+  R.nestOrder = []; R.charge = 1; for (const t of R.towers) t.hitFirst = false;
   const [x, y] = pathAt(R.frontD || 0); R.rings.push({ x, y, r: 10, R: 110, t: 0.7, color: R.gap > 0 ? '#9fff6a' : '#e8a0ff' });
   shake(5); R.flashT = 0.2; R.flashC = R.gap > 0 ? '160,255,120' : '232,160,255';
   banner(`돌격! ${tot}마리${M ? ` · ${M.icon} ${M.name}` : ''}${R.gap > 0 ? ' · 면역 공백 기습' : ''}`);
@@ -2673,11 +2698,12 @@ function render(time) {
   for (const e of list) {
     if (e.t) { const t = e.t;
       drawSprite(ctx, IMG.pad, t.x, t.y + 2, 28);
-      if (t.maxHp && t.hp < t.maxHp) { const k = Math.max(0, t.hp / t.maxHp); ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fillRect(t.x - 17, t.y + 10, 34, 5); ctx.fillStyle = k > 0.5 ? '#e0453f' : '#ff8d7a'; ctx.fillRect(t.x - 16, t.y + 11, 32 * k, 3); }
+      if (t.maxHp && t.hp < t.maxHp) { const k = Math.max(0, t.hp / t.maxHp); ctx.fillStyle = 'rgba(0,0,0,.75)'; ctx.fillRect(t.x - 19, t.y + 10, 38, 6); ctx.fillStyle = k > 0.66 ? '#7fe05a' : k > 0.33 ? '#ffd24a' : '#ff5a4a'; ctx.fillRect(t.x - 18, t.y + 11, 36 * k, 4); }
       if (t.bitten > 0) { t.bitten -= 1 / 60; ctx.save(); ctx.translate(rand(-1.5, 1.5), 0); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#e8a0ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(t.x, t.y - 18, 24 + Math.random() * 3, 0, TAU); ctx.stroke(); ctx.restore(); }
       t.fresh = Math.max(0, (t.fresh || 0) - 1 / 60); ctx.save(); if (t.fresh > 0) { ctx.shadowColor = '#ff3040'; ctx.shadowBlur = 20; } else if (t.converted > 0) { ctx.shadowColor = '#6fd35a'; ctx.shadowBlur = 14; } else if (t.flash > 0) { ctx.shadowColor = '#ff5040'; ctx.shadowBlur = 12; }
-      const k = 1 - t.recoil * 0.05, rise = t.rise == null ? 1 : (t.rise = Math.min(1, t.rise + 1 / 40)); ctx.translate(t.x, t.y + 4); ctx.scale((2 - k) * (0.4 + 0.6 * rise), k * rise);
-      if (IMG[t.type] && (t.type !== 'bcell' || has('bcell'))) drawSprite(ctx, IMG[t.type], 0, 0, 42, 1, true); else { ctx.filter = 'hue-rotate(150deg) saturate(1.4)'; drawSprite(ctx, IMG.nk, 0, 0, 42, 1, true); ctx.filter = 'none'; ctx.strokeStyle = '#5fe0d0'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(0, -38); ctx.moveTo(0, -38); ctx.lineTo(-5, -44); ctx.moveTo(0, -38); ctx.lineTo(5, -44); ctx.stroke(); } ctx.restore();
+      t.squash = Math.max(0, (t.squash || 0) - 1 / 60); const sq = Math.sin((t.squash / 0.16) * Math.PI) * 0.14;   // 물리면 찌그러졌다 튀어 오름
+      const k = (1 - t.recoil * 0.05) * (1 - sq), rise = t.rise == null ? 1 : (t.rise = Math.min(1, t.rise + 1 / 40)); ctx.translate(t.x, t.y + 4); ctx.scale((2 - k) * (0.4 + 0.6 * rise), k * rise);
+      if (IMG[t.type] && (t.type !== 'bcell' || has('bcell'))) drawSprite(ctx, IMG[t.type], 0, 0, 42, 1, true); else { ctx.filter = 'hue-rotate(150deg) saturate(1.4)'; drawSprite(ctx, IMG.nk, 0, 0, 42, 1, true); ctx.filter = 'none'; ctx.strokeStyle = '#5fe0d0'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(0, -38); ctx.moveTo(0, -38); ctx.lineTo(-5, -44); ctx.moveTo(0, -38); ctx.lineTo(5, -44); ctx.stroke(); } drawCracks(t); ctx.restore();
       if (t.relearn > 0) { ctx.save(); ctx.font = "800 14px sans-serif"; ctx.textAlign = 'center'; ctx.fillStyle = '#9fff6a'; ctx.fillText('?', t.x - 15, t.y - 32); ctx.restore(); }
       if (t.memory) { ctx.save(); ctx.font = "800 9px sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText('기억', t.x, t.y + 16); ctx.fillStyle = '#9fd8ff'; ctx.fillText('기억', t.x, t.y + 16); ctx.restore(); }
       if (t.spec) { const bx = t.x + 15, by = t.y - 36, c = SCOLOR[t.spec] || '#7fc0ff'; ctx.save(); ctx.fillStyle = 'rgba(10,6,8,.85)'; ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fill(); ctx.stroke();
@@ -2716,7 +2742,7 @@ function render(time) {
       if (R.sb[u.strain].shield > 0) { ctx.save(); ctx.strokeStyle = '#ffcf6a'; ctx.lineWidth = 2; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(u.x, u.y - h * 0.48, h * 0.56, Math.PI * 0.9, Math.PI * 2.1); ctx.stroke(); ctx.restore(); }
     }
   }
-  drawJuiceOver(time); drawTut(time);
+  drawHitFx(time); drawJuiceOver(time); drawTut(time);
   if (stealthOn()) drawStealth(time);
   if (R.ta && !stealthOn()) { if (R.gap > 0) { ctx.save(); ctx.globalAlpha = 0.25 + 0.15 * Math.sin(time * 10); ctx.strokeStyle = '#9fff6a'; ctx.lineWidth = 14; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
     const left = R.T - R.time; if (left <= 10 && !R.cleared) { const k = (10 - left) / 10, gr = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.75); gr.addColorStop(0, 'rgba(160,0,0,0)'); gr.addColorStop(1, `rgba(160,0,0,${0.15 + 0.3 * k * (0.6 + 0.4 * Math.sin(time * 8))})`); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H); } }
@@ -2865,7 +2891,7 @@ const SFX = {
   breakout: t => { nz(t, { d: 0.55, v: 0.35, f0: 300, f1: 2400, q: 0.8 }); tone(t, { f0: 140, f1: 45, d: 0.35, v: 0.5 }); },
   shot:     t => tone(t, { f0: 1300, f1: 480, d: 0.07, v: 0.05, type: 'triangle' }),
   pop:      t => { nz(t, { d: 0.07, v: 0.12, f0: 900, f1: 300, type: 'lowpass' }); tone(t, { f0: 500 + Math.random() * 300, f1: 200, d: 0.06, v: 0.06 }); },
-  bite:     t => tone(t, { f0: 190, f1: 90, d: 0.05, v: 0.07, type: 'square' }),
+  bite:     t => { const k = 0.8 + Math.random() * 0.5; tone(t, { f0: 190 * k, f1: 90 * k, d: 0.05, v: 0.07, type: 'square' }); },
   collapse: t => { nz(t, { d: 1.0, v: 0.5, f0: 500, f1: 60, type: 'lowpass' }); tone(t, { f0: 90, f1: 28, d: 0.8, v: 0.45 }); nz(t + 0.15, { d: 0.4, v: 0.18, f0: 2500, f1: 800 }); },
   infect:   t => { tone(t, { f0: 880, d: 0.14, v: 0.08 }); tone(t + 0.04, { f0: 1320, d: 0.12, v: 0.05 }); },
   wall:     t => { tone(t, { f0: 180, f1: 520, d: 0.22, v: 0.22 }); nz(t, { d: 0.2, v: 0.1, f0: 600, f1: 1800 }); },
@@ -2891,7 +2917,7 @@ document.addEventListener('click', e => { if (e.target.closest && e.target.close
 
 let last0 = 0;
 function frame(now) {
-  acc += Math.min(0.25, (now - last) / 1000); last = now;
+  const rdt = Math.min(0.25, (now - last) / 1000); perfWatch(rdt); if (run && run.slowT > 0) run.slowT -= rdt; acc += rdt * (run && run.slowT > 0 ? 0.3 : 1); last = now;
   if (run && run.hitStop > 0) { run.hitStop -= Math.min(0.1, (now - last0) / 1000); acc = 0; } else
   while (acc >= STEP) { for (let i = 0; i < speedMul; i++) update(STEP); acc -= STEP; }
   last0 = now;
@@ -2901,6 +2927,14 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 // 안전장치: 목표를 채웠거나 시간이 끝났는데 창(변이 고르기·튜토리얼)에 멈춰 판이 안 끝나면, 3초 뒤 강제로 결과 화면으로
+// ★ 성능 지킴이: 판 도중 4초 넘게 30프레임 아래면 화면 해상도 1배·입자 수 절반으로 가볍게 (한 번 켜지면 저장)
+let fpsEma = 16, slowFor = 0;
+function perfWatch(rdt) {
+  if (LOWQ || !run || run.over || paused || stealthOn()) return; fpsEma = fpsEma * 0.9 + rdt * 1000 * 0.1;
+  slowFor = fpsEma > 34 ? slowFor + rdt : Math.max(0, slowFor - rdt * 2);
+  if (slowFor > 4) setLowQ(true, true);
+}
+function setLowQ(on, auto) { LOWQ = on; DPR = on ? 1 : Math.min(2, window.devicePixelRatio || 1); save.lowq = on; persist(); fit(); if (map) map.infN = -1; if (auto) toast('폰이 버거워 보여서 화면 효과를 가볍게 줄였어요'); }
 function endWatch(now) {
   const R = run; if (!R || R.over || !R.ta) { if (run) run.stuckAt = 0; return; }
   if (!(R.cleared || R.time >= R.T)) { R.stuckAt = 0; return; }
@@ -3427,12 +3461,25 @@ function pullMenu() {
   const d = save.dna, b = (n, cost, perk, cls) => `<button class="btn ${cls}" data-n="${n}" ${d < cost ? 'disabled' : ''} style="flex-basis:100%;min-height:58px;text-align:left;padding:6px 12px"><b style="font-size:16px">${n}번 뽑기</b> <span style="float:right;font-size:15px">🧬 ${cost}</span><br><small style="font-weight:400">${perk}</small></button>`;
   ui.modal(`<h3 style="margin:0 0 4px">감염 뽑기</h3><div class="sub">가진 DNA ${d} · 전설 1.5% · 천장까지 ${PITY - (save.pity || 0)}번</div>
     <div class="row">${b(1, RULES.gacha, '한 장씩 두근두근', '')}${b(5, MULTI[5].cost, MULTI[5].perk, 'blue')}${b(10, MULTI[10].cost, MULTI[10].perk, 'red')}</div>
-    <div class="row"><button class="btn" id="pmNo" style="flex-basis:100%">닫기</button></div>`);
-  $('pmNo').onclick = () => ui.closeModal();
+    <div class="row"><button class="btn" id="pmOdds">📋 확률 보기</button><button class="btn" id="pmNo">닫기</button></div>`);
+  $('pmNo').onclick = () => ui.closeModal(); $('pmOdds').onclick = () => oddsView();
   document.querySelectorAll('#modal [data-n]').forEach(x => x.onclick = () => { const n = +x.dataset.n, cost = n === 1 ? RULES.gacha : MULTI[n].cost;
     if (save.dna < cost) return toast('DNA가 부족해요'); save.dna -= cost; ui.closeModal();
     if (n === 1) { const g = gacha(); addCard(g); persist(); return playCatch(g); }
     const res = multiPull(n); persist(); showMulti(res, n); });
+}
+// ★ 확률 공개 (확률형 아이템 표시): 등급별 확률 · 등급 안 바이러스별 확률 · 연속 뽑기 보장 · 천장
+function oddsView() {
+  const tiers = RARITY.map((r, i) => ({ r, i })).filter(x => x.r.w > 0), tot = tiers.reduce((a, x) => a + x.r.w, 0);
+  const rows = tiers.map(({ r, i }) => { const pool = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && STRAINS[k].rarity === i), p = r.w / tot * 100;
+    return `<div class="odT"><b style="color:${r.color}">${i === LEG_TIER() ? '전설' : r.name} ${p.toFixed(1)}%</b> <small>(${pool.length}종 · 한 종당 평균 ${(p / pool.length).toFixed(2)}%)</small><div>${pool.map(k => STRAINS[k].name).join(' · ')}</div></div>`; }).join('');
+  ui.modal(`<h3 style="margin:0 0 4px">뽑기 확률</h3><div class="odds2">${rows}
+    <ul><li>같은 등급 안에서는 <b>아직 없는 바이러스</b>가 70% 확률로 먼저 나와요 (나머지 30%는 등급 안에서 똑같이).</li>
+    <li>★2로 나올 확률 6% · 변종(✦, 능력 +10%) 3%</li>
+    <li>5번 뽑기: 5장 중 희귀 이상 1장 확정</li><li>10번 뽑기: 10장 중 영웅 이상 1장 확정 · 전설 확률 2배 (${(RARITY[LEG_TIER()].w * 2 / (tot + RARITY[LEG_TIER()].w) * 100).toFixed(1)}%)</li>
+    <li>천장: 전설 없이 ${PITY}번째 뽑기는 전설 확정 (지금 ${save.pity || 0}번째)</li><li>슈퍼바이러스·교배 신종은 뽑기에 나오지 않아요.</li></ul></div>
+    <div class="row"><button class="btn" id="odBack">뒤로</button></div>`);
+  $('odBack').onclick = () => pullMenu();
 }
 function showMulti(res, n) {
   const best = Math.max(...res.map(r => STRAINS[r.g.strain].rarity)), leg = res.some(r => STRAINS[r.g.strain].legend);
@@ -3527,11 +3574,11 @@ function autoSquad() {   // 고른 기관에 맞춰 카드 3장과 자리(몸통
 }
 
 // 소리 켜고 끄기 (허브 🔊 버튼 · 일시정지 메뉴)
-const sndBtns = () => { const o = sndOpt(); return `<button class="btn ${o.bgm ? 'green' : ''}" id="sBgm">🎵 음악 ${o.bgm ? '켬' : '끔'}</button><button class="btn ${o.sfx ? 'green' : ''}" id="sSfx">🔊 효과음 ${o.sfx ? '켬' : '끔'}</button><button class="btn ${o.vib !== false ? 'green' : ''}" id="sVib">📳 진동 ${o.vib !== false ? '켬' : '끔'}</button>`; };
-function bindSnd(after) { const o = sndOpt(), ref = () => { persist(); applyVol(); updSndIcon(); if (after) after(); else { $('sBgm').outerHTML = sndBtns().split('</button>')[0] + '</button>'; $('sSfx').outerHTML = sndBtns().split('</button>')[1] + '</button>'; $('sVib').outerHTML = sndBtns().split('</button>')[2] + '</button>'; bindSnd(); } };
-  $('sBgm').onclick = () => { o.bgm = !o.bgm; if (o.bgm && SND.want) playBgm(SND.want, true); ref(); }; $('sSfx').onclick = () => { o.sfx = !o.sfx; ref(); }; if ($('sVib')) $('sVib').onclick = () => { o.vib = o.vib === false; if (o.vib) buzz(30); ref(); }; }
+const sndBtns = () => { const o = sndOpt(); return `<button class="btn ${o.bgm ? 'green' : ''}" id="sBgm">🎵 음악 ${o.bgm ? '켬' : '끔'}</button><button class="btn ${o.sfx ? 'green' : ''}" id="sSfx">🔊 효과음 ${o.sfx ? '켬' : '끔'}</button><button class="btn ${o.vib !== false ? 'green' : ''}" id="sVib">📳 진동 ${o.vib !== false ? '켬' : '끔'}</button><button class="btn ${LOWQ ? 'green' : ''}" id="sLow">🪶 가벼운 화면 ${LOWQ ? '켬' : '끔'}</button>`; };
+function bindSnd(after) { const o = sndOpt(), ref = () => { persist(); applyVol(); updSndIcon(); if (after) after(); else { $('sBgm').outerHTML = sndBtns().split('</button>')[0] + '</button>'; $('sSfx').outerHTML = sndBtns().split('</button>')[1] + '</button>'; $('sVib').outerHTML = sndBtns().split('</button>')[2] + '</button>'; $('sLow').outerHTML = sndBtns().split('</button>')[3] + '</button>'; bindSnd(); } };
+  $('sBgm').onclick = () => { o.bgm = !o.bgm; if (o.bgm && SND.want) playBgm(SND.want, true); ref(); }; $('sSfx').onclick = () => { o.sfx = !o.sfx; ref(); }; if ($('sVib')) $('sVib').onclick = () => { o.vib = o.vib === false; if (o.vib) buzz(30); ref(); }; if ($('sLow')) $('sLow').onclick = () => { setLowQ(!LOWQ); ref(); }; }
 const updSndIcon = () => { const o = sndOpt(); $('bSnd').textContent = o.bgm || o.sfx ? '🔊' : '🔇'; };
-$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">소리 · 진동</h3><div class="row">${sndBtns()}</div><div class="row"><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sClose').onclick = ui.closeModal; };
+$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">소리 · 진동 · 화면</h3><div class="row">${sndBtns()}</div><div class="row"><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sClose').onclick = ui.closeModal; };
 updSndIcon();
 $('bReset').onclick = () => {
   ui.modal(`<h3 style="margin:0 0 6px">처음부터 다시 할까요?</h3><div class="sub">바이러스, DNA, 감염한 기관, 슈퍼바이러스 강화, 영구 변이, 도감이 모두 지워지고 처음 상태로 돌아갑니다. 되돌릴 수 없어요.</div>
@@ -3590,6 +3637,7 @@ canvas.addEventListener('pointerdown', e => {
 });
 window.addEventListener('resize', () => { fit(); if (!run) ui.showHub(); });
 
+if (save.lowq) { LOWQ = true; DPR = 1; }
 loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); save.squad = [0, 1, 2].map(i => (save.squad || [])[i] || null); if (!squadGenes().length) autoSquad(); fit(); ui.showHub('body'); requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; if (has('title_logo')) document.querySelector('.inTitle').innerHTML = '<img src="assets/title_logo.png" alt="진화하는 바이러스">'; requestAnimationFrame(introLoop); });
 </script>
 </body>
