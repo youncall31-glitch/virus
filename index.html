@@ -664,7 +664,7 @@ const NAMES = [...[0, 1, 2, 3, 4, 5].flatMap(i => ['vp_core_' + i, 'vp_spike_' +
   ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'boss_' + o), 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
   'gacha_bg','bodymap_skin','bodymap_h0_skin','bodymap_h1_skin','bodymap_h3_skin','ring_common','ring_rare','ring_hero','ring_new','fx_sneeze','jar','jar_sealed','jar_broken','glove','bodymap',
   ...Object.keys({ inf:1, hp:1, cnt:1, cd:1, dna:1, forge:1, capsule:1, combo:1 }).map(k => 'perk_' + k), 'tab_body','tab_lab','tab_hero','codex','deploy_all','combo','legacy','lock','ebola','corona','hero_smallpox','flu1918', ...Object.keys(NEWV),'intro_bg','title_logo','story_2','story_3', ...[0, 1, 2, 3].map(i => 'vp_core_L' + i)];
-const JPG = new Set(['intro_bg', 'ground', 'dirt', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h3_skin']);
+const JPG = new Set(['story_2', 'story_3', 'intro_bg', 'ground', 'dirt', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h3_skin']);
 const has = n => IMG[n] && IMG[n].naturalWidth > 0;
 function loadAssets() {
   return Promise.all(NAMES.map(n => new Promise(res => {
@@ -1594,9 +1594,14 @@ const BOSS = {
 const BOSS_RULE = { hp: 150, near: 74, gateMul: 0.75, koMul: 1.25, dna: 40, dmg: 9, rate: 0.9, range: 150 };
 function initBoss() {
   const R = run, B = BOSS[R.st.organ.id]; R.boss = null; if (!B || !R.ta || !save.tutDone) return;   // 첫 튜토리얼 판엔 보스 없음
-  const d = map.len - 95, [x, y, nx, ny] = pathAt(d), side = (x + nx * 46 > 40 && x + nx * 46 < W - 40) ? 1 : -1;
+  // 자리: 목표 가까운 길옆 중 화면 안(위 상태창·아래 버튼에 안 가리는 곳)에서 다른 탑과 덜 겹치는 곳
+  let best = null;
+  for (let d = map.len - 95; d > map.len - 400 && !best; d -= 30) for (const sd of [1, -1]) { const [x, y, nx, ny] = pathAt(d), bx = x + nx * 46 * sd, by = y + ny * 46 * sd + 10;
+    if (bx < 44 || bx > W - 44 || by < TOP + 100 || by > H - BOTTOM - 16) continue; best = { d, x: bx, y: by }; break; }
+  if (!best) { const [x, y] = pathAt(map.len - 95); best = { d: map.len - 95, x: clamp(x, 44, W - 44), y: clamp(y + 50, TOP + 100, H - BOTTOM - 16) }; }
+  const d = best.d;
   const hp = BOSS_RULE.hp * R.st.mul * (1 + 0.5 * R.st.organ.diff);
-  R.boss = { ...B, id: R.st.organ.id, d, x: x + nx * 46 * side, y: y + ny * 46 * side + 10, hp, maxHp: hp, t: B.every, cd: 1, warned: false, on: false, dead: false, hitT: 0, shield: 0, fx: [] };
+  R.boss = { ...B, id: R.st.organ.id, d, x: best.x, y: best.y, hp, maxHp: hp, t: B.every, cd: 1, warned: false, on: false, dead: false, hitT: 0, shield: 0, fx: [] };
 }
 function bossAlive() { const b = run && run.boss; return !!(b && b.on && !b.dead); }
 function stepBoss(dt) {
@@ -1657,7 +1662,7 @@ function drawBoss(time) {
     ctx.restore(); }
   if (b.warned && b.aim && (b.skill === 'slime' || b.skill === 'acid')) { ctx.save(); ctx.globalAlpha = 0.3 + 0.3 * Math.abs(Math.sin(time * 10)); ctx.strokeStyle = b.color; ctx.setLineDash([6, 6]); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(b.aim.x, b.aim.y, b.skill === 'acid' ? 70 : 110, 0, TAU); ctx.stroke(); ctx.restore(); }
   if (b.dead) { ctx.save(); ctx.globalAlpha = 0.4; drawSprite(ctx, IMG[b.tw], b.x, b.y, 60, 1, true); ctx.restore(); return; }
-  const sz = 78, bob = Math.sin(time * 2) * 2, img = IMG['boss_' + b.id] || IMG[b.tw];
+  const sz = 92, bob = Math.sin(time * 2) * 2, img = IMG['boss_' + b.id] || IMG[b.tw];
   ctx.save();   // 바닥 그림자 · 왕관 빛
   const gl = ctx.createRadialGradient(b.x, b.y - 30, 6, b.x, b.y - 30, 70); gl.addColorStop(0, b.color + '55'); gl.addColorStop(1, b.color + '00'); ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(b.x, b.y - 30, 70, 0, TAU); ctx.fill();
   ctx.globalAlpha = 0.5; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(b.x, b.y + 2, 30, 10, 0, 0, TAU); ctx.fill(); ctx.restore();
@@ -2735,8 +2740,8 @@ function introLoop(now) {
 }
 const STORY = [
   { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.png')}" alt="">`, txt: '당신은 막 깨어난 <b>아기 바이러스</b>예요.<br>세 가지 바이러스의 능력을 <b>조합</b>해서<br>스스로 진화할 수 있어요.' },
-  { pic: () => `<img src="assets/${has('story_2') ? 'story_2.png' : bodyOf() ? bodyOf().img + '_skin.jpg' : 'bodymap_skin.jpg'}" alt="">`, txt: '목표는 <b>사람의 몸</b>이에요.<br>코에서 시작해서 <b>기관 8곳</b>을 하나씩 감염시키고,<br>마지막엔 <b>뇌</b>까지 가 봐요.' },
-  { pic: () => has('story_3') ? '<img src="assets/story_3.png" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '그런데 <b>면역 세포</b>도 가만있지 않아요.<br>당신을 보면서 점점 배워요.<br>몰래 숨어들었다가, <b>빈틈</b>이 보이면 한꺼번에 돌격해요!' },
+  { pic: () => `<img src="assets/${has('story_2') ? 'story_2.jpg' : bodyOf() ? bodyOf().img + '_skin.jpg' : 'bodymap_skin.jpg'}" alt="">`, txt: '목표는 <b>사람의 몸</b>이에요.<br>코에서 시작해서 <b>기관 8곳</b>을 하나씩 감염시키고,<br>마지막엔 <b>뇌</b>까지 가 봐요.' },
+  { pic: () => has('story_3') ? '<img src="assets/story_3.jpg" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '그런데 <b>면역 세포</b>도 가만있지 않아요.<br>당신을 보면서 점점 배워요.<br>몰래 숨어들었다가, <b>빈틈</b>이 보이면 한꺼번에 돌격해요!' },
 ];
 function showStory(i) {
   const el = $('inStory'), S = STORY[i]; if (!S) return introDone(true); el.hidden = false; $('inTop').hidden = true; $('inBot').hidden = true;
