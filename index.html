@@ -1178,7 +1178,7 @@ const RULES = { slots: 3, gacha: 40, breed: 20, starCost: { 1: 120, 2: 320 }, gr
   interfere: 0.35, monoBonus: 1.2, mulBase: 0.9, mulSlope: 0.8, towerAdj: 0,
   curve: { mul: 0.5, pow: 1.5, towers: 2, start: 1,   // ★ 난이도 곡선: 처음엔 쉽고 뒤 기관일수록 목표·탑이 세진다
     // 기관별 목표 배수: 자동 플레이로 '시간 끝까지 감염시킬 수 있는 양'을 재서 맞춤 → 카드 ★1이면 앞 3~4곳, ★2·Lv3이면 피부까지, ★3·Lv5면 뇌까지
-    q: { nose: 6, lung: 5.5, gut: 7, liver: 6.2, blood: 9.5, skin: 13.5, lymph: 11, brain: 7.5 } },
+    q: { nose: 6, lung: 5.5, gut: 7, liver: 6.2, blood: 9.5, skin: 13.5, lymph: 11, brain: 4 } },
   spdScale: 0.72, dmgScale: 0.4, rateScale: 0.85, unitScale: 1.45, particles: 'comet', groupRate: 8, forkAdapt: 40,
   // ★ 타임어택: 환자가 약을 먹기 전까지(60~100초) 충전된 만큼 방출. 면역 공백에 방출하면 기습 보너스
   ta: { charge: 12, spd: 1.6, tMin: 60, tMax: 100, gapEvery: 14, gapDur: 3.5, gapBonus: 0.3, clearBonus: 1.5, quotaMul: 11.3, minRelease: 4 } };
@@ -1497,7 +1497,7 @@ function findForks(M, rnd, spiral) {
     if (out.some(f => pts.some(([x, y]) => distTo(f.pts, x, y) < 70))) continue;
     const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
     const e = Math.hypot(c.x2 - c.x1, c.y2 - c.y1), bx = (c.x2 - c.x1) / e, by = (c.y2 - c.y1) / e;
-    out.push({ d1: c.d1, d2: c.d2, pts, cum, len: cum.at(-1), sw: 'A', pass: 0, adapt: 0, bx, by, sx: c.x1 - bx * 42, sy: c.y1 - by * 42 });
+    out.push({ d1: c.d1, d2: c.d2, pts, cum, len: cum.at(-1), sw: 'B', pass: 0, adapt: 0, bx, by, sx: c.x1 - bx * 42, sy: c.y1 - by * 42 });
   }
   return out;
 }
@@ -2474,8 +2474,8 @@ function forkPass(f) {
   const sl = map.slots.filter(s => !used.has(s[0] + ',' + s[1])).sort((a, b) => Math.hypot(a[0] - mx, a[1] - my) - Math.hypot(b[0] - mx, b[1] - my))[0];
   if (!sl || Math.hypot(sl[0] - mx, sl[1] - my) > 120) return;
   const pool = Object.keys(run.w).filter(k => !TOWERS[k].aura), type = pool.sort((a, b) => run.w[b] - run.w[a])[f.adapt % pool.length] || 'neutro';
-  const t = makeTower(type, sl[0], sl[1], run.st); t.cd = 1.5; t.fresh = 2; if (TOWERS[type].specific) { t.spec = specTarget(run, type); t.specV = (run.variant || {})[t.spec] || 0; } run.towers.push(t); f.adapt++;
-  banner('면역 적응! 지름길 길목에 새 탑'); run.fx.push({ x: t.x, y: t.y - 62, t: 2.2, s: 34, img: 'alarm' }); run.rings.push({ x: t.x, y: t.y - 20, r: 6, R: 60, t: 0.6, color: '#ff5040' });
+  const t = makeTower(type, sl[0], sl[1], run.st); t.cd = 1.5; t.fresh = 2; if (TOWERS[type].specific) { t.spec = specTarget(run, type); t.specV = (run.variant || {})[t.spec] || 0; } run.towers.push(t); f.adapt++; if (f.adapt >= 2) f.sw = 'A';
+  banner(f.adapt >= 2 ? '면역 적응! 지름길이 막혀 원래 길로' : '면역 적응! 지름길 길목에 새 탑'); run.fx.push({ x: t.x, y: t.y - 62, t: 2.2, s: 34, img: 'alarm' }); run.rings.push({ x: t.x, y: t.y - 20, r: 6, R: 60, t: 0.6, color: '#ff5040' });
 }
 function layoutTowers(organ, n, w) {
   const rnd = mulberry((save.host + 1) * 7919 + ORGANS.indexOf(organ) * 131);
@@ -2619,6 +2619,14 @@ const SKILLS = {
   wart(g) { run.sb[g.strain].regen = 8 + (g.branch === 'B' ? 4 : 0) + (g.star >= 3 ? 2 : 0); return true; },
 };
 // 스킬 상세 설명 (대상 · 수치 · ★3 · 갈래)
+// ★ 판 중 스킬 버튼은 한 단어로: 무엇을 하는 스킬인지 바로 알게
+const SK_CAT = { replicate: '🦠 증식', outbreak: '🦠 증식', blister: '🦠 증식', mosquito: '🦠 증식', giant: '🦠 증식', pandemic: '🦠 증식',
+  capsid: '🛡 방어', wart: '🛡 방어', genecarry: '🛡 방어', swell: '🛡 방어', capsule: '🛡 방어',
+  latency: '👻 은신', shift: '👻 은신', dive: '👻 은신', vanish: '👻 은신', fakeout: '👻 은신', asympt: '👻 은신',
+  spread: '💨 속도', neuro: '💨 속도', stampede: '💨 속도', rash: '⚔ 공격', superspread: '⚔ 공격',
+  hemo: '⚡ 마비', paralyze: '⚡ 마비', antigenic: '⚡ 마비', soothe: '⚡ 마비', anemia: '⚡ 마비', cytokine: '⚡ 마비', harmless: '⚡ 마비',
+  hostify: '🏳 탑 뺏기', vaccinia: '🏳 탑 뺏기', decoy: '🎭 미끼' };
+const skCat = g => { const sk = geneSkill(g), ids = sk.ids || [sk.id]; return (SK_CAT[ids[0]] || '✨ 스킬') + (ids.length > 1 ? '+' : ''); };
 const SHORT = {
   replicate: n => `${n} 수를 1.5배로 불림`, capsid: n => `6초간 ${n} 받는 피해 절반`, outbreak: n => `${n}를 즉시 가득 채워 방출`,
   latency: n => `8초간 ${n} 완전 은신`, shift: n => `3초간 ${n}가 표적에서 사라짐`, spread: n => `6초간 ${n} 속도 +60%`,
@@ -3620,7 +3628,7 @@ const ui = {
     $('bottom').classList.toggle('ta', !!run.ta); $('outChooser').classList.toggle('taOut', !!run.ta);
     $('hub').hidden = true; $('result').hidden = true; $('hubTip').hidden = true; ['top', 'info2', 'bottom'].forEach(id => $(id).hidden = false);
     const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
-    $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [돌격]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길 ⇄ 를 눌러 길 바꾸기' : '부대를 눌러 출격 순서를 정하세요';
+    $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [돌격]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길은 자동으로 지름길부터' : '부대를 눌러 출격 순서를 정하세요';
     $('timerTag').hidden = !run.ta; ui.renderDeploy(); ui.renderSkills(); ui.tick();
     $('goalLbl').textContent = st.qm < 1 ? `감염 (목표 −${Math.round((1 - st.qm) * 100)}%)` : '감염';
     $('legRow').hidden = !st.legs.length; $('legRow').innerHTML = st.legs.map(l => `<span class="chip">✅ ${l.text}</span>`).join('');
@@ -3635,7 +3643,7 @@ const ui = {
       const hOK = unlocked('hero'), oOK = unlocked('out');
       $('deploy').innerHTML = (hOK ? `<button class="dp v hero" id="dpHero" aria-label="슈퍼바이러스">${pimg(hg)}<div><b>${HEROES[hg.strain].name}</b><small></small></div></button>` : '')
         + run.groups.map((g, i) => `<button class="dp v" data-i="${i}" aria-label="${STRAINS[g.strain].name} 방출">${pimg(g.gene)}<div><b>${g.reawake ? '재활성' : STRAINS[g.strain].name}</b><small></small>${g.reawake ? '' : '<em></em>'}</div><i></i></button>`).join('')
-        + (run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero).map(g => `<button class="dp v sk2" data-sk="${g.strain}" aria-label="${geneSkill(g).name}">${pimg(g)}<div><b>${geneSkill(g).name}</b><small></small></div><i></i></button>`).join('') : '')
+        + (run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero).map(g => `<button class="dp v sk2" data-sk="${g.strain}" aria-label="${geneSkill(g).name}">${pimg(g)}<div><b>${skCat(g)}</b><small></small></div><i></i></button>`).join('') : '')
         + (oOK && !nestOn() && !run.single ? `<button class="dp v" id="dpOut" aria-label="감염 거점"><img src="assets/out_cauldron.png" alt=""><div><b>거점</b><small></small></div></button>` : '')
         + (unlocked('mutate') ? `<button class="dp v" id="dpMut" aria-label="항원 변이">${has('mutate') ? '<img src="assets/mutate.png" alt="">' : '<div class="mutic">🧬</div>'}<div><b>변이</b><small></small></div></button>` : '')
         + (nestOn() ? `<button class="dp v atk" id="dpAll"><div><b style="font-size:12px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div></button>` : `<button class="dp v all" id="dpAll">${has('deploy_all') ? '<img src="assets/deploy_all.png" alt="">' : ''}<div><b>전부</b><small>방출</small></div></button>`);
@@ -3657,7 +3665,7 @@ const ui = {
     $('dpAll').onclick = () => { goAll(); toast(run.ta ? '전부 방출!' : '전원 출격!'); ui.tickDeploy(); };
     if (!unlocked('hero')) $('dpHero').remove(); else $('dpHero').onclick = () => { spawnHero(); ui.tickDeploy(); };
   },
-  tickHorn() { const b = $('hornBtn'); if (!b) return; const show = !!(run && run.ta && !stealthOn() && !run.over && !run.endAt); b.hidden = !show; if (!show) return;
+  tickHorn() { const b = $('hornBtn'); if (!b) return; const show = !!(run && run.ta && !stealthOn() && !run.over && !run.endAt && doneCount() >= 3); b.hidden = !show; if (!show) return;
     $('hornN').textContent = run.hornN ?? 1; b.classList.toggle('off', !(run.hornN ?? 1) && !hornAim); },
   tickDeploy() {
     if (!run) return; ui.tickHorn(); const idle = run.idle > 1.2;
@@ -3670,7 +3678,7 @@ const ui = {
       const hb = $('dpHero'), hu = run.hero.u, hs = run.hero.gene.strain, hcd = run.cds[hs] || 0;
       if (hb) { hb.className = 'dp v hero' + (!run.hero.out ? ' hold' : hu && hu.alive ? (hcd <= 0 ? ' full' : ' go') : ' done');
         hb.querySelector('small').textContent = !run.hero.out ? '탭: 출격' : hu && hu.alive ? (hcd > 0 ? `캡슐 ${Math.ceil(hcd)}s` : '탭: 캡슐') : run.heroDone ? '침투 성공' : '쓰러짐'; }
-      const mb = $('dpMut'); if (mb) { const tg = run.towers.filter(t => t.spec).length + (save.host >= 2 && save.vax && !run.variant[save.vax] ? 1 : 0); mb.className = 'dp v' + (tg ? ' full' : ''); mb.querySelector('small').textContent = tg ? `노림 ${tg}` : '대기'; }
+      const mb = $('dpMut'); if (mb) { const tg = run.towers.filter(t => t.spec).length + (save.host >= 2 && save.vax && !run.variant[save.vax] ? 1 : 0); mb.hidden = !tg; mb.className = 'dp v' + (tg ? ' full' : ''); mb.querySelector('small').textContent = tg ? `노림 ${tg}` : '대기'; }
       $('deploy').querySelectorAll('.sk2').forEach(b => { const st = b.dataset.sk, g = run.skillGenes.find(x => x.strain === st), cd = run.cds[st] || 0, full = geneStats(g).cd; b.className = 'dp v sk2' + (cd <= 0 ? ' full' : '') + (cd <= 0 && run.med && !run.med.guard ? ' medGo' : ''); b.querySelector('small').textContent = cd > 0 ? `${Math.ceil(cd)}초` : '탭: 발동'; b.querySelector('i').style.width = ((1 - cd / full) * 100) + '%'; });
       const ab = $('dpAll'); if (ab && nestOn()) { const t = Math.floor(nestTotal()); ab.querySelector('small').textContent = `둥지 ${t}`; ab.classList.toggle('gapOn', gap && t > 0); }
       const ob = $('dpOut'); if (ob) { ob.className = 'dp v' + (placing ? ' gapOn' : run.outLeft ? '' : ' done'); ob.querySelector('small').textContent = `남은 ${run.outLeft}`; }
@@ -4164,7 +4172,7 @@ canvas.addEventListener('pointerdown', e => {
   const r = canvas.getBoundingClientRect(), x = (e.clientX - r.left) * W / r.width, y = (e.clientY - r.top) * H / r.height;
   if (hornAim) { const q = nearestOnPath(x, y); hornAim = false; $('hornBtn').classList.remove('aim'); if (!q || q.dist > 70) return toast('길 위를 눌러 주세요'); blowHorn(q.d); ui.tickHorn(); return; }
   { const a = (run.abs || []).find(a => Math.hypot(a.x - x, a.y - y) < 34); if (a) return pickAb(a); }
-  if (!aiming && !placing) { const f = map.forks.find(f => Math.hypot(f.sx - x, f.sy - y) < 30); if (f) { f.sw = f.sw === 'A' ? 'B' : 'A'; toast(f.sw === 'B' ? '지름길로! (많이 지나가면 면역이 적응해요)' : '원래 길로'); return; } }
+  if (false) { const f = map.forks.find(f => Math.hypot(f.sx - x, f.sy - y) < 30); if (f) { f.sw = f.sw === 'A' ? 'B' : 'A'; toast(f.sw === 'B' ? '지름길로! (많이 지나가면 면역이 적응해요)' : '원래 길로'); return; } }
   if (!aiming && !placing) { const t = run.towers.find(t => Math.hypot(t.x - x, t.y - 20 - y) < 26);
     if (t) { const d = TOWERS[t.type]; $('hint').textContent = `${d.name}: ${d.desc} · 사거리 ${d.range} · 처치 ${t.kills || 0}${d.aura ? '' : ` · ${TOWER_TIP[t.type]}`}`; run.rings.push({ x: t.x, y: t.y - 20, r: 8, R: t.range, t: 0.5, color: d.color }); return; } }
   if (aiming) {
