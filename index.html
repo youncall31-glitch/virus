@@ -155,6 +155,7 @@
   .rc img { width: 54px; height: 54px; object-fit: contain; display: block; margin: 0 auto; } .rc img.bk { transform: scale(1.4) translateY(-8%); }
   .rc .gr { position: absolute; right: 5px; top: 2px; font-weight: 900; font-size: 13px; } .rc .nm { font-size: 11.5px; font-weight: 800; margin-top: -2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; }
   .rc .dl { font-size: 14px; font-weight: 900; } .rc .dl.up { color: #9fff6a; } .rc .dl.dn { color: #ff9c8a; } .rc .dl.eq { color: #b59f86; font-size: 12px; }
+  .rc.landing { animation: landing .35s ease .3s; border-color: #ffd24a !important; } @keyframes landing { 50% { transform: scale(1.12); box-shadow: 0 0 16px #ffd24a; } }
   .rc.cur { background: #18261a; border-color: #9fff6a; } .rc.cur .dl { color: #9fff6a; font-size: 11.5px; } .rc.best { border-color: #ffd24a; } .rc.empty { border-style: dashed; color: #9c8a76; font-size: 11.5px; display: flex; align-items: center; justify-content: center; }
   .rc .usedB { position: absolute; left: 0; right: 0; top: 0; font-size: 9px; background: #5a3a14; color: #ffe2a8; } .rc.hasU { padding-top: 11px; } .rc.hasU .gr { top: 11px; }
   .rLock { margin: 8px 10px 0 0; padding: 9px 12px; border-radius: 12px; border: 1.5px dashed #3a2c2c; color: #8a7a6a; font-size: 12.5px; background: #140c0e; }
@@ -3543,7 +3544,7 @@ const ui = {
         : `<button class="rc empty" data-s="${i}" data-empty="1">비어 있음<br>옆에서 골라요</button>`;
       const items = cands.map(({ g, r }, n) => { const u = used.get(g.uid), gr = slotGrade(g, i), best = n === 0 && r.d > 0;
         return `<button class="rc${best ? ' best' : ''}${u != null ? ' hasU' : ''}" data-u="${g.uid}" data-s="${i}">${u != null ? `<span class="usedB">${SLOT_NAME[u]}에 꽂힘</span>` : ''}<span class="gr" style="color:${GRADE_COL[gr]}">${gr}</span>${pimg(g)}<div class="nm">${sname(g.strain)}</div><div class="dl ${r.d > 0 ? 'up' : r.d < 0 ? 'dn' : 'eq'}">${r.d > 0 ? '+' : ''}${r.d === 0 ? '±0' : r.d}</div></button>`; }).join('');
-      h += `<div class="rail"><div class="rHead"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]} <small>${SLOT_STAT[i]} 담당</small></b><button class="more" data-more="${i}">전체 보기 ›</button></div><div class="rRow">${cur}${items}</div></div>`;
+      h += `<div class="rail" data-slot="${i}"><div class="rHead"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]} <small>${SLOT_STAT[i]} 담당</small></b><button class="more" data-more="${i}">전체 보기 ›</button></div><div class="rRow">${cur}${items}</div></div>`;
     }
     $('railList').innerHTML = h;
     $('railList').querySelectorAll('.rc[data-u]').forEach(b => b.onclick = () => ui.cmpSheet(geneById(+b.dataset.u), +b.dataset.s));
@@ -4276,10 +4277,10 @@ $('bAuto').onclick = () => {
   const moves = SLOT_ORDER.filter(i => slotOpen(i) && nw[i] && nw[i] !== old[i]);
   if (!moves.length) return toast('지금이 추천 조합이에요 👍');
   ui.recoBusy = true; let k = 0;
-  for (const i of moves) { const g = geneById(nw[i]), src = document.querySelector(`#cardGrid .card[data-u="${g.uid}"]`) || document.querySelector(`#squadRow .sock[data-u="${g.uid}"]`) || $('bAuto'), dst = document.querySelector(`#squadRow [data-sock="${i}"]`);
+  for (const i of moves) { const g = geneById(nw[i]), src = document.querySelector(`#railList .rail[data-slot="${i}"] .rc[data-u="${g.uid}"]:not(.cur)`) || document.querySelector(`#railList .rc[data-u="${g.uid}"]`) || $('bAuto'), dst = document.querySelector(`#railList .rail[data-slot="${i}"] .rc:first-child`);
     if (!dst) continue; const a = src.getBoundingClientRect(), b = dst.getBoundingClientRect(), gh = document.createElement('div'); gh.className = 'dragGhost fly2'; gh.innerHTML = pimg(g);
     gh.style.transform = `translate(${a.left + a.width / 2 - 32}px, ${a.top + a.height / 2 - 32}px)`; document.body.appendChild(gh);
-    setTimeout(() => { gh.style.transition = 'transform .38s cubic-bezier(.4,0,.2,1.3)'; gh.style.transform = `translate(${b.left + b.width / 2 - 32}px, ${b.top + b.height / 2 - 32}px) scale(.8)`; dst.classList.add('hov'); sfx('build'); }, 30 + k * 170);
+    setTimeout(() => { gh.style.transition = 'transform .38s cubic-bezier(.4,0,.2,1.3)'; gh.style.transform = `translate(${b.left + b.width / 2 - 32}px, ${b.top + b.height / 2 - 32}px) scale(.8)`; dst.classList.add('landing'); sfx('build'); }, 30 + k * 170);
     setTimeout(() => gh.remove(), 470 + k * 170); k++; }
   setTimeout(() => { save.squad = nw; normSquad(); persist(); ui.recoBusy = false; ui.showHub(); toast(`${organById(save.sel || 'nose').name}에 맞춘 추천 조합!`); }, 480 + (k - 1) * 170);
 };
