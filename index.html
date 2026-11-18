@@ -60,7 +60,9 @@
   @media (max-height: 780px) { .organ { width: 34px; height: 34px; } .organ svg { width: 24px; height: 24px; } .organ .lbl { font-size: 10px; padding: 1px 5px; } .organ .diff { font-size: 8.5px; } #organInfo .fitBox { padding: 3px 6px; } #organInfo .sub { font-size: 11.5px; } }
   .sub, small, .chip, .organ .lbl, .organ .diff, .slot b, .slot small, .slab, .skillbox, #hint, .feat, .starList, .fitBox, .odds { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
   .organ .lbl { position: absolute; top: 50%; right: 100%; left: auto; transform: translateY(-50%); margin: 0 4px 0 0; white-space: nowrap; font-size: 11px; font-weight: 800; line-height: 1.1; text-align: right; padding: 0; background: none; border: 0; text-shadow: 0 1px 2px #000, 0 0 4px #000, 0 0 6px #000; pointer-events: none; } .organ .lbl.__x { border: 1px solid rgba(216,184,120,.35); text-shadow: none; pointer-events: none; }
-  .organ.toL .lbl { left: 100%; right: auto; margin: 0 0 0 4px; text-align: left; }   /* 이름표는 몸 그림 바깥쪽으로 */
+  .organ.toL .lbl { left: 50%; right: auto; }
+  #bodyBox .organ .lbl { top: 100%; left: 50%; right: auto; transform: translateX(-50%); margin: 3px 0 0; text-align: center; font-size: 11.5px; }   /* 이름표는 동그라미 바로 아래 */
+  #bodyBox .organ .ost { display: inline; margin-left: 3px; font-size: 9.5px; }
   .organ .lg { position: absolute; top: -10px; left: -10px; height: 22px; filter: drop-shadow(0 0 3px #6fd35a); }
   .organ.side .lbl { top: 50%; left: 100%; margin: 0 0 0 4px; transform: translateY(-50%); }
   .organ .diff { white-space: nowrap; position: absolute; top: -4px; right: -6px; font-size: 9px; width: 16px; height: 16px; display: grid; place-items: center; padding: 0; border-radius: 50%; background: #000; border: 1px solid #6e5a4a; }
@@ -224,6 +226,7 @@
   .starRow div.on b { color:#ffd24a; text-shadow:0 0 8px #ffb000 } .starRow div.new { animation: legb .8s ease-in-out infinite alternate; border-color:#c79a45 }
   .organ .ost { display:block; font-size:9px; color:#ffd24a; letter-spacing:-1px; line-height:1; text-shadow:0 1px 2px #000,0 0 3px #000 }
   .fitBox { margin:5px 0; padding:5px 8px; border:1px solid #4f3a28; border-radius:8px; background:#1a120e; font-size:12px }
+  .fitBox .role { position: static; display: inline-grid; vertical-align: -3px; margin-right: 4px; }   /* 적성 상자 안의 타입 표시: 제자리에 (화면 왼쪽 위로 튀지 않게) */
   .fitBox span { color:#b59f86; font-size:11px } .fitBox em { display:block; font-style:normal; font-size:11px; margin-top:2px } .fitBox em.ok { color:#9fff6a } .fitBox em.no { color:#ff9c8a }
   .starList { display:flex; gap:4px; flex-wrap:wrap; margin:3px 0 } .starList span { font-size:11px; padding:2px 6px; border-radius:10px; border:1px solid #3a2a20; color:#6a5a4a } .starList span.on { color:#ffd24a; border-color:#8a6a2a }
   .legBurst { position:absolute; inset:-20px; pointer-events:none; border-radius:16px; background: radial-gradient(circle at 50% 35%, rgba(255,207,74,.55), rgba(255,140,40,.15) 45%, transparent 70%); animation: legb 1.6s ease-out infinite alternate; }
@@ -630,21 +633,21 @@ const HOSTS = [
   { name:'건강한 성인', mul:1.7, note:'균형 잡힌 면역' }, { name:'엘리트 운동선수', mul:2.1, note:'최상급 면역' },
 ];
 const ORGANS = [
-  { id:'nose',  name:'코·인두 점막', diff:0.5, path:'h', towers:3, valves:0, x:-17, y:22, ax:50, ay:25.6, lab:'매우 취약',
+  { id:'nose',  name:'코·인두 점막', diff:0.5, path:'h', towers:3, valves:0, x:-30, y:12, ax:50, ay:25.6, lab:'매우 취약',
     w:{ cilia:4, neutro:3, macro:1, dendri:1 }, tint:'#3a1c20', fact:'바이러스가 제일 처음 들어오는 문이에요. 얇고 촉촉해서 들어가기 쉬워요.' },
-  { id:'lung',  name:'폐',          diff:0.9,  path:'v', towers:4, valves:0, x:-17, y:34, ax:42, ay:37, lab:'취약',
+  { id:'lung',  name:'폐',          diff:0.9,  path:'v', towers:4, valves:0, x:-30, y:36, ax:42, ay:37, lab:'취약',
     w:{ cilia:3, macro:3, neutro:2, dendri:1 }, tint:'#2a1a24', fact:'숨을 쉴 때마다 길이 커졌다 작아져요. 작은 털(섬모)이 밀어내요.' },
-  { id:'gut',   name:'위장·장 점막', diff:1.0,  path:'h', towers:4, valves:1, x:117, y:42, ax:55, ay:45.7, lab:'보통',
+  { id:'gut',   name:'위장·장 점막', diff:1.0,  path:'h', towers:4, valves:1, x:130, y:60, ax:55, ay:45.7, lab:'보통',
     w:{ neutro:3, macro:2, complement:2, nk:1 }, tint:'#33201a', fact:'길이 꿀렁꿀렁 움직이고 위산이 있어요. 버티는 힘이 필요해요.' },
-  { id:'liver', name:'간',          diff:1.1,  path:'s', towers:5, valves:0, x:-17, y:46, ax:43.7, ay:43.8, lab:'보통',
+  { id:'liver', name:'간',          diff:1.1,  path:'s', towers:5, valves:0, x:-30, y:60, ax:43.7, ay:43.8, lab:'보통',
     w:{ macro:2, neutro:2, nk:2, complement:1 }, tint:'#2e1414', fact:'몸의 청소부예요. 녹이는 물질이 길 위를 왔다 갔다 해요.' },
-  { id:'blood', name:'혈관',        diff:1.2,  path:'v', towers:4, valves:2, x:-17, y:58, ax:28, ay:44, lab:'다소 강함',
+  { id:'blood', name:'혈관',        diff:1.2,  path:'v', towers:4, valves:2, x:-30, y:84, ax:28, ay:44, lab:'다소 강함',
     w:{ neutro:3, complement:3, nk:2 }, tint:'#3a0e14', fact:'심장이 뛸 때마다 물살 방향이 바뀌어요. 문(판막)이 길을 막기도 해요.' },
-  { id:'skin',  name:'피부 상처',    diff:1.35, path:'h', towers:5, valves:0, x:117, y:60, ax:59.6, ay:62.4, lab:'강함',
+  { id:'skin',  name:'피부 상처',    diff:1.35, path:'h', towers:5, valves:0, x:130, y:84, ax:59.6, ay:62.4, lab:'강함',
     w:{ dendri:3, neutro:3, macro:2 }, tint:'#2e2218', fact:'튼튼한 벽이에요. 딱딱한 각질이 자라서 길을 막아요.' },
-  { id:'lymph', name:'림프절',       diff:1.5,  path:'s', towers:6, valves:1, x:117, y:28, ax:49.5, ay:30.6, lab:'매우 강함',
+  { id:'lymph', name:'림프절',       diff:1.5,  path:'s', towers:6, valves:1, x:130, y:36, ax:49.5, ay:30.6, lab:'매우 강함',
     w:{ tcell:3, nk:3, dendri:2, complement:2, macro:1 }, tint:'#1e1e2a', fact:'면역 세포들의 본부예요. 그물이 훑고 지나가요.' },
-  { id:'brain', name:'대뇌',         diff:1.8,  path:'s', towers:6, valves:2, x:117, y:14, ax:50, ay:20,  lab:'최종',
+  { id:'brain', name:'대뇌',         diff:1.8,  path:'s', towers:6, valves:2, x:130, y:12, ax:50, ay:20,  lab:'최종',
     w:{ macro:3, tcell:3, dendri:2, complement:2, nk:1 }, tint:'#24142a', fact:'마지막 목표예요. 번개가 떨어지고 문이 잘 안 열려요. 다른 기관 5곳을 감염시켜야 갈 수 있어요.' },
 ];
 const BRAIN_UNLOCK = 5;
@@ -2879,7 +2882,9 @@ const ui = {
   renderBody() {
     // 스테인드글라스 인체 그림 위에 기관 표시 · 버튼은 그림 양옆에 메달처럼 두고 지시선으로 잇는다 (해부도 도판 형식)
     $('bodyWrap').innerHTML = '<div id="bodyBox"></div>'; const wrap = $('bodyBox');
-    const BM = bodyOf(), pos = o => { const q = BM && BM.anat[o.id]; return q ? [q[0] * 2, q[1] * 4] : [o.ax * 2, o.ay * 4]; }, btn = o => [o.x * 2, o.y * 4];
+    // 버튼 가로 위치: 그림 바깥 빈 공간의 가운데 (화면이 좁으면 그림에 살짝 겹침). 화면 폭에 맞춰 계산
+    const ww = $('bodyWrap').clientWidth || 360, bw = wrap.getBoundingClientRect().width || ww / 2, bl = (ww - bw) / 2, cxL = clamp(bl * 0.5, 28, Math.max(28, bl - 4)), xL = (cxL - bl) / bw * 100, ox = o => o.x < 50 ? xL : 100 - xL, rU = 21 / bw * 200;
+    const BM = bodyOf(), pos = o => { const q = BM && BM.anat[o.id]; return q ? [q[0] * 2, q[1] * 4] : [o.ax * 2, o.ay * 4]; }, btn = o => [ox(o) * 2, o.y * 4];
     // 몸은 살색, 감염된 부위는 그 자리 몸 전체가 붉게 물든다 (흔적으로 약해진 부위는 옅은 붉은빛)
     const ZONE = { brain: '<ellipse cx="100" cy="80" rx="22" ry="17"/>', nose: '<ellipse cx="100" cy="102" rx="19" ry="13"/>', lymph: '<ellipse cx="100" cy="123" rx="18" ry="9"/>',
       lung: '<ellipse cx="100" cy="150" rx="44" ry="25"/>', liver: '<ellipse cx="84" cy="180" rx="26" ry="15"/>', gut: '<ellipse cx="110" cy="190" rx="30" ry="18"/>',
@@ -2889,7 +2894,7 @@ const ui = {
     const weakSet = new Set(); for (const s2 of activeLegacy()) for (const t of (LEG_FX[s2] || {}).organs || []) if (!save.done[t]) weakSet.add(t);
     for (const o of ORGANS) {
       const [ax, ay] = pos(o), [bx, by] = btn(o), sel = save.sel === o.id;
-      leads += `<path d="M${bx + (bx < 100 ? 18 : -18)} ${by} L${ax} ${ay}" stroke="${sel ? '#ffd27a' : '#d8b878'}" stroke-width="${sel ? 1.8 : 1}" stroke-dasharray="2 3" opacity="${sel ? 1 : 0.55}"/>`;
+      leads += `<path d="M${bx + (bx < 100 ? rU : -rU)} ${by} L${ax} ${ay}" stroke="${sel ? '#ffd27a' : '#d8b878'}" stroke-width="${sel ? 1.8 : 1}" stroke-dasharray="2 3" opacity="${sel ? 1 : 0.55}"/>`;
       if (save.done[o.id]) inf += ZONE[o.id]; else if (weakSet.has(o.id)) weak += ZONE[o.id];
       if (sel) selz = ZONE[o.id];
     }
@@ -2905,7 +2910,7 @@ const ui = {
     for (const o of ORGANS) {
       const b = document.createElement('button'), open = organOpen(o);
       b.className = 'organ off' + (o.x >= 50 ? ' toL' : '') + (save.done[o.id] ? ' done' : '') + (save.sel === o.id ? ' sel' : '') + (open ? '' : ' lock');
-      b.style.left = o.x + '%'; b.style.top = o.y + '%';
+      b.style.left = ox(o) + '%'; b.style.top = o.y + '%';
       const lg = save.legacy[o.id], hit = legacyFor(o).filter(l => !l.global).length;
       b.innerHTML = `<svg viewBox="0 0 28 28" aria-hidden="true">${ORGAN_ICON[o.id]}</svg>${lg ? `<img class="lg" src="${stImg(lg)}" alt="">` : ''}<span class="lbl">${ORG_SHORT[o.id]}${open ? `<span class="ost">${starsOf(o.id).map(x => x ? '★' : '☆').join('')}</span>` : ''}</span>${save.done[o.id] ? '<span class="diff ok">✓</span>' : !open ? '<span class="diff">🔒</span>' : ''}${hit && !save.done[o.id] ? '<span class="weak">약화</span>' : ''}`;
       b.setAttribute('aria-label', o.name);
