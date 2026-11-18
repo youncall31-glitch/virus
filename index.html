@@ -149,6 +149,9 @@
   #labNums.lhStats { flex: 1; display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 4px !important; } #labNums.lhStats .tile b { font-size: 15px; } #labNums.lhStats .tile .lb { font-size: 10px; }
   .lhBtns { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; } .lhBtns .btn { min-height: 38px; font-size: 13px; }
   #railList { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -8px; padding: 0 0 6px 8px; scrollbar-width: none; } #railList::-webkit-scrollbar { display: none; }
+  .rail, .rLock { margin-top: var(--rg, 6px) !important; } #labRails { position: relative; }
+  #railMore { position: absolute; left: 0; right: 0; bottom: 0; height: 46px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; pointer-events: none; font-size: 12px; font-weight: 800; color: #ffe2a8; background: linear-gradient(transparent, #140b0e 85%); animation: moreB 1.4s ease-in-out infinite; } #railMore[hidden] { display: none; } @keyframes moreB { 50% { padding-bottom: 9px; } }
+  #labNums [data-k="pow"] { border-color: #c79a45; } #labNums [data-k="pow"] b { color: #ffd27a; }
   .rail { margin-top: 6px; } .rHead { display: flex; align-items: center; padding-right: 10px; margin-bottom: 4px; } .rHead b { flex: 1; font-size: 14px; color: #ffe2a8; } .rHead b small { font-size: 11px; color: #b59f86; font-weight: 400; } .rHead .more { font-size: 11.5px; color: #c79a45; background: none; border: 0; font: inherit; padding: 2px 0 2px 8px; }
   .rRow { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding: 2px 10px 2px 0; } .rRow::-webkit-scrollbar { display: none; }
   .rc { flex: none; width: 80px; height: 108px; border-radius: 13px; background: #22141b; border: 2px solid #3e2830; text-align: center; position: relative; padding: 3px 0 0; overflow: hidden; color: inherit; font: inherit; }
@@ -161,10 +164,12 @@
   .rLock { margin: 8px 10px 0 0; padding: 9px 12px; border-radius: 12px; border: 1.5px dashed #3a2c2c; color: #8a7a6a; font-size: 12.5px; background: #140c0e; }
   .boxHead { display: flex; align-items: center; gap: 8px; } .boxHead b { flex: 1; font-size: 15px; } .boxHead .btn { min-height: 34px; padding: 0 10px; font-size: 13px; }
   #sheet { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,.6); } #sheet[hidden] { display: none; }
-  #sheet .sh { background: #21121a; border-radius: 20px 20px 0 0; border-top: 1px solid #5a3a40; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); max-height: 88vh; overflow-y: auto; animation: shUp .22s ease-out; }
+  .mX { position: absolute; right: 8px; top: 8px; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #6a4a50; background: #2a171c; color: #ffe2a8; font-size: 17px; font-weight: 900; z-index: 3; line-height: 1; padding: 0; }
+  #modalBox { position: relative; } #modalBox > h3:first-of-type, #modalBox > .mX + * { padding-right: 40px; } #sheet .sh { position: relative; } #sheet .sh { background: #21121a; border-radius: 20px 20px 0 0; border-top: 1px solid #5a3a40; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); max-height: 88vh; overflow-y: auto; animation: shUp .22s ease-out; }
   @keyframes shUp { from { transform: translateY(40%); opacity: .4; } } #sheet .hd { width: 44px; height: 5px; border-radius: 3px; background: #6a4a50; margin: 0 auto 10px; }
   .shTop { display: flex; gap: 12px; align-items: center; } .shTop .pic { width: 92px; height: 92px; flex: none; border-radius: 16px; border: 2px solid #c79a45; background: #1a0f14; display: grid; place-items: center; overflow: hidden; } .shTop .pic img { width: 84px; height: 84px; object-fit: contain; }
   .shTop b.n { font-size: 20px; } .shTop .shSk { font-size: 12.5px; color: #e9c58a; margin-top: 3px; line-height: 1.35; } .shTop .info { font-size: 12px; color: #c79a45; background: none; border: 0; font: inherit; padding: 4px 0 0; }
+  .shPow { text-align: center; padding: 8px; margin-bottom: 6px; border-radius: 12px; background: #1d1216; border: 1.5px solid #c79a45; } .shPow small { display: block; font-size: 11.5px; color: #c79a45; } .shPow b { font-size: 22px; } .shPow .up { color: #9fff6a; } .shPow .dn { color: #ff9c8a; } .shPow em { font-style: normal; font-size: 16px; }
   .shCmp { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .shCmp .tile { padding: 7px 4px; } .shCmp .tile b { font-size: 15px; white-space: nowrap; } .shCmp .up { color: #9fff6a; } .shCmp .dn { color: #ff9c8a; }
   .shCore { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0 2px; } .shCore img { object-fit: contain; }
   .shBtns { display: flex; gap: 8px; margin-top: 10px; } .shBtns .btn { flex: 1; min-height: 50px; font-size: 15px; } .shBtns .btn.red { flex: 2; font-size: 16px; }
@@ -576,7 +581,7 @@
       <div id="labRails">
         <div class="labHead"><button class="lhCore" id="csCore" aria-label="본체"></button><div class="sumRow lhStats" id="labNums"></div></div>
         <div class="lhBtns"><button class="btn" id="bAuto">⭐ 추천 조합</button><button class="btn green" id="bBreed">교배</button><button class="btn" id="bBox">📦 보관함</button></div>
-        <div id="railList"></div>
+        <div id="railList"></div><div id="railMore" hidden>⌄ 아래로 밀면 더 있어요</div>
       </div>
       <div id="labBox" hidden>
         <div class="boxHead"><button class="btn" id="bBoxBack">◀ 조합</button><b id="boxTitle">📦 보관함</b><div class="pager pBox" id="pagerBox"><button class="btn" id="pgPrev" aria-label="이전">◀</button><span id="pgTxt">1/1</span><button class="btn" id="pgNext" aria-label="다음">▶</button></div></div>
@@ -3438,14 +3443,14 @@ const ui = {
   numsHtml(ms) {
     const tot = matchTotal(slotFill(), save.sel || 'nose');
     const t = (k, lb, v) => `<span data-k="${k}" class="tile${k === 'match' ? (tot > 0 ? ' good' : tot < 0 ? ' bad' : '') : ''}" onclick="statHelp('${k}')"><small class="lb">${lb}</small><b>${v}</b></span>`;
-    return t('hp', '❤ 체력', ms.s.hp) + t('spd', '💨 속도', ms.s.spd) + t('atk', '⚔ 공격', Math.round(ms.s.atk * 100)) + t('count', '🦠 마릿수', ms.s.count) + t('match', `🧬 ${ORG_SHORT[save.sel || 'nose']} 궁합`, `${tot >= 0 ? '+' : ''}${tot}%`);
+    return t('pow', `🎯 ${ORG_SHORT[save.sel || 'nose']} 전투력`, powerOf(ms.s, tot)) + t('match', `🧬 ${ORG_SHORT[save.sel || 'nose']} 궁합`, `${tot >= 0 ? '+' : ''}${tot}%`) + t('hp', '❤ 체력', ms.s.hp) + t('spd', '💨 속도', ms.s.spd) + t('atk', '⚔ 공격', Math.round(ms.s.atk * 100)) + t('count', '🦠 마릿수', ms.s.count);
   },
   // ★ 본체가 바뀌면: 옛 모습이 스르륵 사라지고 새 모습이 커지며 나타남 + 숫자가 굴러가며 바뀌고 +/− 가 떠오름
   animMine(pic, nums, ms, key) {
     ui.prevMine = ui.prevMine || {}; const prev = ui.prevMine[key], img = imgSrc(ms.img, 'assets/rhino.png'), match = matchTotal(slotFill(), save.sel || 'nose');
-    const cur = { img, hp: ms.s.hp, spd: ms.s.spd, atk: ms.s.atk, count: ms.s.count, match, sel: save.sel };
+    const cur = { img, hp: ms.s.hp, spd: ms.s.spd, atk: ms.s.atk, count: ms.s.count, match, pow: powerOf(ms.s, match), sel: save.sel };
     ui.prevMine.lab = cur; ui.prevMine.core = cur;
-    if (!prev) return; const ks = ['hp', 'spd', 'atk', 'count', 'match'], diff = ks.filter(k => Math.abs(cur[k] - prev[k]) > (k === 'atk' ? 0.004 : 0.4));
+    if (!prev) return; const ks = ['pow', 'hp', 'spd', 'atk', 'count', 'match'], diff = ks.filter(k => Math.abs(cur[k] - prev[k]) > (k === 'atk' ? 0.004 : 0.4));
     if (prev.img !== img && pic) { const o = document.createElement('img'); o.src = prev.img; o.className = 'mOld'; pic.appendChild(o); const n = pic.querySelector('img:not(.mOld)'); if (n) n.classList.add('mNew');
       const r = document.createElement('i'); r.className = 'mRing'; pic.appendChild(r); setTimeout(() => { o.remove(); r.remove(); }, 900); }
     if (!diff.length) return; if (prev.img !== img || diff.some(k => k !== 'match')) { sfx('up'); buzz(18); }
@@ -3547,7 +3552,7 @@ const ui = {
     $('csCore').className = 'lhCore t' + tier;
     $('csCore').innerHTML = `${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="" style="opacity:.8">` : ''}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b>`;
     $('csCore').onclick = () => ui.showHub('hero');
-    $('labNums').innerHTML = ms ? ui.numsHtml(ms) + `<span class="tile" onclick="ui.skillsPop()"><small class="lb">✨ 스킬</small><b>${new Set(squadGenes().map(g => g.strain)).size}개</b></span>` : '<span class="tile" style="grid-column:1/-1"><small class="lb">아래 줄에서 카드를 눌러 꽂아요</small><b>?</b></span>';
+    $('labNums').innerHTML = ms ? ui.numsHtml(ms) : '<span class="tile" style="grid-column:1/-1"><small class="lb">아래 줄에서 카드를 눌러 꽂아요</small><b>?</b></span>';
     if (ms) ui.animMine($('csCore'), $('labNums'), ms, 'lab');
     ui.renderRails();
   },
@@ -3558,12 +3563,13 @@ const ui = {
     const nf = fillOf(sq), ns = mineStats(nf), nm = matchTotal(nf, save.sel || 'nose'), img = imgSrc(ns.img, 'assets/rhino.png');
     if (base.length) mineStats(base);
     const k = SLOT_KEY[i], v = x => k === 'atk' ? Math.round(x * 100) : Math.round(x);
-    return { k, from: bs ? v(bs.s[k]) : 0, to: v(ns.s[k]), d: v(ns.s[k]) - (bs ? v(bs.s[k]) : 0), bs, ns, bm, nm, img };
+    const pf = bs ? powerOf(bs.s, bm) : 0, pt = powerOf(ns.s, nm), pp = pf ? Math.round((pt / pf - 1) * 100) : 100;
+    return { k, from: bs ? v(bs.s[k]) : 0, to: v(ns.s[k]), d: v(ns.s[k]) - (bs ? v(bs.s[k]) : 0), bs, ns, bm, nm, img, pf, pt, pp };
   },
   railCands(i, n) {
     const g0 = slotGenes()[i], gv = g => 'DCBAS'.indexOf(slotGrade(g, i));
     const pool = save.genes.filter(g => g !== g0).sort((a, b) => gv(b) - gv(a) || power(b) - power(a)).slice(0, n);
-    return pool.map(g => ({ g, r: ui.slotDelta(g, i) })).sort((a, b) => b.r.d - a.r.d || b.r.nm - a.r.nm);
+    return pool.map(g => ({ g, r: ui.slotDelta(g, i) })).sort((a, b) => b.r.pt - a.r.pt);
   },
   renderRails() {
     const sq = slotGenes(), used = new Map(); SL.forEach(i => { if (sq[i]) used.set(sq[i].uid, i); });
@@ -3573,16 +3579,27 @@ const ui = {
       const g0 = sq[i], cands = ui.railCands(i, 7);
       const cur = g0 ? `<button class="rc cur" data-u="${g0.uid}" data-s="${i}"><span class="gr" style="color:${GRADE_COL[slotGrade(g0, i)]}">${slotGrade(g0, i)}</span>${pimg(g0)}<div class="nm">${sname(g0.strain)}</div><div class="dl">꽂힘</div></button>`
         : `<button class="rc empty" data-s="${i}" data-empty="1">비어 있음<br>옆에서 골라요</button>`;
-      const items = cands.map(({ g, r }, n) => { const u = used.get(g.uid), gr = slotGrade(g, i), best = n === 0 && r.d > 0;
-        return `<button class="rc${best ? ' best' : ''}${u != null ? ' hasU' : ''}" data-u="${g.uid}" data-s="${i}">${u != null ? `<span class="usedB">${SLOT_NAME[u]}에 꽂힘</span>` : ''}<span class="gr" style="color:${GRADE_COL[gr]}">${gr}</span>${pimg(g)}<div class="nm">${sname(g.strain)}</div><div class="dl ${r.d > 0 ? 'up' : r.d < 0 ? 'dn' : 'eq'}">${r.d > 0 ? '+' : ''}${r.d === 0 ? '±0' : r.d}</div></button>`; }).join('');
-      h += `<div class="rail" data-slot="${i}"><div class="rHead"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]} <small>${SLOT_STAT[i]} 담당</small></b><button class="more" data-more="${i}">전체 보기 ›</button></div><div class="rRow">${cur}${items}</div></div>`;
+      const items = cands.map(({ g, r }, n) => { const u = used.get(g.uid), gr = slotGrade(g, i), best = n === 0 && r.pp > 0;
+        return `<button class="rc${best ? ' best' : ''}${u != null ? ' hasU' : ''}" data-u="${g.uid}" data-s="${i}">${u != null ? `<span class="usedB">${SLOT_NAME[u]}에 꽂힘</span>` : ''}<span class="gr" style="color:${GRADE_COL[gr]}">${gr}</span>${pimg(g)}<div class="nm">${sname(g.strain)}</div><div class="dl ${r.pp > 0 ? 'up' : r.pp < 0 ? 'dn' : 'eq'}">${r.pp > 0 ? '+' : ''}${r.pp === 0 ? '±0' : r.pp}%</div></button>`; }).join('');
+      h += `<div class="rail" data-slot="${i}"><div class="rHead"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]} <small>${SLOT_STAT[i]} 담당 · ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</small></b><button class="more" data-more="${i}">전체 보기 ›</button></div><div class="rRow">${cur}${items}</div></div>`;
     }
-    $('railList').innerHTML = h;
+    $('railList').innerHTML = h; $('railList').style.setProperty('--rg', '6px'); requestAnimationFrame(ui.fitRails);
     $('railList').querySelectorAll('.rc[data-u]').forEach(b => b.onclick = () => ui.cmpSheet(geneById(+b.dataset.u), +b.dataset.s));
     $('railList').querySelectorAll('.rc[data-empty]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.s));
     $('railList').querySelectorAll('[data-more]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.more));
     $('railList').querySelectorAll('.rLock').forEach(b => b.onclick = () => ui.showHub('hero'));
   },
+  // 스크롤 단서: 맨 아래 카드 줄이 절반쯤 걸치도록 줄 간격을 살짝 조절 + '아래로 더' 표시
+  fitRails() {
+    const L = $('railList'); if (!L || L.offsetParent === null) return; const H = L.clientHeight, items = [...L.children], RH = 108;
+    const rows = items.map((el, j) => { const r = el.querySelector('.rRow'); return r ? { j, top: r.offsetTop - L.offsetTop } : null; }).filter(Boolean);
+    let best = 0, bv = 9;
+    if (L.scrollHeight > H + 4) for (let dd = -3; dd <= 44; dd++) { const hit = rows.map(r => ({ ...r, t: r.top + (r.j + 1) * dd })).find(r => r.t + RH > H); if (!hit) continue;
+      const vis = (H - hit.t) / RH; if (vis >= 0.15 && vis <= 0.85 && Math.abs(vis - 0.45) < bv) { bv = Math.abs(vis - 0.45); best = dd; } }
+    L.style.setProperty('--rg', (6 + best) + 'px'); ui.railMore();
+    L.onscroll = ui.railMore;
+  },
+  railMore() { const L = $('railList'), m = $('railMore'); if (!L || !m) return; m.hidden = !(L.scrollHeight - L.scrollTop - L.clientHeight > 20); },
   // ★ 비교 시트: 이 칸에 꽂으면 무엇이 얼마나 바뀌는지 크게
   cmpSheet(g, i) {
     if (!g) return; const d = STRAINS[g.strain], sq = slotGenes(), isCur = sq[i] === g, old = sq[i], r = ui.slotDelta(g, i);
@@ -3590,18 +3607,19 @@ const ui = {
     const k = SLOT_KEY[i], sub = k === 'count' ? 'hp' : 'count', v = (st, x) => st === 'atk' ? Math.round(x * 100) : Math.round(x), subN = { hp: '❤ 체력', count: '🦠 마릿수' }[sub];
     const others = SLOT_ORDER.filter(j => j !== i && slotOpen(j));
     const og = old ? slotGrade(old, i) : '-', ng = slotGrade(g, i);
-    $('sheet').innerHTML = `<div class="sh"><div class="hd"></div>
+    $('sheet').innerHTML = `<div class="sh"><button class="mX" id="shX" aria-label="닫기">✕</button><div class="hd"></div>
       <div class="shTop"><div class="pic" style="border-color:${RARITY[d.rarity].color}">${pimg(g)}</div><div style="flex:1;min-width:0"><b class="n">${gname(g)}</b> <span class="stars" style="color:#ffd27a">${stars(g.star)}</span> <span style="color:#b59f86">Lv${g.lv || 1}</span>
         <div class="shSk">✨ ${skCat(g)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](d.name) : '').filter(Boolean).join(' · ')}</div><button class="info" id="shInfo">카드 정보·강화 ›</button></div></div>
       <div style="margin:12px 0 6px;font-weight:800;font-size:15px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸 · ${isCur ? '지금 꽂혀 있어요' : `${old ? sname(old.strain) : '빈 칸'} → ${sname(g.strain)}`}</div>
+      <div class="shPow"><small>🎯 ${organById(save.sel || 'nose').name} 전투력</small><b>${isCur ? r.pt : `${r.pf} <span class="${r.pt > r.pf ? 'up' : r.pt < r.pf ? 'dn' : ''}">→ ${r.pt}</span> <em class="${r.pp > 0 ? 'up' : r.pp < 0 ? 'dn' : ''}">${r.pp > 0 ? '+' : ''}${r.pp}%</em>`}</b></div>
       <div class="shCmp">${t(SLOT_ICON[i] + ' ' + SLOT_STAT[i], r.from, r.to)}${t(subN, r.bs ? v(sub, r.bs.s[sub]) : 0, v(sub, r.ns.s[sub]))}${t(`🧬 ${ORG_SHORT[save.sel || 'nose']} 궁합`, r.bm, r.nm, x => `${x >= 0 ? '+' : ''}${x}%`)}<div class="tile"><small class="lb">${SLOT_NAME[i]} 등급</small><b style="color:${GRADE_COL[ng]}">${isCur ? ng : `${og} → ${ng}`}</b></div></div>
       ${isCur ? '' : `<div class="shCore">${r.bs ? `<img src="${imgSrc(IMG.mine, 'assets/rhino.png')}" style="width:68px;opacity:.6"><span style="font-size:22px;color:#ffd24a">➜</span>` : ''}<img src="${r.img}" style="width:92px;filter:drop-shadow(0 0 12px #ffd24a)"></div>`}
       <div class="shBtns">${isCur ? `<button class="btn" id="shOut">칸에서 빼기</button><button class="btn" id="shClose">닫기</button>` : `<button class="btn" id="shOther">다른 칸에</button><button class="btn red" id="shGo">${SLOT_ICON[i]} ${SLOT_NAME[i]}에 꽂기</button>`}</div>
       <div class="shSlots" id="shSlots" hidden>${others.map(j => `<button class="btn" data-j="${j}">${SLOT_ICON[j]} ${SLOT_NAME[j]}</button>`).join('')}</div></div>`;
     $('sheet').hidden = false;
     const close = () => { $('sheet').hidden = true; };
-    $('sheet').onclick = e => { if (e.target.id === 'sheet') close(); };
-    $('shInfo').onclick = () => { close(); ui.detail(g); };
+    $('sheet').onclick = e => { if (e.target.id === 'sheet') close(); }; $('shX').onclick = close;
+    $('shInfo').onclick = () => { close(); ui.detail(g); ui.backTo = () => { if (geneById(g.uid)) ui.cmpSheet(g, i); }; };
     if (isCur) { $('shOut').onclick = () => { unSquad(g.uid); persist(); close(); ui.showHub(); }; $('shClose').onclick = close; }
     else { $('shGo').onclick = () => { if (assignSlot(g, i)) { close(); sfx('build'); ui.showHub(); } };
       $('shOther').onclick = () => { $('shSlots').hidden = !$('shSlots').hidden; };
@@ -3612,8 +3630,8 @@ const ui = {
     const sq = slotGenes(), g0 = sq[i], used = new Map(); SL.forEach(j => { if (sq[j]) used.set(sq[j].uid, j); });
     const rows = ui.railCands(i, 40);
     const row = (g, r, cls) => { const gr = slotGrade(g, i), u = used.get(g.uid);
-      return `<button class="listRow ${cls}" data-u="${g.uid}">${pimg(g)}<div class="t"><b>${sname(g.strain)}</b> <span style="color:#ffd27a;font-size:11px">${stars(g.star)}</span>${cls === 'best' ? ' <span style="font-size:10px;background:#ffd24a;color:#2a1608;border-radius:5px;padding:0 5px;font-weight:900">추천</span>' : ''}<div>Lv${g.lv || 1} · ✨ ${skCat(g)}${u != null && u !== i ? ` · ${SLOT_NAME[u]}에 꽂힘` : ''}</div></div><div class="g" style="color:${GRADE_COL[gr]}">${gr}</div>${r ? `<div class="d" style="color:${r.d > 0 ? '#9fff6a' : r.d < 0 ? '#ff9c8a' : '#b59f86'}">${r.d > 0 ? '+' : ''}${r.d}<small>${SLOT_STAT[i]} ${r.from}→${r.to}</small></div>` : '<div class="d" style="color:#9fff6a;font-size:12px">꽂혀 있음</div>'}</button>`; };
-    ui.modal(`<h3 style="margin:0 0 8px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸에 꽂을 카드</h3><div style="max-height:62vh;overflow-y:auto">${g0 ? row(g0, null, 'cur') : ''}${rows.map(({ g, r }, n) => row(g, r, n === 0 && r.d > 0 ? 'best' : '')).join('')}</div>`, [{ label: '닫기' }]);
+      return `<button class="listRow ${cls}" data-u="${g.uid}">${pimg(g)}<div class="t"><b>${sname(g.strain)}</b> <span style="color:#ffd27a;font-size:11px">${stars(g.star)}</span>${cls === 'best' ? ' <span style="font-size:10px;background:#ffd24a;color:#2a1608;border-radius:5px;padding:0 5px;font-weight:900">추천</span>' : ''}<div>Lv${g.lv || 1} · ✨ ${skCat(g)}${u != null && u !== i ? ` · ${SLOT_NAME[u]}에 꽂힘` : ''}</div></div><div class="g" style="color:${GRADE_COL[gr]}">${gr}</div>${r ? `<div class="d" style="color:${r.pp > 0 ? '#9fff6a' : r.pp < 0 ? '#ff9c8a' : '#b59f86'}">${r.pp > 0 ? '+' : ''}${r.pp}%<small>전투력 ${r.pt}</small></div>` : '<div class="d" style="color:#9fff6a;font-size:12px">꽂혀 있음</div>'}</button>`; };
+    ui.modal(`<h3 style="margin:0 0 8px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸에 꽂을 카드</h3><div style="max-height:62vh;overflow-y:auto">${g0 ? row(g0, null, 'cur') : ''}${rows.map(({ g, r }, n) => row(g, r, n === 0 && r.pp > 0 ? 'best' : '')).join('')}</div>`, [{ label: '닫기' }]);
     document.querySelectorAll('#modal .listRow').forEach(b => b.onclick = () => { ui.closeModal(); ui.cmpSheet(geneById(+b.dataset.u), i); });
   },
   skillsPop() { const gs = [...new Map(squadGenes().map(g => [g.strain, g])).values()]; if (!gs.length) return;
@@ -3779,7 +3797,10 @@ const ui = {
       <div class="sub">▲▼는 ${r.isNew ? '부모 중 더 높은 값' : `주 부모(${STRAINS[c.strain].name})`}와 비교. 새끼는 증식 0단계에서 시작해요.</div>
       <div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`);
   },
-  modal(html) { skPopHide(); $('modalBox').innerHTML = html; $('modal').hidden = false; },
+  modal(html) { skPopHide(); $('modalBox').innerHTML = `<button class="mX" aria-label="닫기">✕</button>` + html; $('modal').hidden = false;
+    $('modalBox').querySelector('.mX').onclick = () => ui.closeX(); },
+  // ✕: 닫고, 비교 시트에서 왔으면 그 시트로 돌아감
+  closeX() { ui.closeModal(); const f = ui.backTo; ui.backTo = null; if (f) f(); },
   closeModal() { $('modal').hidden = true; if (run && run.mutPause) { run.mutPause = false; paused = false; } },
   hostInfo() { const r = hostRule(); ui.modal(`<h3 style="margin:0 0 6px">${r.icon} ${HOSTS[save.host].name} · ${r.title}</h3><div class="sub">${r.desc}</div>
       ${save.host >= 2 && (save.mem || []).length ? `<div class="sub" style="margin-top:6px;color:#9fd8ff">면역 기억 T세포: <b>${save.mem.map(k => STRAINS[k].name).join(', ')}</b> — 이 계통을 데려가면 전용 T세포가 미리 깔려 있어요. 다른 계통을 쓰거나 잠입으로 그 구간을 먹어 두세요.</div>` : ''}
@@ -4055,6 +4076,8 @@ const coreTier = () => { const l = coreL(); return l >= 20 ? 3 : l >= 10 ? 2 : l
 const coreCost = (l = coreL()) => Math.round(60 * Math.pow(1.2, l) / 10) * 10;
 const CORE_MILE = [{ l: 1, t: '💨 껍질 칸 열림', slot: 1 }, { l: 4, t: '✨ 빛나는 테두리' }, { l: 5, t: '🧬 꼬리 칸 열림', slot: 3 }, { l: 10, t: '💪 몸집이 커짐' }, { l: 12, t: '✨ 더듬이 칸 열림', slot: 4 }, { l: 20, t: '👑 왕관' }];
 // 칸 위치 (무대 안 %): 몸통 왼쪽 위 · 가시 오른쪽 위 · 껍질 왼쪽 아래 · 꼬리 오른쪽 아래 · 더듬이 위 가운데
+// ★ 전투력: 고른 기관 기준 실제 세기 (공격 × 마릿수 × √(체력×속도) × 궁합). 칸을 바꿀 때 이 숫자로 비교
+const powerOf = (st, match) => Math.round(st.atk * Math.min(st.count, MINE_CAP) * Math.sqrt(st.hp * st.spd) * (1 + match / 100) / 10);
 const STAGE_POS = [[13, 34], [13, 80], [87, 34], [87, 80], [50, 15]];
 // 자리별 어울림: 몸통=체력, 껍질=빠르기, 가시=공격력, 꼬리·더듬이=마릿수 (도감 등급 S~D)
 const SLOT_GK = ['hp', 'spd', 'atk', 'count', 'count'];
@@ -4072,7 +4095,7 @@ function assignSlot(g, i) {
   save.squad = sq; normSquad(); persist(); return true;
 }
 // ★ 끌어다 놓기: 카드를 손가락으로 끌어 본체 둘레 칸에 놓는다 (본체 위에 놓으면 빈 칸으로). 꽂힌 카드를 밖으로 끌면 빠짐
-const STAT_HELP = { hp: '❤ 체력: 탑 공격을 얼마나 버티는지 (❤몸통 칸 카드가 가장 크게 정해요)', spd: '💨 속도: 길을 얼마나 빨리 달리는지 (💨껍질 칸)', atk: '⚔ 공격: 탑을 물어뜯고 감염시키는 힘 (⚔가시 칸)', count: '🦠 마릿수: 한 번에 나가는 무리 수 (꽂은 카드가 많을수록)', match: '🧬 궁합: 고른 기관과 얼마나 잘 맞는지 (몸통 타입 + 잘 먹히는 바이러스)' };
+const STAT_HELP = { pow: '🎯 전투력: 지금 고른 기관에서의 실제 세기 (공격 × 마릿수 × 체력·속도 × 궁합). 칸을 바꿀 때 이 숫자를 보세요', hp: '❤ 체력: 탑 공격을 얼마나 버티는지 (❤몸통 칸 카드가 가장 크게 정해요)', spd: '💨 속도: 길을 얼마나 빨리 달리는지 (💨껍질 칸)', atk: '⚔ 공격: 탑을 물어뜯고 감염시키는 힘 (⚔가시 칸)', count: '🦠 마릿수: 한 번에 나가는 무리 수 (꽂은 카드가 많을수록)', match: '🧬 궁합: 고른 기관과 얼마나 잘 맞는지 (몸통 타입 + 잘 먹히는 바이러스)' };
 function statHelp(k) { if (dragBlocked()) return; toast(STAT_HELP[k] || ''); }
 const DRAG = { p: null, until: 0 };
 const dragBlocked = () => performance.now() < DRAG.until;
