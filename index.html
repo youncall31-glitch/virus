@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>진화하는 바이러스 — v5 프로토타입</title>
+<title>우쭈쭈 바이러스 — 몸속 정복 대작전</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Cinzel:wght@700&family=Jua&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0607; color: #eadcc2;
@@ -272,10 +272,18 @@
   #coach .cr button { min-height: 28px; font-size: 12px; padding: 0 10px; }
   #intro { position: absolute; inset: 0; z-index: 60; background: #0b0607; transition: opacity .6s; overflow: hidden; } #intro.out { opacity: 0; pointer-events: none; }
   #introCv { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .inTop { position: absolute; left: 0; right: 0; top: 9%; text-align: center; pointer-events: none; }
-  .inTitle { font-size: 44px; font-weight: 800; line-height: 1.1; letter-spacing: 2px; background: linear-gradient(180deg, #fff2c8, #ffcf6a 45%, #c8742a); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 #2a0e08) drop-shadow(0 0 18px rgba(255,140,60,.55)); }
+  .inTop { position: absolute; left: 0; right: 0; top: 47.5%; transform: translateY(-50%); text-align: center; pointer-events: none; }
+  .inTitle { font-family: 'Jua', 'Do Hyeon', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; font-weight: 400; line-height: 1; letter-spacing: 1px; animation: ttBob 3.2s ease-in-out infinite; }
+  .inTitle .t1, .inTitle .t2 { position: relative; display: block; background: linear-gradient(180deg, #fff0fb 0%, #ff9ee0 38%, #c45cff 72%, #7a2ad0 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(3px 0 0 #2a0a24) drop-shadow(-3px 0 0 #2a0a24) drop-shadow(0 3px 0 #2a0a24) drop-shadow(0 -3px 0 #2a0a24) drop-shadow(0 6px 0 #14040f) drop-shadow(0 0 22px rgba(220,110,255,.65)); }
+  .inTitle .t1 { display: inline-block; font-size: clamp(64px, 21vw, 96px); transform: rotate(-3deg); }
+  .inTitle .t2 { font-size: clamp(40px, 13vw, 60px); margin-top: 4px; background: linear-gradient(180deg, #f2ffe0 0%, #b8ff6a 45%, #5fc23a 100%); -webkit-background-clip: text; background-clip: text; transform: rotate(2deg); }
+  .inTitle .dr { position: absolute; top: 78%; width: 12px; height: var(--h); border-radius: 0 0 8px 8px; background: linear-gradient(#e47ae0, #a43adf); box-shadow: 0 0 0 3px #2a0a24; animation: drip 2.6s ease-in infinite; }
+  .inTitle .dr::after { content: ''; position: absolute; left: -2px; bottom: -8px; width: 16px; height: 16px; border-radius: 50%; background: #a43adf; box-shadow: 0 0 0 3px #2a0a24; }
+  @keyframes drip { 0%, 60% { transform: scaleY(1); transform-origin: top; } 80% { transform: scaleY(1.25); } 100% { transform: scaleY(1); } }
+  @keyframes ttBob { 50% { transform: translateY(-5px) scale(1.02); } }
   .inTitle img { width: 86%; max-width: 420px; }
-  .inSub { margin-top: 6px; font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 6px; color: #e8a0ff; text-shadow: 0 0 10px #a040ff; }
+  .inSub { margin-top: 14px; font-family: 'Jua', 'Do Hyeon', sans-serif; font-size: 18px; letter-spacing: 5px; color: #ffe6a8; text-shadow: 0 2px 0 #2a0a24, 0 0 12px rgba(255,180,80,.7); }
   .inBot { position: absolute; left: 0; right: 0; bottom: 7%; text-align: center; padding: 0 24px; }
   .inTag { font-size: 14px; color: #f5e8d0; text-shadow: 0 2px 4px #000; margin-bottom: 14px; word-break: keep-all; }
   .inGo { width: 100%; max-width: 320px; min-height: 58px; font-size: 20px; animation: inPulse 1.6s ease-in-out infinite; }
@@ -388,7 +396,7 @@
 
   <div class="plate" id="hubTip" hidden></div>
   <div id="intro"><canvas id="introCv"></canvas>
-    <div class="inTop" id="inTop"><div class="inTitle">진화하는<br>바이러스</div><div class="inSub">EVOLVING VIRUS</div></div>
+    <div class="inTop" id="inTop"><div class="inTitle"><span class="t1">우쭈쭈<i class="dr" style="left:14%;--h:20px"></i><i class="dr" style="left:46%;--h:30px"></i><i class="dr" style="left:80%;--h:14px"></i></span><span class="t2">바이러스</span></div><div class="inSub">몸속 정복 대작전</div></div>
     <div class="inBot" id="inBot"><div class="inTag">작은 바이러스 하나로 사람의 몸 전체를 감염시켜라</div><button class="btn red inGo" id="inGo">▶ 감염 시작</button><div class="inHint">소리를 켜면 더 재밌어요 🔊</div></div>
     <div class="inStory" id="inStory" hidden></div>
   </div>
@@ -401,7 +409,7 @@
 <script>
 'use strict';
 /* =====================================================================
- * 진화하는 바이러스 — v4 프로토타입
+ * 우쭈쭈 바이러스 — 몸속 정복 대작전 (옛 이름: 진화하는 바이러스)
  * 인체 지도에서 침투 기관 선택 → 기관마다 다른 길·난이도·목표 그림 → 군중 침투
  * 주석의 [모듈] 단위로 자르면 설계서의 파일 구조가 된다.
  * ===================================================================== */
@@ -3573,7 +3581,7 @@ canvas.addEventListener('pointerdown', e => {
 });
 window.addEventListener('resize', () => { fit(); if (!run) ui.showHub(); });
 
-loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); save.squad = [0, 1, 2].map(i => (save.squad || [])[i] || null); if (!squadGenes().length) autoSquad(); fit(); ui.showHub('body'); requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; if (has('intro_bg')) $('inTop').style.display = 'none'; else if (has('title_logo')) document.querySelector('.inTitle').innerHTML = '<img src="assets/title_logo.png" alt="진화하는 바이러스">'; requestAnimationFrame(introLoop); });
+loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); save.squad = [0, 1, 2].map(i => (save.squad || [])[i] || null); if (!squadGenes().length) autoSquad(); fit(); ui.showHub('body'); requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; if (has('title_logo')) document.querySelector('.inTitle').innerHTML = '<img src="assets/title_logo.png" alt="진화하는 바이러스">'; requestAnimationFrame(introLoop); });
 </script>
 </body>
 </html>
