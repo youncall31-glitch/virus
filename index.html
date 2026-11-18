@@ -2275,7 +2275,7 @@ const AB = { life: 3.2, step: 0.1, cap: 0.3 };
 // 카운트다운 중에 쓴 스킬은 쿨타임 절반 돌려받음 → 아무 때나 막 쓰기보다 타이밍을 맞추는 게 이득. 버티면 약효 동안 '역습' 공격 ×1.25
 const MED = { every: 12, first: 10, warn: 3, dur: 4, dmg: 0.6, slow: 0.6, guard: 0, refund: 0.5, counter: 1.25 };
 function stepMed(dt) {
-  const R = run; if (!R.ta || R.over || R.endAt || stealthOn()) return;
+  const R = run; if (!R.ta || R.over || R.endAt || stealthOn() || !save.tutDone) return;
   if (!R.med) { R.medT = (R.medT ?? MED.first) - dt; if (R.medT <= 0 && R.units.filter(u => u.alive && !u.hero && u.d > 0).length < 5) R.medT = 0.5; if (R.medT <= 0) { R.med = { w: MED.warn, d: 0, guard: false, last: 4 }; sfx('alarm'); buzz(20); } return; }
   const M = R.med;
   if (M.w > 0) { M.w -= dt; const n = Math.ceil(M.w); if (n !== M.last && n > 0) { M.last = n; sfx('beat'); }
@@ -2382,6 +2382,7 @@ const MUTS = {
   sprint: { name: '빨라지기', icon: '💨', desc: '10초 동안 35% 더 빨리 달려요', go: R => { const b = R.sb.mine; b.spd = 10; b.spdMul = 1.35; } },
   armor:  { name: '덜 아프기', icon: '🛡', desc: '10초 동안 받는 피해가 35% 줄어요', go: R => { const b = R.sb.mine; b.shield = 10; b.shieldMul = 0.65; } },
   toxic:  { name: '공격력 올리기', icon: '⚔', desc: '10초 동안 공격력이 1.5배예요', go: R => { R.sb.mine.tox = 10; } },
+  roar:   { name: '돌격 함성', icon: '📣', desc: '무리 +30% · 10초간 받는 피해 −35%', bloom: 1.3, go: R => { const b = R.sb.mine; b.shield = 10; b.shieldMul = 0.65; } },
   bloom:  { name: '마릿수 늘리기', icon: '🧫', desc: '이번 돌격 바이러스가 30% 더 많아요', bloom: 1.3 },
   cloak:  { name: '투명해지기', icon: '👻', desc: '5초 동안 탑이 나를 못 봐요', go: R => { R.sb.mine.stealth = Math.max(R.sb.mine.stealth || 0, 5); } },
   hijack: { name: '탑 빼앗기', icon: '🦠', desc: '맨 앞 탑 하나가 8초 동안 내 편이 돼요', go: R => { const t = R.towers.filter(t => !t.converted && !TOWERS[t.type].aura).sort((a, b) => nearestOnPath(a.x, a.y).d - nearestOnPath(b.x, b.y).d).find(t => nearestOnPath(t.x, t.y).d > (R.frontD || 0)) || R.towers.find(t => !t.converted);
@@ -2390,7 +2391,8 @@ const MUTS = {
 };
 function breakout() {
   const R = run, tot = Math.floor(nestTotal()); if (tot < 1) return toast('둥지가 비었어요');
-  if (!R.single || R.botMut || window.__botMut) { const k = Object.keys(MUTS); return doBreakout(R.botMut === 'none' ? null : k[Math.floor(Math.random() * k.length)]); }
+  // 돌격 때 고르던 변이 창은 없앰 (판이 멈추지 않게). 대신 돌격마다 '함성'이 자동으로: 무리 +30% · 10초간 받는 피해 −35%
+  return doBreakout('roar');
   // 내 카드 3장이 하나씩 힘을 빌려준다: 몸통 → 버티기 쪽, 껍질 → 움직임 쪽, 가시 → 공격 쪽
   const POOL = [['armor', 'regen', 'bloom'], ['sprint', 'cloak'], ['toxic', 'hijack']], cards = slotFill();
   const keys = POOL.map(p => p[Math.floor(Math.random() * p.length)]); paused = true; R.mutPause = true; sfx('skill');
