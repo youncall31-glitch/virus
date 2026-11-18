@@ -1874,12 +1874,16 @@ function composeMine(b, c, k, tier = 1) {
   return cv;
 }
 const mineTier = cards => Math.max(1, Math.min(5, Math.round(cards.reduce((a, g) => a + g.star, 0) / cards.length + (cards.some(g => STRAINS[g.strain].legend) ? 0.5 : 0))));
+// ★ 마릿수 최대 260 (성능·균형). 넘친 마릿수는 버리지 않고 '뭉친 무리' 보너스로: 넘친 10마리마다 공격·체력 +2% (최대 +60%)
+const MINE_CAP = 260, overBonus = raw => Math.min(0.6, 0.02 * Math.floor(Math.max(0, raw - MINE_CAP) / 10));
+const mineRaw = cards => [...new Set(cards)].reduce((a, x) => a + geneStats(x).count, 0);
 function buildMine(cards) {
   const b = cards[0], c = cards[1] || b, k = cards[2] || b, sb = geneStats(b), sc = geneStats(c), sk = geneStats(k), B = STRAINS[b.strain];
   const mix = (x, y, z, wb, wc, wk) => x * wb + y * wc + z * wk;
   STRAINS.mine = { ...B, name: '내 바이러스', hybrid: false, hero: false, rarity: 0, parents: null,
     hp: mix(sb.hp, sc.hp, sk.hp, 0.6, 0.2, 0.2), atk: mix(sb.atk, sc.atk, sk.atk, 0.2, 0.2, 0.6), spd: mix(sb.spd, sc.spd, sk.spd, 0.2, 0.6, 0.2) / RULES.spdScale,
-    count: Math.round(Math.min(260, [...new Set(cards)].reduce((a, x) => a + geneStats(x).count, 0))), size: 11, stealth: !!(STRAINS[c.strain].stealth || B.stealth), split: !!(B.split || STRAINS[k.strain].split) };
+    count: Math.round(Math.min(MINE_CAP, mineRaw(cards))), size: 11, stealth: !!(STRAINS[c.strain].stealth || B.stealth), split: !!(B.split || STRAINS[k.strain].split) };
+  { const ob = overBonus(mineRaw(cards)); STRAINS.mine.over = ob; STRAINS.mine.hp *= 1 + ob; STRAINS.mine.atk *= 1 + ob; }
   ROLE_OF.mine = ROLE_OF[b.strain]; SCOLOR.mine = SCOLOR[b.strain] || '#e8a0ff';
   const vb = VSHAPE[b.strain] || {}, vk = VSHAPE[k.strain] || {}, vc = VSHAPE[c.strain] || {};
   VSHAPE.mine = { sp: vk.sp || 12, len: vk.len || 0.3, knob: vk.knob || 0.1, body: vc.body === 'env' ? 'env' : (vb.body || 'round'), spikeCol: SCOLOR[k.strain] };
@@ -3077,7 +3081,7 @@ const ui = {
     $('viewBody').hidden = hubTab !== 'body'; $('viewLab').hidden = hubTab !== 'lab'; $('viewHero').hidden = hubTab !== 'hero';
     hubTab === 'body' ? ui.renderBody() : hubTab === 'lab' ? ui.renderLab() : ui.renderHero(); setTimeout(hubTip, 50);
     const o = organById(save.sel), sq = squadGenes();
-    $('bGo').textContent = `${o.name}로 출격 · ${TA() && sq.length ? Math.min(260, sq.slice(0, 3).reduce((s, g) => s + geneStats(g).count, 0)) : sq.reduce((s, g) => s + geneStats(g).count, 0)}마리`;
+    { const raw = TA() ? mineRaw(slotFill()) : sq.reduce((s, g) => s + geneStats(g).count, 0), ob = TA() ? overBonus(raw) : 0; $('bGo').innerHTML = `${o.name}로 출격 · ${TA() ? Math.min(MINE_CAP, raw) : raw}마리${ob ? `<small style="display:block;font-size:11px;line-height:1.1;color:#ffe2a8;font-weight:400">넘친 무리 보너스 · 공격·체력 +${Math.round(ob * 100)}%</small>` : ''}`; }
     $('bGo').disabled = !sq.length || !organOpen(o);
     hubBadge(); if (save.tutDone && attReady() && !window.__attShown) setTimeout(() => { if (!window.__attShown && $('intro').hidden && $('modal').hidden && !$('hub').hidden && attReady()) { window.__attShown = true; questView(); } }, 900);   // 그날 첫 방문: 출석·임무 창
   },
@@ -3184,7 +3188,7 @@ const ui = {
     $('squadRow').querySelectorAll('button.slot').forEach(b => b.onclick = () => ui.detail(geneById(+b.dataset.u)));
     const pot = sq.filter(Boolean).reduce((s, g) => s + geneStats(g).count * geneStats(g).atk, 0) * (strains.length === 1 ? RULES.monoBonus : 1);
     $('squadHint').innerHTML = !ms ? '아래 카드를 눌러 <b>❤ 몸통 · 💨 껍질 · ⚔ 가시</b> 중 원하는 자리에 꽂으세요. 세 장이 합쳐져 내 바이러스가 돼요.'
-      : `체력 <b>${ms.s.hp}</b> · 빠르기 <b>${ms.s.spd}</b> · 공격력 <b>${ms.s.atk.toFixed(2)}</b> · <b>${ms.s.count}</b>마리 · 타입 <b style="color:${(ROLES[ms.role] || {}).col || '#ffe2a8'}">${(ROLES[ms.role] || {}).name || ms.role}</b>${(() => { const o = organById(save.sel), f = ORGAN_FIT[o.id]; if (!f) return ''; const m = tropMul(slotFill(), o.id); return ` · ${ORG_SHORT[o.id]} 타입 ${ms.role === f.role ? '<b style="color:#9fff6a">✓ +25%</b>' : `<b style="color:#ff9c8a">✗</b> (${ROLES[f.role].name} 유리)`} · 궁합 <b style="color:${m > 1 ? '#9fff6a' : m < 1 ? '#ff9c8a' : '#eadcc2'}">${m >= 1 ? '+' : ''}${Math.round((m - 1) * 100)}%</b>`; })()}<br>쓸 수 있는 스킬: ${[...new Map(sq.filter(Boolean).map(g => [g.strain, g])).values()].map(g => `<b style="color:#ffe2a8">${STRAINS[g.strain].skill.name}</b>`).join(' · ')}`;
+      : `체력 <b>${ms.s.hp}</b> · 빠르기 <b>${ms.s.spd}</b> · 공격력 <b>${ms.s.atk.toFixed(2)}</b> · <b>${ms.s.count}</b>마리${STRAINS.mine.over ? ` <b style="color:#ffd27a">(넘침 +${Math.round(STRAINS.mine.over * 100)}%)</b>` : ''} · 타입 <b style="color:${(ROLES[ms.role] || {}).col || '#ffe2a8'}">${(ROLES[ms.role] || {}).name || ms.role}</b>${(() => { const o = organById(save.sel), f = ORGAN_FIT[o.id]; if (!f) return ''; const m = tropMul(slotFill(), o.id); return ` · ${ORG_SHORT[o.id]} 타입 ${ms.role === f.role ? '<b style="color:#9fff6a">✓ +25%</b>' : `<b style="color:#ff9c8a">✗</b> (${ROLES[f.role].name} 유리)`} · 궁합 <b style="color:${m > 1 ? '#9fff6a' : m < 1 ? '#ff9c8a' : '#eadcc2'}">${m >= 1 ? '+' : ''}${Math.round((m - 1) * 100)}%</b>`; })()}<br>쓸 수 있는 스킬: ${[...new Map(sq.filter(Boolean).map(g => [g.strain, g])).values()].map(g => `<b style="color:#ffe2a8">${STRAINS[g.strain].skill.name}</b>`).join(' · ')}`;
     $('bCatch').innerHTML = `감염 뽑기<small style="display:block;font-size:10px;font-weight:400;color:#ffcf4a">1·5·10번 · 천장 ${PITY - (save.pity || 0)}회</small>`;
     $('bBreed').textContent = !unlocked('breed') ? `🔒 교배 (기관 ${UNLOCK.breed[0]}곳)` : breedPick.length ? '교배 취소' : `교배 · ${RULES.breed}`;
     $('tabHero').classList.toggle('locked', !unlocked('hero'));
