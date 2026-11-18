@@ -273,8 +273,9 @@
   #intro { position: absolute; inset: 0; z-index: 60; background: #0b0607; transition: opacity .6s; overflow: hidden; } #intro.out { opacity: 0; pointer-events: none; }
   #introCv { position: absolute; inset: 0; width: 100%; height: 100%; }
   .inTop { position: absolute; left: 0; right: 0; top: 47.5%; transform: translateY(-50%); text-align: center; pointer-events: none; }
+  .inTop::before { content: ''; position: absolute; left: 6%; right: 6%; top: -12%; bottom: -14%; background: radial-gradient(closest-side, rgba(30,6,24,.55), rgba(30,6,24,0)); z-index: -1; }
   .inTitle { font-family: 'Jua', 'Do Hyeon', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; font-weight: 400; line-height: 1; letter-spacing: 1px; animation: ttBob 3.2s ease-in-out infinite; }
-  .inTitle .t1, .inTitle .t2 { position: relative; display: block; background: linear-gradient(180deg, #fff0fb 0%, #ff9ee0 38%, #c45cff 72%, #7a2ad0 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  .inTitle .t1, .inTitle .t2 { position: relative; display: block; background: linear-gradient(180deg, #ffffff 0%, #ffd0f2 30%, #ff6ec7 62%, #d63aa8 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(3px 0 0 #2a0a24) drop-shadow(-3px 0 0 #2a0a24) drop-shadow(0 3px 0 #2a0a24) drop-shadow(0 -3px 0 #2a0a24) drop-shadow(0 6px 0 #14040f) drop-shadow(0 0 22px rgba(220,110,255,.65)); }
   .inTitle .t1 { display: inline-block; font-size: clamp(64px, 21vw, 96px); transform: rotate(-3deg); }
   .inTitle .t2 { font-size: clamp(40px, 13vw, 60px); margin-top: 4px; background: linear-gradient(180deg, #f2ffe0 0%, #b8ff6a 45%, #5fc23a 100%); -webkit-background-clip: text; background-clip: text; transform: rotate(2deg); }
