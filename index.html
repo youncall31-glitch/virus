@@ -1072,6 +1072,9 @@ const organOpen = o => o.id !== 'brain' || doneCount() >= brainNeed();
 /* ---------- [systems/genetics.js] 뽑기 · 배양 · 교배 ---------- */
 const RULES = { slots: 3, gacha: 40, breed: 20, starCost: { 1: 120, 2: 320 }, growCost: lv => 45 * (lv + 1), growMax: 10, growStep: 0.12, outposts: 2,
   interfere: 0.35, monoBonus: 1.2, mulBase: 0.9, mulSlope: 0.8, towerAdj: 0,
+  curve: { mul: 0.5, pow: 1.5, towers: 2, start: 1,   // ★ 난이도 곡선: 처음엔 쉽고 뒤 기관일수록 목표·탑이 세진다
+    // 기관별 목표 배수: 자동 플레이로 '시간 끝까지 감염시킬 수 있는 양'을 재서 맞춤 → 카드 ★1이면 앞 3~4곳, ★2·Lv3이면 피부까지, ★3·Lv5면 뇌까지
+    q: { nose: 6, lung: 5.5, gut: 7, liver: 6.2, blood: 9.5, skin: 13.5, lymph: 11, brain: 7.5 } },
   spdScale: 0.72, dmgScale: 0.4, rateScale: 0.85, unitScale: 1.45, particles: 'comet', groupRate: 8, forkAdapt: 40,
   // ★ 타임어택: 환자가 약을 먹기 전까지(60~100초) 충전된 만큼 방출. 면역 공백에 방출하면 기습 보너스
   ta: { charge: 12, spd: 1.6, tMin: 60, tMax: 100, gapEvery: 14, gapDur: 3.5, gapBonus: 0.3, clearBonus: 1.5, quotaMul: 11.3, minRelease: 4 } };
@@ -1598,9 +1601,11 @@ function stageInfo(organ) {
   for (const s of activeLegacy()) { const f = LEG_FX[s]; if (f.organs && f.organs.includes(organ.id)) { qm *= f.q || 1; tw += f.tw || 0; } }
   if (save.host === 1 && (organ.id === 'lung' || organ.id === 'blood')) qm *= 0.8;
   const quota = +((5 + 7 * organ.diff) * host.mul * qm * (TA() ? RULES.ta.quotaMul * Math.sqrt(timeLimit(organ) / 70) : 1)).toFixed(1);
-  const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount());   // 몸의 경계: 감염된 기관이 늘수록 면역 탑이 세진다
-  return { organ, host, quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
-    towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw) };
+  const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
+  const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm;   // 몸의 경계 + 난이도 곡선
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.45);   // 첫 튜토리얼 판은 꼭 이길 수 있게
+  return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
+    towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
 // 탑 배치: 길을 따라 고르게 (같은 기관·숙주면 매번 같은 배치 → 실패에서 배울 수 있다)
 const COUNTER = { tank: { tcell: 4, complement: 1 }, swarm: { macro: 3, complement: 3 }, stealth: { dendri: 4, nk: 2 }, dps: { cilia: 3, neutro: 2 }, heal: { nk: 3, neutro: 2 } };
@@ -2683,7 +2688,7 @@ function infect(u) {
   if (!R.dominant) { const top = Object.entries(R.infBy).sort((a, b) => b[1] - a[1])[0]; if (top[1] >= 1) { R.dominant = top[0]; toast(`${STRAINS[top[0]].name} 우점! 다른 계통은 바이러스 간섭으로 감염 ×${RULES.interfere}`); } }
   if (u.decoy) return;
   const calm = (u.br === 'measlesA' && R.sb.measles.rash) ? 0 : 1;
-  R.alert += amt * 4 / (R.ta ? RULES.ta.quotaMul : 1) * calm * (u.gene.passives.includes('segment') ? 0.8 : 1) * (u.gene.passives.includes('amnesia') ? 0.85 : 1) * (hasLegacy('measles') ? 0.7 : 1);
+  R.alert += amt * 4 / (R.ta ? RULES.ta.quotaMul : 1) * ((R.st.quotaBase || R.st.quota) / R.st.quota) * calm * (u.gene.passives.includes('segment') ? 0.8 : 1) * (u.gene.passives.includes('amnesia') ? 0.85 : 1) * (hasLegacy('measles') ? 0.7 : 1);
   if (R.time - (R.lastFloat || 0) > 0.25) { R.lastFloat = R.time; float(map.goal[0] + rand(-30, 30), map.goal[1] - 34, `+${amt.toFixed(2)}`, amt < u.atk ? '#9c8a76' : '#ff8d7a', 13); }
   if (R.infAmt >= R.st.quota && !R.cleared) { R.cleared = true; winBurst(); sfx('clear'); }
 }
@@ -2710,7 +2715,8 @@ function endRun() {
   const dist = R.units.reduce((s, u) => s + Math.max(0, u.d), 0);
   // DNA 보상: 감염도 ×6 + 침투 마리 ×0.3 + 승리 보너스 + 첫 감염 보너스 (실패해도 충분히 성장할 수 있게)
   const first = win && !save.done[st.organ.id];
-  const cr = { inf: Math.round(R.infAmt * 6 / (R.ta ? RULES.ta.quotaMul : 1)), reach: Math.round(R.infected * 0.3 / (R.ta ? 3 : 1)), win: win ? Math.round(40 + st.organ.diff * 30 + save.host * 20) : 0, first: first ? 80 : 0 };
+  // DNA는 목표 대비 비율로 (목표가 커져도 보상은 그대로)
+  const cr = { inf: Math.round(R.infAmt * (st.quotaBase || st.quota) / st.quota * 6 / (R.ta ? RULES.ta.quotaMul : 1)), reach: Math.round(R.infected * 0.3 / (R.ta ? 3 : 1)), win: win ? Math.round(40 + st.organ.diff * 30 + save.host * 20) : 0, first: first ? 80 : 0 };
   // 실패 위로금: 목표에 가까울수록 크게 (70% 도달 시 승리 보너스의 약 60%)
   const prog = Math.min(1, R.infAmt / st.quota); cr.near = win ? 0 : Math.round((40 + st.organ.diff * 30 + save.host * 20) * 0.6 * Math.pow(prog / 0.7, 1.3) * (prog >= 0.15 ? 1 : 0));
   if (!win) cr.near = Math.max(12, cr.near);   // 아무리 못해도 최소 12 (3판이면 뽑기 1번) → 막힘 방지
