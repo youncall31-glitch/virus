@@ -111,6 +111,17 @@
   .fitG { position: absolute; right: -2px; top: -2px; font-style: normal; font-weight: 900; font-size: 13px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: #1a0f14; border: 1.5px solid currentColor; z-index: 2; }
   .fitG.gS { color: #ffd24a; box-shadow: 0 0 8px #ffd24a; } .fitG.gA { color: #ff9ee0; } .fitG.gB { color: #9fd8ff; } .fitG.gC { color: #b8a890; } .fitG.gD { color: #7a6a5a; }
   .sock { overflow: visible !important; } .fly2 { z-index: 55; } .coreTop .sumRow { justify-content: center; margin: 4px 0; }
+  .cvTop { padding: 12px 10px; background: radial-gradient(ellipse at 50% 35%, #3e1a38, #1d0f16 75%); }
+  .cvPics { display: flex; align-items: center; justify-content: center; gap: 4px; } .cvPics span { display: block; font-size: 12.5px; color: #b59f86; text-align: center; }
+  .cvA img { width: 100px; height: 100px; object-fit: contain; opacity: .75; } .cvB { position: relative; } .cvB img { width: 132px; height: 132px; object-fit: contain; filter: drop-shadow(0 0 14px #ffd27a); } .cvB span { color: #ffd27a; font-weight: 800; font-size: 13.5px; }
+  .cvB .crown { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 22px; } .cvArr { font-style: normal; font-size: 28px; color: #ffd24a; }
+  .cvStats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; } .cvStats .tile { padding: 6px 4px; } .cvStats .tile b { font-size: 16px; }
+  .cvGift { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: #22141b; border: 1.5px solid #c79a45; } .cvGift > span { font-size: 28px; } .cvGift b { color: #ffd27a; font-size: 14px; } .cvGift small { display: block; font-size: 12px; color: #b59f86; }
+  .cvTrack { display: flex; flex-wrap: wrap; justify-content: space-between; background: none; border: 0; color: #7a6a5a; font: inherit; font-size: 11px; padding: 4px 4px 0; } .cvTrack span { text-align: center; } .cvTrack span i { display: block; font-style: normal; font-size: 19px; } .cvTrack .ok { color: #9fff6a; } .cvTrack .nx { color: #ffd27a; }
+  .cvTrack .bar { flex-basis: 100%; height: 7px; border-radius: 4px; background: #2a171c; overflow: hidden; margin-top: 4px; } .cvTrack .bar i { display: block; height: 100%; background: linear-gradient(90deg, #9fff6a, #ffd24a); }
+  .cvGo { width: 100%; min-height: 56px; font-size: 18px; margin-top: auto; } .cvGo small { display: block; font-size: 11px; font-weight: 400; color: #ffd8c8; }
+  .road { max-height: 60vh; overflow-y: auto; } .rd { display: flex; align-items: center; gap: 10px; padding: 5px 4px; color: #7a6a5a; } .rd b { width: 34px; height: 34px; border-radius: 50%; border: 3px solid currentColor; display: grid; place-items: center; flex: none; }
+  .rd span { font-weight: 800; } .rd small { font-size: 11.5px; } .rd.ok { color: #9fff6a; } .rd.cur { color: #ffd24a; } .rd.cur b { box-shadow: 0 0 12px #ffd24a; }
   .mileList { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; } .mileList div { display: flex; align-items: center; gap: 6px; border: 1px solid #3a2c2c; border-radius: 8px; padding: 6px 8px; font-size: 12px; opacity: .65; }
   .mileList div.ok { border-color: #c79a45; opacity: 1; background: #2a1c12; } .mileList b { color: #ffd27a; font-size: 12px; flex: none; } .mileList span { flex: 1; min-width: 0; } .mileList i { font-style: normal; font-size: 11px; }
   .squadRow .slot img { max-width: 100%; }
@@ -125,10 +136,46 @@
   .slot.empty small { margin-top: 10px; text-align: center; line-height: 1.3; }
   .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; } #viewLab .actions { grid-template-columns: 1.1fr .9fr 1fr 1.1fr; gap: 5px; }
   .skLine { display: flex; align-items: center; gap: 6px; margin-top: 3px; } .skLine .skRow { flex: 1; min-width: 0; margin: 0; } .pager.pBox { flex: none; gap: 4px; } .pager.pBox .btn { min-height: 26px; width: 32px; padding: 0; }
-  #hub.labOn .goBar { display: none; } #bGo2 { font-size: 14px; } #bGo2 small { display: block; font-size: 10px; font-weight: 400; color: #ffd8c8; }
+  .navBar { flex: none; display: grid; grid-template-columns: 1fr 1fr 1.35fr 1fr 1fr; align-items: end; gap: 2px; margin: 0 -8px -8px; padding: 0 4px calc(4px + env(safe-area-inset-bottom)); background: #1d1014; border-top: 1px solid #4a2c33; height: 62px; }
+  .nv { background: none; border: 0; color: #9c8a76; font: inherit; font-size: 11.5px; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 0 4px; } .nv img { width: 26px; height: 26px; } .nv span { font-size: 21px; line-height: 26px; }
+  .nv.on { color: #ff9ab0; } .nv.on img { filter: drop-shadow(0 0 5px #ff6a8a); }
+  .navGo { margin-top: -22px; height: 74px; border-radius: 20px; border: 2px solid #ffb0a0; background: linear-gradient(#ff6a5a, #b0242a); color: #fff; font: inherit; font-size: 15px; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; box-shadow: 0 4px 14px rgba(224,69,63,.5); }
+  .navGo i { font-style: normal; font-size: 20px; } .navGo small { font-size: 10px; font-weight: 400; color: #ffd8c8; } .navGo:disabled { filter: grayscale(.8) brightness(.6); }
+  #labRails, #labBox { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; } #labRails[hidden], #labBox[hidden] { display: none; }
+  .labHead { display: flex; gap: 8px; align-items: center; }
+  .lhCore { position: relative; width: 92px; height: 92px; flex: none; border: 0; padding: 0; border-radius: 50%; background: radial-gradient(#4a2240, #1a0d14 70%); }
+  .lhCore img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; } .lhCore.t1 img { filter: drop-shadow(0 0 8px #ffd27a); } .lhCore.t2 img, .lhCore.t3 img { filter: drop-shadow(0 0 12px #ffd27a); }
+  .lhCore .csLv { bottom: -4px; } .lhCore .crown { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 20px; font-style: normal; }
+  #labNums.lhStats { flex: 1; display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 4px !important; } #labNums.lhStats .tile b { font-size: 15px; } #labNums.lhStats .tile .lb { font-size: 10px; }
+  .lhBtns { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; } .lhBtns .btn { min-height: 38px; font-size: 13px; }
+  #railList { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -8px; padding: 0 0 6px 8px; scrollbar-width: none; } #railList::-webkit-scrollbar { display: none; }
+  .rail { margin-top: 6px; } .rHead { display: flex; align-items: center; padding-right: 10px; margin-bottom: 4px; } .rHead b { flex: 1; font-size: 14px; color: #ffe2a8; } .rHead b small { font-size: 11px; color: #b59f86; font-weight: 400; } .rHead .more { font-size: 11.5px; color: #c79a45; background: none; border: 0; font: inherit; padding: 2px 0 2px 8px; }
+  .rRow { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding: 2px 10px 2px 0; } .rRow::-webkit-scrollbar { display: none; }
+  .rc { flex: none; width: 80px; height: 108px; border-radius: 13px; background: #22141b; border: 2px solid #3e2830; text-align: center; position: relative; padding: 3px 0 0; overflow: hidden; color: inherit; font: inherit; }
+  .rc img { width: 54px; height: 54px; object-fit: contain; display: block; margin: 0 auto; } .rc img.bk { transform: scale(1.4) translateY(-8%); }
+  .rc .gr { position: absolute; right: 5px; top: 2px; font-weight: 900; font-size: 13px; } .rc .nm { font-size: 11.5px; font-weight: 800; margin-top: -2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; }
+  .rc .dl { font-size: 14px; font-weight: 900; } .rc .dl.up { color: #9fff6a; } .rc .dl.dn { color: #ff9c8a; } .rc .dl.eq { color: #b59f86; font-size: 12px; }
+  .rc.cur { background: #18261a; border-color: #9fff6a; } .rc.cur .dl { color: #9fff6a; font-size: 11.5px; } .rc.best { border-color: #ffd24a; } .rc.empty { border-style: dashed; color: #9c8a76; font-size: 11.5px; display: flex; align-items: center; justify-content: center; }
+  .rc .usedB { position: absolute; left: 0; right: 0; top: 0; font-size: 9px; background: #5a3a14; color: #ffe2a8; } .rc.hasU { padding-top: 11px; } .rc.hasU .gr { top: 11px; }
+  .rLock { margin: 8px 10px 0 0; padding: 9px 12px; border-radius: 12px; border: 1.5px dashed #3a2c2c; color: #8a7a6a; font-size: 12.5px; background: #140c0e; }
+  .boxHead { display: flex; align-items: center; gap: 8px; } .boxHead b { flex: 1; font-size: 15px; } .boxHead .btn { min-height: 34px; padding: 0 10px; font-size: 13px; }
+  #sheet { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(0,0,0,.6); } #sheet[hidden] { display: none; }
+  #sheet .sh { background: #21121a; border-radius: 20px 20px 0 0; border-top: 1px solid #5a3a40; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); max-height: 88vh; overflow-y: auto; animation: shUp .22s ease-out; }
+  @keyframes shUp { from { transform: translateY(40%); opacity: .4; } } #sheet .hd { width: 44px; height: 5px; border-radius: 3px; background: #6a4a50; margin: 0 auto 10px; }
+  .shTop { display: flex; gap: 12px; align-items: center; } .shTop .pic { width: 92px; height: 92px; flex: none; border-radius: 16px; border: 2px solid #c79a45; background: #1a0f14; display: grid; place-items: center; overflow: hidden; } .shTop .pic img { width: 84px; height: 84px; object-fit: contain; }
+  .shTop b.n { font-size: 20px; } .shTop .shSk { font-size: 12.5px; color: #e9c58a; margin-top: 3px; line-height: 1.35; } .shTop .info { font-size: 12px; color: #c79a45; background: none; border: 0; font: inherit; padding: 4px 0 0; }
+  .shCmp { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .shCmp .tile { padding: 7px 4px; } .shCmp .tile b { font-size: 15px; white-space: nowrap; } .shCmp .up { color: #9fff6a; } .shCmp .dn { color: #ff9c8a; }
+  .shCore { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0 2px; } .shCore img { object-fit: contain; }
+  .shBtns { display: flex; gap: 8px; margin-top: 10px; } .shBtns .btn { flex: 1; min-height: 50px; font-size: 15px; } .shBtns .btn.red { flex: 2; font-size: 16px; }
+  .shSlots[hidden] { display: none; } .shSlots { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; } .shSlots .btn { flex: 1 1 30%; min-height: 40px; font-size: 13px; }
+  .listRow { display: flex; align-items: center; gap: 10px; min-height: 64px; margin-bottom: 6px; padding: 4px 10px 4px 6px; border-radius: 13px; background: #22141b; border: 1.5px solid #3e2830; width: 100%; color: inherit; font: inherit; text-align: left; }
+  .listRow img { width: 54px; height: 54px; object-fit: contain; flex: none; } .listRow .t { flex: 1; min-width: 0; } .listRow .t b { font-size: 15px; } .listRow .t div { font-size: 11.5px; color: #b59f86; }
+  .listRow .g { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 19px; font-weight: 900; border: 2px solid currentColor; flex: none; }
+  .listRow .d { width: 66px; text-align: right; font-weight: 900; font-size: 14px; flex: none; } .listRow .d small { display: block; font-size: 10px; color: #b59f86; font-weight: 400; }
+  .listRow.cur { border-color: #9fff6a; background: #18261a; } .listRow.best { border-color: #ffd24a; } #bGo2 { font-size: 14px; } #bGo2 small { display: block; font-size: 10px; font-weight: 400; color: #ffd8c8; }
   .actions .btn { font-size: 12px; min-height: 36px; padding: 2px 4px; line-height: 1.2; word-break: keep-all; }
-  #cardGrid { overflow: hidden; flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 76px; gap: 5px; align-content: start; }
-  #cardGrid .card { height: 76px; padding: 2px 1px 1px; line-height: 1.15; overflow: hidden; } #cardGrid .card .genB { left: 18px; font-size: 8px; padding: 0 2px; }
+  #cardGrid { overflow: hidden; flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 98px; gap: 6px; align-content: start; }
+  #cardGrid .card { height: 98px; padding: 3px 1px 2px; line-height: 1.2; overflow: hidden; } #cardGrid .card img { height: 48px; } #cardGrid .card .nm { font-size: 12px; } #cardGrid .card .st, #cardGrid .card .mini { font-size: 10.5px; } #cardGrid .card .genB { left: 18px; font-size: 8px; padding: 0 2px; }
   .card { position: relative; border: 1.5px solid #5a4238; border-top-width: 3px; border-radius: 7px; background: linear-gradient(#22171a, #140d0e); padding: 4px 2px 5px; text-align: center; min-width: 0; }
   .card.sel { border-color: #6fd35a; box-shadow: 0 0 8px rgba(111,211,90,.4); }
   .card.pick { border-color: #7fd1ff; box-shadow: 0 0 8px rgba(127,209,255,.5); }
@@ -489,21 +536,25 @@
       <button class="plate modeBtn" id="bDex" aria-label="도감"><img src="assets/codex.png" alt="" style="width:22px;height:22px"></button><button class="plate modeBtn" id="bQuest" aria-label="오늘의 임무" style="min-width:40px">📋</button><button class="plate modeBtn" id="bSnd" aria-label="소리 설정" style="min-width:40px">🔊</button>
       <div class="plate dna"><img src="assets/dna.png" alt=""><span id="hubDna">0</span></div>
     </div>
-    <div class="tabs"><button class="tab on" id="tabBody"><img src="assets/tab_body.png" alt="">인체 지도</button><button class="tab" id="tabLab"><img src="assets/tab_lab.png" alt="">연구소</button><button class="tab" id="tabHero"><img src="assets/tab_hero.png" alt="">본체</button></div>
     <div class="view" id="viewBody">
       <div id="bodyWrap"></div>
       <div class="plate" id="organInfo"></div>
     </div>
     <div class="view" id="viewLab" hidden>
-      <div class="squadRow" id="squadRow"></div>
-      <div class="sub" id="squadHint"></div>
-      <div class="actions"><button class="btn red" id="bCatch">감염 뽑기</button><button class="btn green" id="bBreed">교배</button><button class="btn" id="bAuto">⭐ 추천 조합</button><button class="btn red" id="bGo2">출격</button></div>
-      <div class="pager pBox" id="pagerBox"><button class="btn" id="pgPrev" aria-label="이전">◀</button><span id="pgTxt">1/1</span><button class="btn" id="pgNext" aria-label="다음">▶</button></div>
-      <div id="cardGrid"></div>
+      <div id="labRails">
+        <div class="labHead"><button class="lhCore" id="csCore" aria-label="본체"></button><div class="sumRow lhStats" id="labNums"></div></div>
+        <div class="lhBtns"><button class="btn" id="bAuto">⭐ 추천 조합</button><button class="btn green" id="bBreed">교배</button><button class="btn" id="bBox">📦 보관함</button></div>
+        <div id="railList"></div>
+      </div>
+      <div id="labBox" hidden>
+        <div class="boxHead"><button class="btn" id="bBoxBack">◀ 조합</button><b id="boxTitle">📦 보관함</b><div class="pager pBox" id="pagerBox"><button class="btn" id="pgPrev" aria-label="이전">◀</button><span id="pgTxt">1/1</span><button class="btn" id="pgNext" aria-label="다음">▶</button></div></div>
+        <div id="cardGrid"></div>
+      </div>
+      <div hidden><div id="squadRow"></div><div id="squadHint"></div><button id="bCatch"></button><button id="bGo2"></button></div>
 
     </div>
     <div class="view" id="viewHero" hidden></div>
-    <div class="goBar"><button class="btn red" id="bGo">출격</button></div>
+    <nav class="navBar"><button class="nv" id="tabBody"><img src="assets/tab_body.png" alt="">지도</button><button class="nv" id="tabLab"><img src="assets/tab_lab.png" alt="">연구소</button><button class="navGo" id="bGo">출격</button><button class="nv" id="navPull"><span>🎰</span>뽑기</button><button class="nv" id="tabHero"><img src="assets/tab_hero.png" alt="">본체</button></nav>
   </div>
 
   <div class="plate" id="hubTip" hidden></div>
@@ -518,6 +569,7 @@
   <div id="toast"></div>
 </div>
 
+<div id="sheet" hidden></div>
 <script>
 'use strict';
 /* =====================================================================
@@ -2050,19 +2102,19 @@ function drawTut(time) {   // 손가락 표시: 할 곳을 톡톡 가리킨다
 const HUB_TIPS = [
   { id: 'core', t: '본체 진화', when: () => save.dna >= coreCost() && coreL() < 5, tab: 'body', sel: '#tabHero', txt: '<b>본체</b>를 키우면 더 세지고 <b>칸</b>이 하나씩 열려요!' },
   { id: 'quest', t: '오늘의 임무', when: () => doneCount() >= 1, tab: 'body', sel: '#bQuest', txt: '매일 <b>임무 3개</b> → DNA와 <b>무료 뽑기권</b>!' },
-  { id: 'shard', t: '조각', when: () => (save.shards || 0) > 0, tab: 'lab', sel: '#bCatch', txt: '겹친 카드는 <b>🧩 조각</b>이 돼요. 모아서 등급 뽑기!' },
-  { id: 'multi', t: '연속 뽑기', when: () => save.dna >= MULTI[5].cost, tab: 'lab', sel: '#bCatch', txt: '<b>5번·10번</b> 뽑기는 더 싸고 <b>좋은 카드 확정</b>!' },
+  { id: 'shard', t: '조각', when: () => (save.shards || 0) > 0, tab: 'lab', sel: '#navPull', txt: '겹친 카드는 <b>🧩 조각</b>이 돼요. 모아서 등급 뽑기!' },
+  { id: 'multi', t: '연속 뽑기', when: () => save.dna >= MULTI[5].cost, tab: 'lab', sel: '#navPull', txt: '<b>5번·10번</b> 뽑기는 더 싸고 <b>좋은 카드 확정</b>!' },
   { id: 'dex', t: '도감', when: () => Object.keys(save.seen || {}).length >= 8, tab: 'lab', sel: '#bDex', txt: '모은 바이러스는 <b>도감</b>에서 빛나요. 모을수록 <b>DNA 보상</b>!' },
   { id: 'gen', t: '세대 교배', when: () => unlocked('breed') && save.genes.some(g => g.mix), tab: 'lab', sel: '#bBreed', txt: '<b>교배종끼리 또 교배</b>하면 더 세지고 스킬도 둘!' },
-  { id: 'dual', t: '이중 스킬', when: () => slotGenes().some(g => g && g.mix), tab: 'lab', sel: '#squadRow', txt: '교배종은 <b>스킬 두 개</b>를 한 번에 써요.' },
-  { id: 'tier', t: '돌파', when: () => save.genes.some(g => g.star >= MAXSTAR && (g.lv || 1) >= MAXLV), tab: 'lab', sel: '#cardGrid .card', txt: '게이지가 꽉 차면 <b>돌파</b>! 계속하면 <b>👑 변성</b>!' },
+  { id: 'dual', t: '이중 스킬', when: () => slotGenes().some(g => g && g.mix), tab: 'lab', sel: '#labNums', txt: '교배종은 <b>스킬 두 개</b>를 한 번에 써요.' },
+  { id: 'tier', t: '돌파', when: () => save.genes.some(g => g.star >= MAXSTAR && (g.lv || 1) >= MAXLV), tab: 'lab', sel: '#bBox', txt: '게이지가 꽉 차면 <b>돌파</b>! 계속하면 <b>👑 변성</b>!' },
   { id: 'boss', t: '보스', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .feat', txt: '목표 앞의 <b>보스</b>를 쓰러뜨리면 감염 ×1.25!' },
   { id: 'lab', when: () => doneCount() >= 1 || save.dnaSpent, tab: 'body', sel: '#tabLab', txt: '<b>연구소</b>에서 카드를 강화하고 뽑아요.' },
-  { id: 'lab1', when: () => true, tab: 'lab', sel: '#csCore', step: '1/5', txt: '<b>내 바이러스</b> = 둘레 칸에 꽂은 카드를 합친 모습.' },
-  { id: 'lab2', when: () => true, tab: 'lab', sel: '#squadRow [data-sock="0"]', step: '2/5', txt: '❤ <b>몸통</b> = 체력과 <b>타입</b>.' },
-  { id: 'lab3', when: () => true, tab: 'lab', sel: '#squadRow [data-sock="2"]', step: '3/5', txt: '⚔ <b>가시</b> = 공격력.' },
-  { id: 'lab4', when: () => true, tab: 'lab', sel: '#squadRow [data-lock], #squadRow [data-sock="1"]', step: '4/5', txt: '🔒 칸은 <b>본체</b> 탭에서 레벨을 올리면 열려요.' },
-  { id: 'lab5', when: () => true, tab: 'lab', sel: '#cardGrid .card', step: '5/5', txt: '카드를 <b>끌어다</b> 칸에 놓아요. 눌러서 골라도 돼요.' },
+  { id: 'lab1', when: () => true, tab: 'lab', sel: '#csCore', step: '1/5', txt: '<b>내 바이러스</b> = 칸에 꽂은 카드를 합친 모습.' },
+  { id: 'lab2', when: () => true, tab: 'lab', sel: '#railList .rail', step: '2/5', txt: '줄마다 <b>칸</b> 하나. 맨 앞 초록 카드가 지금 꽂힌 카드예요.' },
+  { id: 'lab3', when: () => true, tab: 'lab', sel: '#railList .rc.best, #railList .rc[data-u]:not(.cur)', step: '3/5', txt: '금색 <b>+숫자</b> 카드를 누르면 비교하고 바로 꽂을 수 있어요.' },
+  { id: 'lab4', when: () => true, tab: 'lab', sel: '#railList .rLock', step: '4/5', txt: '🔒 칸은 <b>본체</b>를 키우면 열려요.' },
+  { id: 'lab5', when: () => true, tab: 'lab', sel: '#bAuto', step: '5/5', txt: '고민되면 <b>⭐ 추천 조합</b>! 전체 카드는 📦 보관함에.' },
   { id: 'fit', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .fitBox', txt: '<b>궁합</b>이 높을수록 세져요. 낮으면 추천대로 카드를 바꿔 보세요!' },
   { id: 'stars', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo h3', txt: '<b>별 3개</b>: 성공 · 안 들키기 · 시간 30% 남기기.' },
 ];
@@ -3272,7 +3324,7 @@ const ui = {
     $('hub').classList.toggle('labOn', hubTab === 'lab');
     hubTab === 'body' ? ui.renderBody() : hubTab === 'lab' ? ui.renderLab() : ui.renderHero(); setTimeout(hubTip, 50);
     const o = organById(save.sel), sq = squadGenes();
-    { const raw = TA() ? mineRaw(slotFill()) : sq.reduce((s, g) => s + geneStats(g).count, 0), ob = TA() ? overBonus(raw) : 0; $('bGo').innerHTML = `${o.name}로 출격 · ${TA() ? Math.min(MINE_CAP, raw) : raw}마리${ob ? `<small style="display:block;font-size:11px;line-height:1.1;color:#ffe2a8;font-weight:400">넘친 무리 보너스 · 공격 +${Math.round(ob * 100)}%</small>` : ''}`; }
+    { const raw = TA() ? mineRaw(slotFill()) : sq.reduce((s, g) => s + geneStats(g).count, 0); $('bGo').innerHTML = `<i>▶</i>출격<small>${ORG_SHORT[o.id]} · ${TA() ? Math.min(MINE_CAP, raw) : raw}마리</small>`; }
     $('bGo').disabled = !sq.length || !organOpen(o);
     // 연구소에서는 아래 출격 줄을 없애고 버튼 줄 안에 작은 출격 버튼 (카드 칸을 넓히려고)
     $('hub').classList.toggle('labOn', hubTab === 'lab'); $('bGo2').disabled = $('bGo').disabled; $('bGo2').innerHTML = `▶ 출격<small>${ORG_SHORT[o.id]} · ${TA() ? Math.min(MINE_CAP, mineRaw(slotFill())) : sq.length}마리</small>`;
@@ -3325,18 +3377,30 @@ const ui = {
   },
   renderHero() { return ui.renderCore(); },
   // ★ 본체: DNA로 내 바이러스 자체를 키운다 (모든 카드 조합에 항상 적용). 합계 단계가 오르면 겉모습도 바뀐다
+  // ★ 본체 화면 (전후 비교형): 지금 → 진화 후 모습과 숫자, 다음 큰 보상, 보상 줄(누르면 로드맵)
   renderCore() {
-    const L = coreL(), max = L >= CORE_MAX, cost = coreCost(), fill = slotFill(), ms = fill.length ? mineStats(fill) : null, tier = coreTier(), next = CORE_MILE.find(m => m.l > L);
-    $('viewHero').innerHTML = `<div class="plate coreTop"><div class="corePic t${tier}" id="cpPic">${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : ''}${tier >= 3 ? '<i class="crown">👑</i>' : ''}</div>
-        <h3 style="margin:4px 0 0">내 바이러스 <span style="color:#ffd27a">Lv ${L}</span><small style="color:#9c8a76;font-size:12px"> / ${CORE_MAX}</small></h3>
-        ${ms ? `<div class="sumRow" id="cpNums">${ui.numsHtml(ms)}</div>` : ''}
-        <div class="sub">레벨마다 <b>체력·공격 +4%</b> · 둥지 +2% · 쿨타임 −1%</div>
-        <button class="btn red" id="bEvo" ${max || save.dna < cost ? 'disabled' : ''} style="width:100%;min-height:50px;font-size:17px;margin-top:6px">${max ? '최고 레벨' : `진화 Lv ${L + 1} · 🧬${cost}`}</button>
-        ${ui.coreGot ? `<div class="coreGot">🎉 ${ui.coreGot.t}!</div>` : next ? `<div class="sub" style="margin-top:4px">다음 보상: <b style="color:#ffe2a8">Lv ${next.l} ${next.t}</b></div>` : ''}</div>
-      <div class="mileList">${CORE_MILE.map(m => `<div class="${L >= m.l ? 'ok' : ''}"><b>Lv ${m.l}</b><span>${m.t}</span><i>${L >= m.l ? '✓' : '🔒'}</i></div>`).join('')}</div>`;
-    if (ms) ui.animMine($('cpPic'), $('cpNums'), ms, 'core'); ui.coreGot = null;
+    const L = coreL(), max = L >= CORE_MAX, cost = coreCost(), fill = slotFill(), tier = coreTier(), next = CORE_MILE.find(m => m.l > L);
+    let a = null, b = null, ia = baseCore(), ib = ia;
+    if (fill.length) { const ms = mineStats(fill); a = ms.s; ia = imgSrc(ms.img, 'assets/rhino.png');
+      if (!max) { save.coreL = L + 1; const nb = mineStats(fill); b = nb.s; ib = imgSrc(nb.img, 'assets/rhino.png'); save.coreL = L; mineStats(fill); } }
+    const t = (lb, x, y) => `<div class="tile"><small class="lb">${lb}</small><b>${x}${y != null && !max ? ` <span style="color:#9fff6a">→ ${y}</span>` : ''}</b></div>`;
+    const pct = (k, l) => `${k === 'cd' ? '−' : '+'}${Math.round(CORE_FX[k] * l * 100)}%`;
+    $('viewHero').innerHTML = `<div class="plate cvTop">
+        <div class="cvPics"><div class="cvA"><img src="${ia || ''}" alt=""><span>지금 Lv ${L}</span></div>${max ? '' : `<i class="cvArr">➜</i><div class="cvB t${tier}"><img src="${ib || ''}" alt="">${coreTier() >= 3 ? '<i class="crown">👑</i>' : ''}<span>진화 후 Lv ${L + 1}</span></div>`}</div>
+        <div class="cvStats">${a ? t('❤ 체력', a.hp, b && b.hp) + t('⚔ 공격', Math.round(a.atk * 100), b && Math.round(b.atk * 100)) : t('❤ 체력', pct('hp', L), pct('hp', L + 1)) + t('⚔ 공격', pct('atk', L), pct('atk', L + 1))}${t('🏠 둥지 속도', pct('rep', L), pct('rep', L + 1))}${t('✨ 스킬 쿨타임', pct('cd', L), pct('cd', L + 1))}</div></div>
+      ${ui.coreGot ? `<div class="coreGot" style="text-align:center">🎉 ${ui.coreGot.t}!</div>` : next ? `<div class="cvGift" id="cvGift"><span>🎁</span><div><b>다음 큰 보상 · Lv ${next.l}</b><small>${next.t} (${next.l - L}레벨 남음)</small></div></div>` : ''}
+      <button class="cvTrack" id="cvTrack">${CORE_MILE.map(m => `<span class="${L >= m.l ? 'ok' : m === next ? 'nx' : ''}"><i>${m.t.split(' ')[0]}</i>Lv${m.l}</span>`).join('')}<div class="bar"><i style="width:${Math.round(L / CORE_MAX * 100)}%"></i></div></button>
+      <button class="btn red cvGo" id="bEvo" ${max || save.dna < cost ? 'disabled' : ''}>${max ? '최고 레벨' : `🧬 진화 · ${cost} DNA`}<small>보유 ${save.dna}</small></button>`;
+    ui.coreGot = null;
+    $('cvTrack').onclick = () => ui.coreRoad(); if ($('cvGift')) $('cvGift').onclick = () => ui.coreRoad();
     $('bEvo').onclick = () => { const c = coreCost(); if (save.dna < c || coreL() >= CORE_MAX) return; save.dna -= c; save.coreL = coreL() + 1; quest('up'); normSquad(); persist(); sfx('clear'); buzz(30);
-      ui.coreGot = CORE_MILE.find(x => x.l === save.coreL); ui.showHub('hero'); };
+      ui.coreGot = CORE_MILE.find(x => x.l === save.coreL); ui.showHub('hero'); const el = document.querySelector('.cvA'); if (el) { el.classList.add('pop'); } };
+  },
+  // 로드맵: Lv 1~20 길 (지나온 곳 ✓, 지금 금색)
+  coreRoad() {
+    const L = coreL(), lv = [...new Set([1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, L])].sort((a, b) => b - a);
+    ui.modal(`<h3 style="margin:0 0 8px">🦠 본체 진화 길</h3><div class="road">${lv.map(l => { const m = CORE_MILE.find(x => x.l === l), st = l < L + 1 ? (l === L ? 'cur' : 'ok') : '';
+      return `<div class="rd ${st}"><b>${l}</b>${m ? `<span>${m.t}${l <= L ? ' ✓' : ''}</span>` : `<small>체력·공격 +${Math.round(CORE_FX.hp * l * 100)}%</small>`}</div>`; }).join('')}</div>`, [{ label: '닫기' }]);
   },
   // 숫자 줄: ❤ 💨 ⚔ 🦠 궁합
   numsHtml(ms) {
@@ -3441,33 +3505,103 @@ const ui = {
     $('csCore').onclick = () => { if (dragBlocked()) return; $('squadRow').classList.toggle('big'); };
     $('squadRow').querySelectorAll('.sock.lock').forEach(b => b.onclick = () => { toast(`본체를 Lv${slotNeed(+b.dataset.lock)}까지 키우면 열려요`); ui.showHub('hero'); });
   },
+  // ★ 연구소 = 칸별 가로 줄(F) + 카드를 누르면 비교 시트(C). 보관함(전체 카드·교배)은 따로
   renderLab() {
-    normSquad(); const sq = slotGenes(), strains = squadStrains();
-    const ms = slotFill().length ? mineStats(slotFill()) : null;
-    ui.renderStage(ms);
-    const pb = $('pagerBox');
-    $('squadHint').innerHTML = (!ms ? '<div class="sumRow" id="labNums"><span>카드를 <b>끌어다</b> 본체 둘레 칸에 놓으면 깨어나요</span></div>'
-      : `<div class="sumRow" id="labNums">${ui.numsHtml(ms)}</div>`)
-      + `<div class="skLine"><div class="skRow">${[...new Map(sq.filter(Boolean).map(g => [g.strain, g])).values()].map(g => `<button class="skChip" data-skg="${g.uid}">✨${geneSkill(g).name}</button>`).join('')}</div><span id="pgSlot"></span></div>`;
-    $('pgSlot').replaceWith(pb);
+    normSquad(); const box = ui.labMode === 'box' || breedPick.length > 0;
+    $('labRails').hidden = box; $('labBox').hidden = !box;
+    $('bBreed').innerHTML = !unlocked('breed') ? `🔒 교배` : breedPick.length ? '교배 취소' : `🧬 교배`;
+    if (box) return ui.renderBox();
+    const fill = slotFill(), ms = fill.length ? mineStats(fill) : null, tier = coreTier();
+    $('csCore').className = 'lhCore t' + tier;
+    $('csCore').innerHTML = `${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="" style="opacity:.8">` : ''}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b>`;
+    $('csCore').onclick = () => ui.showHub('hero');
+    $('labNums').innerHTML = ms ? ui.numsHtml(ms) + `<span class="tile" onclick="ui.skillsPop()"><small class="lb">✨ 스킬</small><b>${new Set(squadGenes().map(g => g.strain)).size}개</b></span>` : '<span class="tile" style="grid-column:1/-1"><small class="lb">아래 줄에서 카드를 눌러 꽂아요</small><b>?</b></span>';
     if (ms) ui.animMine($('csCore'), $('labNums'), ms, 'lab');
-    $('squadHint').querySelectorAll('[data-skg]').forEach(b => b.onclick = e => { e.stopPropagation(); skillPop(geneById(+b.dataset.skg), b); });
-    $('bCatch').innerHTML = `감염 뽑기<small style="display:block;font-size:10px;font-weight:400;color:#ffcf4a">천장 ${PITY - (save.pity || 0)}회</small>`;
-    $('bBreed').innerHTML = !unlocked('breed') ? `🔒 교배<small style="display:block;font-size:10px;font-weight:400">기관 ${UNLOCK.breed[0]}곳</small>` : breedPick.length ? '교배 취소' : `교배 · ${RULES.breed}`;
-
+    ui.renderRails();
+  },
+  // 이 카드를 i번 칸에 꽂으면? (지금 → 바뀐 값). 계산 뒤 본체 모습은 원래대로 되돌림
+  slotDelta(g, i) {
+    const sq = slotGenes(), cur = sq.indexOf(g); if (cur >= 0) sq[cur] = sq[i]; sq[i] = g;
+    const base = slotFill(), bs = base.length ? mineStats(base) : null, bm = base.length ? matchTotal(base, save.sel || 'nose') : 0;
+    const nf = fillOf(sq), ns = mineStats(nf), nm = matchTotal(nf, save.sel || 'nose'), img = imgSrc(ns.img, 'assets/rhino.png');
+    if (base.length) mineStats(base);
+    const k = SLOT_KEY[i], v = x => k === 'atk' ? Math.round(x * 100) : Math.round(x);
+    return { k, from: bs ? v(bs.s[k]) : 0, to: v(ns.s[k]), d: v(ns.s[k]) - (bs ? v(bs.s[k]) : 0), bs, ns, bm, nm, img };
+  },
+  railCands(i, n) {
+    const g0 = slotGenes()[i], gv = g => 'DCBAS'.indexOf(slotGrade(g, i));
+    const pool = save.genes.filter(g => g !== g0).sort((a, b) => gv(b) - gv(a) || power(b) - power(a)).slice(0, n);
+    return pool.map(g => ({ g, r: ui.slotDelta(g, i) })).sort((a, b) => b.r.d - a.r.d || b.r.nm - a.r.nm);
+  },
+  renderRails() {
+    const sq = slotGenes(), used = new Map(); SL.forEach(i => { if (sq[i]) used.set(sq[i].uid, i); });
+    let h = '';
+    for (const i of SLOT_ORDER) {
+      if (!slotOpen(i)) { h += `<div class="rLock" data-lock="${i}">🔒 ${SLOT_ICON[i]} <b>${SLOT_NAME[i]}</b> 칸 · 본체 Lv${slotNeed(i)}에 열려요 ›</div>`; continue; }
+      const g0 = sq[i], cands = ui.railCands(i, 7);
+      const cur = g0 ? `<button class="rc cur" data-u="${g0.uid}" data-s="${i}"><span class="gr" style="color:${GRADE_COL[slotGrade(g0, i)]}">${slotGrade(g0, i)}</span>${pimg(g0)}<div class="nm">${sname(g0.strain)}</div><div class="dl">꽂힘</div></button>`
+        : `<button class="rc empty" data-s="${i}" data-empty="1">비어 있음<br>옆에서 골라요</button>`;
+      const items = cands.map(({ g, r }, n) => { const u = used.get(g.uid), gr = slotGrade(g, i), best = n === 0 && r.d > 0;
+        return `<button class="rc${best ? ' best' : ''}${u != null ? ' hasU' : ''}" data-u="${g.uid}" data-s="${i}">${u != null ? `<span class="usedB">${SLOT_NAME[u]}에 꽂힘</span>` : ''}<span class="gr" style="color:${GRADE_COL[gr]}">${gr}</span>${pimg(g)}<div class="nm">${sname(g.strain)}</div><div class="dl ${r.d > 0 ? 'up' : r.d < 0 ? 'dn' : 'eq'}">${r.d > 0 ? '+' : ''}${r.d === 0 ? '±0' : r.d}</div></button>`; }).join('');
+      h += `<div class="rail"><div class="rHead"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]} <small>${SLOT_STAT[i]} 담당</small></b><button class="more" data-more="${i}">전체 보기 ›</button></div><div class="rRow">${cur}${items}</div></div>`;
+    }
+    $('railList').innerHTML = h;
+    $('railList').querySelectorAll('.rc[data-u]').forEach(b => b.onclick = () => ui.cmpSheet(geneById(+b.dataset.u), +b.dataset.s));
+    $('railList').querySelectorAll('.rc[data-empty]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.s));
+    $('railList').querySelectorAll('[data-more]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.more));
+    $('railList').querySelectorAll('.rLock').forEach(b => b.onclick = () => ui.showHub('hero'));
+  },
+  // ★ 비교 시트: 이 칸에 꽂으면 무엇이 얼마나 바뀌는지 크게
+  cmpSheet(g, i) {
+    if (!g) return; const d = STRAINS[g.strain], sq = slotGenes(), isCur = sq[i] === g, old = sq[i], r = ui.slotDelta(g, i);
+    const t = (lb, a, b, f = x => x) => `<div class="tile"><small class="lb">${lb}</small><b>${isCur ? f(b) : `${f(a)} <span class="${b > a ? 'up' : b < a ? 'dn' : ''}">→ ${f(b)}</span>`}</b></div>`;
+    const k = SLOT_KEY[i], sub = k === 'count' ? 'hp' : 'count', v = (st, x) => st === 'atk' ? Math.round(x * 100) : Math.round(x), subN = { hp: '❤ 체력', count: '🦠 마릿수' }[sub];
+    const others = SLOT_ORDER.filter(j => j !== i && slotOpen(j));
+    const og = old ? slotGrade(old, i) : '-', ng = slotGrade(g, i);
+    $('sheet').innerHTML = `<div class="sh"><div class="hd"></div>
+      <div class="shTop"><div class="pic" style="border-color:${RARITY[d.rarity].color}">${pimg(g)}</div><div style="flex:1;min-width:0"><b class="n">${gname(g)}</b> <span class="stars" style="color:#ffd27a">${stars(g.star)}</span> <span style="color:#b59f86">Lv${g.lv || 1}</span>
+        <div class="shSk">✨ ${skCat(g)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](d.name) : '').filter(Boolean).join(' · ')}</div><button class="info" id="shInfo">카드 정보·강화 ›</button></div></div>
+      <div style="margin:12px 0 6px;font-weight:800;font-size:15px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸 · ${isCur ? '지금 꽂혀 있어요' : `${old ? sname(old.strain) : '빈 칸'} → ${sname(g.strain)}`}</div>
+      <div class="shCmp">${t(SLOT_ICON[i] + ' ' + SLOT_STAT[i], r.from, r.to)}${t(subN, r.bs ? v(sub, r.bs.s[sub]) : 0, v(sub, r.ns.s[sub]))}${t(`🧬 ${ORG_SHORT[save.sel || 'nose']} 궁합`, r.bm, r.nm, x => `${x >= 0 ? '+' : ''}${x}%`)}<div class="tile"><small class="lb">${SLOT_NAME[i]} 등급</small><b style="color:${GRADE_COL[ng]}">${isCur ? ng : `${og} → ${ng}`}</b></div></div>
+      ${isCur ? '' : `<div class="shCore">${r.bs ? `<img src="${imgSrc(IMG.mine, 'assets/rhino.png')}" style="width:68px;opacity:.6"><span style="font-size:22px;color:#ffd24a">➜</span>` : ''}<img src="${r.img}" style="width:92px;filter:drop-shadow(0 0 12px #ffd24a)"></div>`}
+      <div class="shBtns">${isCur ? `<button class="btn" id="shOut">칸에서 빼기</button><button class="btn" id="shClose">닫기</button>` : `<button class="btn" id="shOther">다른 칸에</button><button class="btn red" id="shGo">${SLOT_ICON[i]} ${SLOT_NAME[i]}에 꽂기</button>`}</div>
+      <div class="shSlots" id="shSlots" hidden>${others.map(j => `<button class="btn" data-j="${j}">${SLOT_ICON[j]} ${SLOT_NAME[j]}</button>`).join('')}</div></div>`;
+    $('sheet').hidden = false;
+    const close = () => { $('sheet').hidden = true; };
+    $('sheet').onclick = e => { if (e.target.id === 'sheet') close(); };
+    $('shInfo').onclick = () => { close(); ui.detail(g); };
+    if (isCur) { $('shOut').onclick = () => { unSquad(g.uid); persist(); close(); ui.showHub(); }; $('shClose').onclick = close; }
+    else { $('shGo').onclick = () => { if (assignSlot(g, i)) { close(); sfx('build'); ui.showHub(); } };
+      $('shOther').onclick = () => { $('shSlots').hidden = !$('shSlots').hidden; };
+      $('shSlots').querySelectorAll('[data-j]').forEach(b => b.onclick = () => ui.cmpSheet(g, +b.dataset.j)); }
+  },
+  // ★ 전체 보기: 이 칸에 꽂을 수 있는 카드를 잘 맞는 순으로 (C안 목록)
+  slotList(i) {
+    const sq = slotGenes(), g0 = sq[i], used = new Map(); SL.forEach(j => { if (sq[j]) used.set(sq[j].uid, j); });
+    const rows = ui.railCands(i, 40);
+    const row = (g, r, cls) => { const gr = slotGrade(g, i), u = used.get(g.uid);
+      return `<button class="listRow ${cls}" data-u="${g.uid}">${pimg(g)}<div class="t"><b>${sname(g.strain)}</b> <span style="color:#ffd27a;font-size:11px">${stars(g.star)}</span>${cls === 'best' ? ' <span style="font-size:10px;background:#ffd24a;color:#2a1608;border-radius:5px;padding:0 5px;font-weight:900">추천</span>' : ''}<div>Lv${g.lv || 1} · ✨ ${skCat(g)}${u != null && u !== i ? ` · ${SLOT_NAME[u]}에 꽂힘` : ''}</div></div><div class="g" style="color:${GRADE_COL[gr]}">${gr}</div>${r ? `<div class="d" style="color:${r.d > 0 ? '#9fff6a' : r.d < 0 ? '#ff9c8a' : '#b59f86'}">${r.d > 0 ? '+' : ''}${r.d}<small>${SLOT_STAT[i]} ${r.from}→${r.to}</small></div>` : '<div class="d" style="color:#9fff6a;font-size:12px">꽂혀 있음</div>'}</button>`; };
+    ui.modal(`<h3 style="margin:0 0 8px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸에 꽂을 카드</h3><div style="max-height:62vh;overflow-y:auto">${g0 ? row(g0, null, 'cur') : ''}${rows.map(({ g, r }, n) => row(g, r, n === 0 && r.d > 0 ? 'best' : '')).join('')}</div>`, [{ label: '닫기' }]);
+    document.querySelectorAll('#modal .listRow').forEach(b => b.onclick = () => { ui.closeModal(); ui.cmpSheet(geneById(+b.dataset.u), i); });
+  },
+  skillsPop() { const gs = [...new Map(squadGenes().map(g => [g.strain, g])).values()]; if (!gs.length) return;
+    ui.modal(`<h3 style="margin:0 0 6px">✨ 이번 판 스킬</h3>${gs.map(g => `<div class="sub" style="text-align:left;margin:4px 0"><b>${skCat(g)}</b> · ${sname(g.strain)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](STRAINS[g.strain].name) : '').join(' · ')}</div>`).join('')}`, [{ label: '닫기' }]); },
+  // 보관함: 전체 카드 (강화·교배는 여기서)
+  renderBox() {
+    $('boxTitle').textContent = breedPick.length ? '🧬 교배할 카드 2장 고르기' : `📦 보관함 ${save.genes.length}`;
     const grid = $('cardGrid');
-    const gh = grid.clientHeight || 300, rows = Math.max(1, Math.floor((gh + 5) / 81));
-    perPage = rows * 5;
+    const gh = grid.clientHeight || 300, rows = Math.max(1, Math.floor((gh + 6) / 104));
+    perPage = rows * 4;
     const inSq = new Set(squadGenes()), list = [...save.genes].sort((a, b) => (inSq.has(b) - inSq.has(a)) || b.star - a.star || power(b) - power(a));
     const pages = Math.max(1, Math.ceil(list.length / perPage)); page = clamp(page, 0, pages - 1);
     $('pgTxt').textContent = `${page + 1}/${pages}`;
     grid.innerHTML = '';
     for (const g of list.slice(page * perPage, page * perPage + perPage)) {
-      const d = STRAINS[g.strain], s = geneStats(g), el = document.createElement('button');
-      el.className = 'card' + (squadGenes().includes(g) ? ' sel' : '') + (breedPick.includes(g.uid) ? ' pick' : '');
+      const d = STRAINS[g.strain], el = document.createElement('button'), bi = bestSlot(g), gr = slotGrade(g, bi);
+      el.className = 'card' + (inSq.has(g) ? ' sel' : '') + (breedPick.includes(g.uid) ? ' pick' : '');
       el.style.borderTopColor = RARITY[d.rarity].color;
-      el.innerHTML = `${roleBadge(g.strain)}${genOf(g) >= 2 ? `<span class="genB">${genOf(g)}세대</span>` : ''}${pimg(g)}<div class="nm">${g.mut ? '<span style="color:#ffd24a">변성</span> ' : ''}${sname(g.strain) + (g.mix ? `×${sname(g.mix)}` : '')}</div><div class="st">${stars(g.star)} <span style="color:#b59f86">Lv${g.lv || 1}</span>${g.tier ? `<span style="color:#7fe05a">+${g.tier}</span>` : ''}${g.passives.length ? ' ◆' : ''}</div>${g.branch ? `<div class="mini" style="color:#b9f27a">${BRANCHES[g.strain][g.branch].name}</div>` : ''}<div class="mini">${(() => { const i = bestSlot(g), gr = slotGrade(g, i); return `${SLOT_ICON[i]}<b style="color:${GRADE_COL[gr]}">${SLOT_NAME[i]} ${gr}</b>`; })()}</div>`;
-      el.dataset.u = g.uid; el.onclick = () => { if (!dragBlocked()) ui.cardTap(g); };
+      el.innerHTML = `${roleBadge(g.strain)}${genOf(g) >= 2 ? `<span class="genB">${genOf(g)}세대</span>` : ''}${pimg(g)}<div class="nm">${g.mut ? '<span style="color:#ffd24a">변성</span> ' : ''}${sname(g.strain) + (g.mix ? `×${sname(g.mix)}` : '')}</div><div class="st">${stars(g.star)} Lv${g.lv || 1}</div><div class="mini">${SLOT_ICON[bi]}<b style="color:${GRADE_COL[gr]}">${SLOT_NAME[bi]} ${gr}</b></div>`;
+      el.dataset.u = g.uid; el.onclick = () => ui.cardTap(g);
       grid.appendChild(el);
     }
   },
@@ -4149,7 +4283,9 @@ $('bAuto').onclick = () => {
     setTimeout(() => gh.remove(), 470 + k * 170); k++; }
   setTimeout(() => { save.squad = nw; normSquad(); persist(); ui.recoBusy = false; ui.showHub(); toast(`${organById(save.sel || 'nose').name}에 맞춘 추천 조합!`); }, 480 + (k - 1) * 170);
 };
-$('bCatch').onclick = () => pullMenu();
+$('bCatch').onclick = () => pullMenu(); $('navPull').onclick = () => pullMenu();
+$('bBox').onclick = () => { ui.labMode = 'box'; page = 0; ui.renderLab(); };
+$('bBoxBack').onclick = () => { ui.labMode = 'rails'; breedPick = []; ui.renderLab(); };
 $('bQuest').onclick = () => questView();
 $('bBreed').onclick = () => { if (!unlocked('breed')) return lockMsg('breed'); if (breedPick.length) breedPick = []; else { if (save.dna < RULES.breed) return toast('DNA가 부족해요'); breedPick = ['ready']; toast('교배할 첫 번째 바이러스를 고르세요'); } ui.showHub(); };
 $('hornBtn').onclick = () => { if (!run) return; if (hornAim) { hornAim = false; $('hornBtn').classList.remove('aim'); $('hint').textContent = ''; return; }
