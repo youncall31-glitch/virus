@@ -29,14 +29,14 @@
   #hub[hidden] { display: none; }
   .hubTop { display: flex; align-items: center; gap: 6px; }
   .hubTop .host { font-size: 13px; font-weight: 800; flex: 1; min-width: 0; line-height: 1.25; }
-  .hubTop .host small { display: block; font-size: 10.5px; color: #b59f86; font-weight: 400; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .hubTop .host small { display: block; font-size: 10px; -webkit-line-clamp: 1 !important; color: #b59f86; font-weight: 400; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .hubTop .modeBtn { flex: none; width: 34px; height: 34px; padding: 0; display: grid; place-items: center; font-size: 15px; white-space: nowrap; }
   .hubTop .dna { flex: none; margin-left: 0; }
   .dna { margin-left: auto; display: flex; align-items: center; gap: 5px; padding: 5px 10px 5px 6px; font-family: 'Cinzel', serif; font-size: 15px; color: #b9f27a; border-radius: 20px; }
   .dna img { width: 20px; height: 20px; }
   .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-  .tab { min-height: 38px; font-weight: 800; font-size: 14px; border-radius: 6px; border: 1.5px solid #4a3a30; background: #170f10; color: #b59f86; }
-  .tab { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 2px; font-size: 13px; } .tab img { width: 24px; height: 24px; }
+  .tab { min-height: 32px; font-weight: 800; font-size: 14px; border-radius: 6px; border: 1.5px solid #4a3a30; background: #170f10; color: #b59f86; }
+  .tab { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 2px; font-size: 12.5px; } .tab img { width: 20px; height: 20px; }
   .tab.on { border-color: #c79a45; color: #ffe2a8; background: linear-gradient(#3a2a1a, #1c1410); }
   .hrule { font-size: 10px; padding: 0 5px; border: 1px solid #c79a45; border-radius: 8px; color: #ffe2a8; cursor: pointer; margin-right: 3px; }
   .mutic { font-size: 22px; line-height: 28px; }
@@ -70,7 +70,7 @@
   #organInfo { padding: 9px 11px; }
   #organInfo h3 { margin: 0; font-size: 16px; display: flex; justify-content: space-between; align-items: baseline; }
   #organInfo .feat { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 2px; }
-  .squadRow { position: relative; height: clamp(150px, 25vh, 205px); flex: none; border-radius: 12px; background: radial-gradient(ellipse at 50% 60%, #3a1a34 0%, #1a0f14 55%, transparent 75%); }
+  .squadRow { position: relative; height: clamp(138px, 21vh, 178px); flex: none; border-radius: 12px; background: radial-gradient(ellipse at 50% 60%, #3a1a34 0%, #1a0f14 55%, transparent 75%); }
   .csLines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .csLines line { stroke: #4a3540; stroke-width: 1.2; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; } .csLines line.on { stroke: #c06ad0; stroke-dasharray: none; stroke-width: 2; } .csLines line.lk { stroke: #2e2226; }
   .csCore { position: absolute; left: 50%; top: 60%; height: 58%; aspect-ratio: 1; transform: translate(-50%, -50%); display: grid; place-items: center; border-radius: 50%; transition: box-shadow .2s, transform .2s; }
@@ -80,7 +80,7 @@
   .coreGot { margin-top: 6px; font-weight: 900; color: #ffd27a; font-size: 15px; animation: gotPop .6s cubic-bezier(.2,1.6,.4,1); } @keyframes gotPop { from { transform: scale(.4); opacity: 0; } } .csQ { font-size: 34px; color: #6e5a4a; }
   .csLv { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #ffd27a; background: #1a0f14; border: 1px solid #8a6a4a; border-radius: 999px; padding: 0 7px; white-space: nowrap; }
   .csCore.hov { box-shadow: 0 0 0 3px #9fff6a, 0 0 22px #9fff6a; transform: translate(-50%, -50%) scale(1.06); }
-  .sock { position: absolute; width: clamp(54px, 17vw, 70px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 12px; border: 1.5px solid #8a5a90; background: #1e1218; padding: 0; display: grid; place-items: center; touch-action: none; overflow: hidden; color: inherit; font: inherit; }
+  .sock { position: absolute; width: clamp(50px, 16vw, 64px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 12px; border: 1.5px solid #8a5a90; background: #1e1218; padding: 0; display: grid; place-items: center; touch-action: none; overflow: hidden; color: inherit; font: inherit; }
   .sock img { width: 64%; height: 64%; object-fit: contain; pointer-events: none; } .sock img.bk { transform: scale(1.43) translateY(-8%); }
   .sock .slab { position: absolute; top: 1px; left: 0; right: 0; text-align: center; font-size: 9px; font-weight: 800; color: #ffe2a8; white-space: nowrap; }
   .sock b { position: absolute; bottom: 1px; left: 0; right: 0; text-align: center; font-size: 8.5px; color: #ffd27a; }
@@ -90,7 +90,7 @@
   .sock.hov { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 0 2px #9fff6a, 0 0 18px #9fff6a !important; }
   .dragGhost { position: fixed; left: 0; top: 0; width: 64px; height: 64px; pointer-events: none; z-index: 50; filter: drop-shadow(0 6px 8px rgba(0,0,0,.6)); }
   .dragGhost img { width: 100%; height: 100%; object-fit: contain; } .dragSrc { opacity: .35; }
-  #cardGrid .card { touch-action: none; }
+  #cardGrid .card { touch-action: none; } #viewLab img { -webkit-user-drag: none; user-select: none; -webkit-touch-callout: none; }
   .mOld { animation: mOld .7s ease forwards; } .mNew { animation: mNew .7s cubic-bezier(.2,1.4,.4,1); }
   @keyframes mOld { to { opacity: 0; transform: scale(.7) rotate(-25deg); filter: blur(3px); } }
   @keyframes mNew { 0% { opacity: 0; transform: scale(.6) rotate(20deg); } 100% { opacity: 1; } }
@@ -100,7 +100,13 @@
   .sumRow .fly { position: absolute; left: 50%; top: -4px; transform: translateX(-50%); font-style: normal; font-size: 12px; font-weight: 900; white-space: nowrap; animation: fly 1.2s ease-out forwards; pointer-events: none; text-shadow: 0 1px 2px #000; }
   .sumRow .fly.up { color: #9fff6a; } .sumRow .fly.dn { color: #ff8a7a; }
   @keyframes fly { 0% { opacity: 0; transform: translate(-50%, 4px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -22px); } }
-  #squadHint .sumRow { justify-content: center; } .coreTop .sumRow { justify-content: center; margin: 4px 0; }
+  #squadHint .sumRow { justify-content: center; font-size: 12.5px; min-height: 18px; }
+  #labNums.pv { flex-wrap: nowrap; white-space: nowrap; gap: 0 6px; font-size: 11.5px; overflow: hidden; background: #1e2a14; border-radius: 6px; outline: 1px dashed #9fff6a; } #labNums.pv s { color: #8a7a6a; font-size: 10.5px; text-decoration: none; margin: 0 1px; } #labNums.pv b.up { color: #9fff6a; } #labNums.pv b.dn { color: #ff8a7a; }
+  .csCore.pvC img { animation: pvPulse .8s ease-in-out infinite alternate; } @keyframes pvPulse { from { opacity: .55; } to { opacity: 1; } }
+  .csCore.sleep img { opacity: .8; animation: sleepB 2.4s ease-in-out infinite; } @keyframes sleepB { 50% { transform: scale(.95); } }
+  .fitG { position: absolute; right: -2px; top: -2px; font-style: normal; font-weight: 900; font-size: 13px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: #1a0f14; border: 1.5px solid currentColor; z-index: 2; }
+  .fitG.gS { color: #ffd24a; box-shadow: 0 0 8px #ffd24a; } .fitG.gA { color: #ff9ee0; } .fitG.gB { color: #9fd8ff; } .fitG.gC { color: #b8a890; } .fitG.gD { color: #7a6a5a; }
+  .sock { overflow: visible !important; } .fly2 { z-index: 55; } .coreTop .sumRow { justify-content: center; margin: 4px 0; }
   .mileList { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; } .mileList div { display: flex; align-items: center; gap: 6px; border: 1px solid #3a2c2c; border-radius: 8px; padding: 6px 8px; font-size: 12px; opacity: .65; }
   .mileList div.ok { border-color: #c79a45; opacity: 1; background: #2a1c12; } .mileList b { color: #ffd27a; font-size: 12px; flex: none; } .mileList span { flex: 1; min-width: 0; } .mileList i { font-style: normal; font-size: 11px; }
   .squadRow .slot img { max-width: 100%; }
@@ -114,12 +120,13 @@
   .slot b { position: absolute; bottom: 1px; font-size: 9.5px; color: #ffd27a; white-space: nowrap; }
   .slot.empty small { margin-top: 10px; text-align: center; line-height: 1.3; }
   .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-  .actions .btn { font-size: 12px; min-height: 40px; padding: 2px 4px; line-height: 1.2; word-break: keep-all; }
-  #cardGrid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-content: start; }
+  .actions .btn { font-size: 12px; min-height: 36px; padding: 2px 4px; line-height: 1.2; word-break: keep-all; }
+  #cardGrid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 82px; gap: 5px; align-content: start; }
+  #cardGrid .card { height: 82px; padding: 3px 1px 2px; overflow: hidden; } #cardGrid .card .genB { left: 18px; font-size: 8px; padding: 0 2px; }
   .card { position: relative; border: 1.5px solid #5a4238; border-top-width: 3px; border-radius: 7px; background: linear-gradient(#22171a, #140d0e); padding: 4px 2px 5px; text-align: center; min-width: 0; }
   .card.sel { border-color: #6fd35a; box-shadow: 0 0 8px rgba(111,211,90,.4); }
   .card.pick { border-color: #7fd1ff; box-shadow: 0 0 8px rgba(127,209,255,.5); }
-  .card img { height: 40px; display: block; margin: 0 auto 1px; }
+  .card img { height: 34px; display: block; margin: 0 auto 0; }
   img.bk { transform: scale(1.43) translateY(-8%); }
   .odds { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 4px 0; font-weight: 800; font-size: 14px; }
   .odds div { padding: 6px; border-radius: 6px; border: 1.5px solid; } .odds .ok { color: #d7ffb0; border-color: #4f7a2a; background: #142010; } .odds .bad { color: #ffb4a8; border-color: #c23a3f; background: #200c0c; }
@@ -166,13 +173,13 @@
   .role svg { width: 11px; height: 11px; } .role.big { position: static; display: inline-grid; width: 22px; height: 22px; vertical-align: -5px; margin-right: 4px; } .role.big svg { width: 14px; height: 14px; }
   .card .genB { position: absolute; top: 3px; left: 23px; font-size: 9px; padding: 0 4px; border-radius: 6px; background: #2a1a3a; color: #d8c0ff; border: 1px solid #8a6ac0; z-index: 2; }
   .card .merge { position: absolute; top: 3px; right: 3px; font-size: 9px; padding: 0 4px; border-radius: 6px; background: #3a2a0c; color: #ffcf6a; border: 1px solid #c79a45; }
-  .card .nm { font-size: 11.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card .st { color: #ffd27a; font-size: 10px; }
-  .card .mini { font-size: 9.5px; color: #e9c58a; white-space: nowrap; }
+  .card .nm { font-size: 10.5px; letter-spacing: -.3px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .st { color: #ffd27a; font-size: 9.5px; white-space: nowrap; overflow: hidden; }
+  .card .mini { font-size: 9.5px; color: #e9c58a; white-space: nowrap; overflow: hidden; letter-spacing: -.3px; }
   .pager { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 12px; }
-  .pager .btn { min-height: 32px; width: 46px; }
+  .pager .btn { min-height: 28px; width: 42px; } .pager #bDex { min-height: 28px; }
   .goBar { display: grid; grid-template-columns: 1fr; }
-  .goBar .btn { min-height: 50px; font-size: 17px; }
+  .goBar .btn { min-height: 44px; font-size: 16px; }
   #squadHint { font-size: 11px; }
 
   /* ---------- 런 HUD ---------- */
@@ -222,7 +229,7 @@
   .attRow .ok { opacity: .45; border-color: #4f7a2a; } .attRow .now { border-color: #ffd27a; box-shadow: 0 0 8px rgba(255,210,122,.6); }
   .sumRow { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; font-size: 13px; } .sumRow b { color: #ffe2a8; margin-left: 2px; } .sumRow i { font-style: normal; color: #ffd27a; font-size: 11px; margin-left: 2px; }
   .sumRow .good { color: #9fff6a; font-weight: 800; } .sumRow .bad { color: #ff9c8a; font-weight: 800; }
-  .skRow { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; } .skChip { font: inherit; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #2a1a2a; color: #ffe2a8; border: 1px solid #8a6ac0; cursor: pointer; }
+  .skRow { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 4px; margin-top: 3px; } .skRow::-webkit-scrollbar { display: none; } .skChip { flex: none; font: inherit; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: #2a1a2a; color: #ffe2a8; border: 1px solid #8a6ac0; cursor: pointer; }
   #skPop { position: absolute; z-index: 70; width: 220px; padding: 8px 10px; background: #1a0f0c; border: 2px solid #e8b860; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.7); font-size: 13px; line-height: 1.4; color: #fff4e2; }
   #skPop[hidden] { display: none; } #skPop b { color: #ffd27a; } #skPop span { float: right; font-size: 11px; color: #b59f86; } #skPop div { margin-top: 3px; }
   .sub .role, .fitBox .role { position: static; display: inline-grid; vertical-align: -3px; margin-right: 4px; }
@@ -477,7 +484,7 @@
     <div class="view" id="viewLab" hidden>
       <div class="squadRow" id="squadRow"></div>
       <div class="sub" id="squadHint"></div>
-      <div class="actions"><button class="btn red" id="bCatch">감염 뽑기</button><button class="btn green" id="bBreed">교배</button><button class="btn" id="bAuto">자동 조합</button></div>
+      <div class="actions"><button class="btn red" id="bCatch">감염 뽑기</button><button class="btn green" id="bBreed">교배</button><button class="btn" id="bAuto">⭐ 추천 조합</button></div>
       <div id="cardGrid"></div>
       <div class="pager"><button class="btn" id="bDex" style="width:auto;padding:0 8px;display:flex;align-items:center;gap:3px"><img src="assets/codex.png" alt="" style="width:22px;height:22px">도감</button><button class="btn" id="pgPrev" aria-label="이전">◀</button><span id="pgTxt">1/1</span><button class="btn" id="pgNext" aria-label="다음">▶</button></div>
     </div>
@@ -3317,14 +3324,33 @@ const ui = {
         <h3 style="margin:4px 0;color:${TAIL_TIER[t.tier].col}">${tailText(t)}</h3><div class="sub">${STRAINS[g.strain].name} ${stars(g.star)}의 DNA 말단을 ${HEROES[hid].name}에 달았어요.</div>
         <div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); });
   },
+  // ★ 놓기 전에 미리 보기: 이 칸에 놓으면 본체 모습과 숫자가 어떻게 바뀌는지 (지금 → 바뀐 값)
+  dropPreview(g, t) {
+    const nums = $('labNums'), core = $('csCore'); if (!nums || !core) return; const img = core.querySelector('img');
+    const restore = () => { if (!ui.pvOn) return; ui.pvOn = false; const f = slotFill(); nums.classList.remove('pv'); core.classList.remove('pvC'); if (img && ui.pvImg) img.src = ui.pvImg;
+      nums.innerHTML = f.length ? ui.numsHtml(mineStats(f)) : '<span>카드를 <b>끌어다</b> 본체 둘레 칸에 놓으면 깨어나요</span>'; };
+    if (!g || !t) return restore();
+    let i = t.dataset.sock != null ? +t.dataset.sock : t.id === 'csCore' ? (SLOT_ORDER.find(k => slotOpen(k) && !slotGenes()[k]) ?? -1) : -1;
+    if (i < 0 || !slotOpen(i)) return restore();
+    const sq = slotGenes(), cur = sq.indexOf(g); if (cur === i) return restore(); if (cur >= 0) { sq[cur] = sq[i]; } sq[i] = g;
+    const base = slotFill(), bs = base.length ? mineStats(base) : null, bm = base.length ? matchTotal(base, save.sel || 'nose') : 0;
+    const nf = fillOf(sq), ns = mineStats(nf), nm = matchTotal(nf, save.sel || 'nose'), nimg = imgSrc(ns.img, 'assets/rhino.png');
+    if (base.length) mineStats(base);
+    if (!ui.pvOn) ui.pvImg = img ? img.src : null; ui.pvOn = true;
+    if (img) img.src = nimg; core.classList.add('pvC'); nums.classList.add('pv');
+    const cell = (ic, k, f) => { const a = bs ? (k === 'match' ? bm : bs.s[k]) : 0, b = k === 'match' ? nm : ns.s[k], d = b - a, big = Math.abs(d) > (k === 'atk' ? 0.004 : 0.4);
+      return `<span>${ic}${bs && big ? `<s>${f(a)}</s>→` : ''}<b class="${big ? (d > 0 ? 'up' : 'dn') : ''}">${f(b)}</b></span>`; };
+    const r = x => Math.round(x);
+    nums.innerHTML = cell('❤', 'hp', r) + cell('💨', 'spd', r) + cell('⚔', 'atk', x => x.toFixed(2)) + cell('🦠', 'count', r) + cell(ORG_SHORT[save.sel || 'nose'] + ' ', 'match', x => `${x >= 0 ? '+' : ''}${r(x)}%`);
+  },
   // ★ 본체 무대: 가운데 내 바이러스 + 둘레 칸 5개 (잠긴 칸은 본체 레벨로 열림). 카드를 끌어다 놓는다
   renderStage(ms) {
     const sq = slotGenes(), tier = coreTier(), P = STAGE_POS;
     $('squadRow').innerHTML = `<svg class="csLines" viewBox="0 0 100 100" preserveAspectRatio="none">${SL.map(i => `<line x1="50" y1="60" x2="${P[i][0]}" y2="${P[i][1]}" class="${sq[i] ? 'on' : slotOpen(i) ? '' : 'lk'}"/>`).join('')}</svg>
-      <div class="csCore t${tier}" id="csCore">${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : '<span class="csQ">?</span>'}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b></div>`
-      + SL.map(i => { const g = sq[i], st = `left:${P[i][0]}%;top:${P[i][1]}%`, lab = `<span class="slab">${SLOT_ICON[i]}${SLOT_NAME[i]}</span>`;
+      <div class="csCore t${tier}${ms ? '' : ' sleep'}" id="csCore">${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="">` : '<span class="csQ">?</span>'}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b></div>`
+      + SL.map(i => { const g = sq[i], st = `left:${P[i][0]}%;top:clamp(33px, ${P[i][1]}%, calc(100% - 33px))`, lab = `<span class="slab">${SLOT_ICON[i]}${SLOT_NAME[i]}</span>`;
         if (!slotOpen(i)) return `<button class="sock lock" data-lock="${i}" style="${st}">${lab}<small>🔒<br>본체 Lv${slotNeed(i)}</small></button>`;
-        return g ? `<button class="sock" data-sock="${i}" data-u="${g.uid}" style="${st}">${lab}${pimg(g)}<b>${SLOT_STAT[i]}</b></button>`
+        return g ? `<button class="sock" data-sock="${i}" data-u="${g.uid}" style="${st}">${lab}${pimg(g)}<b>${SLOT_STAT[i]} <span style="color:${GRADE_COL[slotGrade(g, i)]}">${slotGrade(g, i)}</span></b></button>`
           : `<button class="sock empty" data-sock="${i}" style="${st}">${lab}<small>＋<br>${SLOT_STAT[i]}</small></button>`; }).join('');
     $('squadRow').querySelectorAll('.sock[data-u]').forEach(b => b.onclick = () => { if (dragBlocked()) return; ui.detail(geneById(+b.dataset.u)); });
     $('squadRow').querySelectorAll('.sock.empty').forEach(b => b.onclick = () => { if (dragBlocked()) return; toast('아래 카드를 끌어다 놓아요'); });
@@ -3334,7 +3360,7 @@ const ui = {
     normSquad(); const sq = slotGenes(), strains = squadStrains();
     const ms = slotFill().length ? mineStats(slotFill()) : null;
     ui.renderStage(ms);
-    $('squadHint').innerHTML = !ms ? '카드를 <b>끌어다</b> 본체 둘레 칸에 놓아요'
+    $('squadHint').innerHTML = !ms ? '<div class="sumRow" id="labNums"><span>카드를 <b>끌어다</b> 본체 둘레 칸에 놓으면 깨어나요</span></div>'
       : `<div class="sumRow" id="labNums">${ui.numsHtml(ms)}</div>
         <div class="skRow">${[...new Map(sq.filter(Boolean).map(g => [g.strain, g])).values()].map(g => `<button class="skChip" data-skg="${g.uid}">✨${geneSkill(g).name}</button>`).join('')}</div>`;
     if (ms) ui.animMine($('csCore'), $('labNums'), ms, 'lab');
@@ -3343,8 +3369,8 @@ const ui = {
     $('bBreed').textContent = !unlocked('breed') ? `🔒 교배 (기관 ${UNLOCK.breed[0]}곳)` : breedPick.length ? '교배 취소' : `교배 · ${RULES.breed}`;
 
     const grid = $('cardGrid');
-    const gh = grid.clientHeight || 300, rows = Math.max(1, Math.floor((gh + 6) / 96));
-    perPage = rows * 4;
+    const gh = grid.clientHeight || 300, rows = Math.max(1, Math.floor((gh + 5) / 87));
+    perPage = rows * 5;
     const inSq = new Set(squadGenes()), list = [...save.genes].sort((a, b) => (inSq.has(b) - inSq.has(a)) || b.star - a.star || power(b) - power(a));
     const pages = Math.max(1, Math.ceil(list.length / perPage)); page = clamp(page, 0, pages - 1);
     $('pgTxt').textContent = `${page + 1}/${pages}`;
@@ -3353,7 +3379,7 @@ const ui = {
       const d = STRAINS[g.strain], s = geneStats(g), el = document.createElement('button');
       el.className = 'card' + (squadGenes().includes(g) ? ' sel' : '') + (breedPick.includes(g.uid) ? ' pick' : '');
       el.style.borderTopColor = RARITY[d.rarity].color;
-      el.innerHTML = `${roleBadge(g.strain)}${genOf(g) >= 2 ? `<span class="genB">${genOf(g)}세대</span>` : ''}${pimg(g)}<div class="nm">${g.mut ? '<span style="color:#ffd24a">변성</span> ' : ''}${sname(g.strain) + (g.mix ? `×${sname(g.mix)}` : '')}</div><div class="st">${stars(g.star)} <span style="color:#b59f86">Lv${g.lv || 1}</span>${g.tier ? `<span style="color:#7fe05a">+${g.tier}</span>` : ''}${g.passives.length ? ' ◆' : ''}</div>${g.branch ? `<div class="mini" style="color:#b9f27a">${BRANCHES[g.strain][g.branch].name}</div>` : ''}<div class="mini">${(() => { const [bs, bg] = bestStat(g.strain); return `<b style="color:${GRADE_COL[bg]}">${GRADE_KEYS[bs]} ${bg}</b>`; })()}</div>`;
+      el.innerHTML = `${roleBadge(g.strain)}${genOf(g) >= 2 ? `<span class="genB">${genOf(g)}세대</span>` : ''}${pimg(g)}<div class="nm">${g.mut ? '<span style="color:#ffd24a">변성</span> ' : ''}${sname(g.strain) + (g.mix ? `×${sname(g.mix)}` : '')}</div><div class="st">${stars(g.star)} <span style="color:#b59f86">Lv${g.lv || 1}</span>${g.tier ? `<span style="color:#7fe05a">+${g.tier}</span>` : ''}${g.passives.length ? ' ◆' : ''}</div>${g.branch ? `<div class="mini" style="color:#b9f27a">${BRANCHES[g.strain][g.branch].name}</div>` : ''}<div class="mini">${(() => { const i = bestSlot(g), gr = slotGrade(g, i); return `${SLOT_ICON[i]}<b style="color:${GRADE_COL[gr]}">${SLOT_NAME[i]} ${gr}</b>`; })()}</div>`;
       el.dataset.u = g.uid; el.onclick = () => { if (!dragBlocked()) ui.cardTap(g); };
       grid.appendChild(el);
     }
@@ -3775,6 +3801,14 @@ const coreCost = (l = coreL()) => Math.round(60 * Math.pow(1.2, l) / 10) * 10;
 const CORE_MILE = [{ l: 1, t: '💨 껍질 칸 열림', slot: 1 }, { l: 4, t: '✨ 빛나는 테두리' }, { l: 5, t: '🧬 꼬리 칸 열림', slot: 3 }, { l: 10, t: '💪 몸집이 커짐' }, { l: 12, t: '✨ 더듬이 칸 열림', slot: 4 }, { l: 20, t: '👑 왕관' }];
 // 칸 위치 (무대 안 %): 몸통 왼쪽 위 · 가시 오른쪽 위 · 껍질 왼쪽 아래 · 꼬리 오른쪽 아래 · 더듬이 위 가운데
 const STAGE_POS = [[13, 34], [13, 80], [87, 34], [87, 80], [50, 15]];
+// 자리별 어울림: 몸통=체력, 껍질=빠르기, 가시=공격력, 꼬리·더듬이=마릿수 (도감 등급 S~D)
+const SLOT_GK = ['hp', 'spd', 'atk', 'count', 'count'];
+const slotGrade = (g, i) => gradeOf(SLOT_GK[i], STRAINS[g.strain][SLOT_GK[i]]);
+const bestSlot = g => { let bi = 0, bv = -1; for (const i of [0, 2, 1, 3]) { const v = 'DCBAS'.indexOf(slotGrade(g, i)); if (v > bv) { bv = v; bi = i; } } return bi; };
+// 카드가 하나도 없을 때의 본체: 잿빛 맨몸 (꽂으면 깨어남)
+let BASE_CORE = null;
+function baseCore() { if (BASE_CORE) return BASE_CORE; if (!has('vp_core_0')) return null; const S = 128, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d');
+  g.filter = 'grayscale(1) brightness(.75)'; if (has('vp_spike_0')) g.drawImage(IMG.vp_spike_0, S * 0.12, S * 0.12, S * 0.76, S * 0.76); g.drawImage(IMG.vp_core_0, S * 0.24, S * 0.24, S * 0.52, S * 0.52); BASE_CORE = c.toDataURL(); return BASE_CORE; }
 function assignSlot(g, i) {
   if (!g || !slotOpen(i)) return false; const cur = squadGenes().includes(g) ? save.squad.indexOf(g.uid) : -1, sq = SL.map(k => save.squad[k] || null);
   if (cur === i) return false;
@@ -3793,14 +3827,17 @@ document.addEventListener('pointerdown', e => {
 document.addEventListener('pointermove', e => {
   const P = DRAG.p; if (!P || e.pointerId !== P.id) return;
   if (!P.on) { if (Math.hypot(e.clientX - P.x, e.clientY - P.y) < 9 || !P.g) return; P.on = true;
-    P.gh = document.createElement('div'); P.gh.className = 'dragGhost'; P.gh.innerHTML = pimg(P.g); document.body.appendChild(P.gh); P.el.classList.add('dragSrc'); document.body.classList.add('dragging'); buzz(10); }
+    P.gh = document.createElement('div'); P.gh.className = 'dragGhost'; P.gh.innerHTML = pimg(P.g); document.body.appendChild(P.gh); P.el.classList.add('dragSrc'); document.body.classList.add('dragging'); buzz(10);
+    // 칸마다 이 카드가 얼마나 어울리는지 (S~D) 표시
+    document.querySelectorAll('#squadRow .sock[data-sock]').forEach(k => { const gr = slotGrade(P.g, +k.dataset.sock), e = document.createElement('i'); e.className = 'fitG g' + gr; e.textContent = gr; k.appendChild(e); }); }
   P.gh.style.transform = `translate(${e.clientX - 32}px, ${e.clientY - 70}px)`;
-  const t = dragTarget(e.clientX, e.clientY - 38); if (t !== P.t) { if (P.t) P.t.classList.remove('hov'); P.t = t; if (t) t.classList.add('hov'); }
+  const t = dragTarget(e.clientX, e.clientY - 38); if (t !== P.t) { if (P.t) P.t.classList.remove('hov'); P.t = t; if (t) t.classList.add('hov'); ui.dropPreview(P.g, t); }
   e.preventDefault();
 }, { passive: false });
 function dragEnd(e, cancel) {
   const P = DRAG.p; if (!P || (e && e.pointerId !== P.id)) return; DRAG.p = null; if (!P.on) return;
   DRAG.until = performance.now() + 350; P.gh.remove(); P.el.classList.remove('dragSrc'); document.body.classList.remove('dragging'); if (P.t) P.t.classList.remove('hov');
+  document.querySelectorAll('#squadRow .fitG').forEach(x => x.remove()); ui.dropPreview(null, null);
   if (cancel) return; const t = P.t;
   let i = t && t.dataset.sock != null ? +t.dataset.sock : -1;
   if (t && t.id === 'csCore') i = SLOT_ORDER.find(k => slotOpen(k) && !slotGenes()[k]) ?? -1;
@@ -3810,6 +3847,8 @@ function dragEnd(e, cancel) {
   if (P.from >= 0 && !(e && document.elementFromPoint(e.clientX, e.clientY - 38) || { closest: () => null }).closest('#squadRow')) { unSquad(P.g.uid); persist(); ui.showHub(); toast('카드를 뺐어요'); }
 }
 document.addEventListener('pointerup', e => dragEnd(e));
+// 그림을 끌 때 브라우저 기본 끌기가 끼어들면 포인터가 취소되므로 막는다
+document.addEventListener('dragstart', e => { if (e.target.closest && e.target.closest('#viewLab')) e.preventDefault(); });
 document.addEventListener('pointercancel', e => dragEnd(e, true));
 // ★ 장착 연출: 카드를 꽂거나 본체를 강화하면 가운데에 본체가 크게 떠서, 바뀐 모습과 숫자를 보여 준다 (누르면 바로 닫힘)
 function matchTotal(cards, org) { const f = ORGAN_FIT[org]; if (!cards.length) return 0; const ok = f && ROLE_OF[cards[0].strain] === f.role; return Math.round(((ok ? FIT_MUL : 1) * tropMul(cards, org) - 1) * 100); }
@@ -4006,7 +4045,19 @@ $('tabHero').onclick = () => ui.showHub('hero');
 $('pgPrev').onclick = () => { page--; ui.renderLab(); };
 $('pgNext').onclick = () => { page++; ui.renderLab(); };
 $('bDex').onclick = () => dexView();
-$('bAuto').onclick = () => { autoSquad(); persist(); ui.showHub(); toast(`${organById(save.sel || 'nose').name}에 맞춰 조합했어요`); };
+// ★ 추천 조합: 고른 기관에 가장 좋은 조합을 계산해서, 카드가 한 장씩 날아가 칸에 꽂힌다
+$('bAuto').onclick = () => {
+  if (ui.recoBusy) return; const old = [...save.squad]; autoSquad(); const nw = [...save.squad]; save.squad = old;
+  const moves = SLOT_ORDER.filter(i => slotOpen(i) && nw[i] && nw[i] !== old[i]);
+  if (!moves.length) return toast('지금이 추천 조합이에요 👍');
+  ui.recoBusy = true; let k = 0;
+  for (const i of moves) { const g = geneById(nw[i]), src = document.querySelector(`#cardGrid .card[data-u="${g.uid}"]`) || document.querySelector(`#squadRow .sock[data-u="${g.uid}"]`) || $('bAuto'), dst = document.querySelector(`#squadRow [data-sock="${i}"]`);
+    if (!dst) continue; const a = src.getBoundingClientRect(), b = dst.getBoundingClientRect(), gh = document.createElement('div'); gh.className = 'dragGhost fly2'; gh.innerHTML = pimg(g);
+    gh.style.transform = `translate(${a.left + a.width / 2 - 32}px, ${a.top + a.height / 2 - 32}px)`; document.body.appendChild(gh);
+    setTimeout(() => { gh.style.transition = 'transform .38s cubic-bezier(.4,0,.2,1.3)'; gh.style.transform = `translate(${b.left + b.width / 2 - 32}px, ${b.top + b.height / 2 - 32}px) scale(.8)`; dst.classList.add('hov'); sfx('build'); }, 30 + k * 170);
+    setTimeout(() => gh.remove(), 470 + k * 170); k++; }
+  setTimeout(() => { save.squad = nw; normSquad(); persist(); ui.recoBusy = false; ui.showHub(); toast(`${organById(save.sel || 'nose').name}에 맞춘 추천 조합!`); }, 480 + (k - 1) * 170);
+};
 $('bCatch').onclick = () => pullMenu();
 $('bQuest').onclick = () => questView();
 $('bBreed').onclick = () => { if (!unlocked('breed')) return lockMsg('breed'); if (breedPick.length) breedPick = []; else { if (save.dna < RULES.breed) return toast('DNA가 부족해요'); breedPick = ['ready']; toast('교배할 첫 번째 바이러스를 고르세요'); } ui.showHub(); };
