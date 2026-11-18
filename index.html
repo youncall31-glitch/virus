@@ -59,11 +59,12 @@
   .organ.lock { opacity: .5; }
   @media (max-height: 780px) { .organ { width: 34px; height: 34px; } .organ svg { width: 24px; height: 24px; } .organ .lbl { font-size: 10px; padding: 1px 5px; } .organ .diff { font-size: 8.5px; } #organInfo .fitBox { padding: 3px 6px; } #organInfo .sub { font-size: 11.5px; } }
   .sub, small, .chip, .organ .lbl, .organ .diff, .slot b, .slot small, .slab, .skillbox, #hint, .feat, .starList, .fitBox, .odds { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
-  .organ .lbl { position: absolute; top: 50%; transform: translateY(-50%); left: 100%; margin-left: 5px; white-space: nowrap; font-size: 11px; line-height: 1.15; text-align: left; padding: 2px 6px; border-radius: 8px; background: rgba(10,5,6,.78); border: 1px solid rgba(216,184,120,.35); text-shadow: none; pointer-events: none; }
-  .organ.toL .lbl { left: auto; right: 100%; margin: 0 5px 0 0; text-align: right; }
+  .organ .lbl { position: absolute; top: 50%; right: 100%; left: auto; transform: translateY(-50%); margin: 0 4px 0 0; white-space: nowrap; font-size: 11px; font-weight: 800; line-height: 1.1; text-align: right; padding: 0; background: none; border: 0; text-shadow: 0 1px 2px #000, 0 0 4px #000, 0 0 6px #000; pointer-events: none; } .organ .lbl.__x { border: 1px solid rgba(216,184,120,.35); text-shadow: none; pointer-events: none; }
+  .organ.toL .lbl { left: 100%; right: auto; margin: 0 0 0 4px; text-align: left; }   /* 이름표는 몸 그림 바깥쪽으로 */
   .organ .lg { position: absolute; top: -10px; left: -10px; height: 22px; filter: drop-shadow(0 0 3px #6fd35a); }
   .organ.side .lbl { top: 50%; left: 100%; margin: 0 0 0 4px; transform: translateY(-50%); }
-  .organ .diff { white-space: nowrap; position: absolute; bottom: -2px; right: -6px; font-size: 9px; padding: 0 4px; border-radius: 6px; background: #000; border: 1px solid #6e5a4a; }
+  .organ .diff { white-space: nowrap; position: absolute; top: -4px; right: -6px; font-size: 9px; width: 16px; height: 16px; display: grid; place-items: center; padding: 0; border-radius: 50%; background: #000; border: 1px solid #6e5a4a; }
+  .organ .diff.ok { background: #2a5a1a; border-color: #9fff6a; color: #d7ffb0; font-weight: 800; }
   #organInfo { padding: 9px 11px; }
   #organInfo h3 { margin: 0; font-size: 16px; display: flex; justify-content: space-between; align-items: baseline; }
   #organInfo .feat { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 2px; }
@@ -2799,7 +2800,7 @@ const ui = {
       b.className = 'organ off' + (o.x >= 50 ? ' toL' : '') + (save.done[o.id] ? ' done' : '') + (save.sel === o.id ? ' sel' : '') + (open ? '' : ' lock');
       b.style.left = o.x + '%'; b.style.top = o.y + '%';
       const lg = save.legacy[o.id], hit = legacyFor(o).filter(l => !l.global).length;
-      b.innerHTML = `<svg viewBox="0 0 28 28" aria-hidden="true">${ORGAN_ICON[o.id]}</svg>${lg ? `<img class="lg" src="${stImg(lg)}" alt="">` : ''}<span class="lbl">${o.name}${open ? `<span class="ost">${starsOf(o.id).map(x => x ? '★' : '☆').join('')}</span>` : ''}</span><span class="diff">${save.done[o.id] ? '감염' : open ? DIFF_TXT(o.diff * HOSTS[save.host].mul) : '잠김'}</span>${hit && !save.done[o.id] ? '<span class="weak">약화</span>' : ''}`;
+      b.innerHTML = `<svg viewBox="0 0 28 28" aria-hidden="true">${ORGAN_ICON[o.id]}</svg>${lg ? `<img class="lg" src="${stImg(lg)}" alt="">` : ''}<span class="lbl">${ORG_SHORT[o.id]}${open ? `<span class="ost">${starsOf(o.id).map(x => x ? '★' : '☆').join('')}</span>` : ''}</span>${save.done[o.id] ? '<span class="diff ok">✓</span>' : !open ? '<span class="diff">🔒</span>' : ''}${hit && !save.done[o.id] ? '<span class="weak">약화</span>' : ''}`;
       b.setAttribute('aria-label', o.name);
       b.onclick = () => { save.sel = o.id; persist(); ui.showHub(); };
       wrap.appendChild(b);
