@@ -584,6 +584,10 @@ img.legend { animation: legGlow 3s linear infinite; }
   .gRow .gSq { position: absolute; left: 6px; bottom: 4px; z-index: 4; line-height: 1.4; font-size: 9px; background: #2e5a1c; color: #c8ffb0; padding: 0 4px; border-radius: 5px; }
   .symB { animation: symB 2.6s ease-in-out infinite; transform-box: fill-box; } @keyframes symB { 50% { transform: translateY(-2px); } }
   .infDots { animation: infD 6s linear infinite; } @keyframes infD { to { transform: translate(9px, 10px); } }
+  .abil { margin: 10px 0 2px; padding: 8px 10px; border-radius: 12px; background: #1a0f14; border: 1px solid #3a2a2e; } .abT { font-size: 13px; }
+  .abS { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px; text-align: center; } .abS span { background: #241418; border-radius: 8px; padding: 3px 0; font-size: 12px; } .abS b { display: block; font-size: 15px; } .abS small { display: block; font-size: 9.5px; color: #b59f86; }
+  .abO { margin-top: 6px; font-size: 12px; } .abO .g { color: #9fff6a; } .abO .b { color: #ff9c8a; } .abO .rcB { display: inline; }
+  details.slotWrap summary { list-style: none; text-align: center; padding: 8px; border-radius: 10px; border: 1px dashed #5a3a40; color: #cdb8c8; font-size: 13px; cursor: pointer; margin-top: 6px; } details.slotWrap summary::-webkit-details-marker { display: none; }
 </style>
 </head>
 <body>
@@ -963,7 +967,7 @@ const NAMES = [...[0, 1, 2, 3, 4, 5].flatMap(i => ['vp_core_' + i, 'vp_spike_' +
   'phage_mini','decoy_shell','gutstorm','shadowdoc','ironcarrier','frenzyrash','pneumostorm','undying',
   ...['rhino','adeno','noro','herpes','flu','rota','retro','rabies','rsv','measles','hepb','hpv'].flatMap(s => [s + '_A', s + '_B']),
   ...['zero','mimi','phage'].flatMap(h => ['hero_' + h, 'hero_' + h + '10', 'hero_' + h + '15']), 'aura','forge','forge_ok','forge_fail','enzyme',
-  ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'boss_' + o), 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
+  ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'boss_' + o), 'boss_wk_capsule', 'boss_wk_tablet', 'boss_wk_twin', 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
   'gacha_bg','bodymap_skin','bodymap_h0_skin','bodymap_h1_skin','bodymap_h3_skin','ring_common','ring_rare','ring_hero','ring_new','fx_sneeze','jar','jar_sealed','jar_broken','glove','bodymap',
   ...Object.keys({ inf:1, hp:1, cnt:1, cd:1, dna:1, forge:1, capsule:1, combo:1 }).map(k => 'perk_' + k), 'tab_body','tab_lab','tab_hero','codex','deploy_all','combo','legacy','lock','ebola','corona','hero_smallpox','flu1918', ...Object.keys(NEWV),'intro_bg','story_2','story_3', ...[0, 1, 2, 3].map(i => 'vp_core_L' + i)];
 const JPG = new Set(['story_2', 'story_3', 'intro_bg', 'ground', 'dirt', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h3_skin']);
@@ -2016,7 +2020,8 @@ const wkBoss = () => WK_BOSSES[wkWeek() % WK_BOSSES.length];
 function wkSave() { const w = save.wk && save.wk.id === wkWeek() ? save.wk : (save.wk = { id: wkWeek(), best: 0, got: 0, day: '', n: 0 }); if (w.day !== today()) { w.day = today(); w.n = 0; } return w; }
 const wkOpen = () => save.tutDone && (save.host > 0 || doneCount() >= WK.unlock);
 const wkMul = (b, role) => b.weak.includes(role) ? 1.3 : b.strong.includes(role) ? 0.8 : 1;
-function wkArt(b) { const k = 'boss_wk_' + b.key; if (IMG[k]) return IMG[k]; const src = IMG.pill; if (!src) return null; const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S; const g = cv.getContext('2d');
+// 그림 파일(assets/boss_wk_*.png)이 있으면 그걸 쓰고, 없으면 알약에 얼굴을 그려 임시로
+function wkArt(b) { const k = 'boss_wk_' + b.key; if (has(k) || (IMG[k] && IMG[k].tagName === 'CANVAS')) return IMG[k]; const src = IMG.pill; if (!src) return null; const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S; const g = cv.getContext('2d');
   g.save(); g.translate(S / 2, S / 2); g.rotate(-0.35); if (b.hue) g.filter = `hue-rotate(${b.hue}deg) saturate(1.2)`; g.drawImage(src, -src.width * 0.55, -src.height * 0.55, src.width * 1.1, src.height * 1.1); g.restore(); g.filter = 'none';
   g.fillStyle = '#fff'; g.strokeStyle = '#1a1a2a'; g.lineWidth = 6;
   for (const sx of [-1, 1]) { g.beginPath(); g.ellipse(S / 2 + sx * 26, S / 2 + 6, 15, 18, 0, 0, 7); g.fill(); g.stroke(); g.fillStyle = '#1a1a2a'; g.beginPath(); g.arc(S / 2 + sx * 22, S / 2 + 10, 7, 0, 7); g.fill(); g.fillStyle = '#fff';
@@ -2196,8 +2201,8 @@ function buildMine(cards) {
   const mix = (x, y, z, wb, wc, wk) => x * wb + y * wc + z * wk;
   STRAINS.mine = { ...B, name: '내 바이러스', hybrid: false, hero: false, rarity: 0, parents: null,
     hp: mix(sb.hp, sc.hp, sk.hp, 0.6, 0.2, 0.2), atk: mix(sb.atk, sc.atk, sk.atk, 0.2, 0.2, 0.6), spd: mix(sb.spd, sc.spd, sk.spd, 0.2, 0.6, 0.2) / RULES.spdScale,
-    count: Math.round(Math.min(MINE_CAP, mineRaw(cards))), size: 11, stealth: !!(STRAINS[c.strain].stealth || B.stealth), split: !!(B.split || STRAINS[k.strain].split) };
-  { const ob = overBonus(mineRaw(cards)); STRAINS.mine.over = ob; STRAINS.mine.atk *= 1 + ob; STRAINS.mine.hp *= 1 + CORE_FX.hp * coreL(); STRAINS.mine.atk *= 1 + CORE_FX.atk * coreL(); STRAINS.mine.size = 11 * (coreTier() >= 2 ? 1.15 : 1); }   // 넘침 보너스는 공격에만 (최대 +30%)
+    count: Math.round(Math.min(MINE_CAP, mineRaw(cards))), size: 7.5, stealth: !!(STRAINS[c.strain].stealth || B.stealth), split: !!(B.split || STRAINS[k.strain].split) };
+  { const ob = overBonus(mineRaw(cards)); STRAINS.mine.over = ob; STRAINS.mine.atk *= 1 + ob; STRAINS.mine.hp *= 1 + CORE_FX.hp * coreL(); STRAINS.mine.atk *= 1 + CORE_FX.atk * coreL(); STRAINS.mine.size = 7.5 * (coreTier() >= 2 ? 1.15 : 1); }   // 넘침 보너스는 공격에만 (최대 +30%)
   ROLE_OF.mine = ROLE_OF[b.strain]; SCOLOR.mine = SCOLOR[b.strain] || '#e8a0ff';
   const vb = VSHAPE[b.strain] || {}, vk = VSHAPE[k.strain] || {}, vc = VSHAPE[c.strain] || {};
   VSHAPE.mine = { sp: vk.sp || 12, len: vk.len || 0.3, knob: vk.knob || 0.1, body: vc.body === 'env' ? 'env' : (vb.body || 'round'), spikeCol: SCOLOR[k.strain] };
@@ -2420,7 +2425,7 @@ function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
     const im = outlined(unitImg(st, 1)), wob = Math.sin(time * 3 + c.ph) * 1.5;
     ctx.globalAlpha = 0.45; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x + nx * c.o, y + ny * c.o + 1, c.h * 0.36, c.h * 0.13, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
     drawSprite(ctx, im, x + nx * c.o + wob, y + ny * c.o + 1, c.h, 0.9, true); }
-  if (nestOn()) { const t = Math.floor(nestTotal()), [x, y] = pathAt(Math.max(map.d0, run.frontD - 30)), R = run, go = R.gap > 0 && t, grow = t > (R.nestPrev || 0); R.nestPrev = t;
+  if (nestOn() && (Math.floor(nestTotal()) > 0 || run.nestPop > 0)) { const t = Math.floor(nestTotal()), [x, y] = pathAt(Math.max(map.d0, run.frontD - 30)), R = run, go = R.gap > 0 && t, grow = t > (R.nestPrev || 0); R.nestPrev = t;
     // ★ 둥지가 잘 보이게: 모이는 동안 고리가 차오르고 빛 알갱이가 빨려 들어감 · 기습 틈엔 초록으로 크게 깜빡임
     const k = Math.min(1, t / 60), pulse = 1 + 0.08 * Math.sin(time * (go ? 14 : 5)), col = go ? '#9fff6a' : '#e8a0ff';
     ctx.save(); ctx.globalAlpha = 0.2 + 0.15 * k; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y - 12, 38 * pulse, 0, TAU); ctx.fill();
@@ -3837,6 +3842,11 @@ const ui = {
     L.onscroll = ui.railMore;
   },
   railMore() { const L = $('railList'), m = $('railMore'); if (!L || !m) return; m.hidden = !(L.scrollHeight - L.scrollTop - L.clientHeight > 20); },
+  // 이 바이러스 자체의 능력 (한눈에): 타입 · 능력치 4개 · 궁합 · 재조합 흔적
+  abilHtml(g) { const s = geneStats(g), rk = ROLE_OF[g.strain], [gd, bd] = tropOf(g.strain), d = STRAINS[g.strain];
+    return `<div class="abil"><div class="abT">${rk && ROLES[rk] ? `<b style="color:${ROLES[rk].col}">${ROLES[rk].name}</b>` : ''} <span style="color:${RARITY[d.rarity].color}">${d.legend ? '전설' : RARITY[d.rarity].name}</span> · 스킬 ×${skK(g)}${g.star >= 5 ? ' · 각성' : ''}</div>
+      <div class="abS"><span>⚔<b>${Math.round(s.atk * 100)}</b><small>공격</small></span><span>❤<b>${s.hp}</b><small>체력</small></span><span>💨<b>${s.spd}</b><small>속도</small></span><span>🦠<b>${s.count}</b><small>마릿수</small></span><span>⏱<b>${s.cd}초</b><small>쿨타임</small></span></div>
+      <div class="abO"><span class="g">👍 ${gd.map(o => ORG_SHORT[o]).join('·') || '-'}</span>${bd.length ? ` <span class="b">👎 ${bd.map(o => ORG_SHORT[o]).join('·')}</span>` : ''}${g.rc ? ` ${rcBadges(g)}` : ''}</div></div>`; },
   // ★ 비교 시트: 이 칸에 꽂으면 무엇이 얼마나 바뀌는지 크게
   cmpSheet(g, i) {
     if (!g) return; const d = STRAINS[g.strain], sq = slotGenes(), isCur = sq[i] === g, old = sq[i], r = ui.slotDelta(g, i);
@@ -3847,6 +3857,7 @@ const ui = {
     $('sheet').innerHTML = `<div class="sh"><button class="mX" id="shX" aria-label="닫기">✕</button><div class="hd"></div>
       <div class="shTop"><div class="pic" style="border-color:${RARITY[d.rarity].color}">${pimg(g)}</div><div style="flex:1;min-width:0"><b class="n">${gname(g)}</b> <span class="stars" style="color:#ffd27a">${stars(g.star)}</span> <span style="color:#b59f86">Lv${g.lv || 1}</span>
         <div class="shSk">✨ ${skCat(g)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](d.name) : '').filter(Boolean).join(' · ')}</div><button class="info" id="shInfo">카드 정보·강화 ›</button></div></div>
+      ${ui.abilHtml(g)}
       <div style="margin:12px 0 6px;font-weight:800;font-size:15px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸 · ${isCur ? '지금 꽂혀 있어요' : `${old ? sname(old.strain) : '빈 칸'} → ${sname(g.strain)}`}</div>
       <div class="shPow"><small>🎯 ${organById(save.sel || 'nose').name} 전투력</small><b>${isCur ? r.pt : `${r.pf} <span class="${r.pt > r.pf ? 'up' : r.pt < r.pf ? 'dn' : ''}">→ ${r.pt}</span> <em class="${r.pp > 0 ? 'up' : r.pp < 0 ? 'dn' : ''}">${r.pp > 0 ? '+' : ''}${r.pp}%</em>`}</b></div>
       <div class="shCmp">${t(SLOT_ICON[i] + ' ' + SLOT_STAT[i], r.from, r.to)}${t(subN, r.bs ? v(sub, r.bs.s[sub]) : 0, v(sub, r.ns.s[sub]))}${t(`🧬 ${ORG_SHORT[save.sel || 'nose']} 궁합`, r.bm, r.nm, x => `${x >= 0 ? '+' : ''}${x}%`)}<div class="tile"><small class="lb">${SLOT_NAME[i]} 등급</small><b style="color:${GRADE_COL[ng]}">${isCur ? ng : `${og} → ${ng}`}</b></div></div>
@@ -3971,7 +3982,7 @@ const ui = {
       <div class="row"><button class="btn blue" id="mLv" style="flex-basis:100%">${(g.lv || 1) < MAXLV ? `강화 레벨 ${g.lv || 1}→${(g.lv || 1) + 1} · 🧬${lvCost(g)}` : g.star < MAXSTAR ? `별 올리기 ★${g.star}→★${g.star + 1} · 🧩${STAR_SHARD[g.star]} (가진 🧩${save.shards || 0}) · 스킬 +20%` : `돌파 +${g.tier || 0}→+${(g.tier || 0) + 1} (공격·체력 +8%) · 🧬${tierCost(g)}`}</button>
       ${riskOf(g) ? `<div style="flex-basis:100%"><div class="odds"><span style="color:#9fff6a">성공 ${riskOf(g).ok}%</span><span style="color:#c9b9a2">실패 ${riskOf(g).fail}% (조각 절반 돌려받음)</span><span style="color:#ffd24a">대성공 ${GREAT}%</span></div>${g.fs ? `<div class="sub" style="color:#ffd24a">🔥 장인의 기운: 실패 ${g.fs}번 → 성공 +${g.fs * RISK_UP}%</div>` : ''}</div>` : ''}
       
-      </div><div class="slotPick">${ui.slotPickHtml(g)}</div><div class="row" style="margin-top:4px">${inSquad ? '<button class="btn" id="mOut">빼기</button>' : ''}<button class="btn" id="mClose">닫기</button></div>`);
+      </div><details class="slotWrap"${inSquad ? '' : ''}><summary>🔁 칸 바꾸기 (눌러서 열기)</summary><div class="slotPick">${ui.slotPickHtml(g)}</div></details><div class="row" style="margin-top:4px">${inSquad ? '<button class="btn" id="mOut">빼기</button>' : ''}<button class="btn" id="mClose">닫기</button></div>`);
     if ($('mClone')) $('mClone').onchange = e => { ui.cloneOn = e.target.checked; };
     $('mLv').onclick = () => { if (riskOf(g)) return ui.forge(g, !!ui.cloneOn);
       const r = levelUp(g); if (r === 'dna') { sfx('fail'); return toast('DNA가 부족해요'); } if (r === 'shard') { sfx('fail'); return toast(`🧩 조각이 부족해요 (${save.shards || 0}/${STAR_SHARD[g.star]}) · 겹친 카드에서 모여요`); } if (r === 'max') return; quest('up'); sfx(r === 'star' || r === 'great' || r === 'tier' ? 'clear' : 'up'); persist(); ui.showHub();
