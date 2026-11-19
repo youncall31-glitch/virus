@@ -528,7 +528,16 @@
   #toast { position: absolute; left: 50%; bottom: 222px; transform: translateX(-50%); padding: 6px 13px; border-radius: 999px; background: rgba(20,10,12,.94); border: 1px solid #8a6a4a; font-size: 12.5px; max-width: 92%; text-align: center; white-space: normal; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 60; }
   #toast.on { opacity: 1; }
   #rcChip { position: absolute; right: 10px; bottom: 202px; width: 54px; height: 54px; border-radius: 50%; border: 0; padding: 0; z-index: 8; background: conic-gradient(#c58cff var(--p, 0%), rgba(40,14,40,.85) 0); display: grid; place-items: center; box-shadow: 0 0 10px rgba(197,140,255,.45); }
-  #rcChip[hidden] { display: none; }
+  #rcChip[hidden], #wkHud[hidden], #wkHud .wkTop[hidden] { display: none; }
+  #wkHud { position: absolute; inset: 0; pointer-events: none; z-index: 9; }
+  #wkHud .wkTop { position: absolute; left: 6px; right: 6px; top: 6px; height: 82px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 5px; }
+  #wkHud .wkT { border-radius: 12px; background: #0e1e34; border: 1.5px solid #4a8ad0; padding: 5px 10px; color: #cfe8ff; line-height: 1.25; } #wkHud .wkT b { display: block; font-size: 17px; } #wkHud .wkT small { display: block; font-size: 10.5px; color: #8fb0d0; }
+  #wkHud .wkR { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; } #wkHud .wkR > div { border-radius: 10px; background: #0e1e34; border: 1.5px solid #4a8ad0; padding: 2px 9px; display: flex; justify-content: space-between; align-items: center; color: #fff; } #wkHud .wkR small { font-size: 10.5px; color: #8fb0d0; } #wkHud .wkR b { font-size: 16px; }
+  #wkHud .wkGauge { position: absolute; left: 8px; right: 8px; bottom: calc(var(--bot, 124px) + 6px); border-radius: 14px; background: rgba(26,18,34,.94); border: 2px solid #c58cff; padding: 6px 10px; color: #f3e6d4; }
+  #wkHud .wkGt { display: flex; justify-content: space-between; align-items: center; gap: 6px; } #wkHud .wkGt b { font-size: 13px; white-space: nowrap; } #wkHud .wkGt span { font-size: 10.5px; color: #d8b8ff; text-align: right; }
+  #wkHud .wkCells { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 5px; } #wkHud .wkCells i { height: 14px; border-radius: 5px; background: #2a1a30; border: 1px solid #4a2a50; } #wkHud .wkCells i.f { background: linear-gradient(#e9a3ff, #9a4ad0); border-color: #f0c8ff; box-shadow: 0 0 6px #c58cff; } #wkHud .wkCells i.p { background: linear-gradient(90deg, #e9a3ff 0 var(--f), #2a1a30 var(--f)); }
+  .wkBtn { position: absolute; left: 6px; bottom: 6px; z-index: 5; padding: 6px 10px 6px 46px; min-height: 48px; border-radius: 14px; border: 1.5px solid #6ab4ff; background: linear-gradient(135deg, #132238, #22141b); color: #cfe8ff; text-align: left; font-weight: 800; font-size: 13.5px; box-shadow: 0 0 12px rgba(106,180,255,.35); }
+  .wkBtn img { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 36px; } .wkBtn small { display: block; font-size: 10.5px; color: #8fb0d0; font-weight: 400; } .wkBtn.lock { opacity: .6; border-color: #4a3a50; box-shadow: none; }
   #rcChip .ring { position: absolute; inset: 4px; border-radius: 50%; background: #1d0a1c; }
   #rcChip img { position: relative; width: 34px; height: 34px; object-fit: contain; margin-top: -6px; }
   #rcChip b { position: absolute; bottom: 3px; font: 800 10px sans-serif; color: #f0d6ff; }
@@ -599,6 +608,8 @@ img.legend { animation: legGlow 3s linear infinite; }
   <div id="tutSpot" hidden></div>
   <div class="plate" id="coach" hidden><div class="cs" id="coachStep"></div><div class="ct" id="coachTxt"></div><div class="cr"><button class="btn" id="coachSkip" style="opacity:.7">건너뛰기</button><button class="btn red" id="coachNext" hidden>다음</button></div></div>
   <div id="outChooser" class="plate" hidden></div>
+  <div id="wkHud" hidden><div class="wkTop"><div class="wkT"><small>💊 주간 보스 · 이번 주 신약</small><b id="wkName"></b><small id="wkWeak" style="color:#9fff6a"></small></div><div class="wkR"><div><small>💥 피해</small><b id="wkDmg">0</b></div><div><small id="wkTime">⏱</small><small id="wkBest" style="color:#ffd27a"></small></div></div></div>
+    <div class="wkGauge"><div class="wkGt"><b>🧩 조각 게이지</b><span id="wkGs"></span></div><div class="wkCells" id="wkCells"></div></div></div>
   <button id="rcChip" hidden aria-label="재조합 게이지"><span class="ring"></span><img alt=""><b>0%</b></button>
   <button id="hornBtn" hidden aria-label="결전 나팔">📯<small>결전</small><b id="hornN">1</b></button>
   <div class="hud" id="bottom" hidden>
@@ -1992,9 +2003,46 @@ const BOSS = {
   lymph: { name: '킬러 T 대장',       ico: '🎯', tw: 'tcell',  color: '#b9a8ff', skill: 'snipe', every: 9, sk: '정밀 사격', warn: '대장이 조준한다! 튼튼한 바이러스부터 노려요' },
   brain: { name: '미세아교 여왕',     ico: '👑', tw: 'nk',     color: '#7fc0ff', skill: 'queen', every: 10, sk: '번개 · 보호막', warn: '여왕이 번개를 모은다!' },
 };
+/* ---------- 💊 주간 보스: 이번 주 신약 (항바이러스제). 본체로 길 끝의 약 거인을 물어뜯고, 준 피해만큼 조각 ---------- */
+const WK = { tries: 3, cap: 300, per: 5000, sh: 15, time: 75, unlock: 2, scale: 40 };
+const WK_BOSSES = [
+  { key: 'capsule', name: '캡슐 거인', ico: '💊', map: 'lung', hue: 0, color: '#7fc0ff', skill: 'acid', every: 9, sk: '알약 가루', warn: '알약 가루가 쏟아진다! 파란 원을 피해요', weak: ['dps', 'swarm'], strong: ['tank'], tw: 'macro' },
+  { key: 'tablet', name: '해열 정제 장군', ico: '🌡', map: 'blood', hue: 140, color: '#ff8a8a', skill: 'clot', every: 10, sk: '열 내리기', warn: '장군이 열을 내린다! 앞길이 잠깐 막혀요', weak: ['tank', 'heal'], strong: ['dps'], tw: 'complement' },
+  { key: 'twin', name: '항바이러스 쌍둥이', ico: '💉', map: 'gut', hue: 250, color: '#9fff8a', skill: 'snipe', every: 8, sk: '정밀 주사', warn: '쌍둥이가 조준한다! 튼튼한 바이러스부터 노려요', weak: ['stealth', 'swarm'], strong: ['heal'], tw: 'tcell' },
+];
+let WK_RUN = false;
+const wkWeek = () => Math.floor((Date.now() / 86400000 + 3) / 7);
+const wkBoss = () => WK_BOSSES[wkWeek() % WK_BOSSES.length];
+function wkSave() { const w = save.wk && save.wk.id === wkWeek() ? save.wk : (save.wk = { id: wkWeek(), best: 0, got: 0, day: '', n: 0 }); if (w.day !== today()) { w.day = today(); w.n = 0; } return w; }
+const wkOpen = () => save.tutDone && (save.host > 0 || doneCount() >= WK.unlock);
+const wkMul = (b, role) => b.weak.includes(role) ? 1.3 : b.strong.includes(role) ? 0.8 : 1;
+function wkArt(b) { const k = 'boss_wk_' + b.key; if (IMG[k]) return IMG[k]; const src = IMG.pill; if (!src) return null; const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S; const g = cv.getContext('2d');
+  g.save(); g.translate(S / 2, S / 2); g.rotate(-0.35); if (b.hue) g.filter = `hue-rotate(${b.hue}deg) saturate(1.2)`; g.drawImage(src, -src.width * 0.55, -src.height * 0.55, src.width * 1.1, src.height * 1.1); g.restore(); g.filter = 'none';
+  g.fillStyle = '#fff'; g.strokeStyle = '#1a1a2a'; g.lineWidth = 6;
+  for (const sx of [-1, 1]) { g.beginPath(); g.ellipse(S / 2 + sx * 26, S / 2 + 6, 15, 18, 0, 0, 7); g.fill(); g.stroke(); g.fillStyle = '#1a1a2a'; g.beginPath(); g.arc(S / 2 + sx * 22, S / 2 + 10, 7, 0, 7); g.fill(); g.fillStyle = '#fff';
+    g.beginPath(); g.moveTo(S / 2 + sx * 10, S / 2 - 14); g.lineTo(S / 2 + sx * 44, S / 2 - 26); g.lineWidth = 8; g.stroke(); g.lineWidth = 6; }
+  g.beginPath(); g.moveTo(S / 2 - 20, S / 2 + 48); g.quadraticCurveTo(S / 2, S / 2 + 34, S / 2 + 20, S / 2 + 48); g.stroke(); return (IMG[k] = cv); }
+function wkStart() { if (!wkOpen()) return toast(`기관 ${WK.unlock}곳을 감염시키면 열려요`); const w = wkSave(); if (w.n >= WK.tries) return toast('오늘 도전을 다 썼어요 · 내일 다시!');
+  w.n++; persist(); ui.closeModal(); WK_RUN = true; try { startRun(); } finally { WK_RUN = false; } }
+function wkMenu() { const b = wkBoss(), w = wkSave(), left = WK.tries - w.n, roles = r => r.map(x => `${roleBadge0(x)}${ROLES[x].name}`).join(' · '), art = wkArt(b);
+  ui.modal(`<h3 style="margin:0 0 4px">💊 주간 보스 · 이번 주 신약</h3><div style="text-align:center">${art ? `<img src="${imgSrc(art, 'assets/pill.png')}" style="width:120px;filter:drop-shadow(0 0 14px ${b.color})">` : ''}<div style="font-size:20px;font-weight:900;color:${b.color}">${b.name}</div>
+    <div class="sub">${organById(b.map).name}에서 기다려요 · ${b.ico} ${b.sk}</div></div>
+    <div class="fitBox" style="margin-top:8px"><b style="color:#9fff6a">약점</b> ${roles(b.weak)} <span style="color:#9fff6a">+30%</span><br><b style="color:#ff9c8a">강함</b> ${roles(b.strong)} <span style="color:#ff9c8a">−20%</span><br><span class="sub">몸통 칸 카드의 타입이 내 본체 타입이에요</span></div>
+    <div class="sub" style="margin:6px 0">체력은 끝이 없어요. ${WK.time}초 동안 준 피해 <b>${WK.per.toLocaleString()}</b>마다 🧩<b>${WK.sh}</b> · 이번 주 <b>${w.got}/${WK.cap}</b> · 🏆 최고 <b>${w.best.toLocaleString()}</b></div>
+    <div class="row"><button class="btn red" id="wkGo" ${left > 0 ? '' : 'disabled'} style="flex-basis:100%;min-height:56px">⚔ 도전하기 (오늘 ${left}/${WK.tries})</button><button class="btn" id="wkNo">닫기</button></div>`);
+  $('wkGo').onclick = wkStart; $('wkNo').onclick = ui.closeModal; }
+function wkHit(dmg) { const R = run, K = R.wk; if (!K) return; K.dmg += dmg * WK.scale; const cells = Math.floor(K.dmg / WK.per), w = wkSave();
+  while (K.cells < cells) { K.cells++; const room = Math.max(0, WK.cap - w.got - K.sh), add = Math.min(WK.sh, room); K.sh += add; if (add) { const b = R.boss; if (b) float(b.x, b.y - 110, `+${add} 🧩`, '#ffd24a', 18); sfx('tap'); buzz(12); } }
+  ui.wkHud(); }
+function wkEnd(R) { R.over = true; const K = R.wk, w = wkSave(), dmg = Math.round(K.dmg), newBest = dmg > w.best; if (newBest) w.best = dmg; w.got += K.sh; save.shards = (save.shards || 0) + K.sh; quest('play'); persist();
+  ui.wkHud();
+  setTimeout(() => { if (run !== R) return; ui.modal(`<h3 style="margin:0 0 6px">💊 ${K.def.name} · 도전 끝</h3><div style="text-align:center"><div class="sub">준 피해</div><div style="font-size:34px;font-weight:900;color:#fff;text-shadow:0 0 12px ${K.def.color}">${dmg.toLocaleString()}</div>
+    ${newBest ? '<div style="color:#ffd24a;font-weight:900">🏆 이번 주 최고 기록!</div>' : `<div class="sub">이번 주 최고 ${w.best.toLocaleString()}</div>`}
+    <div style="margin:10px 0;font-size:22px;font-weight:900;color:#ffd24a">🧩 +${K.sh}</div><div class="sub">이번 주 ${w.got}/${WK.cap}${w.got >= WK.cap ? ' · 이번 주 조각을 다 받았어요!' : ''} · 오늘 남은 도전 ${Math.max(0, WK.tries - w.n)}</div></div>
+    <div class="row"><button class="btn red" id="wkOk">확인</button></div>`); $('wkOk').onclick = () => { ui.closeModal(); ui.showHub('body'); }; }, 900); }
 const BOSS_RULE = { hp: 150, near: 74, gateMul: 0.75, koMul: 1.25, dna: 40, dmg: 9, rate: 0.9, range: 150 };
 function initBoss() {
-  const R = run, B = BOSS[R.st.organ.id]; R.boss = null; if (!B || !R.ta || !save.tutDone || R.st.replay) return;   // 첫 튜토리얼 판엔 보스 없음
+  const R = run, B = R.wk ? R.wk.def : BOSS[R.st.organ.id]; R.boss = null; if (!B || !R.ta || !save.tutDone || (R.st.replay && !R.wk)) return;   // 첫 튜토리얼 판엔 보스 없음
   // 자리: 목표 가까운 길옆 중 화면 안(위 상태창·아래 버튼에 안 가리는 곳)에서 다른 탑과 덜 겹치는 곳
   let best = null;
   for (let d = map.len - 95; d > map.len - 400 && !best; d -= 30) for (const sd of [1, -1]) { const [x, y, nx, ny] = pathAt(d), bx = x + nx * 46 * sd, by = y + ny * 46 * sd + 10;
@@ -2002,7 +2050,8 @@ function initBoss() {
   if (!best) { const [x, y] = pathAt(map.len - 95); best = { d: map.len - 95, x: clamp(x, 44, W - 44), y: clamp(y + 50, TOP + 100, H - BOTTOM - 16) }; }
   const d = best.d;
   const hp = BOSS_RULE.hp * R.st.mul * (1 + 0.5 * R.st.organ.diff);
-  R.boss = { ...B, id: R.st.organ.id, d, x: best.x, y: best.y, hp, maxHp: hp, t: B.every, cd: 1, warned: false, on: false, dead: false, hitT: 0, shield: 0, fx: [] };
+  if (R.wk) wkArt(B);
+  R.boss = { ...B, id: R.wk ? 'wk_' + B.key : R.st.organ.id, d, x: best.x, y: best.y, hp, maxHp: hp, t: B.every, cd: 1, warned: false, on: false, dead: false, hitT: 0, shield: 0, fx: [] };
 }
 function bossAlive() { const b = run && run.boss; return !!(b && b.on && !b.dead); }
 function stepBoss(dt) {
@@ -2014,7 +2063,7 @@ function stepBoss(dt) {
   const nn = BOSS_RULE.near * BOSS_RULE.near;
   for (const u of R.units) { if (!u.alive || u.atkCd > 0 || u.decoy || R.sb[u.strain].stealth > 0) continue; const dx = b.x - u.x, dy = b.y - 20 - u.y; if (dx * dx + dy * dy > nn) continue;
     const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'tank' ? 1.7 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
-    if (b.shield <= 0) { b.hp -= u.atk * TOWER_HP.bite * m; b.hitT = 0.15; } sfx('bite'); u.atkT = 0.28; u.atkTx = b.x; u.atkTy = b.y - 20; u.atkCd = 0.75 + Math.random() * 0.3;   // 보스는 지나가며 물기만 (멈추지 않음: 길이 꽉 막히지 않게)
+    if (b.shield <= 0) { const dd = u.atk * TOWER_HP.bite * m * (R.wk ? wkMul(R.wk.def, ROLE_OF[u.strain]) : 1); if (R.wk) { wkHit(dd); b.hp = b.maxHp; } else b.hp -= dd; b.hitT = 0.15; } sfx('bite'); u.atkT = 0.28; u.atkTx = b.x; u.atkTy = b.y - 20; u.atkCd = 0.75 + Math.random() * 0.3;   // 보스는 지나가며 물기만 (멈추지 않음: 길이 꽉 막히지 않게)
     if (Math.random() < 0.3) R.fx.push({ x: b.x + rand(-16, 16), y: b.y - 24 + rand(-14, 10), t: 0.22, s: 12, color: b.shield > 0 ? '#7fc0ff' : SCOLOR[u.strain] || '#e8a0ff' }); }
   if (b.hp <= 0) return bossDown();
   if (R.stunT > 0) return;
@@ -2064,7 +2113,7 @@ function drawBoss(time) {
     ctx.restore(); }
   if (b.warned && b.aim && (b.skill === 'slime' || b.skill === 'acid')) { ctx.save(); ctx.globalAlpha = 0.3 + 0.3 * Math.abs(Math.sin(time * 10)); ctx.strokeStyle = b.color; ctx.setLineDash([6, 6]); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(b.aim.x, b.aim.y, b.skill === 'acid' ? 70 : 110, 0, TAU); ctx.stroke(); ctx.restore(); }
   if (b.dead) { ctx.save(); ctx.globalAlpha = 0.4; drawSprite(ctx, IMG[b.tw], b.x, b.y, 60, 1, true); ctx.restore(); return; }
-  const sz = 92, bob = Math.sin(time * 2) * 2, img = IMG['boss_' + b.id] || IMG[b.tw];
+  const sz = run.wk ? 150 : 92, bob = Math.sin(time * 2) * 2, img = IMG['boss_' + b.id] || IMG[b.tw];
   ctx.save();   // 바닥 그림자 · 왕관 빛
   const gl = ctx.createRadialGradient(b.x, b.y - 30, 6, b.x, b.y - 30, 70); gl.addColorStop(0, b.color + '55'); gl.addColorStop(1, b.color + '00'); ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(b.x, b.y - 30, 70, 0, TAU); ctx.fill();
   ctx.globalAlpha = 0.5; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(b.x, b.y + 2, 30, 10, 0, 0, TAU); ctx.fill(); ctx.restore();
@@ -2704,7 +2753,8 @@ function layoutTowers(organ, n, w) {
   return { picked, types };
 }
 function startRun() {
-  const organ = organById(save.sel); if (!organOpen(organ)) return toast('대뇌는 다른 기관 5곳을 감염시킨 뒤 열립니다');
+  const wk = WK_RUN ? wkBoss() : null;
+  const organ = wk ? organById(wk.map) : organById(save.sel); if (!wk && !organOpen(organ)) return toast('대뇌는 다른 기관 5곳을 감염시킨 뒤 열립니다');
   { let leg = false; normSquad(); save.squad = SL.map(i => { const u = save.squad[i], g = geneById(u); if (!g) return null; if (!STRAINS[g.strain].legend) return u; if (leg) return null; leg = true; return u; }); }
   const cards = slotFill(); if (!cards.length) return toast('연구소에서 내 바이러스에 카드를 꽂아 주세요');
   const genes = TA() ? [buildMine(cards)] : cards;
@@ -2712,7 +2762,7 @@ function startRun() {
   const trop = TA() ? tropMul(cards, organ.id) : 1; STRAINS.mine.atk *= trop; STRAINS.mine.hp *= trop;   // 기관 궁합
   const st = stageInfo(organ);
   // ★ 이미 정복한 기관 다시 하기: 매번 다른 길 · 보스 없음 · 탑 체력 −20% · 약 투여 뜸하게 · DNA 85%
-  const replay = !!save.done[organ.id] && save.tutDone; MAP_VARIANT = replay ? 1 + Math.floor(Math.random() * 997) : 0; st.replay = replay; if (replay) st.mul *= REPLAY.hp;
+  const replay = !wk && !!save.done[organ.id] && save.tutDone; MAP_VARIANT = replay ? 1 + Math.floor(Math.random() * 997) : 0; st.replay = replay; if (replay) st.mul *= REPLAY.hp;
   BOTTOM = (TA() ? 124 : 206) * KS;
   buildMap(organ, save.host, MAP_VARIANT);
   const w = ImmuneAI.weights(organ);
@@ -2741,6 +2791,7 @@ function startRun() {
     const mid = map.len * 0.45, sl = plan.slots.sort((a, b) => Math.abs(a.d - mid) - Math.abs(b.d - mid))[0]; plan.slots = plan.slots.filter(c => c !== sl);
     const t = makeTower('tcell', sl.s[0], sl.s[1], st); t.spec = sx; t.specV = 0; t.memory = true; towers.push(t); plan.built++; }
   if (TA()) { run.ta = true; run.T = timeLimit(organ); run.antiviral = save.host === 1 ? [0.35, 0.7] : []; run.gapT = 8; run.gap = 0; run.released = 0; for (const g of groups) { g.list = []; } }
+  if (wk) { run.wk = { def: wk, dmg: 0, cells: 0, sh: 0 }; run.T = WK.time; st.quota = 1e9; }
   aiming = null; placing = null; paused = false;
   if (run.ta) initStealth();
   // ★ 버티기형 고유 능력: 어느 기관에서든 몸의 반응(밀기·녹이기·길 막기)을 절반만 받음
@@ -3098,6 +3149,7 @@ function updateAntiviral(dt) {
   if (a.t > 2.4) R.av = null;
 }
 function endRun() {
+  if (run && run.wk) return wkEnd(run);
   const R = run; R.over = true; const st = R.st, win = R.infAmt >= st.quota;
   const dist = R.units.reduce((s, u) => s + Math.max(0, u.d), 0);
   // DNA 보상: 감염도 ×6 + 침투 마리 ×0.3 + 승리 보너스 + 첫 감염 보너스 (실패해도 충분히 성장할 수 있게)
@@ -3475,7 +3527,7 @@ const ui = {
   showHub(tab) {
     $('coach').hidden = true; skPopHide();
     updTix();
-    run = null; aiming = null; placing = null; hornAim = false; $('hornBtn').hidden = true; $('rcChip').hidden = true; if (tab) hubTab = tab; playBgm('lab');
+    run = null; aiming = null; placing = null; hornAim = false; $('hornBtn').hidden = true; $('rcChip').hidden = true; $('wkHud').hidden = true; if (tab) hubTab = tab; playBgm('lab');
     ['top', 'info2', 'bottom', 'legRow'].forEach(id => $(id).hidden = true); $('outChooser').hidden = true;
     $('result').hidden = true; $('hub').hidden = false;
     const h = HOSTS[save.host];
@@ -3546,6 +3598,8 @@ const ui = {
       b.onclick = () => { save.sel = o.id; persist(); ui.showHub(); };
       wrap.appendChild(b);
     }
+    { const b = wkBoss(), w = wkSave(), open = wkOpen(), bt = document.createElement('button'), art = wkArt(b); bt.className = 'wkBtn' + (open ? '' : ' lock');
+      bt.innerHTML = `${art ? `<img src="${imgSrc(art, 'assets/pill.png')}" alt="">` : ''}💊 주간 보스<small>${open ? `${b.name} · 오늘 ${WK.tries - w.n}/${WK.tries}` : `기관 ${WK.unlock}곳 감염 뒤 열림`}</small>`; bt.onclick = () => open ? wkMenu() : toast(`기관 ${WK.unlock}곳을 감염시키면 열려요`); wrap.appendChild(bt); }
     const o = organById(save.sel), st = stageInfo(o);
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}${save.done[o.id] ? ' <small style="color:#9fff6a">✓</small>' : ''}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
@@ -4066,12 +4120,18 @@ const ui = {
   },
   tickHorn() { const b = $('hornBtn'); if (!b) return; const show = !!(run && run.ta && !stealthOn() && !run.over && !run.endAt && doneCount() >= 3); b.hidden = !show; if (!show) return;
     $('hornN').textContent = run.hornN ?? 1; b.classList.toggle('off', !(run.hornN ?? 1) && !hornAim); },
+  wkHud() { const R = run, K = R && R.wk, el = $('wkHud'); if (!el) return; el.hidden = !K; if (!K) return; const w = wkSave(); el.style.setProperty('--bot', BOTTOM + 'px'); el.querySelector('.wkTop').hidden = stealthOn();
+    $('wkName').textContent = K.def.name; $('wkWeak').innerHTML = `약점 ${K.def.weak.map(x => ROLES[x].name).join('·')} · 강함 ${K.def.strong.map(x => ROLES[x].name).join('·')}`;
+    $('wkDmg').textContent = Math.round(K.dmg).toLocaleString(); $('wkBest').textContent = `🏆 ${w.best.toLocaleString()}`;
+    const left = Math.max(0, Math.ceil((R.T || 0) - R.time)); $('wkTime').textContent = stealthOn() ? '🤫 잠입 중' : `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    const f = (K.dmg % WK.per) / WK.per, n = K.cells % 10; $('wkCells').innerHTML = Array.from({ length: 10 }, (_, i) => `<i class="${i < n ? 'f' : i === n ? 'p' : ''}" ${i === n ? `style="--f:${(f * 100).toFixed(0)}%"` : ''}></i>`).join('');
+    $('wkGs').textContent = `피해 ${WK.per.toLocaleString()}마다 🧩${WK.sh} · 이번 판 🧩${K.sh} · 이번 주 ${w.got + K.sh}/${WK.cap}`; },
   tickRc() { const b = $('rcChip'); if (!b) return; const cg = run && run.ta && !run.over ? compGene() : null; b.hidden = !cg; if (!cg) return;
     const v = (save.rcG || 0) + rcGainOf(run), f = v >= 1 ? 1 : v % 1; if (b.dataset.u != cg.uid) { b.dataset.u = cg.uid; b.querySelector('img').src = imgSrc(IMG[cg.strain], 'assets/rhino.png'); }
     b.style.setProperty('--p', (f * 100).toFixed(1) + '%'); b.querySelector('b').textContent = v >= 1 ? '준비!' : Math.floor(f * 100) + '%'; b.classList.toggle('full', v >= 1);
     if (v >= 1 && !run.rcPing && (save.rcG || 0) < 1) { run.rcPing = true; float(W / 2, H * 0.3, '🧬 재조합 준비 완료! 판이 끝나면 옮겨 심어요', '#e9a3ff', 16); sfx('up'); buzz(30); } },
   tickDeploy() {
-    if (!run) return; ui.tickHorn(); ui.tickRc(); const idle = run.idle > 1.2;
+    if (!run) return; ui.tickHorn(); ui.tickRc(); if (run.wk) ui.wkHud(); const idle = run.idle > 1.2;
     if (run.ta) { const gap = run.gap > 0;
       $('deploy').querySelectorAll('.dp[data-i]').forEach(b => { const g = run.groups[+b.dataset.i], n = Math.round(g.charge * g.max), cd = run.cds[g.strain] || 0, em = b.querySelector('em');
         b.className = 'dp v' + (gap && !nestOn() ? ' gapOn' : g.charge >= 1 ? ' full' : '') + (g.list.length ? ' go' : '') + (cd <= 0 ? ' skReady' : '');
