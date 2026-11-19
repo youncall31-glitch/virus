@@ -934,6 +934,12 @@ const hostRule = () => HOST_RULE[save.host] || HOST_RULE[0];
 TOWERS.bcell = { name:'B세포 항체탑', range:120, dmg:4, rate:0.9, mode:'speed', multi:3, specific:true, antibody:true, color:'#5fe0d0', desc:'항원 특이 · 맞히면 항체 표식(받는 피해 +35%, 감속)' };
 const TOWER_TIP = { bcell:'한 계통만 알아본다 · 항원 변이로 따돌릴 수 있음', neutro:'약점: 단단한 탱커에 약함', macro:'약점: 흩어진 소수에 약함, 뭉치면 위험', tcell:'한 계통만 알아본다 · 다른 계통은 그냥 지나감', nk:'복제체·분열체에 강함', complement:'약점: 사거리가 짧음 — 지름길로 피하기', dendri:'은신 노출', cilia:'감속' };
 /* ---------- [data/body.js] 숙주 4명 × 기관 8곳 (취약할수록 쉬움) ---------- */
+// 숙주별 추가 목표: 아기 몸은 아슬아슬하게 이기고, 다음 몸부터는 기관마다 강화 1~3번이 필요하게
+const HOST_Q = [1.8, 3.8, 4.6, 5.4];
+// 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
+const HOST_OQ = { nose: 1.06, lung: 1.28, gut: 1.28, liver: 0.85, blood: 0.85, lymph: 0.75 };
+// 같은 기관에서 질수록 몸이 지친다: 실패 1번마다 목표 −4% (최대 −12%). 강화 1~3번이면 넘을 수 있게
+const failEase = id => 1 - Math.min(0.12, 0.04 * ((save.fails || {})[save.host + ':' + id] || 0));
 const HOSTS = [
   { name:'어린이', mul:1.0, note:'면역 기억이 적다' }, { name:'만성질환 노인', mul:1.35, note:'면역이 약하지만 약을 자주 쓴다' },
   { name:'건강한 성인', mul:1.7, note:'균형 잡힌 면역' }, { name:'엘리트 운동선수', mul:2.1, note:'최상급 면역' },
@@ -1873,11 +1879,11 @@ function stageInfo(organ) {
   let qm = 1, tw = 0;
   for (const s of activeLegacy()) { const f = LEG_FX[s]; if (f.organs && f.organs.includes(organ.id)) { qm *= f.q || 1; tw += f.tw || 0; } }
   if (save.host === 1 && (organ.id === 'lung' || organ.id === 'blood')) qm *= 0.8;
-  const quota = +((5 + 7 * organ.diff) * host.mul * qm * (TA() ? RULES.ta.quotaMul * Math.sqrt(timeLimit(organ) / 70) : 1)).toFixed(1);
+  const quota = +((5 + 7 * organ.diff) * host.mul * (save.host === 0 && organ.id === 'nose' ? 1 : HOST_Q[save.host] || 1) * (save.host >= 1 ? HOST_OQ[organ.id] || 1 : 1) * failEase(organ.id) * qm * (TA() ? RULES.ta.quotaMul * Math.sqrt(timeLimit(organ) / 70) : 1)).toFixed(1);
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
   const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm;   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.1) * (save.tutDone && save.host === 0 && (organ.id === 'nose' || organ.id === 'lung') ? 0.88 : 1);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.085) * (save.tutDone && save.host === 0 ? (organ.id === 'nose' ? 0.88 : organ.id === 'lung' ? 0.65 : organ.id === 'gut' ? 0.92 : 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
@@ -2378,6 +2384,7 @@ function stepStealth(dt) {
   if (T.latent <= 0) return stealthEnd('잠복기 끝 — 면역이 깨어났다');
 }
 function stealthEnd(why, voluntary) {
+  try { run.sthFrac = segDone() / map.seg.length; } catch (e) {}
   const R = run, T = R.sth; if (!T || T.done) return; const safe = scoutSafe(); T.done = true; T.joy = null; T.caught = !safe;
   R.frontD = infFront(); R.tpow = tPow(); R.time = 0; shake(safe ? 4 : 9); R.flashT = safe ? 0.15 : 0.45; R.flashC = safe ? '232,160,255' : '255,50,40';
   playBgm(R.st.organ.id === 'brain' ? 'brain' : 'assault'); sfx(safe ? 'breakout' : 'alarm');
@@ -3139,7 +3146,7 @@ function infect(u) {
   const calm = (u.br === 'measlesA' && R.sb.measles.rash) ? 0 : 1;
   R.alert += amt * 4 / (R.ta ? RULES.ta.quotaMul : 1) * ((R.st.quotaBase || R.st.quota) / R.st.quota) * calm * (u.gene.passives.includes('segment') ? 0.8 : 1) * (u.gene.passives.includes('amnesia') ? 0.85 : 1) * (hasLegacy('measles') ? 0.7 : 1);
   if (R.time - (R.lastFloat || 0) > 0.25) { R.lastFloat = R.time; float(map.goal[0] + rand(-30, 30), map.goal[1] - 34, `+${amt.toFixed(2)}`, amt < u.atk ? '#9c8a76' : '#ff8d7a', 13); }
-  if (R.infAmt >= R.st.quota && !R.cleared) { R.cleared = true; winBurst(); sfx('clear'); }
+  if (R.infAmt >= R.st.quota && !R.cleared) { R.cleared = true; R.clearT = R.time; winBurst(); sfx('clear'); }
 }
 // ★ 항바이러스제: 감염도가 45%·80%에 이르면 면역 측이 투약 → 우점 계통 45%, 나머지 15% 사멸
 function updateAntiviral(dt) {
@@ -3189,6 +3196,7 @@ function endRun() {
   let ending = null, hostDone = false;
   save.useH = save.useH || {}; for (const g of R.groups) save.useH[g.strain] = (save.useH[g.strain] || 0) + (g.total || 0);
   const before = progN();
+  { save.fails = save.fails || {}; const fk = save.host + ':' + st.organ.id; if (win) delete save.fails[fk]; else if (!st.replay && R.ta) save.fails[fk] = (save.fails[fk] || 0) + 1; }
   if (win) {
     // ★ 뽑기권: 첫 정복 = 10번 뽑기권, 다시 하기 승리 = 1번 뽑기권, 숙주 완료 = 10번 뽑기권 2장 더
     const first = !save.done[st.organ.id]; R.tix = first ? { t10: TIX.first } : { t1: TIX.replay }; if (st.organ.id === 'brain' && first) R.tix.t10 = (R.tix.t10 || 0) + TIX.host;
@@ -3614,6 +3622,7 @@ const ui = {
       ${ui.matchHtml(o.id)}
       <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초</span>` : ''}<span class="chip">🎯 ${Math.round(st.quota)}</span>${BOSS[o.id] ? `<span class="chip" style="border-color:#a0303a;color:#ffb4a8">${BOSS[o.id].ico} ${BOSS[o.id].name}${(save.bossKO || {})[o.id] ? ' ✓' : ''}</span>` : ''}${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ 판막</span>` : ''}${doneCount() ? `<span class="chip warn">🚨 탑 +${Math.round(ALERT_STEP * 100 * doneCount())}%</span>` : ''}</div>
       ${st.legs.length ? `<div class="feat">${st.legs.map(l => `<span class="chip ok">✅ ${l.text}</span>`).join('')}</div>` : ''}`;
+    { const nf = (save.fails || {})[save.host + ':' + o.id] || 0; if (nf && !save.done[o.id]) $('organInfo').insertAdjacentHTML('beforeend', `<div class="feat"><span class="chip" style="border-color:#7fc0ff;color:#bfe0ff">💤 몸이 지쳤어요: 목표 −${Math.round((1 - failEase(o.id)) * 100)}% (실패 ${nf}번)</span></div>`); }
   },
   renderHero() { return ui.renderCore(); },
   // ★ 본체: DNA로 내 바이러스 자체를 키운다 (모든 카드 조합에 항상 적용). 합계 단계가 오르면 겉모습도 바뀐다
