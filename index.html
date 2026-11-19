@@ -573,6 +573,8 @@ img.legend { animation: legGlow 3s linear infinite; }
   .gRow .gb { flex: 0 0 96px; min-height: 46px; padding: 3px 4px; font-size: 12px; line-height: 1.2; border-radius: 10px; } .gRow .gb small { display: block; font-size: 10.5px; font-weight: 400; opacity: .85; } .gRow .gb.off { opacity: .45; }
   .gRow.pop { animation: gPop .5s ease-out; } @keyframes gPop { 30% { transform: scale(1.03); box-shadow: 0 0 16px #9fff6a; } }
   .gRow .gSq { position: absolute; left: 6px; bottom: 4px; z-index: 4; line-height: 1.4; font-size: 9px; background: #2e5a1c; color: #c8ffb0; padding: 0 4px; border-radius: 5px; }
+  .symB { animation: symB 2.6s ease-in-out infinite; transform-box: fill-box; } @keyframes symB { 50% { transform: translateY(-2px); } }
+  .infDots { animation: infD 6s linear infinite; } @keyframes infD { to { transform: translate(9px, 10px); } }
 </style>
 </head>
 <body>
@@ -3490,6 +3492,12 @@ const ui = {
     $('hub').classList.toggle('labOn', hubTab === 'lab'); $('bGo2').disabled = $('bGo').disabled; $('bGo2').innerHTML = `▶ 출격<small>${ORG_SHORT[o.id]} · ${TA() ? Math.min(MINE_CAP, mineRaw(slotFill())) : sq.length}마리</small>`;
     hubBadge(); if (save.tutDone && attReady() && !window.__attShown) setTimeout(() => { if (!window.__attShown && $('intro').hidden && $('modal').hidden && !$('hub').hidden && attReady()) { window.__attShown = true; questView(); } }, 900);   // 그날 첫 방문: 출석·임무 창
   },
+  // 정복한 기관마다 숙주에게 증상이 생긴다 (최근 3개만 말풍선)
+  symptoms(BM, pos) { const SYM = { nose: '🤧 에취!', lung: '😷 콜록콜록', lymph: '🤒 37.8℃', gut: '🤢 속 더부룩', liver: '😩 너무 피곤해', blood: '🥶 으슬으슬', skin: '🔴 오돌토돌', brain: '😵 어질어질' };
+    const done = ORGANS.filter(o => save.done[o.id] && SYM[o.id]).slice(-3); let h = '';
+    done.forEach((o, i) => { const [x, y] = pos(o), t = SYM[o.id], w = t.length * 6.2 + 8, bx = clamp(x + (i % 2 ? -w - 4 : 6), 2, 198 - w), by = y - 18 - (i % 2) * 4;
+      h += `<g class="symB" style="animation-delay:${(i * 0.7).toFixed(1)}s"><rect x="${bx}" y="${by}" width="${w}" height="13" rx="6" fill="#fff" opacity=".93"/><path d="M${bx + 8} ${by + 13} l4 4 l3 -4z" fill="#fff" opacity=".93"/><text x="${bx + w / 2}" y="${by + 9.4}" text-anchor="middle" font-size="7.2" font-weight="800" fill="#3a1a22">${t}</text></g>`; });
+    return h; },
   renderBody() {
     // 스테인드글라스 인체 그림 위에 기관 표시 · 버튼은 그림 양옆에 메달처럼 두고 지시선으로 잇는다 (해부도 도판 형식)
     $('bodyWrap').innerHTML = '<div id="bodyBox"></div>'; const wrap = $('bodyBox');
@@ -3502,11 +3510,13 @@ const ui = {
       blood: '<ellipse cx="50" cy="186" rx="15" ry="56" transform="rotate(22 50 186)"/>', skin: '<ellipse cx="118" cy="258" rx="20" ry="38"/>' };
     if (BM) Object.assign(ZONE, BM.zone);
     let leads = '', inf = '', weak = '', selz = '';
+    // ★ 감염된 기관 주변으로 몸 전체가 보라색으로 번진다 (구역 타원을 키워서 흐리게 → 이웃 기관끼리 이어짐)
+    const grow = (z, k) => { const m = z.match(/cx="([\d.]+)" cy="([\d.]+)"/); if (!m) return z; const [cx, cy] = [+m[1], +m[2]]; return `<g transform="translate(${cx} ${cy}) scale(${k}) translate(${-cx} ${-cy})">${z}</g>`; };
     const weakSet = new Set(); for (const s2 of activeLegacy()) for (const t of (LEG_FX[s2] || {}).organs || []) if (!save.done[t]) weakSet.add(t);
     for (const o of ORGANS) {
       const [ax, ay] = pos(o), [bx, by] = btn(o), sel = save.sel === o.id;
       leads += `<path d="M${bx + (bx < 100 ? rU : -rU)} ${by} L${ax} ${ay}" stroke="${sel ? '#ffd27a' : '#d8b878'}" stroke-width="${sel ? 1.8 : 1}" stroke-dasharray="2 3" opacity="${sel ? 1 : 0.55}"/>`;
-      if (save.done[o.id]) inf += ZONE[o.id]; else if (weakSet.has(o.id)) weak += ZONE[o.id];
+      if (save.done[o.id]) inf += grow(ZONE[o.id], 1.75); else if (weakSet.has(o.id)) weak += ZONE[o.id];
       if (sel) selz = ZONE[o.id];
     }
     const skinOK = BM || has('bodymap_skin'), base = BM ? BM.img + '_skin' : skinOK ? 'bodymap_skin' : 'bodymap';
@@ -3515,8 +3525,16 @@ const ui = {
     wrap.innerHTML = `<svg viewBox="0 0 200 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style="overflow:visible">
       <defs><filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
         <mask id="mInf" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#fff" filter="url(#soft)">${inf}</g></mask>
-        <mask id="mWeak" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#666" filter="url(#soft)">${weak}</g></mask></defs>
-      ${bg}${skinOK && weak ? redImg('mWeak') : ''}${skinOK && inf ? redImg('mInf') : ''}
+        <mask id="mWeak" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#666" filter="url(#soft)">${weak}</g></mask>
+        <filter id="toW"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
+        <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="8"/></filter>
+        <mask id="mBody" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><image href="assets/${BM ? BM.img + '_red' : 'bodymap_red'}.png" x="0" y="0" width="200" height="400" preserveAspectRatio="none" filter="url(#toW)"/></mask>
+        <mask id="mInf2" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#fff" filter="url(#soft2)">${inf}</g></mask>
+        <pattern id="pDots" width="9" height="10" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#ffc8ff" opacity=".7"/><circle cx="6.5" cy="7" r="1.4" fill="#d8ff80" opacity=".45"/></pattern>
+        <radialGradient id="gInf"><stop offset="0" stop-color="#5a1480"/><stop offset="1" stop-color="#8a2ac0"/></radialGradient></defs>
+      ${bg}${skinOK && weak ? redImg('mWeak') : ''}
+      ${skinOK && inf ? `<g mask="url(#mBody)"><g mask="url(#mInf2)"><rect width="200" height="400" fill="#7a22b0" opacity=".78" style="mix-blend-mode:multiply"/><rect width="200" height="400" fill="#c86aff" opacity=".32" style="mix-blend-mode:screen"/><rect width="200" height="400" fill="url(#pDots)" class="infDots"/></g></g>` : ''}
+      ${ui.symptoms(BM, pos)}
       ${selz ? `<g class="selring" fill="#ffd27a" opacity=".22" filter="url(#soft)">${selz}</g>` : ''}${leads}</svg>`;
     for (const o of ORGANS) {
       const b = document.createElement('button'), open = organOpen(o);
