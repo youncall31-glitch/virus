@@ -1883,7 +1883,7 @@ function stageInfo(organ) {
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
   const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm;   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.085) * (save.tutDone && save.host === 0 ? (organ.id === 'nose' ? 0.88 : organ.id === 'lung' ? 0.65 : organ.id === 'gut' ? 0.92 : 1) : 1);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.085) * (save.tutDone && save.host === 0 ? (organ.id === 'nose' ? 0.88 : organ.id === 'lung' ? 0.5 : organ.id === 'gut' ? 0.75 : organ.id === 'liver' ? 0.9 : 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
