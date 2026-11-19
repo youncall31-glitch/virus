@@ -2047,12 +2047,12 @@ function wkMenu() { const b = wkBoss(), w = wkSave(), left = WK.tries - w.n, rol
 function wkHit(dmg) { const R = run, K = R.wk; if (!K) return; K.dmg += dmg * WK.scale; const cells = Math.floor(K.dmg / WK.per), w = wkSave();
   while (K.cells < cells) { K.cells++; const room = Math.max(0, WK.cap - w.got - K.sh), add = Math.min(WK.sh, room); K.sh += add; if (add) { const b = R.boss; if (b) float(b.x, b.y - 110, `+${add} 🧩`, '#ffd24a', 18); sfx('tap'); buzz(12); } }
   ui.wkHud(); }
-function wkEnd(R) { R.over = true; const K = R.wk, w = wkSave(), dmg = Math.round(K.dmg), newBest = dmg > w.best; if (newBest) w.best = dmg; w.got += K.sh; save.shards = (save.shards || 0) + K.sh; quest('play'); persist();
+function wkEnd(R) { if (R.wk.ended) return; R.wk.ended = true; R.over = true; const K = R.wk, w = wkSave(), dmg = Math.round(K.dmg), newBest = dmg > w.best; if (newBest) w.best = dmg; w.got += K.sh; save.shards = (save.shards || 0) + K.sh; quest('play'); persist();
   ui.wkHud();
   setTimeout(() => { if (run !== R) return; ui.modal(`<h3 style="margin:0 0 6px">💊 ${K.def.name} · 도전 끝</h3><div style="text-align:center"><div class="sub">준 피해</div><div style="font-size:34px;font-weight:900;color:#fff;text-shadow:0 0 12px ${K.def.color}">${dmg.toLocaleString()}</div>
     ${newBest ? '<div style="color:#ffd24a;font-weight:900">🏆 이번 주 최고 기록!</div>' : `<div class="sub">이번 주 최고 ${w.best.toLocaleString()}</div>`}
     <div style="margin:10px 0;font-size:22px;font-weight:900;color:#ffd24a">🧩 +${K.sh}</div><div class="sub">이번 주 ${w.got}/${WK.cap}${w.got >= WK.cap ? ' · 이번 주 조각을 다 받았어요!' : ''} · 오늘 남은 도전 ${Math.max(0, WK.tries - w.n)}</div></div>
-    <div class="row"><button class="btn red" id="wkOk">확인</button></div>`); $('wkOk').onclick = () => { ui.closeModal(); ui.showHub('body'); }; }, 900); }
+    <div class="row"><button class="btn red" id="wkOk">확인</button></div>`); ui.backTo = () => ui.showHub('body'); $('wkOk').onclick = () => { ui.backTo = null; ui.closeModal(); ui.showHub('body'); }; }, 900); }
 const BOSS_RULE = { hp: 150, near: 74, gateMul: 0.75, koMul: 1.25, dna: 40, dmg: 9, rate: 0.9, range: 150 };
 function initBoss() {
   const R = run, B = R.wk ? R.wk.def : BOSS[R.st.organ.id]; R.boss = null; if (!B || !R.ta || !save.tutDone || (R.st.replay && !R.wk)) return;   // 첫 튜토리얼 판엔 보스 없음
@@ -4150,7 +4150,7 @@ const ui = {
     $('wkDmg').textContent = Math.round(K.dmg).toLocaleString(); $('wkBest').textContent = `🏆 ${w.best.toLocaleString()}`;
     const left = Math.max(0, Math.ceil((R.T || 0) - R.time)); $('wkTime').textContent = stealthOn() ? '🤫 잠입 중' : `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
     const f = (K.dmg % WK.per) / WK.per, n = K.cells % 10; $('wkCells').innerHTML = Array.from({ length: 10 }, (_, i) => `<i class="${i < n ? 'f' : i === n ? 'p' : ''}" ${i === n ? `style="--f:${(f * 100).toFixed(0)}%"` : ''}></i>`).join('');
-    $('wkGs').textContent = `이번 판 🧩${K.sh} · 이번 주 ${w.got + K.sh}/${WK.cap}`; },
+    $('wkGs').textContent = `이번 판 🧩${K.sh} · 이번 주 ${w.got + (K.ended ? 0 : K.sh)}/${WK.cap}`; },
   tickRc() { const b = $('rcChip'); if (!b) return; const cg = run && run.ta && !run.over ? compGene() : null; b.hidden = !cg; if (!cg) return;
     const v = (save.rcG || 0) + rcGainOf(run), f = v >= 1 ? 1 : v % 1; if (b.dataset.u != cg.uid) { b.dataset.u = cg.uid; b.querySelector('img').src = imgSrc(IMG[cg.strain], 'assets/rhino.png'); }
     b.style.setProperty('--p', (f * 100).toFixed(1) + '%'); b.querySelector('b').textContent = v >= 1 ? '준비!' : Math.floor(f * 100) + '%'; b.classList.toggle('full', v >= 1);
