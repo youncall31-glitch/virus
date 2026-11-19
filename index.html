@@ -4789,12 +4789,12 @@ $('coachSkip').onclick = () => tutEnd(true);
 $('coachNext').onclick = () => { if (!run || !run.tutOn) return; if (run.tutPause) { run.tutPause = false; paused = false; } if (TL()[run.tutStep].last) return tutEnd(); run.tutStep++; tutShow(); };
 $('btnPause').onclick = () => { if (!run || run.over) return; paused = true;   // 일시정지 메뉴: 계속 · 이 기관 다시 시작 · 나가기
   ui.modal(`<h3 style="margin:0 0 6px">일시정지</h3><div class="sub">${run.st.organ.name} · ${stealthOn() ? '잠입 중' : '침투 중'}</div>
-    <div class="row"><button class="btn green" id="pzGo" style="flex-basis:100%">계속하기</button><button class="btn red" id="pzRe">↻ 다시 시작</button><button class="btn" id="pzOut">나가기</button></div>
+    <div class="row"><button class="btn green" id="pzGo" style="flex-basis:100%">계속하기</button><button class="btn red" id="pzRe">↻ 다시 시작</button><button class="btn" id="pzOut">${run && run.wk ? '여기서 끝내기 (기록 남김)' : '나가기'}</button></div>
     <div class="row" style="margin-top:4px">${sndBtns()}</div>
     <div class="sub" style="margin-top:6px">다시 시작·나가기는 이번 판 결과 없이 처음으로 돌아가요.</div>`); bindSnd();
   $('pzGo').onclick = () => { ui.closeModal(); paused = false; };
-  $('pzRe').onclick = () => { ui.closeModal(); run = null; paused = false; startRun(); };
-  $('pzOut').onclick = () => { ui.closeModal(); paused = false; ui.showHub(); }; };
+  $('pzRe').onclick = () => { const wk = run && run.wk; ui.closeModal(); run = null; paused = false; WK_RUN = !!wk; try { startRun(); } finally { WK_RUN = false; } };   
+  $('pzOut').onclick = () => { ui.closeModal(); paused = false; if (run && run.wk && !run.over) return wkEnd(run); ui.showHub(); }; };
 canvas.addEventListener('pointerdown', e => {
   if (!run) return;
   if (stealthOn()) { const r = canvas.getBoundingClientRect(), x = (e.clientX - r.left) * W / r.width, y = (e.clientY - r.top) * H / r.height; run.sth.joy = { id: e.pointerId, bx: x, by: y, kx: x, ky: y, dx: 0, dy: 0, mag: 0 }; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} return; }
