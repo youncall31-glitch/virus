@@ -1877,7 +1877,7 @@ function stageInfo(organ) {
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
   const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm;   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.22);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.1) * (save.tutDone && save.host === 0 && (organ.id === 'nose' || organ.id === 'lung') ? 0.88 : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
@@ -2626,8 +2626,8 @@ const MUTS = {
 };
 function breakout() {
   const R = run, tot = Math.floor(nestTotal()); if (tot < 1) return toast('둥지가 비었어요');
-  // 돌격 때 고르던 변이 창은 없앰 (판이 멈추지 않게). 대신 돌격마다 '함성'이 자동으로: 무리 +30% · 10초간 받는 피해 −35%
-  return doBreakout('roar');
+  // 돌격 보상은 '초록 틈에 돌격하면 +30%' 하나로 단순하게 (예전의 자동 함성·보호막은 뺌)
+  return doBreakout(null);
   // 내 카드 3장이 하나씩 힘을 빌려준다: 몸통 → 버티기 쪽, 껍질 → 움직임 쪽, 가시 → 공격 쪽
   const POOL = [['armor', 'regen', 'bloom'], ['sprint', 'cloak'], ['toxic', 'hijack']], cards = slotFill();
   const keys = POOL.map(p => p[Math.floor(Math.random() * p.length)]); paused = true; R.mutPause = true; sfx('skill');
