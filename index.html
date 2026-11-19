@@ -2293,7 +2293,7 @@ function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
     const w = b.w * 1.35, h = b.h * (1.5 + 0); g.beginPath(); g.roundRect ? g.roundRect(-w / 2, -h / 2, w, h, 4) : g.rect(-w / 2, -h / 2, w, h);
     g.fillStyle = '#962e6e'; g.fill(); g.lineWidth = 1.2; g.strokeStyle = '#3a0a2a'; g.stroke(); g.fillStyle = SCOLOR[run.sth.lead.strain] || '#e8a0ff'; g.globalAlpha = 0.65 * ba; g.beginPath(); g.arc(0, 0, 1.8, 0, TAU); g.fill(); g.restore(); }
     } }
-  drawWob(map.infCv);
+  drawWob(map.infCv); drawSwell(time, nd);
   // 잠입 중엔 선발 계통으로 가득, 침투 중엔 둥지에 모인 수만큼(두 마리당 하나) 계통별로 채운다
   // 감염 구역의 무리: 입자 모드면 계통 색 입자가 둥실둥실 가득, 아니면 캐릭터 그림 몇 개
   const P = RULES.particles; let strains = [run.sth.lead.strain], wts = [1], limit = P === 'comet' ? nd * 4 : P ? nd * 14 : Infinity;
@@ -2320,7 +2320,7 @@ function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
     ctx.globalAlpha = 1; ctx.font = "800 17px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center';
     const tx = go ? `지금 돌격! ${t}` : `둥지 ${t}`, tw = Math.max(76, ctx.measureText(tx).width + 20); ctx.fillStyle = go ? 'rgba(20,50,16,.92)' : 'rgba(20,8,16,.88)'; ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - tw / 2, y - 82, tw, 26, 9) : ctx.rect(x - tw / 2, y - 82, tw, 26); ctx.fill(); ctx.stroke();
     ctx.fillStyle = go ? '#d8ffc8' : '#f5d0ff'; ctx.fillText(tx, x, y - 63);
-    if (!t && R.groups.some(g => g.charge > 0)) { ctx.font = "700 12px sans-serif"; ctx.fillStyle = '#e8a0ff'; ctx.fillText('카드를 눌러 둥지에 모으기', x, y + 44); }
+    if (!t && !R.released && R.groups.some(g => g.charge > 0)) { ctx.font = "700 12px sans-serif"; ctx.fillStyle = '#e8a0ff'; ctx.fillText('카드를 눌러 둥지에 모으기', x, y + 44); }
     else if (grow && !go) { ctx.font = "700 11px sans-serif"; ctx.fillStyle = '#e8a0ff'; ctx.fillText('모이는 중…', x, y + 44); }
     ctx.restore(); }
 }
@@ -2513,10 +2513,39 @@ function breakout() {
     <div class="row">${keys.map((k, i) => `<button class="btn mutBtn" data-m="${k}">${cards[i] ? pimg(cards[i], 'mutPic') : ''}<span class="mt"><small>${SLOT_NAME[i]} 카드의 힘</small><b>${MUTS[k].icon} ${MUTS[k].name}</b><em>${MUTS[k].desc}</em></span></button>`).join('')}</div>`);
   document.querySelectorAll('#modal [data-m], .modal [data-m]').forEach(b => b.onclick = () => { ui.closeModal(); paused = false; doBreakout(b.dataset.m); });
 }
+// ★ 붓기: 둥지에 모일수록 감염된 길이 퉁퉁 부풀고(두근두근 물집), 돌격하면 한꺼번에 뿜어내며 꺼진다
+function drawSwell(time, nd) {
+  const R = run; if (!nd || !nestOn()) return; const dt = Math.min(0.05, Math.max(0, time - (R.swT ?? time))); R.swT = time;
+  const cap = R.groups.reduce((a, g) => a + g.max * NEST.capMul, 0) || 1, want = Math.min(1, Math.sqrt(nestTotal() / cap) * 1.15);
+  R.swell = R.swell ?? 0; R.swell += (want - R.swell) * Math.min(1, dt * (want < R.swell ? 14 : 2.5));
+  const sw = R.swell, end = map.d0 + nd * SEG; ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (sw > 0.03) {
+    const beat = 1 + 0.07 * Math.max(0, Math.sin(time * (4 + 4 * sw))) ** 3, path = () => { ctx.beginPath(); for (let d = map.d0; d <= end - 14; d += 8) { const [x, y] = pathAt(d); d === map.d0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } };
+    path(); ctx.lineWidth = (46 + 30 * sw) * beat; ctx.strokeStyle = `rgba(120,24,86,${(0.45 * sw).toFixed(3)})`; ctx.stroke();
+    path(); ctx.lineWidth = (20 + 18 * sw) * beat; ctx.strokeStyle = `rgba(230,120,200,${(0.22 * sw).toFixed(3)})`; ctx.stroke();
+    for (let d = map.d0 + 20, i = 0; d < end - 20; d += 34, i++) { const [x, y, nx, ny] = pathAt(d), side = i % 2 ? 1 : -1, o = side * (10 + 8 * sw), ph = Math.max(0, Math.sin(time * 5 + i * 1.7)) ** 2;
+      const r = (3 + 9 * sw) * (1 + 0.18 * ph) * beat, bx = x + nx * o, by = y + ny * o;
+      ctx.fillStyle = `rgba(200,70,160,${(0.55 + 0.3 * sw).toFixed(3)})`; ctx.strokeStyle = 'rgba(60,8,40,.7)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(bx, by, r, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,220,250,.55)'; ctx.beginPath(); ctx.arc(bx - r * 0.3, by - r * 0.35, r * 0.28, 0, TAU); ctx.fill(); } }
+  // 뿜어내기: 돌격 순간 길 전체에서 앞쪽(탑 방향)으로 즙이 튄다
+  if (R.spray && R.spray.length) { for (const p of R.spray) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 1 - dt * 1.8; p.vy *= 1 - dt * 1.8; }
+    R.spray = R.spray.filter(p => p.t > 0);
+    for (const p of R.spray) { const a = Math.min(1, p.t / 0.35); ctx.globalAlpha = a; ctx.strokeStyle = p.c; ctx.lineWidth = p.r; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.04, p.y - p.vy * 0.04); ctx.stroke(); } ctx.globalAlpha = 1; }
+  ctx.restore();
+}
+function swellBurst() {
+  const R = run, nd = segDone(); if (!nd) return; const sw = Math.max(0.25, R.swell || 0), end = map.d0 + nd * SEG, cols = ['#ff9ae6', '#e8a0ff', '#d6dc5a', '#ffffff'];
+  R.spray = R.spray || []; const step = Math.max(10, (end - map.d0) / 70);
+  for (let d = map.d0 + 6; d < end; d += step) { const [x, y, nx, ny] = pathAt(d), [x2, y2] = pathAt(Math.min(map.len, d + 3)), L = Math.hypot(x2 - x, y2 - y) || 1, tx = (x2 - x) / L, ty = (y2 - y) / L;
+    for (let k = 0; k < 2; k++) { const side = Math.random() - 0.5, sp = (220 + Math.random() * 380) * (0.6 + sw);
+      R.spray.push({ x: x + nx * side * 30, y: y + ny * side * 30, vx: (tx * 0.75 + nx * side * 1.3) * sp, vy: (ty * 0.75 + ny * side * 1.3) * sp, t: 0.45 + Math.random() * 0.4, r: 2 + Math.random() * 3 * (0.5 + sw), c: cols[(Math.random() * cols.length) | 0] }); } }
+  const [fx, fy] = pathAt(Math.min(map.len, end)); R.rings.push({ x: fx, y: fy, r: 14, R: 70 + 90 * sw, t: 0.55, color: '#ff9ae6' });
+  shake(6 + 8 * sw); hitStop(0.06 + 0.08 * sw); buzz([30, 20, 60]); R.swell = 0;
+}
 function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른다. 면역 공백 때면 전부 기습
   const R = run, M = mut ? MUTS[mut] : null; sfx('breakout'); buzz(45); if (M) { R.muts.push(mut); if (M.go) M.go(R); }
   if (M && M.bloom) for (const k in R.nest) R.nest[k] *= M.bloom;
-  const tot = Math.floor(nestTotal());
+  const tot = Math.floor(nestTotal()); if (tot > 0) swellBurst();
   for (const gr of R.groups) { const n = Math.min(400, Math.floor(R.nest[gr.strain] || 0)); if (!(n > 0)) continue;
     for (let i = 0; i < n; i++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]);
     gr.amb = (gr.amb || 0) + (R.gap > 0 ? n : 0); gr.go = true; gr.rate = 26; gr.wait = Math.max(0, (R.nestOrder || []).indexOf(gr.strain)) * 0.8; R.released += n; R.nest[gr.strain] -= n; }
