@@ -533,6 +533,7 @@
   #hornBtn.aim { animation: hornAim .6s ease-in-out infinite alternate; border-color: #9fff6a; } @keyframes hornAim { to { transform: scale(1.12); box-shadow: 0 0 22px #9fff6a; } }
   .dp.medGo { border-color: #9fff6a !important; box-shadow: 0 0 14px #9fff6a !important; animation: hornAim .4s ease-in-out infinite alternate; }
   #hornBtn.off { filter: grayscale(1) brightness(.6); box-shadow: none; }
+.tixB{position:absolute;top:2px;right:6px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#e0453f;color:#fff;font:800 11px/18px sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px #1a0a14;animation:tixP 1.2s ease-in-out infinite}.tixB[hidden]{display:none}@keyframes tixP{50%{transform:scale(1.15)}}#navPull{position:relative}
 </style>
 </head>
 <body>
@@ -1210,7 +1211,8 @@ const REPLAY = { hp: 0.8, dna: 0.85, medEvery: 1.4, medDur: 0.7 };
 // ★ 본체 칸: 처음 2칸(몸통·가시) → 본체 Lv1·5·12에 하나씩 열려 최대 5칸
 const SL = [0, 1, 2, 3, 4], SLOT_ORDER = [0, 2, 1, 3, 4], SLOT_LV = [0, 0, 1, 5, 12], CORE_MAX = 20;
 const CORE_FX = { hp: 0.04, atk: 0.04, rep: 0.02, cd: 0.01 };
-function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify({ ...save, uid, ver: SAVE_VER })); } catch (e) {} }
+function updTix() { const n = (save.t1 || 0) + (save.t10 || 0) * 10, np = $('navPull'); if (!np) return; let bd = np.querySelector('.tixB'); if (!bd) { bd = document.createElement('i'); bd.className = 'tixB'; np.appendChild(bd); } bd.textContent = n > 99 ? '99+' : n; bd.hidden = !n; }
+function persist() { try { updTix(); } catch (e) {} try { localStorage.setItem(SAVE_KEY, JSON.stringify({ ...save, uid, ver: SAVE_VER })); } catch (e) {} }
 function migrate(s) {
   const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
   s.dna = Math.max(0, num(s.dna, 300)); s.host = clamp(Math.floor(num(s.host, 0)), 0, HOSTS.length - 1); s.pity = Math.max(0, num(s.pity, 0)); s.shards = Math.max(0, num(s.shards, 0)); s.t1 = Math.max(0, num(s.t1, 0)); s.t10 = Math.max(0, num(s.t10, 0));
@@ -3063,6 +3065,9 @@ function endRun() {
   save.useH = save.useH || {}; for (const g of R.groups) save.useH[g.strain] = (save.useH[g.strain] || 0) + (g.total || 0);
   const before = progN();
   if (win) {
+    // ★ 뽑기권: 첫 정복 = 10번 뽑기권, 다시 하기 승리 = 1번 뽑기권, 숙주 완료 = 10번 뽑기권 2장 더
+    const first = !save.done[st.organ.id]; R.tix = first ? { t10: TIX.first } : { t1: TIX.replay }; if (st.organ.id === 'brain' && first) R.tix.t10 = (R.tix.t10 || 0) + TIX.host;
+    save.t1 = (save.t1 || 0) + (R.tix.t1 || 0); save.t10 = (save.t10 || 0) + (R.tix.t10 || 0);
     save.done[st.organ.id] = true;
     let lead = R.dominant || Object.entries(R.infCnt).sort((a, b) => b[1] - a[1])[0]?.[0]; if (lead === 'mine') lead = R.bodyStrain;
     if (lead && LEG_FX[lead] && LEGACY[lead] && st.organ.id !== 'brain') { save.legacy[st.organ.id] = lead; R.legacyNew = lead; }
@@ -3406,6 +3411,7 @@ let page = 0, perPage = 8, breedPick = [], hubTab = 'body';
 const ui = {
   showHub(tab) {
     $('coach').hidden = true; skPopHide();
+    updTix();
     run = null; aiming = null; placing = null; hornAim = false; $('hornBtn').hidden = true; if (tab) hubTab = tab; playBgm('lab');
     ['top', 'info2', 'bottom', 'legRow'].forEach(id => $(id).hidden = true); $('outChooser').hidden = true;
     $('result').hidden = true; $('hub').hidden = false;
@@ -3993,6 +3999,7 @@ const ui = {
       <div class="resTip">💡 ${tip}</div>
       
       ${ending ? `<div class="ending">엔딩 ${ending.isNew ? '새로 열림' : '다시 봄'}: <b>${ending.name}</b>${hostDone && save.host > 0 ? `<br><span class="sub">이 사람의 몸을 전부 감염시켰어요! 다음 사람(${HOSTS[save.host].name})으로 넘어가요.<br>${hostRule().icon} <b>${hostRule().title}</b> — ${hostRule().desc}</span>` : ''}</div>` : ''}
+      ${R.tix ? `<div class="ending tixWin" style="border-color:#9fff6a">🎟 <b>${R.tix.t10 ? `10번 뽑기권 ${R.tix.t10}장` : ''}${R.tix.t10 && R.tix.t1 ? ' + ' : ''}${R.tix.t1 ? `뽑기권 ${R.tix.t1}장` : ''}</b> 받았어요 <button class="btn green" id="resPull" style="min-height:34px;padding:4px 12px;margin-left:6px">바로 뽑기</button></div>` : ''}
       ${R.newUnlocks && R.newUnlocks.length ? `<div class="ending" style="border-color:#e8c45a">🔓 새 기능 열림: <b>${R.newUnlocks.join(' · ')}</b></div>` : ''}
       ${win && !hostDone && save.done[R.st.organ.id] ? `<div class="ending" style="border-color:#b0503a">🚨 <b>몸이 눈치챘어요! 다음 기관부터 면역 탑이 ${Math.round(ALERT_STEP * 100)}% 더 세져요</b><br><span class="sub">몸의 경계 ${doneCount()}단계 · 감염시킬수록 면역이 깨어나요</span></div>` : ''}
       ${R.legacyNew ? `<div class="ending" style="border-color:#4f7a2a">✅ <b>다음 판 도움: ${LEGACY[R.legacyNew].help}</b><br><span class="sub">몸에 남긴 흔적 "${LEGACY[R.legacyNew].name}" — ${LEGACY[R.legacyNew].desc}</span></div>` : ''}
@@ -4000,6 +4007,7 @@ const ui = {
     const organId = R.st.organ.id;
     if ($('bRetry')) $('bRetry').onclick = () => { save.sel = organId; $('result').hidden = true; run = null; paused = false; startRun(); };
     $('bBack').onclick = () => ui.showHub(win ? 'body' : 'lab');
+    if ($('resPull')) $('resPull').onclick = () => { ui.showHub('lab'); setTimeout(pullMenu, 250); };
     const pb = $('perkBox'); if (pb) pb.querySelectorAll('button').forEach(b => b.onclick = () => { const k = b.dataset.k; save.perks = save.perks || {}; save.perks[k] = (save.perks[k] || 0) + 1; persist();
       pb.innerHTML = `<b>영구 변이: ${PERKS[k].name} ${save.perks[k]}/${PERKS[k].max}</b><div class="sub">${PERKS[k].desc} — 앞으로 모든 판에 적용</div>`; });
   },
@@ -4101,7 +4109,7 @@ function addCard(g) {
 // ★ 일일 임무: 매일 3개 (날짜로 고정). 하나 깰 때마다 DNA 40, 셋 다 받으면 무료 뽑기권. 7일 출석: 7일째 10번 뽑기권
 const QUESTS = { play: { t: '판 2번 하기', goal: 2 }, win: { t: '기관 1곳 감염 성공', goal: 1 }, boss: { t: '보스 1마리 쓰러뜨리기', goal: 1 }, pull: { t: '뽑기 5장 하기', goal: 5 },
   breed: { t: '교배 1번 하기', goal: 1, ok: () => unlocked('breed') }, up: { t: '카드 강화 3번', goal: 3 } };
-const QUEST_DNA = 40, ATT = [{ dna: 50 }, { dna: 80 }, { t1: 1 }, { dna: 120 }, { shards: 10 }, { dna: 200 }, { t10: 1 }];
+const TIX = { first: 1, replay: 1, host: 2, quest: 1 }, QUEST_DNA = 40, ATT = [{ dna: 50 }, { dna: 80 }, { t1: 1 }, { dna: 120 }, { shards: 10 }, { dna: 200 }, { t10: 1 }];
 const today = () => new Date().toLocaleDateString('sv');
 function dailyCheck() {
   const d = today(); if (save.daily && save.daily.day === d) return save.daily;
@@ -4123,7 +4131,7 @@ function questView() {
     <h3 style="margin:10px 0 4px">7일 출석</h3><div class="attRow">${ATT.map((r, i) => `<div class="${i + 1 < nextN || (!attReady() && i + 1 === nextN) ? 'ok' : i + 1 === nextN && attReady() ? 'now' : ''}"><small>${i + 1}일</small><b>${rewardTxt(r)}</b></div>`).join('')}</div>
     <div class="row">${attReady() ? `<button class="btn red" id="attGo">${nextN}일째 출석 보상 받기</button>` : ''}<button class="btn" id="qOk">닫기</button></div><div class="sub">임무는 매일 자정에 바뀌어요.</div>`);
   $('qOk').onclick = () => { ui.closeModal(); ui.showHub(); };
-  document.querySelectorAll('#modal [data-q]').forEach(b => b.onclick = () => { const q = D.q[+b.dataset.q]; q.got = true; save.dna += QUEST_DNA; persist(); sfx('up'); buzz(20); questView(); });
+  document.querySelectorAll('#modal [data-q]').forEach(b => b.onclick = () => { const q = D.q[+b.dataset.q]; q.got = true; save.dna += QUEST_DNA; save.t1 = (save.t1 || 0) + TIX.quest; toast('🎟 뽑기권 +1'); persist(); sfx('up'); buzz(20); questView(); });
   if ($('qAll')) $('qAll').onclick = () => { D.all = true; save.t1 = (save.t1 || 0) + 1; persist(); sfx('clear'); buzz(40); toast('무료 뽑기권 1장!'); questView(); };
   if ($('attGo')) $('attGo').onclick = () => { save.att = { last: today(), n: nextN }; giveReward(ATT[nextN - 1]); persist(); sfx('clear'); buzz(40); toast(`출석 ${nextN}일째 · ${rewardTxt(ATT[nextN - 1])}`); questView(); };
 }
