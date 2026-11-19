@@ -141,7 +141,7 @@
   .nv.on { color: #ff9ab0; } .nv.on img { filter: drop-shadow(0 0 5px #ff6a8a); }
   .navGo { margin-top: -22px; height: 74px; border-radius: 20px; border: 2px solid #ffb0a0; background: linear-gradient(#ff6a5a, #b0242a); color: #fff; font: inherit; font-size: 15px; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; box-shadow: 0 4px 14px rgba(224,69,63,.5); }
   .navGo i { font-style: normal; font-size: 20px; } .navGo small { font-size: 10px; font-weight: 400; color: #ffd8c8; } .navGo:disabled { filter: grayscale(.8) brightness(.6); }
-  #labRails, #labBox { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; } #labRails[hidden], #labBox[hidden] { display: none; }
+  #labRails, #labBox, #labGrow { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; } #labRails[hidden], #labBox[hidden], #labGrow[hidden] { display: none; }
   .labHead { display: flex; gap: 8px; align-items: center; }
   .lhCore { position: relative; width: 92px; height: 92px; flex: none; border: 0; padding: 0; border-radius: 50%; background: radial-gradient(#4a2240, #1a0d14 70%); }
   .lhCore img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; } .lhCore.t1 img { filter: drop-shadow(0 0 8px #ffd27a); } .lhCore.t2 img, .lhCore.t3 img { filter: drop-shadow(0 0 12px #ffd27a); }
@@ -553,17 +553,26 @@
 /* ★ 전설 카드: 프리즘 홀로그램 · 무지개 테두리 · 반짝임 */
 img.legend { animation: legGlow 3s linear infinite; }
 @keyframes legGlow { 0% { filter: drop-shadow(0 0 5px #ff6ad5) drop-shadow(0 0 10px rgba(255,106,213,.5)); } 25% { filter: drop-shadow(0 0 5px #ffd24a) drop-shadow(0 0 10px rgba(255,210,74,.5)); } 50% { filter: drop-shadow(0 0 5px #6affc8) drop-shadow(0 0 10px rgba(106,255,200,.5)); } 75% { filter: drop-shadow(0 0 5px #6ab4ff) drop-shadow(0 0 10px rgba(106,180,255,.5)); } 100% { filter: drop-shadow(0 0 5px #ff6ad5) drop-shadow(0 0 10px rgba(255,106,213,.5)); } }
-:is(.rc, .card, .mpc, .sock, .rcTg button, .fr):has(> img.legend) { position: relative; overflow: hidden; isolation: isolate; border-color: transparent !important;
+:is(.rc, .card, .mpc, .sock, .rcTg button, .fr, .gRow):has(> img.legend) { position: relative; overflow: hidden; isolation: isolate; border-color: transparent !important;
   background-image: linear-gradient(#22101e, #22101e), conic-gradient(from var(--la, 0deg), #ff6ad5, #ffd24a, #6affc8, #6ab4ff, #c58cff, #ff6ad5) !important; background-origin: border-box; background-clip: padding-box, border-box; animation: legSpin 4s linear infinite; }
-:is(.rc, .card, .mpc, .sock, .rcTg button, .fr):has(> img.legend)::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit;
+:is(.rc, .card, .mpc, .sock, .rcTg button, .fr, .gRow):has(> img.legend)::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit;
   background: linear-gradient(115deg, transparent 20%, rgba(255,120,220,.28) 32%, rgba(255,230,120,.3) 40%, rgba(120,255,210,.28) 48%, rgba(120,180,255,.3) 56%, transparent 68%) 0 0 / 250% 250%; mix-blend-mode: color-dodge; animation: legSheen 2.6s ease-in-out infinite; }
-:is(.rc, .card, .mpc, .sock, .rcTg button, .fr):has(> img.legend)::before { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+:is(.rc, .card, .mpc, .sock, .rcTg button, .fr, .gRow):has(> img.legend)::before { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
   background: radial-gradient(circle at 18% 22%, #fff 0 1.2px, transparent 2px), radial-gradient(circle at 78% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 64% 76%, #fff 0 1.4px, transparent 2.2px), radial-gradient(circle at 30% 70%, #fff 0 0.9px, transparent 1.8px); animation: legTw 1.6s ease-in-out infinite alternate; }
 .mpc:has(> img.legend) { overflow: visible !important; }
 @property --la { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 @keyframes legSpin { to { --la: 360deg; } }
 @keyframes legSheen { 0% { background-position: 100% 100%; } 100% { background-position: 0 0; } }
 @keyframes legTw { 0% { opacity: .15; } 100% { opacity: 1; } }
+  .sortRow { display: flex; gap: 5px; overflow-x: auto; flex: 0 0 auto; scrollbar-width: none; } .sortRow::-webkit-scrollbar { display: none; }
+  .sortRow button { flex: 0 0 auto; padding: 5px 11px; border-radius: 14px; border: 1px solid #5a3a50; background: #1d0a1c; color: #cdb8c8; font: 700 12.5px sans-serif; } .sortRow button.on { background: #ffd24a; color: #2a1206; border-color: #ffd24a; }
+  #growList { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; }
+  .gRow { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 12px; background: #1d0a1c; border: 1px solid #3a2034; position: relative; } .gRow.sel { border-color: #7fe05a; }
+  .gRow > img { width: 54px; height: 54px; object-fit: contain; flex: 0 0 54px; } .gRow .gi { flex: 1; min-width: 0; line-height: 1.25; } .gRow .gi b { font-size: 14px; } .gRow .gi .s { color: #ffd27a; font-size: 12px; } .gRow .gi small { display: block; color: #b59f86; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gRow .lvBar { height: 4px; border-radius: 2px; background: #3a2034; margin-top: 3px; overflow: hidden; } .gRow .lvBar i { display: block; height: 100%; background: linear-gradient(90deg, #7fc0ff, #9fff6a); }
+  .gRow .gb { flex: 0 0 96px; min-height: 46px; padding: 3px 4px; font-size: 12px; line-height: 1.2; border-radius: 10px; } .gRow .gb small { display: block; font-size: 10.5px; font-weight: 400; opacity: .85; } .gRow .gb.off { opacity: .45; }
+  .gRow.pop { animation: gPop .5s ease-out; } @keyframes gPop { 30% { transform: scale(1.03); box-shadow: 0 0 16px #9fff6a; } }
+  .gRow .gSq { position: absolute; left: 6px; bottom: 4px; z-index: 4; line-height: 1.4; font-size: 9px; background: #2e5a1c; color: #c8ffb0; padding: 0 4px; border-radius: 5px; }
 </style>
 </head>
 <body>
@@ -612,12 +621,18 @@ img.legend { animation: legGlow 3s linear infinite; }
     <div class="view" id="viewLab" hidden>
       <div id="labRails">
         <div class="labHead"><button class="lhCore" id="csCore" aria-label="본체"></button><div class="sumRow lhStats" id="labNums"></div></div>
-        <div class="lhBtns"><button class="btn" id="bAuto">⭐ 추천 조합</button><button class="btn green" id="bBreed">교배</button><button class="btn" id="bBox">📦 보관함</button></div>
+        <div class="lhBtns"><button class="btn" id="bAuto">⭐ 추천 조합</button><button class="btn green" id="bGrow">📈 성장</button><button id="bBreed" hidden></button><button class="btn" id="bBox">📦 보관함</button></div>
         <div id="railList"></div><div id="railMore" hidden>⌄ 아래로 밀면 더 있어요</div>
       </div>
       <div id="labBox" hidden>
         <div class="boxHead"><button class="btn" id="bBoxBack">◀ 조합</button><b id="boxTitle">📦 보관함</b><div class="pager pBox" id="pagerBox"><button class="btn" id="pgPrev" aria-label="이전">◀</button><span id="pgTxt">1/1</span><button class="btn" id="pgNext" aria-label="다음">▶</button></div></div>
+        <div class="sortRow" id="sortBox"></div>
         <div id="cardGrid"></div>
+      </div>
+      <div id="labGrow" hidden>
+        <div class="boxHead"><button class="btn" id="bGrowBack">◀ 조합</button><b id="growTitle">📈 성장</b></div>
+        <div class="sortRow" id="sortGrow"></div>
+        <div id="growList"></div>
       </div>
       <div hidden><div id="squadRow"></div><div id="squadHint"></div><button id="bCatch"></button><button id="bGo2"></button></div>
 
@@ -3652,8 +3667,9 @@ const ui = {
   },
   // ★ 연구소 = 칸별 가로 줄(F) + 카드를 누르면 비교 시트(C). 보관함(전체 카드·교배)은 따로
   renderLab() {
-    normSquad(); const box = ui.labMode === 'box' || breedPick.length > 0;
-    $('labRails').hidden = box; $('labBox').hidden = !box;
+    normSquad(); const box = ui.labMode === 'box' || breedPick.length > 0, grow = ui.labMode === 'grow' && !box;
+    $('labRails').hidden = box || grow; $('labBox').hidden = !box; $('labGrow').hidden = !grow;
+    if (grow) return ui.renderGrow();
     $('bBreed').hidden = true;   // 교배 메뉴는 DNA 재조합(동반 칸)으로 바뀜
     if (box) return ui.renderBox();
     const fill = slotFill(), ms = fill.length ? mineStats(fill) : null, tier = coreTier();
@@ -3786,12 +3802,41 @@ const ui = {
   skillsPop() { const gs = [...new Map(squadGenes().map(g => [g.strain, g])).values()]; if (!gs.length) return;
     ui.modal(`<h3 style="margin:0 0 6px">✨ 이번 판 스킬</h3>${gs.map(g => `<div class="sub" style="text-align:left;margin:4px 0"><b>${skCat(g)}</b> · ${sname(g.strain)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](STRAINS[g.strain].name) : '').join(' · ')}</div>`).join('')}`, [{ label: '닫기' }]); },
   // 보관함: 전체 카드 (강화·교배는 여기서)
+  // ★ 내 바이러스 정렬 (보관함·성장 공통)
+  sortChips(id, onPick) { const el = $(id); if (!el) return; el.innerHTML = Object.entries(SORTS).map(([k, v]) => `<button data-k="${k}" class="${(save.sortBy || 'star') === k ? 'on' : ''}">${v.t}</button>`).join('');
+    el.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { save.sortBy = b.dataset.k; persist(); sfx('tap'); onPick(); }); },
+  // 📈 성장 탭: 줄마다 바로 강화/별 올리기
+  growBtn(g) {
+    if ((g.lv || 1) < MAXLV) { const c = lvCost(g); return { t: `강화 Lv${(g.lv || 1) + 1}`, c: `🧬${c}`, ok: save.dna >= c, cls: 'blue' }; }
+    if (g.star < MAXSTAR) { const c = STAR_SHARD[g.star], rk = riskOf(g); return { t: `★${g.star + 1} 올리기`, c: `🧩${c}${rk ? ` · ${rk.ok}%` : ''}`, ok: (save.shards || 0) >= c, cls: 'red', risk: !!rk }; }
+    const c = lvCost(g); return { t: `돌파 +${(g.tier || 0) + 1}`, c: `🧬${c}`, ok: save.dna >= c, cls: 'green' };
+  },
+  renderGrow(popUid) {
+    $('growTitle').innerHTML = `📈 성장 <small style="font-weight:400;color:#b59f86">🧬${save.dna} · 🧩${save.shards || 0}</small>`;
+    ui.sortChips('sortGrow', () => ui.renderGrow());
+    const inSq = new Set(squadGenes()), list = sortGenes(save.genes), L = $('growList'), top = L.scrollTop;
+    L.innerHTML = list.map(g => { const b = ui.growBtn(g), d = STRAINS[g.strain];
+      return `<div class="gRow${inSq.has(g) ? ' sel' : ''}${g.uid === popUid ? ' pop' : ''}" data-u="${g.uid}">${inSq.has(g) ? '<span class="gSq">출전</span>' : ''}${pimg(g)}
+        <div class="gi"><b>${sname(g.strain)}</b> <span class="s">${stars(g.star)}</span> <span style="color:${RARITY[d.rarity].color};font-size:11px">${d.legend ? '전설' : RARITY[d.rarity].name}</span>
+        <small>Lv${g.lv || 1}/${MAXLV}${g.tier ? ` · 돌파+${g.tier}` : ''} · 스킬 ×${skK(g)}${g.fs ? ` · 🔥+${g.fs * RISK_UP}%` : ''}</small>${g.rc ? rcBadges(g) : ''}<div class="lvBar"><i style="width:${((g.lv || 1) / MAXLV * 100).toFixed(0)}%"></i></div></div>
+        <button class="btn ${b.cls} gb${b.ok ? '' : ' off'}" data-up="${g.uid}">${b.t}<small>${b.c}</small></button></div>`; }).join('');
+    L.scrollTop = top;
+    L.querySelectorAll('.gRow').forEach(r => r.onclick = () => ui.detail(geneById(+r.dataset.u)));
+    L.querySelectorAll('[data-up]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const g = geneById(+btn.dataset.up); if (!g) return; const b = ui.growBtn(g);
+      if (!b.ok) { sfx('fail'); return toast(b.c.startsWith('🧩') ? `🧩 조각이 부족해요 (${save.shards || 0})` : 'DNA가 부족해요'); }
+      if (b.risk) { ui.growBack = true; ui.backTo = () => ui.showHub('lab'); return ui.forge(g, false); }
+      const r = levelUp(g); if (r === 'dna' || r === 'shard' || r === 'max') return; quest('up'); persist();
+      sfx(r === 'lv' ? 'up' : 'clear'); buzz(r === 'lv' ? 15 : [30, 20, 60]);
+      if (r === 'star') ui.fx(`별 올리기! ${sname(g.strain)} ${stars(g.star)}`, '#ffd27a'); else if (r === 'great') ui.fx(`✨ 대성공! ${stars(g.star)} · 공격·체력 +5%`, '#ffd24a'); else if (r === 'tier') ui.fx(`돌파 +${g.tier}!`, '#7fe05a'); else if (r === 'mut') ui.fx('변성!', '#ffd24a');
+      ui.renderGrow(g.uid); $('hubDna').textContent = save.dna; });
+  },
   renderBox() {
     $('boxTitle').textContent = breedPick.length ? '🧬 교배할 카드 2장 고르기' : `📦 보관함 ${save.genes.length}`;
     const grid = $('cardGrid');
     const gh = grid.clientHeight || 300, rows = Math.max(1, Math.floor((gh + 6) / 104));
     perPage = rows * 4;
-    const inSq = new Set(squadGenes()), list = [...save.genes].sort((a, b) => (inSq.has(b) - inSq.has(a)) || b.star - a.star || power(b) - power(a));
+    ui.sortChips('sortBox', () => { page = 0; ui.renderBox(); });
+    const inSq = new Set(squadGenes()), list = sortGenes(save.genes);
     const pages = Math.max(1, Math.ceil(list.length / perPage)); page = clamp(page, 0, pages - 1);
     $('pgTxt').textContent = `${page + 1}/${pages}`;
     grid.innerHTML = '';
@@ -3883,7 +3928,7 @@ const ui = {
         destroy: `<b style="color:#ff5a4a;font-size:18px">파괴!</b><br>${d.name} 카드가 사라졌어요`, saved: `<b style="color:#7fd1ff;font-size:17px">파괴 → 클론으로 복구!</b><br>${d.name} ${stars(g.star)} Lv${g.lv} 그대로 남았어요` }[r] || r;
       $('fgMsg').innerHTML = msg; const b = $('fgOk'); b.disabled = false; b.textContent = '확인'; b.className = 'btn ' + (ok ? 'green' : boom ? 'red' : '');
       if (r === 'saved') setTimeout(() => { box.classList.remove('boom'); }, 700);
-      b.onclick = () => { ui.showHub(); if (r === 'destroy') return ui.closeModal(); ui.detail(g); };
+      b.onclick = () => { if (ui.growBack) { ui.growBack = false; ui.backTo = null; ui.closeModal(); ui.showHub('lab'); return; } ui.showHub(); if (r === 'destroy') return ui.closeModal(); ui.detail(g); };
     }, 1300);
   },
   fx(text, col) { const e = document.createElement('div'); e.textContent = text; e.style.cssText = `position:absolute;left:0;right:0;top:40%;text-align:center;font-size:24px;font-weight:800;color:${col};text-shadow:0 0 14px ${col},0 2px 4px #000;z-index:30;pointer-events:none;animation:popfx 1.4s ease forwards`; $('stage').appendChild(e); setTimeout(() => e.remove(), 1400); },
@@ -4272,6 +4317,12 @@ function rcApply(donor, target, op, dry, repIx) {
   if (!dry) target.rc = r; return r;
 }
 const rcBadges = g => { const r = g.rc; if (!r) return ''; const a = []; for (const k in r.st || {}) if (r.st[k]) a.push(`${RC_STAT[k].split(' ')[0]}+${r.st[k]}`); for (const o of r.tr || []) a.push(`🎯${ORG_SHORT[o]}`); if (r.sk) a.push(`✨${STRAINS[r.sk].skill.name}`); return a.length ? `<span class="rcB">${a.join(' ')}</span>` : ''; };
+const SORTS = { star: { t: '★ 별' }, rar: { t: '💎 등급' }, lv: { t: '📈 레벨' }, pow: { t: '💪 전투력' }, can: { t: '⬆ 강화 가능' }, new: { t: '🆕 최근' } };
+function sortGenes(arr) { const k = save.sortBy || 'star', R = g => STRAINS[g.strain].legend ? 9 : STRAINS[g.strain].rarity, P = g => power(g);
+  const can = g => { const b = ui.growBtn(g); return b.ok ? 1 : 0; };
+  const f = { star: (a, b) => b.star - a.star || R(b) - R(a) || (b.lv || 1) - (a.lv || 1), rar: (a, b) => R(b) - R(a) || b.star - a.star || (b.lv || 1) - (a.lv || 1), lv: (a, b) => (b.star * 10 + (b.lv || 1)) - (a.star * 10 + (a.lv || 1)) || R(b) - R(a),
+    pow: (a, b) => P(b) - P(a), can: (a, b) => can(b) - can(a) || b.star - a.star || R(b) - R(a), new: (a, b) => b.uid - a.uid }[k] || ((a, b) => b.star - a.star);
+  return [...arr].sort((a, b) => f(a, b) || P(b) - P(a)); }
 const CORE_MILE = [{ l: 1, t: '💨 껍질 칸 열림', slot: 1 }, { l: 3, t: '🤝 동반 칸 · 재조합' }, { l: 7, t: '🎯 궁합 옮기기' }, { l: 4, t: '✨ 빛나는 테두리' }, { l: 5, t: '🧬 꼬리 칸 열림', slot: 3 }, { l: 10, t: '💪 몸집 커짐 · 스킬 옮기기' }, { l: 12, t: '✨ 더듬이 칸 열림', slot: 4 }, { l: 20, t: '👑 왕관' }];
 // 칸 위치 (무대 안 %): 몸통 왼쪽 위 · 가시 오른쪽 위 · 껍질 왼쪽 아래 · 꼬리 오른쪽 아래 · 더듬이 위 가운데
 // ★ 전투력: 고른 기관 기준 실제 세기 (공격 × 마릿수 × √(체력×속도) × 궁합). 칸을 바꿀 때 이 숫자로 비교
@@ -4622,6 +4673,8 @@ $('bAuto').onclick = () => {
 };
 $('bCatch').onclick = () => pullMenu(); $('navPull').onclick = () => pullMenu();
 $('bBox').onclick = () => { ui.labMode = 'box'; page = 0; ui.renderLab(); };
+$('bGrow').onclick = () => { ui.labMode = 'grow'; ui.renderLab(); };
+$('bGrowBack').onclick = () => { ui.labMode = 'rails'; ui.renderLab(); };
 $('bBoxBack').onclick = () => { ui.labMode = 'rails'; breedPick = []; ui.renderLab(); };
 $('bQuest').onclick = () => questView();
 $('bBreed').onclick = () => { if (!unlocked('breed')) return lockMsg('breed'); if (breedPick.length) breedPick = []; else { if (save.dna < RULES.breed) return toast('DNA가 부족해요'); breedPick = ['ready']; toast('교배할 첫 번째 바이러스를 고르세요'); } ui.showHub(); };
