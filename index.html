@@ -1296,6 +1296,7 @@ const RULES = { slots: 3, gacha: 40, breed: 20, starCost: { 1: 120, 2: 320 }, gr
 const TA = () => true;   // 클래식 모드는 정리됨: 항상 타임어택(잠입 → 둥지 → 돌격)
 let KS = 1;
 const timeLimit = organ => Math.round((save.host === 1 ? 0.8 : 1) * (RULES.ta.tMin + (RULES.ta.tMax - RULES.ta.tMin) * clamp((organ.diff - 0.5) / 1.3, 0, 1)));
+const GACHA_STAR = { 1: 0.25, 2: 0.05 };
 const LEG_TIER = () => STRAINS.ebola.rarity, PITY = 80, SOFT_PITY = 60;
 function gacha(o = {}) {   // o.legMul: 전설 확률 배수 · o.minTier: 이 등급 이상 확정 (연속 뽑기 보너스)
   const soft = o.fixTier == null && (save.pity || 0) >= SOFT_PITY ? 1 + ((save.pity || 0) - SOFT_PITY + 1) * 2.5 : 1;   // 60번째부터 전설 확률이 점점 오름
@@ -1308,7 +1309,7 @@ function gacha(o = {}) {   // o.legMul: 전설 확률 배수 · o.minTier: 이 �
   // 아직 없는 바이러스가 나올 확률을 높인다: 같은 등급에 안 가진 종류가 있으면 70% 확률로 그중에서
   const owned = new Set(save.genes.map(x => x.strain)), fresh = pool.filter(k => !owned.has(k));
   const pick = fresh.length && Math.random() < 0.7 ? fresh : pool;
-  const g = newGene(pick[Math.floor(Math.random() * pick.length)], Math.random() < 0.06 ? 2 : 1);
+  const sr = Math.random(), g = newGene(pick[Math.floor(Math.random() * pick.length)], sr < GACHA_STAR[2] ? 3 : sr < GACHA_STAR[2] + GACHA_STAR[1] ? 2 : 1);   // 뽑기 별: ★1 70% · ★2 25% · ★3 5%
   if (Math.random() < 0.03) { g.shiny = true; g.q = +(g.q * 1.1).toFixed(2); }   // ✦ 변종: 색이 다르고 능력 +10%
   if (Math.random() < MUT_P) g.mut = true;   // 밖에서 이미 변성된 채 들어온 바이러스
   return g;
@@ -1344,9 +1345,15 @@ const mutNeed = g => { const r = STRAINS[g.strain].rarity; return STRAINS[g.stra
 const markSeenMut = st => { if (STRAINS[st] && !STRAINS[st].hero) (save.seenMut = save.seenMut || {})[st] = true; };
 // ★3부터 승급은 위험하다: 성공 / 실패(그대로, DNA만 소모) / 파괴. 클론 보관(+50% DNA)을 하면 파괴돼도 시도 전 모습으로 되살린다
 const RISK = { 3: { ok: 70, fail: 15, boom: 15 }, 4: { ok: 50, fail: 20, boom: 30 } };
+// ★ 별 올리기는 🧩 조각으로 (DNA는 레벨에만). 레벨 5를 채우면 다음 별
+const STAR_SHARD = { 1: 30, 2: 80, 3: 200, 4: 400 };
+const isStarStep = g => (g.lv || 1) >= MAXLV && g.star < MAXSTAR;
 const riskOf = g => (g.lv || 1) >= MAXLV && g.star < MAXSTAR ? RISK[g.star] || null : null;
-const cloneCost = g => Math.round(lvCost(g) * 0.5);
-function levelUp(g, clone) { const rk = riskOf(g), c = lvCost(g) + (rk && clone ? cloneCost(g) : 0);
+const cloneCost = g => isStarStep(g) ? 60 * g.star : Math.round(lvCost(g) * 0.5);
+function levelUp(g, clone) { const rk = riskOf(g), c = isStarStep(g) ? (rk && clone ? cloneCost(g) : 0) : lvCost(g);
+  if (isStarStep(g)) { const n = STAR_SHARD[g.star]; if ((save.shards || 0) < n) return 'shard'; if (save.dna < c) return 'dna'; save.shards -= n; save.dna -= c;
+    if (rk) { const r = Math.random() * 100; if (r >= rk.ok + rk.fail) { if (clone) return 'saved'; save.genes = save.genes.filter(x => x !== g); unSquad(g.uid); return 'destroy'; } if (r >= rk.ok) return 'fail'; }
+    g.star++; g.lv = 1; return 'star'; }
   if ((g.lv || 1) >= MAXLV && g.star >= MAXSTAR) { if (save.dna < c) return 'dna'; save.dna -= c; g.tier = (g.tier || 0) + 1; if (!g.mut && g.tier >= mutNeed(g)) { g.mut = true; markSeenMut(g.strain); return 'mut'; } return 'tier'; }
   if (save.dna < c) return 'dna'; save.dna -= c;
   if ((g.lv || 1) < MAXLV) { g.lv = (g.lv || 1) + 1; return 'lv'; }
@@ -2726,28 +2733,30 @@ function spawnUnit(gene, o = {}) {
 const SKILL_T = ['shield', 'spd', 'noSlow', 'stealth', 'ghost', 'dive', 'rash', 'regen', 'asym', 'tox'];
 const mine = st => run.units.filter(u => u.alive && u.strain === st && !u.decoy);
 // 모든 스킬은 '그 계통'에만 걸린다 (run.sb[계통])
+// ★ 별 하나마다 스킬 세기 +20% (★3 = 1.4배)
+const skK = g => 1 + 0.2 * ((g.star || 1) - 1), sp = (g, x) => x >= 10 ? Math.round(x * skK(g)) : +(x * skK(g)).toFixed(1), spm = (g, x) => +(1 + (x - 1) * skK(g)).toFixed(2);
 const SKILLS = {
-  replicate(g) { const st3 = g.star >= 3, cap = (st3 ? 60 : 40) + (g.branch === 'A' ? 20 : 0), alive = mine(g.strain); let n = 0;
-    for (const u of alive) if (n < cap && Math.random() < 0.5) { if (spawnUnit(u.gene, { d: u.d - rand(0, 8), copy: true, hpMul: (st3 ? 0.8 : 0.5) * u.maxHp / geneStats(u.gene).hp, small: true })) { n++; run.fx.push({ x: u.x, y: u.y - 6, t: 0.4, s: 22, img: 'split' }); } }
+  replicate(g) { const st3 = g.star >= 3, cap = (sp(g, 40)) + (g.branch === 'A' ? 20 : 0), alive = mine(g.strain); let n = 0;
+    for (const u of alive) if (n < cap && Math.random() < 0.5) { if (spawnUnit(u.gene, { d: u.d - rand(0, 8), copy: true, hpMul: (sp(g, 0.5)) * u.maxHp / geneStats(u.gene).hp, small: true })) { n++; run.fx.push({ x: u.x, y: u.y - 6, t: 0.4, s: 22, img: 'split' }); } }
     float(...centerOf(alive), `${STRAINS[g.strain].name} +${n} 자가 증식!`, '#b9f27a', 18); return n > 0 || alive.length > 0; },
   capsule(g) { const u = run.hero.u; if (!u || !u.alive) { toast('슈퍼바이러스가 전장에 없어요'); return false; } u.cap = u.capMax; if (u.hs.lv >= 15) u.inv = 3; float(u.x, u.y - 70, '캡슐 재생성!', '#ffcf6a', 16); return true; },
-  capsid(g) { const b = run.sb[g.strain]; b.shield = g.star >= 3 ? 8 : 6; b.shieldMul = g.star >= 3 ? 0.35 : 0.5; return true; },
+  capsid(g) { const b = run.sb[g.strain]; b.shield = sp(g, 6); b.shieldMul = g.star >= 3 ? 0.35 : 0.5; return true; },
   outbreak(g) { const gr = run.groups.find(x => x.strain === g.strain && !x.reawake); if (gr && run.ta) { gr.charge = 1; release(gr, true); } else if (gr) { gr.go = true; gr.rate = 45;
       if (g.star >= 3) { const extra = Math.max(4, Math.round(gr.list.length * 0.2)); for (let i = 0; i < extra; i++) gr.list.unshift(g); gr.total += extra; } }
     const b = run.sb[g.strain]; b.spd = 6; b.spdMul = 1.25; return true; },
-  latency(g) { const b = run.sb[g.strain]; b.stealth = (g.star >= 3 ? 12 : 8) + (g.branch === 'A' ? 4 : 0); return true; },
+  latency(g) { const b = run.sb[g.strain]; b.stealth = (sp(g, 8)) + (g.branch === 'A' ? 4 : 0); return true; },
   shift(g) { run.alert = g.star >= 3 || g.branch === 'A' ? 0 : run.alert / 2; run.sb[g.strain].ghost = (g.branch === 'A' ? 5 : 3) + (g.star >= 3 ? 1 : 0); return true; },
-  spread(g) { const b = run.sb[g.strain]; b.spd = 6; b.spdMul = g.star >= 3 ? 1.8 : 1.6; b.noSlow = 6; return true; },
-  neuro(g) { const n = (g.star >= 3 ? 20 : 12) + (g.branch === 'B' ? 8 : 0), lead = mine(g.strain).filter(u => u.d > 0).sort((a, b) => b.d - a.d).slice(0, n);
+  spread(g) { const b = run.sb[g.strain]; b.spd = 6; b.spdMul = spm(g, 1.6); b.noSlow = 6; return true; },
+  neuro(g) { const n = (sp(g, 12)) + (g.branch === 'B' ? 8 : 0), lead = mine(g.strain).filter(u => u.d > 0).sort((a, b) => b.d - a.d).slice(0, n);
     for (const u of lead) { const c = map.corners.find(c => c > u.d + 10); if (c) { burst(u.x, u.y, 3, '#ff7a8a'); u.d = c + rand(4, 16); u.fk = -1; if (g.branch === 'B') u.inv = 3; } } return lead.length > 0; },
   hostify(g, tower) { const cost = Math.ceil(10 * (g.passives.includes('rt') ? 0.7 : 1) * (g.branch === 'B' ? 0.5 : 1)), pool = mine(g.strain);
     if (pool.length < cost) { toast(`${STRAINS[g.strain].name} 개체가 부족해요 (${pool.length}/${cost})`); return false; }
     pool.sort((a, b) => Math.hypot(a.x - tower.x, a.y - tower.y) - Math.hypot(b.x - tower.x, b.y - tower.y)).slice(0, cost).forEach(u => { u.alive = false; burst(u.x, u.y, 2, '#6fd35a'); });
-    tower.converted = (g.star >= 3 ? 15 : 10) + (g.branch === 'A' ? 5 : 0); tower.conv3 = g.star >= 3; tower.psycho = g.branch === 'A'; float(tower.x, tower.y - 50, '숙주화!', '#b9f27a', 18); return true; },
+    tower.converted = (sp(g, 10)) + (g.branch === 'A' ? 5 : 0); tower.conv3 = g.star >= 3; tower.psycho = g.branch === 'A'; float(tower.x, tower.y - 50, '숙주화!', '#b9f27a', 18); return true; },
   dive(g) { run.sb[g.strain].dive = 5 + (g.branch === 'A' ? 2 : 0) + (g.star >= 3 ? 1 : 0); const a = mine(g.strain); if (a.length) float(...centerOf(a), `${STRAINS[g.strain].name} 점막 아래로!`, '#ff8fd0', 16); return true; },
-  rash(g) { run.sb[g.strain].rash = g.star >= 3 ? 10 : 8; return true; },
+  rash(g) { run.sb[g.strain].rash = sp(g, 8); return true; },
   decoy(g) { const a = mine(g.strain).filter(u => u.d > 0).sort((x, y) => y.d - x.d); if (!a.length) { toast(`${STRAINS[g.strain].name}가 아직 길에 없어요`); return false; }
-    const n = (g.star >= 3 ? 22 : 16) + (g.branch === 'B' ? 12 : 0);
+    const n = (sp(g, 16)) + (g.branch === 'B' ? 12 : 0);
     for (let i = 0; i < n; i++) { const u = a[i % Math.min(a.length, 5)]; spawnUnit(u.gene, { d: u.d + rand(8, 40), decoy: true, copy: true, hpMul: 0.5, small: true }); }
     float(...centerOf(a), `미끼 ${n}개`, '#ffe066', 16); return true; },
   // ── 새 바이러스 스킬 ──
@@ -2774,7 +2783,7 @@ const SKILLS = {
   // ── 전설 스킬 ──
   hemo(g) { const R = run; if (!R.towers.length) { toast('아직 탑이 없어요'); return false; } R.stunT = 5 + (g.star >= 3 ? 1.5 : 0) + (g.branch === 'A' ? 1 : 0);
     for (const t of R.towers) { burst(t.x, t.y - 20, 6, '#ff3a3a'); t.flash = 0.4; } shake(8); R.flashT = 0.3; R.flashC = '255,40,40'; float(W / 2, H * 0.4, '출혈열! 모든 탑 마비', '#ff5a5a', 22); return true; },
-  pandemic(g) { const R = run, mul = g.star >= 3 ? 2.3 : 2; let n = 0;
+  pandemic(g) { const R = run, mul = spm(g, 2); let n = 0;
     if (R.nest && nestTotal() >= 1) { for (const k in R.nest) { const add = R.nest[k] * (mul - 1); R.nest[k] += add; n += add; } float(W / 2, H * 0.45, `대유행! 둥지 ×${mul}`, '#ffb070', 22); shake(6); return true; }
     const alive = mine(g.strain); if (!alive.length) { toast('둥지와 길이 모두 비었어요'); return false; }
     const cap = Math.round(alive.length * 0.6); for (const u of alive.slice(0, cap)) if (spawnUnit(u.gene, { d: u.d - rand(0, 10), copy: true, small: true, hpMul: 0.7 })) n++;
@@ -2808,7 +2817,7 @@ function skillPop(g, anchor) {   // 스킬 이름을 누르면(판 안에서는 
 }
 function skillHelp(g) {
   const d = STRAINS[g.strain], sk = geneSkill(g), ids = sk.ids || [sk.id], L = lineOf(g);
-  return `<b>${sk.dual ? '이중 스킬' : '스킬'} · ${sk.name}</b> <span>${geneStats(g).cd}초마다</span><div class="short">${ids.map(id => SHORT[id] ? SHORT[id](d.name) : '').join(' + ')}</div>${g.star >= 3 ? '<span>★3: 효과 강화</span>' : ''}${L.length >= 2 ? `<div class="short" style="color:#c8b8ff">🧬 ${genOf(g)}세대 · 혈통: ${L.map(x => STRAINS[x].name).join(' · ')}</div>` : ''}`;
+  return `<b>${sk.dual ? '이중 스킬' : '스킬'} · ${sk.name}</b> <span>${geneStats(g).cd}초마다</span><div class="short">${ids.map(id => SHORT[id] ? SHORT[id](d.name) : '').join(' + ')}</div><span>★${g.star} · 스킬 세기 ×${skK(g).toFixed(1)}</span>${L.length >= 2 ? `<div class="short" style="color:#c8b8ff">🧬 ${genOf(g)}세대 · 혈통: ${L.map(x => STRAINS[x].name).join(' · ')}</div>` : ''}`;
 }
 function skillHelpFull(g) {
   const sk = STRAINS[g.strain].skill;
@@ -2820,18 +2829,18 @@ function helpLines(id, g) {
   const d = STRAINS[g.strain], n = d.name, b = d.hybrid ? '' : g.branch, st3 = g.star >= 3;
   const L = {
     capsule: ['대상: 슈퍼바이러스', '캡슐(보호막)을 즉시 가득 채움', '캡슐은 체력보다 먼저 피해를 받고, 맞지 않으면 다시 차오름', '+15 각성: 3초 무적 추가'],
-    replicate: [`대상: 길 위의 ${n}만`, `살아 있는 ${n}가 50% 확률로 복제 (최대 ${st3 ? 60 : 40}${b === 'A' ? '+20' : ''}마리)`, `복제체 체력 ${st3 ? 80 : 50}% · 감염력 50%`, '★3: 복제 상한 60, 복제체 체력 80%'],
-    capsid: [`대상: ${n}만`, `${st3 ? 8 : 6}초 동안 받는 피해 ${st3 ? '−65%' : '−50%'}`, '다른 계통은 보호되지 않음', '★3: 8초, 피해 −65%'],
-    outbreak: [`대상: 대기 중인 ${n}`, '대기열의 노로를 맨 앞으로 당겨 빠르게 방출', `6초간 ${n}만 이동 +25%`, '★3: 노로 20% 추가 출격'],
-    latency: [`대상: ${n}만`, `${8 + (b === 'A' ? 4 : 0) + (st3 ? 4 : 0)}초간 레이더(수지상)에도 들키지 않음`, '평소에는 레이더 범위 안에서만 공격받음', '★3: 12초'],
-    shift: [`대상: ${n}만`, `${(b === 'A' ? 5 : 3) + (st3 ? 1 : 0)}초간 모든 탑이 ${n}를 조준하지 못함`, `면역 경보 ${st3 || b === 'A' ? '전부 초기화' : '절반 감소'}`, '★3: 경보 완전 초기화'],
-    spread: [`대상: ${n}만`, `6초간 이동 +${st3 ? 80 : 60}%`, '섬모·레이더 감속 무시', '★3: 이동 +80%'],
-    neuro: [`대상: 가장 앞선 ${n}`, `${(st3 ? 20 : 12) + (b === 'B' ? 8 : 0)}마리를 다음 꺾임 너머로 순간이동`, b === 'B' ? '순간이동 후 3초 무적' : '꺾임을 건너뛰어 탑 몇 개를 통째로 피함', '★3: 20마리'],
-    hostify: ['대상: 탑 1개 (눌러서 지정)', `레트로 ${Math.ceil(10 * (g.passives.includes('rt') ? 0.7 : 1) * (b === 'B' ? 0.5 : 1))}마리를 소모해 ${(st3 ? 15 : 10) + (b === 'A' ? 5 : 0)}초간 탑을 아군화`, '아군화된 탑 주변 바이러스는 받는 피해 −50%', b === 'A' ? '주변 탑 30% 오작동' : '★3: 15초, 주변 탑 공속 저하'],
-    dive: [`대상: ${n}만`, `${5 + (b === 'A' ? 2 : 0) + (st3 ? 1 : 0)}초간 점막 아래로 파고들어 이동`, '공격받지 않음 · 감속·판막 무시 · 이동 +30%', '★3: +1초'],
-    rash: [`대상: ${n}만`, `${st3 ? 10 : 8}초간 목표에 닿은 ${n}의 감염력 ×2`, b === 'A' ? '발진 중 면역 경보가 오르지 않음' : '물량이 목표 앞에 몰렸을 때 쓰면 효과 최대', '★3: 10초'],
-    decoy: [`대상: ${n} 앞쪽`, `빈 껍데기 ${(st3 ? 22 : 16) + (b === 'B' ? 12 : 0)}개를 뿌림`, '탑은 앞선 적을 먼저 쏘므로 껍데기가 공격을 대신 받음', '껍데기는 감염 못 함 · ★3: 22개'],
-    wart: [`대상: ${n}만`, `${8 + (b === 'B' ? 4 : 0) + (st3 ? 2 : 0)}초간 매초 최대 체력 12% 회복`, '느리지만 단단한 무리를 끝까지 살려 보냄', '★3: +2초'],
+    replicate: [`대상: 길 위의 ${n}만`, `살아 있는 ${n}가 50% 확률로 복제 (최대 ${sp(g, 40)}${b === 'A' ? '+20' : ''}마리)`, `복제체 체력 ${sp(g, 50)}% · 감염력 50%`],
+    capsid: [`대상: ${n}만`, `${sp(g, 6)}초 동안 받는 피해 ${st3 ? '−65%' : '−50%'}`, '다른 계통은 보호되지 않음'],
+    outbreak: [`대상: 대기 중인 ${n}`, '대기열의 노로를 맨 앞으로 당겨 빠르게 방출', `6초간 ${n}만 이동 +25%`],
+    latency: [`대상: ${n}만`, `${8 + (b === 'A' ? 4 : 0) + (st3 ? 4 : 0)}초간 레이더(수지상)에도 들키지 않음`, '평소에는 레이더 범위 안에서만 공격받음'],
+    shift: [`대상: ${n}만`, `${(b === 'A' ? 5 : 3) + (st3 ? 1 : 0)}초간 모든 탑이 ${n}를 조준하지 못함`, `면역 경보 ${st3 || b === 'A' ? '전부 초기화' : '절반 감소'}`],
+    spread: [`대상: ${n}만`, `6초간 이동 +${sp(g, 60)}%`, '섬모·레이더 감속 무시'],
+    neuro: [`대상: 가장 앞선 ${n}`, `${(sp(g, 12)) + (b === 'B' ? 8 : 0)}마리를 다음 꺾임 너머로 순간이동`, b === 'B' ? '순간이동 후 3초 무적' : '꺾임을 건너뛰어 탑 몇 개를 통째로 피함'],
+    hostify: ['대상: 탑 1개 (눌러서 지정)', `레트로 ${Math.ceil(10 * (g.passives.includes('rt') ? 0.7 : 1) * (b === 'B' ? 0.5 : 1))}마리를 소모해 ${(sp(g, 10)) + (b === 'A' ? 5 : 0)}초간 탑을 아군화`, '아군화된 탑 주변 바이러스는 받는 피해 −50%', b === 'A' ? '주변 탑 30% 오작동' : '★3: 15초, 주변 탑 공속 저하'],
+    dive: [`대상: ${n}만`, `${5 + (b === 'A' ? 2 : 0) + (st3 ? 1 : 0)}초간 점막 아래로 파고들어 이동`, '공격받지 않음 · 감속·판막 무시 · 이동 +30%'],
+    rash: [`대상: ${n}만`, `${sp(g, 8)}초간 목표에 닿은 ${n}의 감염력 ×2`, b === 'A' ? '발진 중 면역 경보가 오르지 않음' : '물량이 목표 앞에 몰렸을 때 쓰면 효과 최대'],
+    decoy: [`대상: ${n} 앞쪽`, `빈 껍데기 ${(sp(g, 16)) + (b === 'B' ? 12 : 0)}개를 뿌림`, '탑은 앞선 적을 먼저 쏘므로 껍데기가 공격을 대신 받음', '껍데기는 감염 못 함 · ★3: 22개'],
+    wart: [`대상: ${n}만`, `${8 + (b === 'B' ? 4 : 0) + (st3 ? 2 : 0)}초간 매초 최대 체력 12% 회복`, '느리지만 단단한 무리를 끝까지 살려 보냄'],
   }[id];
   return L || [SHORT[id] ? SHORT[id](n) : ''];
 }
@@ -2841,7 +2850,7 @@ function castSkill(strain) {
   const sk = geneSkill(g);
   if (sk.aim) { aiming = aiming === strain ? null : strain; placing = null; $('outChooser').hidden = true; ui.renderSkills(); $('hint').textContent = aiming ? '아군으로 만들 탑을 누르세요' : '스킬을 누르면 즉시 발동'; return; }
   const gg = run.single && !STRAINS[strain].hero ? Object.assign(Object.create(g), { strain: 'mine' }) : g;   // 추출한 스킬은 내 바이러스에게 걸린다
-  if ((sk.ids ? sk.ids.map(id => SKILLS[id](gg)).some(Boolean) : SKILLS[sk.id](gg))) { run.cds[strain] = geneStats(g).cd * (run.med && run.med.w > 0 ? 1 - MED.refund : 1); medGuard(); sfx('skill'); toast(`${sk.name} 발동`); $('hint').textContent = `${sk.name}: ${(sk.ids || [sk.id]).map(id => SHORT[id] ? SHORT[id](STRAINS[strain].name) : '').join(' + ')}`; }
+  if ((sk.ids ? sk.ids.map((id, i) => SKILLS[id](i === 1 && g.rc && g.rc.sk ? Object.assign(Object.create(gg), { star: g.rc.skStar || 1 }) : gg)).some(Boolean) : SKILLS[sk.id](gg))) { run.cds[strain] = geneStats(g).cd * (run.med && run.med.w > 0 ? 1 - MED.refund : 1); medGuard(); sfx('skill'); toast(`${sk.name} 발동`); $('hint').textContent = `${sk.name}: ${(sk.ids || [sk.id]).map(id => SHORT[id] ? SHORT[id](STRAINS[strain].name) : '').join(' + ')}`; }
 }
 const centerOf = arr => { if (!arr.length) return [W / 2, H / 2]; const u = arr[Math.floor(arr.length / 2)]; return [u.x, u.y - 24]; };
 
@@ -3820,16 +3829,17 @@ const ui = {
       <div class="sub"><span style="color:${RARITY[d.rarity].color}">${RARITY[d.rarity].name}</span>${g.mix ? ` · <span style="color:${SCOLOR[g.mix]}">${STRAINS[g.mix].name} 혼종 (능력 25% 섞임)</span>` : ''}${d.hybrid ? ` · ${STRAINS[d.parents[0]].name}+${STRAINS[d.parents[1]].name}` : ''} · ${d.role} · <b style="color:${(ROLES[ROLE_OF[g.strain]] || {}).col || '#ffe2a8'}">${(ROLES[ROLE_OF[g.strain]] || {}).name || ''}</b>${g.shiny ? ' · <span class="shinyTag">✦ 변종 (+10%)</span>' : ''}</div>
       ${STRAINS[g.strain].extinct ? `<div class="sub" style="text-align:center;color:#c8b8a0">🪦 ${STRAINS[g.strain].extinct}</div>` : ''}
       <div class="tropRow" style="text-align:center">${(() => { const [gd, bd] = tropOf(g.strain); return `<span class="g">👍 ${gd.map(o => ORG_SHORT[o]).join('·') || '-'}</span>${bd.length ? ` · <span class="b">👎 ${bd.map(o => ORG_SHORT[o]).join('·')}</span>` : ''}`; })()}</div>
+      ${g.rc ? `<div style="text-align:center">🧬 재조합 흔적 ${rcBadges(g)}</div>` : ''}
       ${ui.statHtml(g)}
       <div class="sub" style="margin-top:4px">Lv <b style="color:#ffe2a8">${g.lv || 1}/${MAXLV}</b> ${(g.lv || 1) >= MAXLV && g.star >= MAXSTAR ? `· <b style="color:#7fe05a">돌파 +${g.tier || 0}</b>${g.mut ? ' · <b style="color:#ffd24a">변성</b>' : ` · 변성까지 ${Math.max(0, mutNeed(g) - (g.tier || 0))}`}` : ''}</div>
-      <div class="row"><button class="btn blue" id="mLv" style="flex-basis:100%">${(g.lv || 1) < MAXLV ? `강화 레벨 ${g.lv || 1}→${(g.lv || 1) + 1} · 🧬${lvCost(g)}` : g.star < MAXSTAR ? `승급 ★${g.star}→★${g.star + 1} · 🧬${lvCost(g)}` : `돌파 +${g.tier || 0}→+${(g.tier || 0) + 1} (공격·체력 +8%) · 🧬${tierCost(g)}`}</button>
+      <div class="row"><button class="btn blue" id="mLv" style="flex-basis:100%">${(g.lv || 1) < MAXLV ? `강화 레벨 ${g.lv || 1}→${(g.lv || 1) + 1} · 🧬${lvCost(g)}` : g.star < MAXSTAR ? `별 올리기 ★${g.star}→★${g.star + 1} · 🧩${STAR_SHARD[g.star]} (가진 🧩${save.shards || 0}) · 스킬 +20%` : `돌파 +${g.tier || 0}→+${(g.tier || 0) + 1} (공격·체력 +8%) · 🧬${tierCost(g)}`}</button>
       ${riskOf(g) ? `<div style="flex-basis:100%"><div class="odds"><span style="color:#9fff6a">성공 ${riskOf(g).ok}%</span><span style="color:#c9b9a2">실패 ${riskOf(g).fail}%</span><span style="color:#ff6a5a">파괴 ${riskOf(g).boom}%</span></div>
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;justify-content:center;margin-bottom:4px"><input type="checkbox" id="mClone" ${ui.cloneOn ? 'checked' : ''}> 🧪 복제본 보관 (+🧬${cloneCost(g)}) · 파괴돼도 지금 모습으로 복구</label></div>` : ''}
       
       </div><div class="slotPick">${ui.slotPickHtml(g)}</div><div class="row" style="margin-top:4px">${inSquad ? '<button class="btn" id="mOut">빼기</button>' : ''}<button class="btn" id="mClose">닫기</button></div>`);
     if ($('mClone')) $('mClone').onchange = e => { ui.cloneOn = e.target.checked; };
     $('mLv').onclick = () => { if (riskOf(g)) return ui.forge(g, !!ui.cloneOn);
-      const r = levelUp(g); if (r === 'dna') { sfx('fail'); return toast('DNA가 부족해요'); } if (r === 'max') return; quest('up'); sfx(r === 'star' || r === 'tier' ? 'clear' : 'up'); persist(); ui.showHub();
+      const r = levelUp(g); if (r === 'dna') { sfx('fail'); return toast('DNA가 부족해요'); } if (r === 'shard') { sfx('fail'); return toast(`🧩 조각이 부족해요 (${save.shards || 0}/${STAR_SHARD[g.star]}) · 겹친 카드에서 모여요`); } if (r === 'max') return; quest('up'); sfx(r === 'star' || r === 'tier' ? 'clear' : 'up'); persist(); ui.showHub();
       if (r === 'star') { ui.fx(`승급! ${d.name} ${stars(g.star)}`, '#ffd27a'); } else if (r === 'tier') { ui.fx(`돌파 +${g.tier}!`, '#7fe05a'); buzz(30); }
       else if (r === 'mut') { buzz([60, 40, 160]); jingle('jg_legend'); ui.modal(`<div class="newfx">변성!</div><div class="heroWrap">${has('ring_new') ? '<img class="ringFx" src="assets/ring_new.png" alt="">' : ''}${pimg(g, 'hero')}</div>
         <h3 style="margin:2px 0;color:#ffd24a">${gname(g)} 탄생</h3><div class="sub">한계를 넘어 모습이 바뀌었어요! 능력 <b>+30%</b> · 도감에 <b>변성</b>으로 등록됐어요.</div><div class="row"><button class="btn red" onclick="ui.closeModal()">좋아요!</button></div>`); return; } else toast(`${d.name} Lv${g.lv}`); ui.detail(g); };
@@ -3840,8 +3850,8 @@ const ui = {
   },
   // 위험 승급 연출: 화로 위에서 카드가 떨리다가 → 성공(빛 폭발) / 실패(연기) / 파괴(산산조각) / 클론 복구
   forge(g, clone) {
-    const d = STRAINS[g.strain], from = g.star, need = lvCost(g) + (clone ? cloneCost(g) : 0);
-    if (save.dna < need) return toast('DNA가 부족해요');
+    const d = STRAINS[g.strain], from = g.star, need = clone ? cloneCost(g) : 0;
+    if ((save.shards || 0) < STAR_SHARD[g.star]) return toast(`🧩 조각이 부족해요 (${save.shards || 0}/${STAR_SHARD[g.star]})`); if (save.dna < need) return toast('DNA가 부족해요');
     const src = portrait(g).src;
     ui.modal(`<h3 style="margin:2px 0">승급 시도 ★${from}→★${from + 1}</h3><div class="forgeBox" id="fgBox">${has('forge') ? `<img class="fx" src="assets/forge.png" style="opacity:.55;animation:none">` : ''}<img class="card" src="${src}" alt=""></div>
       <div class="sub" id="fgMsg">${clone ? '🧪 클론 보관 중…' : '배양 중…'}</div><div class="row"><button class="btn" id="fgOk" disabled>…</button></div>`);
@@ -4167,7 +4177,7 @@ function addCard(g) {
   if (g.shiny || g.mut) { save.genes.push(g); return g; }   // 변종·변성은 따로 보관
   // ★ 같은 바이러스가 이미 있으면 조각으로 (더 높은 ★이면 새 카드로)
   const same = save.genes.filter(x => x.strain === g.strain && !x.shiny && !x.mut);
-  if (same.length && g.star <= Math.max(...same.map(x => x.star))) { const n = shardGain(g.strain); save.shards = (save.shards || 0) + n; g.shard = n; return null; }
+  if (same.length && g.star <= Math.max(...same.map(x => x.star))) { const n = shardGain(g.strain) * g.star; save.shards = (save.shards || 0) + n; g.shard = n; return null; }
   save.genes.push(g); return g;
 }
 // ★ 연속 뽑기: 많이 뽑을수록 싸고, 좋은 카드가 확정으로 섞인다
@@ -4239,7 +4249,7 @@ function rcApply(donor, target, op, dry, repIx) {
   const r = target.rc ? target.rc : { st: {}, tr: [], sk: '', n: 0, from: {} }; r.st = r.st || {}; r.tr = r.tr || []; r.from = r.from || {};
   if (op.kind === 'st') { r.st[op.key] = (r.st[op.key] || 0) + op.amt; r.n = (r.n || 0) + 1; r.from[donor.uid] = (r.from[donor.uid] || 0) + 1; }
   if (op.kind === 'tr') { if (r.tr.length >= 2) r.tr.splice(repIx || 0, 1); r.tr.push(op.org); }
-  if (op.kind === 'sk') r.sk = op.strain;
+  if (op.kind === 'sk') { r.sk = op.strain; r.skStar = donor.star; }
   if (!dry) target.rc = r; return r;
 }
 const rcBadges = g => { const r = g.rc; if (!r) return ''; const a = []; for (const k in r.st || {}) if (r.st[k]) a.push(`${RC_STAT[k].split(' ')[0]}+${r.st[k]}`); for (const o of r.tr || []) a.push(`🎯${ORG_SHORT[o]}`); if (r.sk) a.push(`✨${STRAINS[r.sk].skill.name}`); return a.length ? `<span class="rcB">${a.join(' ')}</span>` : ''; };
@@ -4352,7 +4362,7 @@ function oddsView() {
     <li>★2로 나올 확률 6% · 변종(✦, 능력 +10%) 3% · <b>변성(👑, 능력 +30%) 0.5%</b></li>
     <li>🧩 조각 뽑기: 고른 등급 안에서 같은 규칙으로 뽑아요 (천장 횟수에는 안 들어가요).</li>
     <li>5번 뽑기: 5장 중 희귀 이상 1장 확정</li><li>10번 뽑기: 10장 중 영웅 이상 1장 확정 · 전설 확률 2배 (${(RARITY[LEG_TIER()].w * 2 / (tot + RARITY[LEG_TIER()].w) * 100).toFixed(1)}%)</li>
-    <li>천장: 전설 없이 ${SOFT_PITY}번째부터 전설 확률이 점점 오르고, ${PITY}번째는 전설 확정 (지금 ${save.pity || 0}번째)</li><li>슈퍼바이러스·교배 신종은 뽑기에 나오지 않아요.</li></ul></div>
+    <li>별: ★1 70% · ★2 25% · ★3 5% (★4·★5는 🧩 조각으로 별 올리기)</li><li>겹친 카드는 🧩 조각 (별이 높을수록 많이)</li><li>천장: 전설 없이 ${SOFT_PITY}번째부터 전설 확률이 점점 오르고, ${PITY}번째는 전설 확정 (지금 ${save.pity || 0}번째)</li><li>슈퍼바이러스·교배 신종은 뽑기에 나오지 않아요.</li></ul></div>
     <div class="row"><button class="btn" id="odBack">뒤로</button></div>`);
   $('odBack').onclick = () => pullMenu();
 }
@@ -4456,7 +4466,7 @@ function showMulti(res, n, still) {
   const best = Math.max(...res.map(r => STRAINS[r.g.strain].rarity)), leg = res.some(r => STRAINS[r.g.strain].legend);
   if (!still) { if (leg) jingle('jg_legend'); else sfx('reveal'); buzz(leg ? [60, 40, 140] : 40); }
   const cell = (r, i) => { const d = STRAINS[r.g.strain], rr = RARITY[d.rarity];
-    return `<div class="mpc${d.legend ? ' leg' : ''}" style="--c:${rr.color};${still ? 'animation:none' : `animation-delay:${i * 0.09}s`}">${pimg(r.g)}<b>${sname(r.g.strain)}</b><small style="color:${rr.color}">${d.legend ? '★전설' : rr.name}${r.g.star > 1 ? ' ★2' : ''}${r.g.shiny ? ' ✦' : ''}</small>${r.g.mut ? '<i class="mpn" style="background:#c8941a">변성</i>' : r.isNew ? '<i class="mpn">NEW</i>' : r.shard ? `<i class="mpm" style="background:#2a1a3a;color:#d8c0ff;border-color:#8a6ac0">🧩+${r.shard}</i>` : ''}</div>`; };
+    return `<div class="mpc${d.legend ? ' leg' : ''}" style="--c:${rr.color};${still ? 'animation:none' : `animation-delay:${i * 0.09}s`}">${pimg(r.g)}<b>${sname(r.g.strain)}</b><small style="color:${rr.color}">${d.legend ? '★전설' : rr.name}${r.g.star > 1 ? ' ' + '★'.repeat(r.g.star) : ''}${r.g.shiny ? ' ✦' : ''}</small>${r.g.mut ? '<i class="mpn" style="background:#c8941a">변성</i>' : r.isNew ? '<i class="mpn">NEW</i>' : r.shard ? `<i class="mpm" style="background:#2a1a3a;color:#d8c0ff;border-color:#8a6ac0">🧩+${r.shard}</i>` : ''}</div>`; };
   ui.modal(`<h3 style="margin:0 0 6px">${n}번 뽑기 결과${leg ? ' · <span style="color:#ffcf4a">전설!</span>' : best >= 2 ? ' · <span style="color:#e9a3ff">영웅!</span>' : ''}</h3>
     <div class="mpg">${res.map(cell).join('')}</div>
     <div class="sub">NEW = 처음 · 🧩 = 겹친 카드는 조각으로 (지금 🧩${save.shards || 0})</div>
