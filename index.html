@@ -528,14 +528,14 @@
   #toast { position: absolute; left: 50%; bottom: 222px; transform: translateX(-50%); padding: 6px 13px; border-radius: 999px; background: rgba(20,10,12,.94); border: 1px solid #8a6a4a; font-size: 12.5px; max-width: 92%; text-align: center; white-space: normal; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 60; }
   #toast.on { opacity: 1; }
   #rcChip { position: absolute; right: 10px; bottom: 202px; width: 54px; height: 54px; border-radius: 50%; border: 0; padding: 0; z-index: 8; background: conic-gradient(#c58cff var(--p, 0%), rgba(40,14,40,.85) 0); display: grid; place-items: center; box-shadow: 0 0 10px rgba(197,140,255,.45); }
-  #rcChip[hidden], #wkHud[hidden], #wkHud .wkTop[hidden] { display: none; }
-  #wkHud { position: absolute; inset: 0; pointer-events: none; z-index: 9; }
+  #rcChip[hidden], #wkHud[hidden], #wkHud .wkTop[hidden], #wkHud .wkGauge[hidden] { display: none; }
+  #wkHud { position: absolute; inset: 0; pointer-events: none; z-index: 7; }
   #wkHud .wkTop { position: absolute; left: 6px; right: 6px; top: 6px; height: 82px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 5px; }
   #wkHud .wkT { border-radius: 12px; background: #0e1e34; border: 1.5px solid #4a8ad0; padding: 5px 10px; color: #cfe8ff; line-height: 1.25; } #wkHud .wkT b { display: block; font-size: 17px; } #wkHud .wkT small { display: block; font-size: 10.5px; color: #8fb0d0; }
   #wkHud .wkR { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; } #wkHud .wkR > div { border-radius: 10px; background: #0e1e34; border: 1.5px solid #4a8ad0; padding: 2px 9px; display: flex; justify-content: space-between; align-items: center; color: #fff; } #wkHud .wkR small { font-size: 10.5px; color: #8fb0d0; } #wkHud .wkR b { font-size: 16px; }
-  #wkHud .wkGauge { position: absolute; left: 8px; right: 8px; bottom: calc(var(--bot, 124px) + 6px); border-radius: 14px; background: rgba(26,18,34,.94); border: 2px solid #c58cff; padding: 6px 10px; color: #f3e6d4; }
-  #wkHud .wkGt { display: flex; justify-content: space-between; align-items: center; gap: 6px; } #wkHud .wkGt b { font-size: 13px; white-space: nowrap; } #wkHud .wkGt span { font-size: 10.5px; color: #d8b8ff; text-align: right; }
-  #wkHud .wkCells { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 5px; } #wkHud .wkCells i { height: 14px; border-radius: 5px; background: #2a1a30; border: 1px solid #4a2a50; } #wkHud .wkCells i.f { background: linear-gradient(#e9a3ff, #9a4ad0); border-color: #f0c8ff; box-shadow: 0 0 6px #c58cff; } #wkHud .wkCells i.p { background: linear-gradient(90deg, #e9a3ff 0 var(--f), #2a1a30 var(--f)); }
+  #wkHud .wkGauge { position: absolute; left: 6px; right: 6px; top: 92px; border-radius: 10px; background: rgba(26,18,34,.9); border: 1.5px solid #c58cff; padding: 3px 8px 4px; color: #f3e6d4; }
+  #wkHud .wkGt { display: flex; justify-content: space-between; align-items: center; gap: 6px; } #wkHud .wkGt b { font-size: 11.5px; white-space: nowrap; } #wkHud .wkGt span { font-size: 10px; color: #d8b8ff; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #wkHud .wkCells { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 3px; } #wkHud .wkCells i { height: 8px; border-radius: 5px; background: #2a1a30; border: 1px solid #4a2a50; } #wkHud .wkCells i.f { background: linear-gradient(#e9a3ff, #9a4ad0); border-color: #f0c8ff; box-shadow: 0 0 6px #c58cff; } #wkHud .wkCells i.p { background: linear-gradient(90deg, #e9a3ff 0 var(--f), #2a1a30 var(--f)); }
   .wkBtn { position: absolute; left: 6px; bottom: 6px; z-index: 5; padding: 6px 10px 6px 46px; min-height: 48px; border-radius: 14px; border: 1.5px solid #6ab4ff; background: linear-gradient(135deg, #132238, #22141b); color: #cfe8ff; text-align: left; font-weight: 800; font-size: 13.5px; box-shadow: 0 0 12px rgba(106,180,255,.35); }
   .wkBtn img { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 36px; } .wkBtn small { display: block; font-size: 10.5px; color: #8fb0d0; font-weight: 400; } .wkBtn.lock { opacity: .6; border-color: #4a3a50; box-shadow: none; }
   #rcChip .ring { position: absolute; inset: 4px; border-radius: 50%; background: #1d0a1c; }
@@ -2070,7 +2070,9 @@ function bossAlive() { const b = run && run.boss; return !!(b && b.on && !b.dead
 function stepBoss(dt) {
   const R = run, b = R.boss; if (!b || b.dead) return;
   if (!b.on) { if (stealthOn() || R.tutOn) return; b.on = true; banner(`${b.ico} 보스 ${b.name} 등장! 목표 앞을 지켜요`); sfx('alarm'); buzz(60);
-    save.tips = save.tips || {}; if (!save.tips.bossRun) { save.tips.bossRun = true; persist(); R.tutList = [{ t: '보스 등장!', txt: `목표 앞을 지키는 <b>보스</b>예요. 살아 있으면 감염이 <b>×0.75</b>로 줄어요.<br>바이러스가 옆을 지나가며 <b>자동으로 물어뜯어요</b>. 쓰러뜨리면 감염 <b>×1.25</b> + DNA!<br><small>보스 기술은 2초 전에 알려 줘요.</small>`, pt: R => [R.boss.x, R.boss.y - 40], next: true, last: true }]; R.tutOn = true; R.tutStep = 0; tutShow(); } }
+    save.tips = save.tips || {};
+    if (R.wk) { if (!save.tips.wkRun) { save.tips.wkRun = true; persist(); R.tutList = [{ t: '💊 주간 보스', txt: `길 위의 <b>${b.name}</b>은 체력이 끝없어요.<br>무리가 지나가며 <b>물어뜯은 피해</b>만큼 위쪽 <b>조각 게이지</b>가 차요.<br>약 경고가 뜨면 방어 스킬로 버티세요!`, pt: R => [R.boss.x, R.boss.y - 30], next: true, last: true }]; R.tutOn = true; R.tutStep = 0; tutShow(); } }
+    else if (!save.tips.bossRun) { save.tips.bossRun = true; persist(); R.tutList = [{ t: '보스 등장!', txt: `목표 앞을 지키는 <b>보스</b>예요. 살아 있으면 감염이 <b>×0.75</b>로 줄어요.<br>바이러스가 옆을 지나가며 <b>자동으로 물어뜯어요</b>. 쓰러뜨리면 감염 <b>×1.25</b> + DNA!<br><small>보스 기술은 2초 전에 알려 줘요.</small>`, pt: R => [R.boss.x, R.boss.y - 40], next: true, last: true }]; R.tutOn = true; R.tutStep = 0; tutShow(); } }
   b.hitT = Math.max(0, b.hitT - dt); b.shield = Math.max(0, b.shield - dt); b.fx = b.fx.filter(f => (f.t -= dt) > 0);
   // 물어뜯기: 옆을 지나는 바이러스 (탑을 물지 않은 녀석만)
   const nn = BOSS_RULE.near * BOSS_RULE.near;
@@ -4143,12 +4145,12 @@ const ui = {
   },
   tickHorn() { const b = $('hornBtn'); if (!b) return; const show = !!(run && run.ta && !stealthOn() && !run.over && !run.endAt && doneCount() >= 3); b.hidden = !show; if (!show) return;
     $('hornN').textContent = run.hornN ?? 1; b.classList.toggle('off', !(run.hornN ?? 1) && !hornAim); },
-  wkHud() { const R = run, K = R && R.wk, el = $('wkHud'); if (!el) return; el.hidden = !K; if (!K) return; const w = wkSave(); el.style.setProperty('--bot', BOTTOM + 'px'); el.querySelector('.wkTop').hidden = stealthOn();
+  wkHud() { const R = run, K = R && R.wk, el = $('wkHud'); if (!el) return; el.hidden = !K; if (!K) return; const w = wkSave(); el.style.setProperty('--bot', BOTTOM + 'px'); el.querySelector('.wkTop').hidden = stealthOn(); el.querySelector('.wkGauge').hidden = stealthOn();
     $('wkName').textContent = K.def.name; $('wkWeak').innerHTML = `약점 ${K.def.weak.map(x => ROLES[x].name).join('·')} · 강함 ${K.def.strong.map(x => ROLES[x].name).join('·')}`;
     $('wkDmg').textContent = Math.round(K.dmg).toLocaleString(); $('wkBest').textContent = `🏆 ${w.best.toLocaleString()}`;
     const left = Math.max(0, Math.ceil((R.T || 0) - R.time)); $('wkTime').textContent = stealthOn() ? '🤫 잠입 중' : `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
     const f = (K.dmg % WK.per) / WK.per, n = K.cells % 10; $('wkCells').innerHTML = Array.from({ length: 10 }, (_, i) => `<i class="${i < n ? 'f' : i === n ? 'p' : ''}" ${i === n ? `style="--f:${(f * 100).toFixed(0)}%"` : ''}></i>`).join('');
-    $('wkGs').textContent = `피해 ${WK.per.toLocaleString()}마다 🧩${WK.sh} · 이번 판 🧩${K.sh} · 이번 주 ${w.got + K.sh}/${WK.cap}`; },
+    $('wkGs').textContent = `이번 판 🧩${K.sh} · 이번 주 ${w.got + K.sh}/${WK.cap}`; },
   tickRc() { const b = $('rcChip'); if (!b) return; const cg = run && run.ta && !run.over ? compGene() : null; b.hidden = !cg; if (!cg) return;
     const v = (save.rcG || 0) + rcGainOf(run), f = v >= 1 ? 1 : v % 1; if (b.dataset.u != cg.uid) { b.dataset.u = cg.uid; b.querySelector('img').src = imgSrc(IMG[cg.strain], 'assets/rhino.png'); }
     b.style.setProperty('--p', (f * 100).toFixed(1) + '%'); b.querySelector('b').textContent = v >= 1 ? '준비!' : Math.floor(f * 100) + '%'; b.classList.toggle('full', v >= 1);
