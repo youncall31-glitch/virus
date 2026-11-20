@@ -650,6 +650,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmSheet { position: fixed; left: 6px; right: 6px; z-index: 30; animation: fmUp .18s ease-out; filter: drop-shadow(0 -6px 12px rgba(0,0,0,.7)); } .fmSheet .fmCard { border-radius: 16px 16px 12px 12px; } @keyframes fmUp { from { transform: translateY(40px); opacity: 0; } }
   .fmSheet .fcSk small { display: none; }
   .fmUpA { position: absolute; left: 5px; top: 48px; z-index: 3; width: 18px; height: 18px; border-radius: 50%; background: #2a8a2a; color: #fff; font-size: 11px; line-height: 18px; font-weight: 900; box-shadow: 0 0 6px #7fe05a; animation: legb .8s ease-in-out infinite alternate; }
+  .fmH .role { position: static; display: inline-grid; width: 16px; height: 16px; vertical-align: -3px; }
 </style>
 </head>
 <body>
@@ -791,7 +792,7 @@ const SCOLOR = { rhino:'#ffd27a', adeno:'#ff9a4d', noro:'#f2e04a', herpes:'#c79c
 const BRANCHES = {
   rhino:  { A:{ name:'출아 쌍둥이', desc:'출격 수 +25%, 자가 증식 상한 +20', look:'몸에서 작은 쌍둥이가 돋아나 붙어 있다' },
             B:{ name:'점막 흡착', desc:'감염력 +25%', look:'빨판 손과 끈적한 점액 망토' } },
-  adeno:  { A:{ name:'결정 캡시드', desc:'방어력 +40%', look:'갑옷 대신 빛나는 육각 결정 껍질' },
+  adeno:  { A:{ name:'결정 캡시드', desc:'방어력 +40%', look:'갑옷 대신 빛나는 육각 결정 속도' },
             B:{ name:'결막 침투', desc:'속도 +20%, 감염력 +10%', look:'충혈된 거대한 외눈, 가벼운 가죽 차림' } },
   noro:   { A:{ name:'구토 분사', desc:'죽을 때 주변 아군 2초 가속', look:'입에서 초록 분수를 뿜는 자세' },
             B:{ name:'군집 융합', desc:'방어력 ×2, 출격 수 ×0.7', look:'세 마리가 한 덩어리로 뭉친 몸' } },
@@ -809,10 +810,10 @@ const BRANCHES = {
             B:{ name:'세포 융합', desc:'방어력 +40%', look:'옆 세포와 녹아 붙은 거대 합포체' } },
   measles:{ A:{ name:'면역 기억 상실', desc:'발진 중 홍역이 면역 경보를 올리지 않음', look:'머리 위로 흩어지는 기억 조각' },
             B:{ name:'코플릭 반점', desc:'감염력 +20%', look:'온몸에 하얀 반점' } },
-  hepb:   { A:{ name:'만성 보균', desc:'방어력 +50%', look:'두꺼운 황색 껍질' },
+  hepb:   { A:{ name:'만성 보균', desc:'방어력 +50%', look:'두꺼운 황색 속도' },
             B:{ name:'대량 미끼', desc:'항원 미끼 +12개', look:'빈 껍데기를 주렁주렁 매단 모습' } },
   hpv:    { A:{ name:'사마귀 갑피', desc:'받는 피해 −20%', look:'사마귀 돌기로 덮인 몸' },
-            B:{ name:'세포 불멸화', desc:'각질 재생 +4초', look:'끝없이 자라는 각질 꼬리' } },
+            B:{ name:'세포 불멸화', desc:'각질 재생 +4초', look:'끝없이 자라는 각질 번식' } },
 };
 // 감염 흔적: 어떤 계통이 기관을 감염시켰는지에 따라 같은 숙주의 몸 전체가 바뀐다
 const LEGACY = {   // help: 다음 판에 어떤 도움이 되는지(먼저 보여 줌) · desc: 왜 그런지(뒤에 작게)
@@ -1106,7 +1107,7 @@ function bakeSplit(A, B, col) {
 function bakeHero(id) {
   const h = HEROES[id], cv = document.createElement('canvas'); cv.width = 200; cv.height = 200; const g = cv.getContext('2d'); g.lineJoin = 'round'; g.lineCap = 'round';
   const ink = '#1a0a0c';
-  if (id === 'phage') {                                   // 박테리오파지: 정이십면체 머리 + 꼬리 + 다리
+  if (id === 'phage') {                                   // 박테리오파지: 정이십면체 머리 + 번식 + 다리
     g.strokeStyle = ink; g.lineWidth = 5; for (const [a, b] of [[-1, 1], [1, 1], [-0.5, 1.2], [0.5, 1.2]]) { g.beginPath(); g.moveTo(100, 150); g.lineTo(100 + a * 48, 172); g.lineTo(100 + a * 62, 196); g.stroke(); }
     g.strokeStyle = '#7fd1ff'; g.lineWidth = 2.5; for (const [a] of [[-1], [1], [-0.5], [0.5]]) { g.beginPath(); g.moveTo(100, 150); g.lineTo(100 + a * 48, 172); g.lineTo(100 + a * 62, 196); g.stroke(); }
     g.fillStyle = '#4a6a8a'; g.strokeStyle = ink; g.lineWidth = 4; g.beginPath(); g.rect(88, 92, 24, 60); g.fill(); g.stroke();
@@ -1205,7 +1206,7 @@ function bakeBranch(strain, k, star) {
       for (const sd of [-1, 1]) { const x = cx + sd * iw * 0.5, y = top + ih * 0.66; g.beginPath(); g.arc(x, y, 8.5, 0, TAU); ol('#e88aa0', 2.5); g.beginPath(); g.arc(x, y, 3.5, 0, TAU); ol('#7a2234', 1.5); }
       drop(cx - 14, bot + 4, 4, '#a6e87a'); drop(cx + 22, bot + 2, 3.5, '#a6e87a');
     },
-    adenoA() {                                           // 결정 캡시드: 육각 결정 껍질
+    adenoA() {                                           // 결정 캡시드: 육각 결정 속도
       glow(cx, top + ih * 0.5, 70, 'rgba(120,230,255,.55)');
       body();
       atop(() => { g.lineWidth = 1.8; for (let y = top - 10, r = 0; y < bot + 10; y += 15, r++) for (let x = (r % 2) * 9 - 10; x < BK.S + 10; x += 18) {
@@ -1349,13 +1350,13 @@ const save = { dna: 300, host: 0, done: {}, legacy: {}, sel: 'nose', genes: [], 
 const SAVE_KEY = 'virus-v4', SAVE_VER = 5;
 let SKILL_CD_MUL = 0.6, MAP_VARIANT = 0;
 const REPLAY = { hp: 0.8, dna: 0.85, medEvery: 1.4, medDur: 0.7 };
-// ★ 본체 칸: 처음 2칸(몸통·가시) → 본체 Lv1·5·12에 하나씩 열려 최대 5칸
+// ★ 본체 칸: 처음 2칸(대장·공격) → 본체 Lv1·5·12에 하나씩 열려 최대 5칸
 const SL = [0, 1, 2, 3, 4], SLOT_ORDER = [0, 2, 1, 3, 4], SLOT_LV = [0, 0, 1, 5, 12], CORE_MAX = 30;
 // ★ 본체 = 그릇: 능력치는 주지 않는다. 칸·동반 칸을 열고, 바이러스 레벨 상한(= 본체 레벨)을 정한다
 const CORE_FX = { hp: 0, atk: 0, rep: 0, cd: 0 };
 // ★ 역할 칸: 역할에 맞는 칸에 꽂으면 그 카드 능력 +20% (전설은 어느 칸이든 +10%)
 const ROLE_SLOT = { tank: [0], stealth: [1], dps: [2], swarm: [3], heal: [4] }, ROLE_BONUS = 0.15;
-// 칸 색: 몸통 빨강 · 껍질 파랑 · 가시 주황 · 꼬리 초록 · 더듬이 보라 (그 칸에 맞는 역할 카드도 같은 색 바탕)
+// 칸 색: 대장 빨강 · 속도 파랑 · 공격 주황 · 번식 초록 · 지원 보라 (그 칸에 맞는 역할 카드도 같은 색 바탕)
 const SLOT_COL = [['#5c1a28', '#e0506a'], ['#14385c', '#4aa0e0'], ['#5c3410', '#f0a030'], ['#1a4c22', '#5cc85c'], ['#40185e', '#b070f0']];
 const roleSlotOf = g => { const r = ROLE_OF[g.strain]; return r && ROLE_SLOT[r] ? ROLE_SLOT[r][0] : -1; };
 const cardBg = g => { if (STRAINS[g.strain].legend) return 'background:linear-gradient(135deg,#3a2a08,#2a0f2e 45%,#0f2a30);border-color:#e8c45a'; const i = roleSlotOf(g); return i >= 0 ? `background:linear-gradient(180deg,${SLOT_COL[i][0]},#1a0f14 85%);border-color:${SLOT_COL[i][1]}` : ''; };
@@ -1409,13 +1410,13 @@ function migrate(s) {
 })();
 const geneById = id => save.genes.find(g => g.uid === id);
 const squadGenes = () => SL.map(i => slotOpen(i) ? geneById(save.squad[i]) : null).filter(Boolean);
-// ★ 카드 자리 5칸: [몸통, 껍질, 가시, 꼬리, 더듬이]. 잠긴 칸·빈 칸은 null (빼도 다른 카드가 자리를 옮기지 않는다)
+// ★ 카드 자리 5칸: [대장, 속도, 공격, 번식, 지원]. 잠긴 칸·빈 칸은 null (빼도 다른 카드가 자리를 옮기지 않는다)
 const coreL = () => clamp(save.coreL || 0, 0, CORE_MAX);
 const slotsOpenN = (l = coreL()) => SLOT_LV.filter(x => l >= x).length;
 const slotOpen = i => SLOT_ORDER.indexOf(i) < slotsOpenN();
 const slotNeed = i => SLOT_LV[SLOT_ORDER.indexOf(i)];
 const slotGenes = () => SL.map(i => slotOpen(i) ? geneById(save.squad[i]) || null : null);
-// 몸통·껍질·가시가 비면 다른 카드로 채워 계산. 꼬리·더듬이는 꽂은 것만 (마릿수·스킬 추가)
+// 대장·속도·공격이 비면 다른 카드로 채워 계산. 번식·지원은 꽂은 것만 (마릿수·스킬 추가)
 const fillOf = a => { const f = a.find(Boolean); if (!f) return []; const out = [0, 1, 2].map(i => a[i] || f), sl = [0, 1, 2].map(i => a[i] ? i : -1);
   a.forEach((g, i) => { if (i >= 3 && g) { out.push(g); sl.push(i); } }); out.slots = sl; return out; };
 const slotFill = () => fillOf(slotGenes());
@@ -1798,29 +1799,29 @@ function hurtU(u, frac, col) { u.hp -= u.maxHp * frac; if (u.hp <= 0 && u.alive)
 function stepMove(dt) {
   const R = run, M = R.mv; R.mvMul = 1; R.zoomK = 1; for (const u of R.units) u.mvS = 1; if (!M || !nestOn() || R.over) return; M.t += dt; const fit = R.fit;
   if (M.type === 'breath') { const ph = (M.t % BREATH.period) / BREATH.period, inh = ph < 0.5; R.zoomK = 1 + BREATH.amp * Math.sin(ph * TAU);
-    const p = inh ? 'in' : 'out'; if (p !== M.ph) { M.ph = p; if (inh) sfx('breath'); M.n = (M.n || 0) + 1; if (M.n <= 4) banner(inh ? '들숨 — 공기와 함께 빨려 든다' : '날숨 — 바깥으로 밀려난다' + (fit ? ' (숨기형 몸통은 덜 밀림)' : '')); }
+    const p = inh ? 'in' : 'out'; if (p !== M.ph) { M.ph = p; if (inh) sfx('breath'); M.n = (M.n || 0) + 1; if (M.n <= 4) banner(inh ? '들숨 — 공기와 함께 빨려 든다' : '날숨 — 바깥으로 밀려난다' + (fit ? ' (숨기형 대장은 덜 밀림)' : '')); }
     R.mvMul = inh ? BREATH.inMul : 1 - (1 - BREATH.outMul) * (fit ? 0.5 : 1);
     if (!inh) for (const u of R.units) if (u.alive && !u.hero && u.d > (map.d0 || 0)) u.d -= BREATH.push * u.spd * dt * (fit ? 0.5 : 1); }
   else if (M.type === 'flow') { const ph = (M.t % FLOW.period) / FLOW.period, fwd = ph < 0.5, p = fwd ? 'f' : 'b';
-    if (p !== M.ph) { M.ph = p; M.n = (M.n || 0) + 1; shake(3); sfx('beat'); if (M.n <= 4) banner(fwd ? '두근! 물살이 목표 쪽으로 — 지금 달려라' : '두근… 물살이 거꾸로 — 벽에 붙어 버텨요' + (fit ? ' (물량형 몸통은 덜 느려짐)' : '')); }
+    if (p !== M.ph) { M.ph = p; M.n = (M.n || 0) + 1; shake(3); sfx('beat'); if (M.n <= 4) banner(fwd ? '두근! 물살이 목표 쪽으로 — 지금 달려라' : '두근… 물살이 거꾸로 — 벽에 붙어 버텨요' + (fit ? ' (물량형 대장은 덜 느려짐)' : '')); }
     R.mvMul = fwd ? FLOW.fwd : 1 - (1 - FLOW.back) * (fit ? 0.5 : 1); M.beat = (M.beat || 0) + dt; R.zoomK = 1 + 0.008 * Math.max(0, Math.sin(M.t * TAU / 0.9)) ** 8;
     // 역류 때 뒤로 끌려가면 '되돌아가는' 것처럼 보여서, 이제는 혈관 벽에 붙어 버틴다(거의 멈춤). 밀어내지 않는다
   }
   else if (M.type === 'enzyme') { const f0 = R.frontD || 0, L = map.len - f0; M.zd = f0 + L * (0.5 + 0.32 * Math.sin(M.t * ENZ.sp)) - ENZ.len / 2;
-    if (!M.told) { M.told = true; banner('해독 효소가 길을 오간다 · 회복형 몸통이 버틴다'); }
+    if (!M.told) { M.told = true; banner('해독 효소가 길을 오간다 · 회복형 대장이 버틴다'); }
     for (const u of R.units) if (u.alive && !u.hero && u.d > M.zd && u.d < M.zd + ENZ.len) { u.mvS = fit ? 0.9 : ENZ.slow; if (!fit) hurtU(u, ENZ.dps * dt, '#d8ff6a'); } }
   else if (M.type === 'plates') { M.pt = (M.pt ?? 2) - dt; const f0 = R.frontD || 0;
-    if (M.pt <= 0 && M.plates.filter(p => p.hp > 0).length < PLATE.max) { M.pt = PLATE.every; const d = rand(f0 + 120, map.len - 70); if (d > f0 + 60) { M.plates.push({ d, hp: PLATE.hp, max: PLATE.hp, g: 0 }); sfx('build'); if (!M.told) { M.told = true; banner('각질판이 자라 길을 막는다 · 물어뜯어 뚫어라 (공격형 몸통 2배)'); } } }
+    if (M.pt <= 0 && M.plates.filter(p => p.hp > 0).length < PLATE.max) { M.pt = PLATE.every; const d = rand(f0 + 120, map.len - 70); if (d > f0 + 60) { M.plates.push({ d, hp: PLATE.hp, max: PLATE.hp, g: 0 }); sfx('build'); if (!M.told) { M.told = true; banner('각질판이 자라 길을 막는다 · 물어뜯어 뚫어라 (공격형 대장 2배)'); } } }
     for (const p of M.plates) { if (p.hp <= 0) continue; p.g = Math.min(1, p.g + dt * 1.5); let n = 0;
       for (const u of R.units) if (u.alive && u.d < p.d && u.d > p.d - 34) { n++; p.hp -= u.atk * 1.6 * dt * (fit ? 2 : 1) * (u.hero ? 4 : 1); }
       if (n && Math.random() < 0.08) sfx('bite'); if (p.hp <= 0) { const [x, y] = pathAt(p.d); burst(x, y, 12, '#c0703a'); shake(4); sfx('collapse'); float(x, y - 30, '각질판 붕괴!', '#ffc890', 14); } }
     M.plates = M.plates.filter(p => p.hp > 0); R.plates = M.plates; }
   else if (M.type === 'net') { const f0 = R.frontD || 0;
-    if (!M.net) { M.nt -= dt; if (M.nt <= 0) { M.net = { d: map.len - 10 }; if (!M.told) { M.told = true; banner('여과망이 훑어 온다 · 회복형 몸통은 버티고 지나간다'); } } }
+    if (!M.net) { M.nt -= dt; if (M.nt <= 0) { M.net = { d: map.len - 10 }; if (!M.told) { M.told = true; banner('여과망이 훑어 온다 · 회복형 대장은 버티고 지나간다'); } } }
     else { M.net.d -= NET.sp * dt; if (M.net.d < f0 - 20) { M.net = null; M.nt = NET.gap; }
       else for (const u of R.units) if (u.alive && !u.hero && Math.abs(u.d - M.net.d) < NET.w / 2) { u.mvS = fit ? 0.8 : NET.slow; hurtU(u, NET.dps * dt * (fit ? 0.5 : 1), '#b9a8ff'); } } }
   else if (M.type === 'zap') { M.zt = (M.zt ?? 1.5) - dt;
-    if (M.zt <= 0) { M.zt = ZAP.every; const al = R.units.filter(u => u.alive && !u.hero && u.d > (R.frontD || 0)); if (al.length) { const u = al[Math.floor(Math.random() * al.length)]; M.zaps.push({ x: u.x, y: u.y, t: ZAP.warn }); if (!M.told) { M.told = true; banner('신경 번개! 붉은 원을 피해라 · 숨기형 몸통은 덜 맞는다'); } } }
+    if (M.zt <= 0) { M.zt = ZAP.every; const al = R.units.filter(u => u.alive && !u.hero && u.d > (R.frontD || 0)); if (al.length) { const u = al[Math.floor(Math.random() * al.length)]; M.zaps.push({ x: u.x, y: u.y, t: ZAP.warn }); if (!M.told) { M.told = true; banner('신경 번개! 붉은 원을 피해라 · 숨기형 대장은 덜 맞는다'); } } }
     for (const z of M.zaps) { z.t -= dt; if (z.t <= 0 && !z.hit) { z.hit = true; z.fx = 0.3; shake(5); sfx('alarm'); R.flashT = 0.12; R.flashC = '160,200,255';
         for (const u of R.units) if (u.alive && !u.hero && Math.hypot(u.x - z.x, u.y - z.y) < ZAP.r) { const B = R.sb[u.strain]; if (B.stealth > 0 || B.ghost > 0 || B.dive) continue; hurtU(u, ZAP.dmg * (fit ? 0.5 : 1), '#9fd8ff'); } }
       if (z.hit) z.fx -= dt; }
@@ -1828,7 +1829,7 @@ function stepMove(dt) {
   else if (M.type === 'cilia') { if (!M.zones) { const f0 = R.frontD || 0, L = map.len - f0; M.zones = CILIA.zones.map(([a, b]) => [f0 + L * a, f0 + L * b]); }   // 섬모 구간은 감염 앞쪽(남은 길)에
     for (const u of R.units) { u.cil = 0; if (!u.alive || u.hero) continue;
       if (M.zones.some(([a, b]) => u.d > a && u.d < b)) { u.cil = 1; u.d -= CILIA.push * u.spd * dt * (fit ? 0.5 : 1); } }
-    if (!M.told) { M.told = true; banner('섬모가 쉬지 않고 밀어낸다 · 물량형 몸통이 유리'); } }
+    if (!M.told) { M.told = true; banner('섬모가 쉬지 않고 밀어낸다 · 물량형 대장이 유리'); } }
 }
 function drawMove(time) {
   const R = run, M = R.mv; if (!M || !nestOn()) return; ctx.save();
@@ -1863,7 +1864,7 @@ function drawMove(time) {
 function stepPeri(dt) {
   const R = run, P = R.peri; WOBON = !!(P && nestOn() && !R.over); if (!WOBON) return; WOBT += dt;
   for (const u of R.units) if (u.sq > 0) u.sq -= dt;
-  P.t -= dt; if (P.t <= 0) { P.t = PERI.every; P.waves.push({ d: map.len - 10 }); sfx('squish'); if (!P.told) { P.told = true; banner('꿀렁! 연동 수축이 밀려온다 · 버티기형 몸통은 버틴다'); } }
+  P.t -= dt; if (P.t <= 0) { P.t = PERI.every; P.waves.push({ d: map.len - 10 }); sfx('squish'); if (!P.told) { P.told = true; banner('꿀렁! 연동 수축이 밀려온다 · 버티기형 대장은 버틴다'); } }
   for (const w of P.waves) { w.d -= PERI.speed * dt;
     for (const u of R.units) if (u.alive && !u.hero && Math.abs(u.d - w.d) < PERI.width / 2) { u.d -= PERI.push * dt * (R.fit ? 0.25 : 1); u.sq = 0.15; } }
   P.waves = P.waves.filter(w => w.d > (map.d0 || 0) - 20);
@@ -1994,7 +1995,7 @@ function specTarget(R, type = 'tcell') { const seen = (R.plan && R.plan.seenS) |
 
 
 /* ---------- [render/particles.js] ★ 길 위의 무리는 진짜 바이러스 입자처럼 그린다 (무리 맨 앞·영웅만 캐릭터) ---------- */
-const VSHAPE = {   // 계통별 입자 모양: 돌기 수·길이, 몸 모양, 껍질
+const VSHAPE = {   // 계통별 입자 모양: 돌기 수·길이, 몸 모양, 속도
   rhino:  { sp: 12, len: 0.32, knob: 0.11, body: 'round' }, adeno: { sp: 6, len: 0.55, knob: 0.13, body: 'hex' }, noro: { sp: 0, len: 0, knob: 0, body: 'cup' },
   herpes: { sp: 16, len: 0.18, knob: 0.06, body: 'env' }, flu: { sp: 14, len: 0.36, knob: 0.08, body: 'round' }, rota: { sp: 10, len: 0.22, knob: 0.12, body: 'wheel' },
   retro:  { sp: 10, len: 0.3, knob: 0.1, body: 'env' }, rabies: { sp: 9, len: 0.2, knob: 0.08, body: 'bullet' }, rsv: { sp: 14, len: 0.3, knob: 0.07, body: 'round' },
@@ -2023,7 +2024,7 @@ function particleImg(strain) {
   else { g.lineWidth = 1.5; for (let i = 0; i < 5; i++) { g.beginPath(); g.arc(cx + Math.cos(i * 1.7) * R * 0.45, cy + Math.sin(i * 2.3) * R * 0.45, R * 0.12, 0, TAU); g.stroke(); } }
   g.globalAlpha = 1; return PCACHE[strain] = c;
 }
-// ★ 혜성 꼬리: 무리의 대표 한 마리 뒤로 빛나는 별 점들이 길을 따라 점점 작아지며 따라온다 (점 개수 = 무리 규모)
+// ★ 혜성 번식: 무리의 대표 한 마리 뒤로 빛나는 별 점들이 길을 따라 점점 작아지며 따라온다 (점 개수 = 무리 규모)
 function drawTail(u, h, time) {
   const n = u._tail, m = Math.min(8, 1 + Math.round(Math.sqrt(n) * 1.3)), col = SCOLOR[u.strain] || '#ffd27a', gap = Math.max(9, h * 0.3);
   ctx.save();
@@ -2047,7 +2048,7 @@ function drawParticle(u, time, scale = 1, alpha = 1) {   // 둥실둥실: 위아
 }
 
 /* ---------- [systems/organs.js] ★ 기관마다 고유한 몸의 반응 (침투 단계에서만) ---------- */
-// ★ 기관 적성: 몸통 카드의 타입이 맞으면 능력 +40%, 몸의 반응(지형 위험) 절반
+// ★ 기관 적성: 대장 카드의 타입이 맞으면 능력 +40%, 몸의 반응(지형 위험) 절반
 const STAR_COND = ['감염 성공', '들키지 않고 잠입', '시간 30% 남기고'];
 const starsOf = id => (save.stars || {})[id] || [false, false, false];
 const ORGAN_FIT = {
@@ -2060,7 +2061,7 @@ const ORGAN_FIT = {
   lymph: { role: 'heal',    why: '훑어 오는 여과망에 긁혀도 회복하며 지나간다' },
   brain: { role: 'stealth', why: '신경 번개를 덜 맞고 혈뇌장벽을 숨어서 통과' },
 };
-const FIT_MUL = 1.4;   // 기관 적성: 몸통 타입이 맞으면 공격·체력 +40% (기관마다 잘 맞는 조합이 달라지게)
+const FIT_MUL = 1.4;   // 기관 적성: 대장 타입이 맞으면 공격·체력 +40% (기관마다 잘 맞는 조합이 달라지게)
 const fitOf = (organId, role) => (ORGAN_FIT[organId] || {}).role === role;
 const ORGAN_HZ = {
   nose:  { type: 'push', name: '재채기', warnTxt: '에취! 재채기가 온다', every: 13, warn: 2.2, push: 90, color: '#9fe8ff' },
@@ -2138,7 +2139,7 @@ function wkStart() { if (!wkOpen()) return toast(`기관 ${WK.unlock}곳을 감�
 function wkMenu() { const b = wkBoss(), w = wkSave(), left = WK.tries - w.n, roles = r => r.map(x => `${roleBadge0(x)}${ROLES[x].name}`).join(' · '), art = wkArt(b);
   ui.modal(`<h3 style="margin:0 0 4px">💊 주간 보스 · 이번 주 신약</h3><div style="text-align:center">${art ? `<img src="${imgSrc(art, 'assets/pill.png')}" style="width:120px;filter:drop-shadow(0 0 14px ${b.color})">` : ''}<div style="font-size:20px;font-weight:900;color:${b.color}">${b.name}</div>
     <div class="sub">${organById(b.map).name}에서 기다려요 · ${b.ico} ${b.sk}</div></div>
-    <div class="fitBox" style="margin-top:8px"><b style="color:#9fff6a">약점</b> ${roles(b.weak)} <span style="color:#9fff6a">+30%</span><br><b style="color:#ff9c8a">강함</b> ${roles(b.strong)} <span style="color:#ff9c8a">−20%</span><br><span class="sub">몸통 칸 카드의 타입이 내 본체 타입이에요</span></div>
+    <div class="fitBox" style="margin-top:8px"><b style="color:#9fff6a">약점</b> ${roles(b.weak)} <span style="color:#9fff6a">+30%</span><br><b style="color:#ff9c8a">강함</b> ${roles(b.strong)} <span style="color:#ff9c8a">−20%</span><br><span class="sub">대장 칸 카드의 타입이 내 본체 타입이에요</span></div>
     <div class="sub" style="margin:6px 0">체력은 끝이 없어요. ${WK.time}초 동안 준 피해 <b>${WK.per.toLocaleString()}</b>마다 🧫<b>${WK.sh}</b> · 이번 주 <b>${w.got}/${WK.cap}</b> · 🏆 최고 <b>${w.best.toLocaleString()}</b></div>
     <div class="row"><button class="btn red" id="wkGo" ${left > 0 ? '' : 'disabled'} style="flex-basis:100%;min-height:56px">⚔ 도전하기 (오늘 ${left}/${WK.tries})</button><button class="btn" id="wkNo">닫기</button></div>`);
   $('wkGo').onclick = wkStart; $('wkNo').onclick = ui.closeModal; }
@@ -2268,10 +2269,10 @@ function drawJuiceOver(time) { const R = run;
 function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; shake(10); buzz([60, 40, 140]); hitStop(0.18); R.slowT = 0.9; R.flashT = 0.35; R.flashC = '255,220,140';   // 마지막 감염: 잠깐 슬로모션
   const [gx, gy] = map.goal; for (let i = 0; i < 46; i++) { const a = Math.random() * TAU, sp = rand(80, 320); R.parts.push({ x: gx, y: gy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, t: rand(0.7, 1.3), c: ['#e8a0ff', '#ffd27a', '#9fff6a', '#ff8fd0'][i % 4], r: rand(2, 4.5) }); } }
 
-/* ---------- [systems/mine.js] ★ 내 바이러스: 연구소의 카드 3장(몸통·껍질·가시)을 합성한 단 하나의 계통으로 싸운다 ----------
-   몸통 → 방어(체력)·정체성(역할), 껍질 → 속도·은신, 가시 → 감염력. 배양력은 셋의 합. 스킬은 꽂은 카드에서 하나씩 추출. */
-const SLOT_NAME = ['몸통', '껍질', '가시', '꼬리', '더듬이'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력', '마릿수·스킬', '마릿수·스킬'], SLOT_ICON = ['❤', '💨', '⚔', '🧬', '✨'], SLOT_STAT = ['체력', '빠르기', '공격력', '마릿수', '마릿수'], SLOT_KEY = ['hp', 'spd', 'atk', 'count', 'count'];
-// 부품 그림(몸통 6 · 껍질 2 · 가시 6)을 겹쳐 내 바이러스 모습을 만든다
+/* ---------- [systems/mine.js] ★ 내 바이러스: 연구소의 카드 3장(대장·속도·공격)을 합성한 단 하나의 계통으로 싸운다 ----------
+   대장 → 방어(체력)·정체성(역할), 속도 → 속도·은신, 공격 → 감염력. 배양력은 셋의 합. 스킬은 꽂은 카드에서 하나씩 추출. */
+const SLOT_NAME = ['대장', '속도', '공격', '번식', '지원'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력', '마릿수·스킬', '마릿수·스킬'], SLOT_ICON = ['👑', '💨', '⚔', '🦠', '✨'], SLOT_STAT = ['체력', '빠르기', '공격력', '마릿수', '마릿수'], SLOT_KEY = ['hp', 'spd', 'atk', 'count', 'count'];
+// 부품 그림(대장 6 · 속도 2 · 공격 6)을 겹쳐 내 바이러스 모습을 만든다
 const VP_CORE = { adeno: 0, measles: 0, herpes: 1, rsv: 1, retro: 1, noro: 2, hepb: 2, rota: 3, flu: 3, rabies: 4, rhino: 5, hpv: 5 };
 const VP_COAT = { herpes: 'env', flu: 'env', rsv: 'env', measles: 'env', retro: 'env', hepb: 'env', rabies: 'env', adeno: 'hex', hpv: 'hex', rota: 'hex', noro: '', rhino: '' };
 const VP_SPIKE = { rhino: 1, adeno: 2, noro: 5, herpes: 3, flu: 4, rota: 1, retro: 4, rabies: 0, rsv: 4, measles: 0, hepb: 3, hpv: 5 };
@@ -2731,7 +2732,7 @@ function breakout() {
   const R = run, tot = Math.floor(nestTotal()); if (tot < 1) return toast('둥지가 비었어요');
   // 돌격 보상은 '초록 틈에 돌격하면 +30%' 하나로 단순하게 (예전의 자동 함성·보호막은 뺌)
   return doBreakout(null);
-  // 내 카드 3장이 하나씩 힘을 빌려준다: 몸통 → 버티기 쪽, 껍질 → 움직임 쪽, 가시 → 공격 쪽
+  // 내 카드 3장이 하나씩 힘을 빌려준다: 대장 → 버티기 쪽, 속도 → 움직임 쪽, 공격 → 공격 쪽
   const POOL = [['armor', 'regen', 'bloom'], ['sprint', 'cloak'], ['toxic', 'hijack']], cards = slotFill();
   const keys = POOL.map(p => p[Math.floor(Math.random() * p.length)]); paused = true; R.mutPause = true; sfx('skill');
   ui.modal(`<h3 style="margin:2px 0">돌격! 강화를 하나 고르세요</h3><div class="sub">${tot}마리가 돌격해요${R.gap > 0 ? ' · <b style="color:#9fff6a">면역이 쉬는 틈! 기습 +30%</b>' : ''}<br>내 카드 3장이 힘을 하나씩 빌려줘요</div>
@@ -2910,7 +2911,7 @@ function startRun() {
   if (run.ta) initStealth();
   // ★ 버티기형 고유 능력: 어느 기관에서든 몸의 반응(밀기·녹이기·길 막기)을 절반만 받음
   run.fitTrue = fit; run.fit = fit || ROLE_OF.mine === 'tank'; run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); initBoss(); run.parts = []; initPeri();
-  const r0 = run; if (TA()) setTimeout(() => run === r0 && !run.over && float(W / 2, H * 0.36, (fit ? `타입 딱 맞음! 힘 +40%` : `${(ROLES[(ORGAN_FIT[organ.id] || {}).role] || {}).name || '-'} 몸통이 유리해요`) + (trop !== 1 ? ` · 궁합 ${trop > 1 ? '+' : ''}${Math.round((trop - 1) * 100)}%` : ''), fit || trop > 1 ? '#9fff6a' : '#ffd27a', 15), 900);
+  const r0 = run; if (TA()) setTimeout(() => run === r0 && !run.over && float(W / 2, H * 0.36, (fit ? `타입 딱 맞음! 힘 +40%` : `${(ROLES[(ORGAN_FIT[organ.id] || {}).role] || {}).name || '-'} 대장이 유리해요`) + (trop !== 1 ? ` · 궁합 ${trop > 1 ? '+' : ''}${Math.round((trop - 1) * 100)}%` : ''), fit || trop > 1 ? '#9fff6a' : '#ffd27a', 15), 900);
   ui.showRun(); tutStart();
   if (st.legs.length) { banner('지난번에 남긴 흔적이 도와줘요!'); st.legs.forEach((l, i) => setTimeout(() => run && float(W / 2, H * 0.42 + i * 26, `✅ ${l.text} (${LEGACY[l.s].name})`, '#b9f27a', 15), 300 + i * 350)); }
 }
@@ -3043,7 +3044,7 @@ function helpLines(id, g) {
   }[id];
   return L || [SHORT[id] ? SHORT[id](n) : ''];
 }
-// ★ 액티브 스킬은 2개(꼬리·더듬이 칸 카드 우선, 탑을 고르는 스킬은 늘 직접). 나머지는 패시브 = 준비되면 저절로
+// ★ 액티브 스킬은 2개(번식·지원 칸 카드 우선, 탑을 고르는 스킬은 늘 직접). 나머지는 패시브 = 준비되면 저절로
 function activeSkills(R = run) { if (R.activeSk) return R.activeSk; const sk = R.skillGenes.filter(g => !STRAINS[g.strain].hero), sq = slotGenes(), has1 = s => sk.some(g => g.strain === s);
   const a = sk.filter(g => geneSkill(g).aim).map(g => g.strain); for (const i of [3, 4]) { const g = sq[i]; if (g && has1(g.strain) && !a.includes(g.strain)) a.push(g.strain); }
   for (const g of sk) { if (a.length >= 2) break; if (!a.includes(g.strain)) a.push(g.strain); }
@@ -3967,7 +3968,7 @@ const ui = {
       <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · 맞는 칸 <b style="color:#9fd8ff">${D.legend ? '어디든 +10%' : fit ? `${fit} +${Math.round(ROLE_BONUS * 100)}%` : '-'}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
       <div class="fcGr">${gr}</div>
       ${(() => { const [go, bo] = tropOf(g.strain); return `<div class="fcSk">🏠 실제로 노리는 곳 <b style="color:#9fff6a">${go.map(o => ORG_SHORT[o]).join('·') || '-'}</b> ${D.legend ? `+${Math.round(TROP_W.leg * 100)}%<br><span style="color:#ff9a8a">⚠ 전설의 위험: 그 밖의 모든 기관에선 −${Math.round(TROP_W.bad * 100)}%</span>` : `+${Math.round(TROP_W.good * 100)}%${bo.length ? ` · <span style="color:#ff9a8a">안 맞는 곳 ${bo.map(o => ORG_SHORT[o]).join('·')} −${Math.round(TROP_W.bad * 100)}%</span>` : ''}`}</div>`; })()}
-      <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>꼬리·더듬이 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
+      <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>번식·지원 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
       ${cb ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반 칸에 두면 <b>${sname(cb.tg.strain)}</b>에게 <b>${cb.t}</b>를 옮겨 줄 수 있어요${cb.pp ? ` <em style="color:#9fff6a">(전투력 +${cb.pp}%)</em>` : ''} <small>동반은 전투력엔 안 들어가요</small></div>` : ''}
       ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
       <div class="fcHint">⬆ 위 칸을 누르면 꽂혀요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
@@ -4173,13 +4174,13 @@ const ui = {
     }
   },
   // 기관 궁합: 이 기관에 잘 먹히는 바이러스(가진 것 굵게) + 지금 꽂은 카드 궁합
-  // ★ 궁합 하나로: 몸통 타입 적성(+40%)과 바이러스별 잘 먹힘(±15%)을 합친 숫자 하나 + 무엇을 바꾸면 좋은지
+  // ★ 궁합 하나로: 대장 타입 적성(+40%)과 바이러스별 잘 먹힘(±15%)을 합친 숫자 하나 + 무엇을 바꾸면 좋은지
   matchHtml(org) {
     const f = ORGAN_FIT[org], cards = slotFill(), owned = new Set(save.genes.map(g => g.strain));
     const good = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && !STRAINS[k].hybrid && tropScore(k, org) > 0 && owned.has(k));
     if (!cards.length) return '';
     const ok = f && ROLE_OF[cards[0].strain] === f.role, m = tropMul(cards, org), tot = Math.round(((ok ? FIT_MUL : 1) * m - 1) * 100);
-    const tips = [f && !ok ? `몸통을 ${roleBadge0(f.role)}<b>${ROLES[f.role].name}</b>으로` : '', good.length && m < 1.3 ? `<b>${good.slice(0, 3).map(sname).join('·')}</b> 꽂기` : ''].filter(Boolean);
+    const tips = [f && !ok ? `대장을 ${roleBadge0(f.role)}<b>${ROLES[f.role].name}</b>으로` : '', good.length && m < 1.3 ? `<b>${good.slice(0, 3).map(sname).join('·')}</b> 꽂기` : ''].filter(Boolean);
     return `<div class="fitBox"><b style="font-size:14px">🧬 궁합 <span style="color:${tot > 0 ? '#9fff6a' : tot < 0 ? '#ff9c8a' : '#eadcc2'}">${tot >= 0 ? '+' : ''}${tot}%</span></b>${tips.length ? `<span> · 더 세지려면: ${tips.join(', ')}</span>` : ' <span>· 최고 궁합!</span>'}</div>`;
   },
   tropHtml(org) {
@@ -4455,7 +4456,7 @@ const ui = {
     const tip = win ? (R.starCond && !R.starCond[1] ? '보초에게 안 들키고 숨어들면 별을 하나 더 받아요.' : R.starCond && !R.starCond[2] ? '시간을 30% 넘게 남기고 이기면 별을 하나 더 받아요.' : '인체 지도에서 다음 기관을 골라 보세요.')
       : upCount() >= 2 ? `지금 DNA로 편성 카드를 <b>${upCount()}번 강화</b>할 수 있어요! 연구소에서 카드를 눌러 <b>강화</b>하면 훨씬 세져요.`
       : (R.trop || 1) < 1 ? `꽂은 카드 중에 <b>${ORG_SHORT[R.st.organ.id]}에 안 먹히는 바이러스</b>가 있어요. 지도에서 '잘 먹히는 바이러스'를 확인해 보세요.`
-      : !R.fitTrue && fitRole ? `이 기관은 <b>${fitRole}</b> 몸통 카드가 유리해요. 연구소에서 몸통 카드를 바꿔 보세요.`
+      : !R.fitTrue && fitRole ? `이 기관은 <b>${fitRole}</b> 대장 카드가 유리해요. 연구소에서 대장 카드를 바꿔 보세요.`
       : R.sth && R.sth.caught ? '숨어들 때 들켰어요. 노란 부채꼴(보초 시야) 안에서는 멈춰 있으세요.'
       : pct < 50 ? '연구소에서 DNA로 카드를 강화하면 훨씬 세져요.' : '거의 다 왔어요! 화면 테두리가 초록색일 때 돌격하면 더 세요.';
     // ★ 결과 화면: 한 화면에. 제목 → 별 → 보상 한 칸 → 꼭 알아야 할 것 한두 줄 → 버튼
@@ -4659,12 +4660,12 @@ function sortGenes(arr) { const k = save.sortBy || 'star', R = g => STRAINS[g.st
   const f = { star: (a, b) => b.star - a.star || R(b) - R(a) || (b.lv || 1) - (a.lv || 1), rar: (a, b) => R(b) - R(a) || b.star - a.star || (b.lv || 1) - (a.lv || 1), lv: (a, b) => (b.star * 10 + (b.lv || 1)) - (a.star * 10 + (a.lv || 1)) || R(b) - R(a),
     pow: (a, b) => P(b) - P(a), can: (a, b) => can(b) - can(a) || b.star - a.star || R(b) - R(a), new: (a, b) => b.uid - a.uid }[k] || ((a, b) => b.star - a.star);
   return [...arr].sort((a, b) => f(a, b) || P(b) - P(a)); }
-const CORE_MILE = [{ l: 1, t: '⚔ 가시 칸 열림', slot: 2 }, { l: 3, t: '🤝 동반 칸 · 재조합' }, { l: 7, t: '🎯 궁합 옮기기' }, { l: 4, t: '✨ 빛나는 테두리' }, { l: 5, t: '🧬 꼬리 칸 열림', slot: 3 }, { l: 10, t: '💪 몸집 커짐 · 스킬 옮기기' }, { l: 12, t: '✨ 더듬이 칸 열림', slot: 4 }, { l: 20, t: '👑 왕관' }, { l: 30, t: '🌟 최고 본체' }];
-// 칸 위치 (무대 안 %): 몸통 왼쪽 위 · 가시 오른쪽 위 · 껍질 왼쪽 아래 · 꼬리 오른쪽 아래 · 더듬이 위 가운데
+const CORE_MILE = [{ l: 1, t: '⚔ 공격 칸 열림', slot: 2 }, { l: 3, t: '🤝 동반 칸 · 재조합' }, { l: 7, t: '🎯 궁합 옮기기' }, { l: 4, t: '✨ 빛나는 테두리' }, { l: 5, t: '🦠 번식 칸 열림', slot: 3 }, { l: 10, t: '💪 몸집 커짐 · 스킬 옮기기' }, { l: 12, t: '✨ 지원 칸 열림', slot: 4 }, { l: 20, t: '👑 왕관' }, { l: 30, t: '🌟 최고 본체' }];
+// 칸 위치 (무대 안 %): 대장 왼쪽 위 · 공격 오른쪽 위 · 속도 왼쪽 아래 · 번식 오른쪽 아래 · 지원 위 가운데
 // ★ 전투력: 고른 기관 기준 실제 세기 (공격 × 마릿수 × √(체력×속도) × 궁합). 칸을 바꿀 때 이 숫자로 비교
 const powerOf = (st, match) => Math.round(st.atk * Math.min(st.count, MINE_CAP) * Math.sqrt(st.hp * st.spd) * (1 + match / 100) / 10);
 const STAGE_POS = [[13, 34], [13, 80], [87, 34], [87, 80], [50, 15]];
-// 자리별 어울림: 몸통=체력, 껍질=빠르기, 가시=공격력, 꼬리·더듬이=마릿수 (도감 등급 S~D)
+// 자리별 어울림: 대장=체력, 속도=빠르기, 공격=공격력, 번식·지원=마릿수 (도감 등급 S~D)
 const SLOT_GK = ['hp', 'spd', 'atk', 'count', 'count'];
 const slotGrade = (g, i) => gradeOf(SLOT_GK[i], STRAINS[g.strain][SLOT_GK[i]]);
 const bestSlot = g => { let bi = 0, bv = -1; for (const i of [0, 2, 1, 3]) { const v = 'DCBAS'.indexOf(slotGrade(g, i)); if (v > bv) { bv = v; bi = i; } } return bi; };
@@ -4680,7 +4681,7 @@ function assignSlot(g, i) {
   save.squad = sq; normSquad(); persist(); return true;
 }
 // ★ 끌어다 놓기: 카드를 손가락으로 끌어 본체 둘레 칸에 놓는다 (본체 위에 놓으면 빈 칸으로). 꽂힌 카드를 밖으로 끌면 빠짐
-const STAT_HELP = { pow: '🎯 전투력: 지금 고른 기관에서의 실제 세기 (공격 × 마릿수 × 체력·속도 × 궁합). 칸을 바꿀 때 이 숫자를 보세요', hp: '❤ 체력: 탑 공격을 얼마나 버티는지 (❤몸통 칸 카드가 가장 크게 정해요)', spd: '💨 속도: 길을 얼마나 빨리 달리는지 (💨껍질 칸)', atk: '⚔ 공격: 탑을 물어뜯고 감염시키는 힘 (⚔가시 칸)', count: '🦠 마릿수: 한 번에 나가는 무리 수 (꽂은 카드가 많을수록)', match: '🧬 궁합: 고른 기관과 얼마나 잘 맞는지 (몸통 타입 + 잘 먹히는 바이러스)' };
+const STAT_HELP = { pow: '🎯 전투력: 지금 고른 기관에서의 실제 세기 (공격 × 마릿수 × 체력·속도 × 궁합). 칸을 바꿀 때 이 숫자를 보세요', hp: '❤ 체력: 탑 공격을 얼마나 버티는지 (👑대장 칸 카드가 가장 크게 정해요)', spd: '💨 속도: 길을 얼마나 빨리 달리는지 (💨속도 칸)', atk: '⚔ 공격: 탑을 물어뜯고 감염시키는 힘 (⚔공격 칸)', count: '🦠 마릿수: 한 번에 나가는 무리 수 (꽂은 카드가 많을수록)', match: '🧬 궁합: 고른 기관과 얼마나 잘 맞는지 (대장 타입 + 잘 먹히는 바이러스)' };
 function statHelp(k) { if (dragBlocked()) return; toast(STAT_HELP[k] || ''); }
 const DRAG = { p: null, until: 0 };
 const dragBlocked = () => performance.now() < DRAG.until;
@@ -4947,7 +4948,7 @@ function playCatch(g) {
   requestAnimationFrame(step);
 }
 
-function autoSquad() {   // 고른 기관에 맞춰 카드 3장과 자리(몸통·껍질·가시)를 함께 고른다: 잘 먹히는 바이러스·적성 몸통 우대
+function autoSquad() {   // 고른 기관에 맞춰 카드 3장과 자리(대장·속도·공격)를 함께 고른다: 잘 먹히는 바이러스·적성 대장 우대
   const org = save.sel || 'nose', S = new Map(save.genes.filter(g => !STRAINS[g.strain].hero).map(g => [g, geneStats(g)]));
   const tf = g => 1 + 0.15 * tropScore(g.strain, org);
   const pool = [...S.keys()].sort((a, b) => power(b) * tf(b) - power(a) * tf(a)).slice(0, 12);
@@ -4959,7 +4960,7 @@ function autoSquad() {   // 고른 기관에 맞춰 카드 3장과 자리(몸통
     const cnt = Math.min(260, x.count + (c ? y.count : 0) + z.count), fit = fitOf(org, ROLE_OF[b.strain]) ? FIT_MUL : 1, tr = clamp(1 + 0.15 * (tropScore(b.strain, org) + (c ? tropScore(c.strain, org) : 0) + tropScore(k.strain, org)), 0.7, 1.45);
     const sc = atk * cnt * Math.sqrt(hp) * Math.sqrt(spd) * fit * fit * tr * tr; if (sc > bs) { bs = sc; best = [b, c, k]; } }
   if (!best) best = pool.slice(0, 3);
-  // 꼬리·더듬이: 남은 카드 중 센 것 (새 스킬이 되도록 다른 계통 우대 · 전설은 1장)
+  // 번식·지원: 남은 카드 중 센 것 (새 스킬이 되도록 다른 계통 우대 · 전설은 1장)
   const used = best.filter(Boolean), extra = [];
   for (const i of [3, 4]) { if (!slotOpen(i)) continue; const leg = used.concat(extra).some(g => STRAINS[g.strain].legend), have = new Set(used.concat(extra).map(g => g.strain));
     const cand = [...S.keys()].filter(g => !used.includes(g) && !extra.includes(g) && !(leg && STRAINS[g.strain].legend)).sort((a, b) => power(b) * tf(b) * (have.has(b.strain) ? 0.7 : 1) - power(a) * tf(a) * (have.has(a.strain) ? 0.7 : 1));
