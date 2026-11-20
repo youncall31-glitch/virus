@@ -622,6 +622,12 @@ img.legend { animation: legGlow 3s linear infinite; }
   .cvNeed .bar { height: 6px; border-radius: 3px; background: #3a2030; overflow: hidden; margin: 4px 0; } .cvNeed .bar i { display: block; height: 100%; background: #9fff6a; }
   .fmC .fmRole { position: absolute; right: 7px; top: 50px; } .fmC .fmRole .role { width: 18px; height: 18px; } .fmS .fmRl { display: flex; justify-content: center; gap: 1px; height: 13px; margin-top: 1px; } .fmS .fmRl .role { width: 13px; height: 13px; padding: 1px; }
   .fmC.fit { box-shadow: inset 0 0 0 1.5px #9fd8ff; }
+  .fmCard { padding: 6px 8px; border-radius: 12px; background: #2a1a10; border: 1.5px solid #ffd24a; display: flex; flex-direction: column; gap: 4px; }
+  .fcTop { display: flex; align-items: center; gap: 8px; } .fcTop > img { width: 46px; height: 46px; object-fit: contain; } .fcT { flex: 1; min-width: 0; font-size: 12px; line-height: 1.35; } .fcT > b { font-size: 15px; } .fcT .role { width: 16px; height: 16px; vertical-align: -3px; }
+  .fcTop .btn { min-height: 34px; min-width: 34px; padding: 2px 8px; font-size: 14px; }
+  .fcGr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; } .fcGr span { text-align: center; font-size: 11px; padding: 2px 0; border-radius: 8px; background: #1d1014; } .fcGr b { font-size: 14px; margin-left: 2px; }
+  .fcSk { font-size: 12px; line-height: 1.4; padding: 4px 8px; border-radius: 8px; background: #1d1014; border: 1px solid #4a2c33; } .fcSk small { display: block; font-size: 10.5px; color: #b59f86; }
+  .fcHint { font-size: 11.5px; color: #ffd24a; text-align: center; }
 </style>
 </head>
 <body>
@@ -630,7 +636,7 @@ img.legend { animation: legGlow 3s linear infinite; }
 
   <!-- 런 HUD -->
   <div class="hud" id="top" hidden>
-    <div class="plate stage"><b id="stName"></b><small id="stSub"></small></div>
+    <button class="plate sq" id="btnExit" aria-label="나가기">◀</button><div class="plate stage"><b id="stName"></b><small id="stSub"></small></div>
     <div class="plate" id="goalBox"><div class="t"><span id="goalLbl">감염</span><span id="goalTxt" style="font-family: Cinzel, serif">0/0</span></div><div class="bar" id="goalBar"><i></i></div></div>
     <button class="plate sq" id="btnSpeed" aria-label="배속">1×</button>
     <button class="plate sq" id="btnPause" aria-label="일시정지"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" width="3.5" height="14" fill="#eadcc2"/><rect x="7.5" width="3.5" height="14" fill="#eadcc2"/></svg></button>
@@ -689,7 +695,7 @@ img.legend { animation: legGlow 3s linear infinite; }
 
     </div>
     <div class="view" id="viewHero" hidden></div>
-    <nav class="navBar"><button class="nv" id="tabBody"><img src="assets/tab_body.png" alt="">지도</button><button class="nv" id="tabLab"><img src="assets/tab_lab.png" alt="">연구소</button><button class="navGo" id="bGo">출격</button><button class="nv" id="navPull"><span>🎰</span>뽑기</button><button class="nv" id="tabHero"><img src="assets/tab_hero.png" alt="">본체</button></nav>
+    <nav class="navBar"><button class="nv" id="tabBody"><img src="assets/tab_body.png" alt="">지도</button><button class="nv" id="tabLab"><img src="assets/tab_lab.png" alt="">연구소</button><button class="navGo" id="bGo">출격</button><button class="nv" id="navPull"><span>🎰</span>뽑기</button><button class="nv" id="tabHero"><img src="assets/codex.png" alt="">도감</button></nav>
   </div>
 
   <div class="plate" id="hubTip" hidden></div>
@@ -2315,7 +2321,7 @@ function drawTut(time) {   // 손가락 표시: 할 곳을 톡톡 가리킨다
 }
 // ★ 허브 안내: 처음 보는 기능은 한 번씩 짧게 알려 준다
 const HUB_TIPS = [
-  { id: 'core', t: '본체 진화', when: () => coreL() >= 2 && coreL() < 5, tab: 'body', sel: '#tabHero', txt: '바이러스 3마리를 <b>본체 레벨</b>까지 키우면 본체가 저절로 진화해요. 새 <b>칸</b>과 선물!' },
+  { id: 'core', t: '본체 진화', when: () => coreL() >= 2 && coreL() < 5, tab: 'lab', sel: '#csCore', txt: '본체를 누르면 진화 조건이 보여요. 바이러스 3마리를 <b>본체 레벨</b>까지 키우면 본체가 저절로 진화해요. 새 <b>칸</b>과 선물!' },
   { id: 'quest', t: '오늘의 임무', when: () => doneCount() >= 1, tab: 'body', sel: '#bQuest', txt: '매일 <b>임무 3개</b> → DNA와 <b>무료 뽑기권</b>!' },
   { id: 'shard', t: '흔적', when: () => (save.shards || 0) > 0, tab: 'lab', sel: '#bGrow', txt: '같은 바이러스가 또 나오면 <b>🧫 흔적</b>이 남아요. 모아서 <b>★ 별 올리기</b>!' },
   { id: 'multi', t: '연속 뽑기', when: () => save.dna >= MULTI[5].cost, tab: 'lab', sel: '#navPull', txt: '<b>5번·10번</b> 뽑기는 더 싸고 <b>좋은 카드 확정</b>!' },
@@ -3603,7 +3609,7 @@ const ui = {
     const h = HOSTS[save.host];
     $('hostTxt').innerHTML = `<span class="hName">${h.name} <em>${save.host + 1}/4</em></span><small><span class="hrule" onclick="ui.hostInfo()">${hostRule().icon} ${hostRule().title} ⓘ</span> · 감염 ${doneCount()}/7</small>`;
     $('hubDna').textContent = save.dna; $('bMode').textContent = TA() ? '⏱ 타임어택' : '클래식';
-    $('tabBody').classList.toggle('on', hubTab === 'body'); $('tabLab').classList.toggle('on', hubTab === 'lab'); $('tabHero').classList.toggle('on', hubTab === 'hero');
+    $('tabBody').classList.toggle('on', hubTab === 'body'); $('tabLab').classList.toggle('on', hubTab === 'lab'); 
     $('viewBody').hidden = hubTab !== 'body'; $('viewLab').hidden = hubTab !== 'lab'; $('viewHero').hidden = hubTab !== 'hero';
     $('hub').classList.toggle('labOn', hubTab === 'lab');
     hubTab === 'body' ? ui.renderBody() : hubTab === 'lab' ? ui.renderLab() : ui.renderHero(); setTimeout(hubTip, 50);
@@ -3681,11 +3687,12 @@ const ui = {
   renderHero() { return ui.renderCore(); },
   // ★ 본체: DNA로 내 바이러스 자체를 키운다 (모든 카드 조합에 항상 적용). 합계 단계가 오르면 겉모습도 바뀐다
   // ★ 본체 화면 (전후 비교형): 지금 → 진화 후 모습과 숫자, 다음 큰 보상, 보상 줄(누르면 로드맵)
-  renderCore() {
+  coreModal() { ui.modal(`<div id="coreM" style="display:flex;flex-direction:column;gap:7px"></div><div class="row"><button class="btn" id="cmNo">닫기</button></div>`); ui.renderCore($('coreM')); $('cmNo').onclick = ui.closeModal; },
+  renderCore(el) { el = el || $('viewHero');
     const L = coreL(), max = L >= CORE_MAX, cap = lvCap(), fill = slotFill(), tier = coreTier(), next = CORE_MILE.find(m => m.l > L);
     const ia = fill.length ? imgSrc(mineStats(fill).img, 'assets/rhino.png') : baseCore();
     const top = [...save.genes].sort((a, b) => (b.lv || 1) - (a.lv || 1) || b.star - a.star).slice(0, CORE_NEED), got = save.genes.filter(g => (g.lv || 1) >= cap).length;
-    $('viewHero').innerHTML = `<div class="plate cvTop">
+    el.innerHTML = `<div class="plate cvTop">
         <div class="cvPics"><div class="cvA t${tier}"><img src="${ia || ''}" alt="">${tier >= 3 ? '<i class="crown">👑</i>' : ''}<span>본체 Lv ${L}</span></div></div>
         <div class="sub" style="text-align:center;margin:2px 0 6px">본체 레벨 = <b style="color:#ffd24a">바이러스 레벨 상한 (Lv${cap})</b><br>칸과 🤝 동반 칸을 열어 주는 그릇이에요</div>
         ${max ? '<div class="coreGot" style="text-align:center">👑 최고 레벨</div>' : `<div class="cvNeed"><b>다음 진화 · Lv ${L + 1}</b><small>바이러스 ${CORE_NEED}마리를 Lv${cap}까지 키우면 저절로 진화해요 (${Math.min(got, CORE_NEED)}/${CORE_NEED})</small>
@@ -3695,7 +3702,7 @@ const ui = {
       <button class="cvTrack" id="cvTrack">${CORE_MILE.map(m => `<span class="${L >= m.l ? 'ok' : m === next ? 'nx' : ''}"><i>${m.t.split(' ')[0]}</i>Lv${m.l}</span>`).join('')}<div class="bar"><i style="width:${Math.round(L / CORE_MAX * 100)}%"></i></div></button>
       <div class="sub" style="text-align:center;margin-top:6px">바이러스 강화는 <b>연구소 › 📈 성장</b>에서 해요</div>`;
     ui.coreGot = null;
-    $('cvTrack').onclick = () => ui.coreRoad(); if ($('cvGift')) $('cvGift').onclick = () => ui.coreRoad();
+    $('cvTrack').onclick = () => { ui.closeModal(); ui.coreRoad(); }; if ($('cvGift')) $('cvGift').onclick = () => { ui.closeModal(); ui.coreRoad(); };
   },
   // 로드맵: Lv 1~20 길 (지나온 곳 ✓, 지금 금색)
   coreRoad() {
@@ -3748,10 +3755,10 @@ const ui = {
         <div id="forgeMsg" class="fmsg"></div></div>`;
     $('viewHero').querySelectorAll('.hc').forEach(b => b.onclick = () => { const id = b.dataset.h, ho = heroOf(id);
       if (!ho.own) { if (save.dna < HEROES[id].unlock) return toast('DNA가 부족해요'); save.dna -= HEROES[id].unlock; save.heroes = save.heroes || {}; save.heroes[id] = { lv: 0, pity: 0, own: true }; toast(`${HEROES[id].name} 해금!`); }
-      save.heroSel = id; persist(); ui.showHub('hero'); });
+      save.heroSel = id; persist(); ui.coreModal(); });
     $('viewHero').querySelectorAll('.tslot[data-s]').forEach(b => b.onclick = () => ui.tailPick(sel, +b.dataset.s));
     $('bForge').onclick = () => { const r = forge(sel); if (r.r === 'dna') return toast('DNA가 부족해요'); if (r.r === 'max') return;
-      ui.showHub('hero'); ui.renderHero(r.r === 'ok' ? 'win' : 'lose');
+      ui.coreModal(); ui.renderHero(r.r === 'ok' ? 'win' : 'lose');
       $('forgeMsg').innerHTML = (has(r.r === 'ok' ? 'forge_ok' : 'forge_fail') ? `<img src="assets/${r.r === 'ok' ? 'forge_ok' : 'forge_fail'}.png" alt="" style="height:30px;vertical-align:middle;margin-right:4px">` : '') + (r.r === 'ok' ? `<b style="color:#9fff6a">성공! +${r.lv}</b>${MILESTONE.find(m => m.lv === r.lv) ? ` · <b style="color:#ffcf4a">${MILESTONE.find(m => m.lv === r.lv).name} 해금!</b>` : ''}` : r.r === 'drop' ? `<b style="color:#ff6a5a">실패… +${r.lv}로 하락</b>` : `<b style="color:#ff9c8a">실패</b> · 다음 확률 +${Math.round(FORGE.pity * 100)}%p`); };
   },
   tailPick(hid, slot) {
@@ -3764,11 +3771,11 @@ const ui = {
         : '<div class="sub" style="margin:10px 0">녹일 바이러스가 없어요. 편성에서 뺀 카드만 쓸 수 있어요.</div>'}
       <div class="row">${cur ? '<button class="btn" id="tpOff">떼어내기</button>' : ''}<button class="btn" id="tpNo">닫기</button></div>`);
     $('tpNo').onclick = () => { ui.closeModal(); };
-    if ($('tpOff')) $('tpOff').onclick = () => { save.heroes = save.heroes || {}; const o = { ...heroOf(hid) }; o.tails = [...(o.tails || [])]; o.tails[slot] = null; save.heroes[hid] = o; persist(); ui.closeModal(); ui.showHub('hero'); };
+    if ($('tpOff')) $('tpOff').onclick = () => { save.heroes = save.heroes || {}; const o = { ...heroOf(hid) }; o.tails = [...(o.tails || [])]; o.tails[slot] = null; save.heroes[hid] = o; persist(); ui.closeModal(); ui.coreModal(); };
     $('modalBox').querySelectorAll('.tailPick button').forEach(b => b.onclick = () => {
       const g = geneById(+b.dataset.u); if (!g) return;
       const t = rollTail(g), o = { ...heroOf(hid) }; o.tails = [...(o.tails || [])]; o.tails[slot] = t;
-      save.heroes = save.heroes || {}; save.heroes[hid] = o; save.genes = save.genes.filter(x => x !== g); persist(); ui.showHub('hero');
+      save.heroes = save.heroes || {}; save.heroes[hid] = o; save.genes = save.genes.filter(x => x !== g); persist(); ui.coreModal();
       ui.modal(`<div class="rollFx" style="color:${TAIL_TIER[t.tier].col}">${TAIL_TIER[t.tier].name}!</div>${pimg(g, 'hero')}
         <h3 style="margin:4px 0;color:${TAIL_TIER[t.tier].col}">${tailText(t)}</h3><div class="sub">${STRAINS[g.strain].name} ${stars(g.star)}의 DNA 말단을 ${HEROES[hid].name}에 달았어요.</div>
         <div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); });
@@ -3804,7 +3811,7 @@ const ui = {
     $('squadRow').querySelectorAll('.sock[data-u]').forEach(b => b.onclick = () => { if (dragBlocked()) return; ui.detail(geneById(+b.dataset.u)); });
     $('squadRow').querySelectorAll('.sock.empty').forEach(b => b.onclick = () => { if (dragBlocked()) return; toast('아래 카드를 끌어다 놓아요'); });
     $('csCore').onclick = () => { if (dragBlocked()) return; $('squadRow').classList.toggle('big'); };
-    $('squadRow').querySelectorAll('.sock.lock').forEach(b => b.onclick = () => { toast(`본체를 Lv${slotNeed(+b.dataset.lock)}까지 키우면 열려요`); ui.showHub('hero'); });
+    $('squadRow').querySelectorAll('.sock.lock').forEach(b => b.onclick = () => { toast(`본체를 Lv${slotNeed(+b.dataset.lock)}까지 키우면 열려요`); ui.coreModal(); });
   },
   // ★ 연구소 = 칸별 가로 줄(F) + 카드를 누르면 비교 시트(C). 보관함(전체 카드·교배)은 따로
   renderLab() {
@@ -3816,7 +3823,7 @@ const ui = {
     const fill = slotFill(), ms = fill.length ? mineStats(fill) : null, tier = coreTier();
     $('csCore').className = 'lhCore t' + tier;
     $('csCore').innerHTML = `${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="" style="opacity:.8">` : ''}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b>`;
-    $('csCore').onclick = () => ui.showHub('hero');
+    $('csCore').onclick = () => ui.coreModal();
     $('labNums').innerHTML = ms ? ui.numsHtml(ms) : '<span class="tile" style="grid-column:1/-1"><small class="lb">아래 줄에서 카드를 눌러 꽂아요</small><b>?</b></span>';
     if (ms) ui.animMine($('csCore'), $('labNums'), ms, 'lab');
     ui.renderRails();
@@ -3846,24 +3853,25 @@ const ui = {
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
     const sock = i => { const open = slotOpen(i), g = sq[i], pd = pick && open && g !== pick ? ui.slotDelta(pick, i).pp : null;
       return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open ? ' wig' : ''}${open ? '' : ' lock'}" data-fs="${i}"><span class="fmL">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span><span class="fmRl">${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(roleBadge0).join('')}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>Lv${slotNeed(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
-    const comp = `<button class="fmS comp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1"><span class="fmL">🤝 동반</span>${!compOn ? `<span class="fmE">🔒<small>Lv${RC.lvComp}</small></span>` : cg ? pimg(cg) : '<span class="fmE">+</span>'}<b>${!compOn ? '' : gv >= 1 ? '<span style="color:#ffd24a">🧬 준비</span>' : cg ? sname(cg.strain) : '비어 있음'}</b>${compOn && cg ? `<i class="fmG" style="--g:${Math.min(100, gv * 100 % 100 || (gv >= 1 ? 100 : 0)).toFixed(0)}%"></i>` : ''}</button>`;
+    const cgv = pick && compOn ? ui.compBest(pick, sq) : null;
+    const comp = `<button class="fmS comp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1"><span class="fmL">🤝 동반</span>${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}${!compOn ? `<span class="fmE">🔒<small>Lv${RC.lvComp}</small></span>` : cg ? pimg(cg) : '<span class="fmE">+</span>'}<b>${!compOn ? '' : gv >= 1 ? '<span style="color:#ffd24a">🧬 준비</span>' : cg ? sname(cg.strain) : '비어 있음'}</b>${compOn && cg ? `<i class="fmG" style="--g:${Math.min(100, gv * 100 % 100 || (gv >= 1 ? 100 : 0)).toFixed(0)}%"></i>` : ''}</button>`;
     const list = sortGenes(save.genes);
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
       return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick && roleFit(g, sel) ? ' fit' : ''}" data-fu="${g.uid}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span><b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
-    const head = pick ? `<div class="fmBar">${pimg(pick)}<div><b>${sname(pick.strain)}</b> 을(를) 어느 칸에 넣을까요?<small>칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화 · 같은 카드를 다시 누르면 취소</small></div><button class="btn" id="fmInfo">ⓘ 정보</button></div>`
-      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> 칸 고름 · 아래 카드를 누르면 바로 꽂혀요` : '칸을 누르면 그 칸에 좋은 카드가 보여요 · 카드를 누르면 넣을 칸을 골라요'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}</div>`;
+    const head = pick ? ui.fmCard(pick, sq)
+      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> = ${SLOT_STAT[sel]}${sel >= 3 ? '·직접 쓰는 스킬' : ''} 담당 · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}% · 카드를 누르면 꽂혀요` : '칸을 누르면 그 칸에 좋은 카드가 보여요 · 카드를 누르면 능력과 넣을 칸이 보여요'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}</div>`;
     $('railList').innerHTML = `<div class="fmWrap">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}${comp}</div>
       <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>`;
     $('railList').style.setProperty('--rg', '6px');
     ui.sortChips('sortRail', () => ui.renderRails());
     const L = $('railList');
     L.querySelectorAll('[data-fs]').forEach(b => b.onclick = () => { const i = +b.dataset.fs;
-      if (!slotOpen(i)) { toast(`본체 Lv${slotNeed(i)}에 열려요`); return ui.showHub('hero'); }
+      if (!slotOpen(i)) { toast(`본체 Lv${slotNeed(i)}에 열려요`); return ui.coreModal(); }
       if (pick) { if (sq[i] === pick) { ui.fmPick = null; return ui.renderRails(); } if (assignSlot(pick, i)) { sfx('build'); buzz(15); ui.fmPick = null; ui.fmSel = null; ui.showHub('lab'); } return; }
       ui.fmSel = sel === i ? null : i; sfx('tap'); ui.renderRails(); });
-    L.querySelector('[data-fc]').onclick = () => { if (!compOn) { toast(`본체 Lv${RC.lvComp}에 열려요`); return ui.showHub('hero'); }
+    L.querySelector('[data-fc]').onclick = () => { if (!compOn) { toast(`본체 Lv${RC.lvComp}에 열려요`); return ui.coreModal(); }
       if (pick) { const g = pick; ui.fmPick = null; ui.renderRails(); return ui.compSheet(g); }
       if (cg) return ui.compSheet(cg); toast('카드를 먼저 누르고 🤝 동반 칸을 눌러요'); };
     L.querySelectorAll('[data-fu]').forEach(b => b.onclick = () => { const g = geneById(+b.dataset.fu); if (!g) return;
@@ -3871,8 +3879,20 @@ const ui = {
       if (!pick && sel != null) { if (sq[sel] === g) return ui.detail(g); if (assignSlot(g, sel)) { sfx('build'); buzz(15); ui.fmSel = null; ui.showHub('lab'); } return; }
       ui.fmPick = g.uid; ui.fmSel = null; sfx('tap'); ui.renderRails(); });
     if ($('fmInfo')) $('fmInfo').onclick = () => { const g = pick; ui.fmPick = null; ui.renderRails(); ui.detail(g); };
+    if ($('fmX')) $('fmX').onclick = () => { ui.fmPick = null; ui.renderRails(); };
     if ($('bRcGo')) $('bRcGo').onclick = () => ui.recombine();
   },
+  // 동반으로 두면 주전에게 줄 수 있는 가장 좋은 것
+  compBest(g, sq) { let best = null; for (const t of (sq || slotGenes()).filter(Boolean)) { if (t === g) continue; for (const o of rcOptions(g, t)) if (!o.lock && !o.none && (!best || (o.pp || 0) > (best.pp || 0))) best = { ...o, tg: t }; } return best; },
+  // 카드를 고르면 위에 뜨는 설명: 역할·맞는 칸·능력치 등급·스킬·동반 효과
+  fmCard(g, sq) { const D = STRAINS[g.strain], rk = ROLE_OF[g.strain], fit = (ROLE_SLOT[rk] || []).map(i => SLOT_NAME[i]).join('·'), sk = geneSkill(g), cb = coreL() >= RC.lvComp ? ui.compBest(g, sq) : null;
+    const gr = [0, 1, 2, 3].map(i => { const v = slotGrade(g, i); return `<span>${SLOT_ICON[i]} ${SLOT_STAT[i]} <b style="color:${GRADE_COL[v]}">${v}</b></span>`; }).join('');
+    return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} <span style="color:${RARITY[D.rarity].color}">${stars(g.star)}</span> <small>Lv${g.lv || 1}</small></b>
+      <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · 맞는 칸 <b style="color:#9fd8ff">${D.legend ? '어디든 +10%' : fit ? `${fit} +${Math.round(ROLE_BONUS * 100)}%` : '-'}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
+      <div class="fcGr">${gr}</div>
+      <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>꼬리·더듬이 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
+      ${cb ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반 칸에 두면 <b>${sname(cb.tg.strain)}</b>에게 <b>${cb.t}</b>를 옮겨 줄 수 있어요${cb.pp ? ` <em style="color:#9fff6a">(전투력 +${cb.pp}%)</em>` : ''} <small>동반은 전투력엔 안 들어가요</small></div>` : ''}
+      <div class="fcHint">👆 넣을 칸을 누르세요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
   renderRailsOld() {
     const sq = slotGenes(), used = new Map(); SL.forEach(i => { if (sq[i]) used.set(sq[i].uid, i); });
     let h = '';
@@ -3890,7 +3910,7 @@ const ui = {
     $('railList').querySelectorAll('.rc[data-u]').forEach(b => b.onclick = () => ui.cmpSheet(geneById(+b.dataset.u), +b.dataset.s));
     $('railList').querySelectorAll('.rc[data-empty]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.s));
     $('railList').querySelectorAll('[data-more]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.more));
-    $('railList').querySelectorAll('.rLock').forEach(b => b.onclick = () => ui.showHub('hero'));
+    $('railList').querySelectorAll('.rLock').forEach(b => b.onclick = () => ui.coreModal());
     $('railList').querySelectorAll('.rc[data-comp]').forEach(b => b.onclick = () => ui.compSheet(geneById(+b.dataset.comp)));
     if ($('bRcGo')) $('bRcGo').onclick = () => ui.recombine();
   },
@@ -4878,7 +4898,7 @@ $('bReset').onclick = () => {
 $('bMode').onclick = () => { save.mode = TA() ? 'classic' : 'ta'; persist(); toast(TA() ? '타임어택: 약 먹기 전까지 충전된 만큼 방출 · 스킬 자동' : '클래식: 부대를 한 번씩 출격 · 스킬 직접'); ui.showHub(); };
 $('tabBody').onclick = () => ui.showHub('body');
 $('tabLab').onclick = () => ui.showHub('lab');
-$('tabHero').onclick = () => ui.showHub('hero');
+$('tabHero').onclick = () => $('bDex').click();
 $('pgPrev').onclick = () => { page--; ui.renderLab(); };
 $('pgNext').onclick = () => { page++; ui.renderLab(); };
 $('bDex').onclick = () => dexView();
@@ -4916,6 +4936,10 @@ $('btnPause').onclick = () => { if (!run || run.over) return; paused = true;   /
   $('pzGo').onclick = () => { ui.closeModal(); paused = false; };
   $('pzRe').onclick = () => { const wk = run && run.wk; ui.closeModal(); run = null; paused = false; WK_RUN = !!wk; try { startRun(); } finally { WK_RUN = false; } };   
   $('pzOut').onclick = () => { ui.closeModal(); paused = false; if (run && run.wk && !run.over) return wkEnd(run); ui.showHub(); }; };
+$('btnExit').onclick = () => { if (!run || run.over) return; paused = true;
+  ui.modal(`<h3 style="margin:0 0 6px">그만하고 나갈까요?</h3><div class="sub">${run.wk ? '지금까지 준 피해는 기록돼요.' : '이번 판은 결과 없이 끝나요.'}</div><div class="row"><button class="btn green" id="exGo">계속하기</button><button class="btn red" id="exOut">나가기</button></div>`);
+  $('exGo').onclick = () => { ui.closeModal(); paused = false; };
+  $('exOut').onclick = () => { ui.closeModal(); paused = false; if (run && run.wk && !run.over) return wkEnd(run); ui.showHub('lab'); }; };
 canvas.addEventListener('pointerdown', e => {
   if (!run) return;
   if (stealthOn()) { const r = canvas.getBoundingClientRect(), x = (e.clientX - r.left) * W / r.width, y = (e.clientY - r.top) * H / r.height; run.sth.joy = { id: e.pointerId, bx: x, by: y, kx: x, ky: y, dx: 0, dy: 0, mag: 0 }; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} return; }
