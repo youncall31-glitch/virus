@@ -1011,8 +1011,8 @@ const TOWER_TIP = { bcell:'한 계통만 알아본다 · 항원 변이로 따돌
 // 아기 몸: 코·폐는 첫판에 아슬아슬, 장부터는 2~3번 도전(지면서 DNA로 강화)
 const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin: 1.25, lymph: 1.35 };
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
-const HOST0_T = { nose: 1, lung: 1.05, gut: 1.85, liver: 1.85, blood: 2.2, skin: 2.3, lymph: 2.4 };
-const HOST_Q = [1.8, 4.2, 5.1, 6.0];
+const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
+const HOST_Q = [1.8, 4.8, 5.8, 6.8];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
 const HOST_OQ = { nose: 1.06, lung: 1.28, gut: 1.28, liver: 0.72, blood: 0.85, skin: 0.85, lymph: 0.75 };
 // 같은 기관에서 질수록 몸이 지친다: 실패 1번마다 목표 −4% (최대 −12%). 강화 1~3번이면 넘을 수 있게
@@ -3118,7 +3118,7 @@ function update(dt) {
   if (R.cfx && R.cfx.stun && R.ta && !stealthOn()) { R.cfxT -= dt; if (R.cfxT <= 0) { R.cfxT = R.cfx.stun; const [fx, fy] = pathAt(R.frontD || map.d0 || 0), t = R.towers.filter(t => t.hp > 0).sort((a, b) => Math.hypot(a.x - fx, a.y - fy) - Math.hypot(b.x - fx, b.y - fy))[0]; if (t) { t.stunT = Math.max(t.stunT || 0, 5); float(t.x, t.y - 48, `🌧 ${R.cfx.name}! 마비`, '#9affc0', 14); } } }
   for (const b of Object.values(R.sb)) { for (const k of SKILL_T) b[k] = Math.max(0, (b[k] || 0) - dt); if (!b.shield) b.shieldMul = 1; if (!b.spd) b.spdMul = 1; }
   if (R.ta) {
-    for (const gr of R.groups) { gr.charge = Math.min(1, gr.charge + dt / RULES.ta.charge * (gr.reawake ? 0.6 : 1) * (1 + CORE_FX.rep * coreL())); if (gr.reawake && gr.charge >= 1) release(gr, true);
+    for (const gr of R.groups) { gr.charge = Math.min(1, gr.charge + dt / RULES.ta.charge * (gr.reawake ? 0.6 : 1) * (1 + CORE_FX.rep * coreL()) * (nestOn() ? 0.6 + 0.4 * nestZone() : 1)); if (gr.reawake && gr.charge >= 1) release(gr, true);
       // ★ 카드를 누르지 않아도 저절로 둥지(부푼 길)에 모인다 — 손은 돌격·스킬에만
       else if (nestOn() && !gr.reawake && !(R.tutOn && R.tutStep < 4) && gr.charge * gr.max >= Math.max(RULES.ta.minRelease, gr.max * 0.25) && nestTotal() < nestCap()) toNest(gr, true); }
     stepNest(dt);
