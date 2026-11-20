@@ -997,11 +997,15 @@ TOWERS.bcell = { name:'B세포 항체탑', range:120, dmg:4, rate:0.9, mode:'spe
 const TOWER_TIP = { bcell:'한 계통만 알아본다 · 항원 변이로 따돌릴 수 있음', neutro:'약점: 단단한 탱커에 약함', macro:'약점: 흩어진 소수에 약함, 뭉치면 위험', tcell:'한 계통만 알아본다 · 다른 계통은 그냥 지나감', nk:'복제체·분열체에 강함', complement:'약점: 사거리가 짧음 — 지름길로 피하기', dendri:'은신 노출', cilia:'감속' };
 /* ---------- [data/body.js] 숙주 4명 × 기관 8곳 (취약할수록 쉬움) ---------- */
 // 숙주별 추가 목표: 아기 몸은 아슬아슬하게 이기고, 다음 몸부터는 기관마다 강화 1~3번이 필요하게
+// 아기 몸: 코·폐는 첫판에 아슬아슬, 장부터는 2~3번 도전(지면서 DNA로 강화)
+const HOST0_Q = { nose: 1.0, lung: 0.95, gut: 1.2, liver: 1.1, blood: 1.2, skin: 1.25, lymph: 1.35 };
+// 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
+const HOST0_T = { nose: 1, lung: 1.05, gut: 1.6, liver: 1.6, blood: 1.6, skin: 1.7, lymph: 1.8 };
 const HOST_Q = [1.8, 4.2, 5.1, 6.0];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
 const HOST_OQ = { nose: 1.06, lung: 1.28, gut: 1.28, liver: 0.85, blood: 0.85, skin: 0.85, lymph: 0.75 };
 // 같은 기관에서 질수록 몸이 지친다: 실패 1번마다 목표 −4% (최대 −12%). 강화 1~3번이면 넘을 수 있게
-const failEase = id => 1 - Math.min(0.12, 0.04 * ((save.fails || {})[save.host + ':' + id] || 0));
+const failEase = id => 1 - Math.min(0.3, 0.06 * ((save.fails || {})[save.host + ':' + id] || 0));
 const HOSTS = [
   { name:'어린이', mul:1.0, note:'면역 기억이 적다' }, { name:'만성질환 노인', mul:1.35, note:'면역이 약하지만 약을 자주 쓴다' },
   { name:'건강한 성인', mul:1.7, note:'균형 잡힌 면역' }, { name:'엘리트 운동선수', mul:2.1, note:'최상급 면역' },
@@ -1969,9 +1973,9 @@ function stageInfo(organ) {
   if (save.host === 1 && (organ.id === 'lung' || organ.id === 'blood')) qm *= 0.8;
   const quota = +((5 + 7 * organ.diff) * host.mul * (save.host === 0 && organ.id === 'nose' ? 1 : HOST_Q[save.host] || 1) * (save.host >= 1 ? HOST_OQ[organ.id] || 1 : 1) * failEase(organ.id) * qm * (TA() ? RULES.ta.quotaMul * Math.sqrt(timeLimit(organ) / 70) : 1)).toFixed(1);
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
-  const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm;   // 몸의 경계 + 난이도 곡선
+  const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm * (save.tutDone && save.host === 0 ? HOST0_T[organ.id] || 1 : 1) * failEase(organ.id);   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.085) * (save.tutDone && save.host === 0 ? (organ.id === 'nose' ? 0.88 : organ.id === 'lung' ? 0.5 : organ.id === 'gut' ? 0.75 : organ.id === 'liver' ? 0.8 : 1) : 1);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.085) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
