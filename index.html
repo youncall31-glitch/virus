@@ -1357,6 +1357,13 @@ function migrate(s) {
   const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
   s.dna = Math.max(0, num(s.dna, 300));
   // 재화 개편(본체 = 그릇): 예전에 본체 진화에 쓴 DNA를 한 번 돌려준다
+  // 같은 바이러스 여러 장(예전 저장) → 가장 좋은 한 장으로 합치고 나머지는 흔적으로
+  if (!s.dedup1 && Array.isArray(s.genes)) { s.dedup1 = true; const best = {}, drop = new Set();
+    for (const g of s.genes) { if (!g || g.shiny || g.mut || !STRAINS[g.strain]) continue; const b = best[g.strain]; if (!b) { best[g.strain] = g; continue; }
+      const gw = (g.star || 1) > (b.star || 1) || ((g.star || 1) === (b.star || 1) && (g.lv || 1) > (b.lv || 1)), keep = gw ? g : b, out = gw ? b : g, d = STRAINS[out.strain];
+      keep.lv = Math.max(keep.lv || 1, out.lv || 1); s.shards = num(s.shards, 0) + (d.legend ? 40 : [1, 3, 10, 10][d.rarity] || 1) * (out.star || 1); drop.add(out);
+      s.squad = (s.squad || []).map(u => u === out.uid ? keep.uid : u); if (s.comp === out.uid) s.comp = null; best[g.strain] = keep; }
+    if (drop.size) { s.genes = s.genes.filter(g => !drop.has(g)); const seen = new Set(); s.squad = (s.squad || []).map(u => u == null || seen.has(u) ? null : (seen.add(u), u)); } }
   if (!s.econ2) { s.econ2 = true; let r = 0; for (let l = 0; l < Math.min(num(s.coreL, 0), 20); l++) r += Math.round(60 * Math.pow(1.17, l) / 10) * 10; if (r) { s.dna += r; s.econRefund = r; } } s.host = clamp(Math.floor(num(s.host, 0)), 0, HOSTS.length - 1); s.pity = Math.max(0, num(s.pity, 0)); s.shards = Math.max(0, num(s.shards, 0)); s.t1 = Math.max(0, num(s.t1, 0)); s.t10 = Math.max(0, num(s.t10, 0));
   for (const k of ['done', 'legacy', 'codex', 'stars', 'tips', 'recipes', 'bossKO', 'heroes', 'seen', 'seenMut', 'dexClaim']) if (!s[k] || typeof s[k] !== 'object' || Array.isArray(s[k])) s[k] = {};
   s.genes = (Array.isArray(s.genes) ? s.genes : []).filter(g => g && STRAINS[g.strain] && g.strain !== 'mine');
@@ -2584,7 +2591,7 @@ function mutate(k) { const R = run, g = R.groups.find(x => x.strain === k); if (
 // ★ 바이러스도 탑을 갉아먹는다: 탑 옆을 지나가는 바이러스가 조금씩 깎고, 무너지면 그 자리는 10초간 감염 세포 → 면역은 다른 자리에 다시 짓는다
 const TOWER_HP = { base: 45, bite: 0.6, near: 48, block: 10, rebuild: 2.5 };
 // ★ 항체 줍기: 탑이 부서지면 그 탑의 항체가 떨어진다. 몸 세포가 흡수하기 전에(약 3초) 누르면 그 탑 종류 공격에 내성 +10% (최대 30%)
-const AB = { life: 3.2, step: 0.1, cap: 0.3 };
+const AB = { life: 4, step: 0.1, cap: 0.3 };
 // ★ 약 투여: 12초마다 '약효 도달 3·2·1' 카운트다운 → 4초간 약효 (무리 체력이 서서히 깎이고 느려짐).
 //   카운트다운이나 약효 중에 스킬을 쓰면 변이로 버텨서 약효 피해 70% 감소 · 느려짐 없음
 // 카운트다운 중에 쓴 스킬은 쿨타임 절반 돌려받음 → 아무 때나 막 쓰기보다 타이밍을 맞추는 게 이득. 버티면 약효 동안 '역습' 공격 ×1.25
@@ -2611,24 +2618,24 @@ function drawMed(time) { const R = run, M = R && R.med; if (!M) return; ctx.save
 // ★ 결전 나팔: 길 위 한 곳을 찍으면 3초간 뒤처진 무리는 빨리(멀수록 더), 앞선 무리는 기다려서 한 덩어리로. 모인 무리는 5초간 공격·감염 ×1.2
 const HORN = { t: 3, rally: 5, buff: 1.2, near: 80 };
 let hornAim = false;
-function pickAb(a) { const R = run; R.abs = R.abs.filter(x => x !== a); R.res = R.res || {}; const v = Math.min(AB.cap, (R.res[a.type] || 0) + AB.step); R.res[a.type] = v; R.abN = (R.abN || 0) + 1;
-  float(a.x, a.y - 16, `${TOWERS[a.type].name} 내성 ${Math.round(v * 100)}%`, '#9fe8ff', 14); burst(a.x, a.y, 8, '#9fe8ff'); sfx('up'); buzz(12); }
+// ★ 흔적 줍기: 탑이 부서지면 🧫 흔적이 떨어진다. 사라지기 전에(약 3초) 누르면 흔적 +2 (판이 끝나면 지든 이기든 받음)
+function pickAb(a) { const R = run; R.abs = R.abs.filter(x => x !== a); R.abN = (R.abN || 0) + 1; const n = 2; R.pickSh = (R.pickSh || 0) + n;
+  float(a.x, a.y - 16, `🧫 흔적 +${n}`, '#e8c8ff', 15); burst(a.x, a.y, 8, '#e8c8ff'); sfx('up'); buzz(12); }
 function blowHorn(d) { const R = run; if (!R || (R.hornN || 0) <= 0) return false; R.hornN--; R.horn = { d, t: HORN.t }; R.hornUsed = (R.hornUsed || 0) + 1; banner('📯 결전! 모여라!'); sfx('alarm'); buzz([40, 30, 80]); shake(4); return true; }
 function stepAbHorn(dt) {
   const R = run; R.abs = R.abs || [];
   for (const a of R.abs) { a.age += dt; a.x += a.vx * dt; a.y += a.vy * dt; a.vy *= 0.96; a.vx *= 0.96; }
   for (const a of R.abs.filter(a => a.age >= AB.life)) burst(a.x, a.y, 5, '#c0a0a0');
   R.abs = R.abs.filter(a => a.age < AB.life);
-  if (R.hornN == null) R.hornN = 1;
-  if (!R.hornBonus && R.infAmt >= R.st.quota * 0.5) { R.hornBonus = true; R.hornN++; banner('📯 결전 나팔 충전!'); }
+  R.hornN = 0;   // 결전 나팔은 뺐다 (돌격이 같은 역할)
   const H = R.horn; if (H) { H.t -= dt; if (H.t <= 0) { let n = 0; for (const u of R.units) if (u.alive && !u.hero && Math.abs(u.d - H.d) < HORN.near) { u.rally = HORN.rally; n++; }
     const [x, y] = pathAt(H.d); if (n) float(x, y - 40, `결전 ${n}마리! 공격 ×${HORN.buff}`, '#ffcf6a', 16); R.horn = null; } }
 }
 function drawAbHorn(time) {
   const R = run; if (!R) return; ctx.save();
-  for (const a of R.abs || []) { const col = TOWERS[a.type].color || '#9fe8ff', k = 1 - a.age / AB.life, bob = Math.sin(time * 5 + a.x) * 2;
+  for (const a of R.abs || []) { const col = '#c58cff', k = 1 - a.age / AB.life, bob = Math.sin(time * 5 + a.x) * 2;
     ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 8); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(a.x, a.y + bob, 17, 0, TAU); ctx.fill();
-    ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(a.x, a.y + bob + 9); ctx.lineTo(a.x, a.y + bob); ctx.lineTo(a.x - 7, a.y + bob - 8); ctx.moveTo(a.x, a.y + bob); ctx.lineTo(a.x + 7, a.y + bob - 8); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.font = '22px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🧫', a.x, a.y + bob + 1); ctx.textBaseline = 'alphabetic';
     ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(a.x, a.y + bob, 21, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke(); }
   const H = R.horn; if (H) { const [x, y] = pathAt(H.d), p = 1 + 0.15 * Math.sin(time * 10); ctx.globalAlpha = 0.8; ctx.strokeStyle = '#ffcf6a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 34 * p, 0, TAU); ctx.stroke();
     ctx.globalAlpha = 1; ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('📯', x, y - 38); }
@@ -2669,6 +2676,7 @@ function biteTowers(dt) {
   for (const t of R.towers.filter(t => t.hp <= 0)) {
     R.koN = (R.koN || 0) + 1; sfx('collapse'); buzz(25); hitStop(0.07); (R.collapse = R.collapse || []).push({ type: t.type, x: t.x, y: t.y, t: 0.9, dir: Math.random() < 0.5 ? -1 : 1 }); shake(6); for (let i = 0; i < 10; i++) { const a = rand(-Math.PI, 0), sp = rand(60, 160); R.parts.push({ x: t.x, y: t.y - 20, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.6, c: i % 2 ? '#8a7a6a' : TOWERS[t.type].color, r: rand(2, 4) }); }
     if (R.ta) (R.abs = R.abs || []).push({ x: t.x, y: t.y - 34, type: t.type, age: 0, vx: rand(-14, 14), vy: -22 });
+    if (R.ta && !(save.tips || {}).abPick) { save.tips = save.tips || {}; save.tips.abPick = true; setTimeout(() => banner('🧫 흔적이 떨어졌어요! 사라지기 전에 눌러서 주워요'), 300); }
     R.towers = R.towers.filter(x => x !== t); R.rings.push({ x: t.x, y: t.y - 20, r: 8, R: 70, t: 0.7, color: '#c06ad0' }); burst(t.x, t.y - 20, 10, '#e8a0ff');
     float(t.x, t.y - 50, `${TOWERS[t.type].name} 붕괴!`, '#e8a0ff', 15);
     R.ruins = R.ruins || []; R.ruins.push({ x: t.x, y: t.y, t: TOWER_HP.block });
@@ -3280,6 +3288,7 @@ function endRun() {
   save.useH = save.useH || {}; for (const g of R.groups) save.useH[g.strain] = (save.useH[g.strain] || 0) + (g.total || 0);
   const before = progN();
   { save.fails = save.fails || {}; const fk = save.host + ':' + st.organ.id; if (win) delete save.fails[fk]; else if (!st.replay && R.ta) save.fails[fk] = (save.fails[fk] || 0) + 1; }
+  if (R.pickSh) save.shards = (save.shards || 0) + R.pickSh;
   if (win) {
     // ★ 뽑기권: 첫 정복 = 10번 뽑기권, 다시 하기 승리 = 1번 뽑기권, 숙주 완료 = 10번 뽑기권 2장 더
     const first = !save.done[st.organ.id]; R.tix = first ? { t10: TIX.first } : { t1: TIX.replay }; if (st.organ.id === 'brain' && first) R.tix.t10 = (R.tix.t10 || 0) + TIX.host;
@@ -4345,7 +4354,7 @@ const ui = {
     $('dpAll').onclick = () => { goAll(); toast(run.ta ? '전부 방출!' : '전원 출격!'); ui.tickDeploy(); };
     if (!unlocked('hero')) $('dpHero').remove(); else $('dpHero').onclick = () => { spawnHero(); ui.tickDeploy(); };
   },
-  tickHorn() { const b = $('hornBtn'); if (!b) return; const show = !!(run && run.ta && !stealthOn() && !run.over && !run.endAt && doneCount() >= 3); b.hidden = !show; if (!show) return;
+  tickHorn() { const b = $('hornBtn'); if (!b) return; b.hidden = true; return; const show = !!(run && run.ta && !stealthOn() && !run.over && !run.endAt && doneCount() >= 3); b.hidden = !show; if (!show) return;
     $('hornN').textContent = run.hornN ?? 1; b.classList.toggle('off', !(run.hornN ?? 1) && !hornAim); },
   wkHud() { const R = run, K = R && R.wk, el = $('wkHud'); if (!el) return; el.hidden = !K; if (!K) return; const w = wkSave(); el.style.setProperty('--bot', BOTTOM + 'px'); el.querySelector('.wkTop').hidden = stealthOn(); el.querySelector('.wkGauge').hidden = stealthOn();
     $('wkName').textContent = K.def.name; $('wkWeak').innerHTML = `약점 ${K.def.weak.map(x => ROLES[x].name).join('·')} · 강함 ${K.def.strong.map(x => ROLES[x].name).join('·')}`;
@@ -4353,7 +4362,7 @@ const ui = {
     const left = Math.max(0, Math.ceil((R.T || 0) - R.time)); $('wkTime').textContent = stealthOn() ? '🤫 잠입 중' : `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
     const f = (K.dmg % WK.per) / WK.per, n = K.cells % 10; $('wkCells').innerHTML = Array.from({ length: 10 }, (_, i) => `<i class="${i < n ? 'f' : i === n ? 'p' : ''}" ${i === n ? `style="--f:${(f * 100).toFixed(0)}%"` : ''}></i>`).join('');
     $('wkGs').textContent = `이번 판 🧫${K.sh} · 이번 주 ${w.got + (K.ended ? 0 : K.sh)}/${WK.cap}`; },
-  tickRc() { const b = $('rcChip'); if (!b) return; const cg = run && run.ta && !run.over ? compGene() : null; b.hidden = !cg; if (!cg) return;
+  tickRc() { const b = $('rcChip'); if (!b) return; b.hidden = true; return;   // 동반 게이지는 판 중엔 숨김 (결과 화면에서만) const cg = run && run.ta && !run.over ? compGene() : null; b.hidden = !cg; if (!cg) return;
     const v = (save.rcG || 0) + rcGainOf(run), f = v >= 1 ? 1 : v % 1; if (b.dataset.u != cg.uid) { b.dataset.u = cg.uid; b.querySelector('img').src = imgSrc(IMG[cg.strain], 'assets/rhino.png'); }
     b.style.setProperty('--p', (f * 100).toFixed(1) + '%'); b.querySelector('b').textContent = v >= 1 ? '준비!' : Math.floor(f * 100) + '%'; b.classList.toggle('full', v >= 1);
     if (v >= 1 && !run.rcPing && (save.rcG || 0) < 1) { run.rcPing = true; float(W / 2, H * 0.3, '🧬 재조합 준비 완료! 판이 끝나면 옮겨 심어요', '#e9a3ff', 16); sfx('up'); buzz(30); } },
@@ -4432,7 +4441,7 @@ const ui = {
       : pct < 50 ? '연구소에서 DNA로 카드를 강화하면 훨씬 세져요.' : '거의 다 왔어요! 화면 테두리가 초록색일 때 돌격하면 더 세요.';
     // ★ 결과 화면: 한 화면에. 제목 → 별 → 보상 한 칸 → 꼭 알아야 할 것 한두 줄 → 버튼
     const SL3 = ['성공', '안 들키고 숨어들기', '시간 30% 남기기'], miss = R.starCond ? SL3.find((t, i) => !R.starCond[i]) : null;
-    const tixT = R.tix ? [R.tix.t10 ? `🎟 10연차 ×${R.tix.t10}` : '', R.tix.t1 ? `🎟 ×${R.tix.t1}` : ''].filter(Boolean).join(' ') : '', shT = (R.tix && R.tix.sh || 0) + (R.starShard || 0);
+    const tixT = R.tix ? [R.tix.t10 ? `🎟 10연차 ×${R.tix.t10}` : '', R.tix.t1 ? `🎟 ×${R.tix.t1}` : ''].filter(Boolean).join(' ') : '', shT = (R.tix && R.tix.sh || 0) + (R.starShard || 0) + (R.pickSh || 0);
     const notes = [
       ending ? `🏁 엔딩 ${ending.isNew ? '새로 열림' : ''}: <b>${ending.name}</b>${hostDone && save.host > 0 ? ` · 다음 사람(${HOSTS[save.host].name})으로! ${hostRule().icon} ${hostRule().title}` : ''}` : '',
       R.newUnlocks && R.newUnlocks.length ? `🔓 새 기능: <b>${R.newUnlocks.join(' · ')}</b>` : '',
