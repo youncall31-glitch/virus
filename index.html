@@ -2277,10 +2277,8 @@ const HUB_TIPS = [
   { id: 'shard', t: '조각', when: () => (save.shards || 0) > 0, tab: 'lab', sel: '#navPull', txt: '겹친 카드는 <b>🧩 조각</b>이 돼요. 모아서 등급 뽑기!' },
   { id: 'multi', t: '연속 뽑기', when: () => save.dna >= MULTI[5].cost, tab: 'lab', sel: '#navPull', txt: '<b>5번·10번</b> 뽑기는 더 싸고 <b>좋은 카드 확정</b>!' },
   { id: 'dex', t: '도감', when: () => Object.keys(save.seen || {}).length >= 8, tab: 'lab', sel: '#bDex', txt: '모은 바이러스는 <b>도감</b>에서 빛나요. 모을수록 <b>DNA 보상</b>!' },
-  { id: 'gen', t: '세대 교배', when: () => unlocked('breed') && save.genes.some(g => g.mix), tab: 'lab', sel: '#bBreed', txt: '<b>교배종끼리 또 교배</b>하면 더 세지고 스킬도 둘!' },
-  { id: 'dual', t: '이중 스킬', when: () => slotGenes().some(g => g && g.mix), tab: 'lab', sel: '#labNums', txt: '교배종은 <b>스킬 두 개</b>를 한 번에 써요.' },
   { id: 'tier', t: '돌파', when: () => save.genes.some(g => g.star >= MAXSTAR && (g.lv || 1) >= MAXLV), tab: 'lab', sel: '#bBox', txt: '게이지가 꽉 차면 <b>돌파</b>! 계속하면 <b>👑 변성</b>!' },
-  { id: 'boss', t: '보스', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .feat', txt: '목표 앞의 <b>보스</b>를 쓰러뜨리면 감염 ×1.25!' },
+  { id: 'boss', t: '보스', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .bossChip', txt: '목표 앞의 <b>보스</b>를 쓰러뜨리면 감염 ×1.25!' },
   { id: 'lab', when: () => doneCount() >= 1 || save.dnaSpent, tab: 'body', sel: '#tabLab', txt: '<b>연구소</b>에서 카드를 강화하고 뽑아요.' },
   { id: 'lab1', when: () => true, tab: 'lab', sel: '#csCore', step: '1/5', txt: '<b>내 바이러스</b> = 칸에 꽂은 카드를 합친 모습.' },
   { id: 'lab2', when: () => true, tab: 'lab', sel: '#railList .rail', step: '2/5', txt: '줄마다 <b>칸</b> 하나. 맨 앞 초록 카드가 지금 꽂힌 카드예요.' },
@@ -2288,18 +2286,21 @@ const HUB_TIPS = [
   { id: 'lab4', when: () => true, tab: 'lab', sel: '#railList .rLock', step: '4/5', txt: '🔒 칸은 <b>본체</b>를 키우면 열려요.' },
   { id: 'lab5', when: () => true, tab: 'lab', sel: '#bAuto', step: '5/5', txt: '고민되면 <b>⭐ 추천 조합</b>! 전체 카드는 📦 보관함에.' },
   { id: 'fit', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .fitBox', txt: '<b>궁합</b>이 높을수록 세져요. 낮으면 추천대로 카드를 바꿔 보세요!' },
-  { id: 'stars', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo h3', txt: '<b>별 3개</b>: 성공 · 안 들키기 · 시간 30% 남기기.' },
+  { id: 'stars', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo h3 .stars, #organInfo h3', txt: '<b>별 3개</b>: 성공 · 안 들키기 · 시간 30% 남기기.' },
 ];
 function hubTip() {
   const el = $('hubTip'); if (!el) return; el.hidden = true; if (HUBSPOT) hubSpot(null); document.querySelectorAll('.tipHi').forEach(e => e.classList.remove('tipHi')); if (!save.tutDone || $('hub').hidden) return;
   if (!$('modal').hidden || !$('catch').hidden || document.querySelector('.dxo')) return;   
-  save.tips = save.tips || {}; const t = HUB_TIPS.find(t => !save.tips[t.id] && t.tab === hubTab && t.when()); if (!t) return; const tg = document.querySelector(t.sel); if (!tg) return;
-  tg.classList.add('tipHi'); hubSpot(tg); el.innerHTML = `${t.t ? `<div class="cs">💡 ${t.t}</div>` : ''}<div class="ct">${t.step ? `<b style="color:#9c8a76">${t.step}</b> ` : t.t ? '' : '💡 '}${t.txt}</div><div class="cr"><span></span><button class="btn" id="tipOk">${t.step && t.step[0] !== t.step[2] ? '다음 ▶' : '알겠어요'}</button></div>`; el.hidden = false;
+  save.tips = save.tips || {}; const t = HUB_TIPS.find(t => !save.tips[t.id] && t.tab === hubTab && t.when()); if (!t) return; const tg = [...document.querySelectorAll(t.sel)].find(e => { const r = e.getBoundingClientRect(); return r.width > 4 && r.height > 4 && e.offsetParent; }); if (!tg) return;
+  try { tg.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+  tg.classList.add('tipHi'); hubSpot(tg); HUBSPOT_T = tg; el.innerHTML = `${t.t ? `<div class="cs">💡 ${t.t}</div>` : ''}<div class="ct">${t.step ? `<b style="color:#9c8a76">${t.step}</b> ` : t.t ? '' : '💡 '}${t.txt}</div><div class="cr"><span></span><button class="btn" id="tipOk">${t.step && t.step[0] !== t.step[2] ? '다음 ▶' : '알겠어요'}</button></div>`; el.hidden = false;
   $('tipOk').onclick = () => { save.tips[t.id] = true; persist(); hubTip(); };
 }
 // 허브 안내용 스포트라이트: 할 곳만 밝게, 상자는 반대쪽 절반에
-let HUBSPOT = false;
-function hubSpot(tg) { const sp = $('tutSpot'), sr = $('stage').getBoundingClientRect(); if (!tg) { HUBSPOT = false; sp.hidden = true; return; }
+let HUBSPOT = false, HUBSPOT_T = null;
+// 안내 중에는 대상이 움직이거나(스크롤·레이아웃 변화) 커져도 빛나는 테두리가 계속 정확히 따라가게
+(function spotFollow() { try { if (HUBSPOT && HUBSPOT_T) { if (!HUBSPOT_T.isConnected || !HUBSPOT_T.offsetParent) { hubTip(); } else hubSpot(HUBSPOT_T); } } catch (e) {} requestAnimationFrame(spotFollow); })();
+function hubSpot(tg) { const sp = $('tutSpot'), sr = $('stage').getBoundingClientRect(); if (!tg) { HUBSPOT = false; HUBSPOT_T = null; sp.hidden = true; return; }
   const r = tg.getBoundingClientRect(), x = r.left - sr.left - 6, y = r.top - sr.top - 6; HUBSPOT = true; sp.hidden = false; sp.className = '';
   Object.assign(sp.style, { left: x + 'px', top: y + 'px', width: r.width + 12 + 'px', height: r.height + 12 + 'px', borderRadius: '14px' });
   $('hubTip').classList.toggle('atTop', y + r.height / 2 > sr.height * 0.5); }
@@ -3626,7 +3627,7 @@ const ui = {
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}${save.done[o.id] ? ' <small style="color:#9fff6a">✓</small>' : ''}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
       ${ui.matchHtml(o.id)}
-      <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초</span>` : ''}<span class="chip">🎯 ${Math.round(st.quota)}</span>${BOSS[o.id] ? `<span class="chip" style="border-color:#a0303a;color:#ffb4a8">${BOSS[o.id].ico} ${BOSS[o.id].name}${(save.bossKO || {})[o.id] ? ' ✓' : ''}</span>` : ''}${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ 판막</span>` : ''}${doneCount() ? `<span class="chip warn">🚨 탑 +${Math.round(ALERT_STEP * 100 * doneCount())}%</span>` : ''}</div>
+      <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초</span>` : ''}<span class="chip">🎯 ${Math.round(st.quota)}</span>${BOSS[o.id] ? `<span class="chip bossChip" style="border-color:#a0303a;color:#ffb4a8">${BOSS[o.id].ico} ${BOSS[o.id].name}${(save.bossKO || {})[o.id] ? ' ✓' : ''}</span>` : ''}${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ 판막</span>` : ''}${doneCount() ? `<span class="chip warn">🚨 탑 +${Math.round(ALERT_STEP * 100 * doneCount())}%</span>` : ''}</div>
       ${st.legs.length ? `<div class="feat">${st.legs.map(l => `<span class="chip ok">✅ ${l.text}</span>`).join('')}</div>` : ''}`;
     { const nf = (save.fails || {})[save.host + ':' + o.id] || 0; if (nf && !save.done[o.id]) $('organInfo').insertAdjacentHTML('beforeend', `<div class="feat"><span class="chip" style="border-color:#7fc0ff;color:#bfe0ff">💤 몸이 지쳤어요: 목표 −${Math.round((1 - failEase(o.id)) * 100)}% (실패 ${nf}번)</span></div>`); }
   },
