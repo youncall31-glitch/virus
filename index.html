@@ -958,11 +958,16 @@ const TROP = {
   ttv: [['blood', 'liver', 'lymph'], []], gbvc: [['blood', 'lymph'], ['nose']], cowpox: [['skin'], ['brain']], aav: [['liver', 'lung'], ['skin']],
   yamagata: [['nose', 'lung'], ['blood']], h2n2: [['lung', 'nose'], ['gut']], rinderpest: [['gut', 'lymph'], ['brain']], sars: [['lung', 'nose'], ['skin']],
 };
-function tropOf(st) { if (TROP[st]) return TROP[st]; const d = STRAINS[st]; if (d && d.parents) { const ps = d.parents.map(tropOf); return [[...new Set(ps.flatMap(p => p[0]))], [...new Set(ps.flatMap(p => p[1]))].filter(o => !ps.some(p => p[0].includes(o)))]; } return [[], []]; }
+// ★ 전설은 '고향' 기관에선 아주 세지만(+35%) 그 밖의 모든 기관에선 위험(−15%)
+const ALL_ORG = ['nose', 'lung', 'gut', 'liver', 'blood', 'skin', 'lymph', 'brain'];
+function tropOf(st) { const t = tropOf0(st), d = STRAINS[st]; return d && d.legend ? [t[0], ALL_ORG.filter(o => !t[0].includes(o))] : t; }
+function tropOf0(st) { if (TROP[st]) return TROP[st]; const d = STRAINS[st]; if (d && d.parents) { const ps = d.parents.map(tropOf0); return [[...new Set(ps.flatMap(p => p[0]))], [...new Set(ps.flatMap(p => p[1]))].filter(o => !ps.some(p => p[0].includes(o)))]; } return [[], []]; }
 const tropScore = (st, org) => { const [g, b] = tropOf(st); return g.includes(org) ? 1 : b.includes(org) ? -1 : 0; };
 // 궁합은 주 계통 + 붙은 계통 둘에서만 물려받음 (모든 기관 만능 방지)
 const tropG = (g, org) => { if (g.rc && g.rc.tr && g.rc.tr.includes(org)) return 1; const L = [g.strain, g.mix].filter(Boolean); if (L.length < 2) return tropScore(g.strain, org); return L.some(x => tropScore(x, org) > 0) ? 1 : tropScore(g.strain, org) < 0 ? -1 : 0; };
-const tropMul = (cards, org) => clamp(1 + 0.15 * [...new Set(cards)].reduce((a, c) => a + tropG(c, org), 0), 0.7, 1.45);
+// 실제로 그 기관을 노리는 바이러스면 +20% (전설 +35%), 안 맞는 기관이면 −15%
+const TROP_W = { good: 0.2, leg: 0.35, bad: 0.15 };
+const tropMul = (cards, org) => clamp(1 + [...new Set(cards)].reduce((a, c) => { const t = tropG(c, org); return a + (t > 0 ? (STRAINS[c.strain].legend ? TROP_W.leg : TROP_W.good) : t < 0 ? -TROP_W.bad : 0); }, 0), 0.6, 1.7);
 const sigOf = st => SIGNATURE[st] || SIGNATURE[(STRAINS[st].parents || [])[0]];
 const STAR = { 1:{ hp:1, spd:1, cnt:1, cd:1, atk:1 }, 2:{ hp:1.5, spd:1.05, cnt:1.25, cd:0.8, atk:1.3 }, 3:{ hp:2.2, spd:1.1, cnt:1.5, cd:0.8, atk:1.7 }, 4:{ hp:3.0, spd:1.14, cnt:1.7, cd:0.75, atk:2.2 }, 5:{ hp:4.0, spd:1.18, cnt:1.9, cd:0.7, atk:2.8 } };
 
@@ -1005,7 +1010,7 @@ const HOST_Q = [1.8, 4.2, 5.1, 6.0];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
 const HOST_OQ = { nose: 1.06, lung: 1.28, gut: 1.28, liver: 0.85, blood: 0.85, skin: 0.85, lymph: 0.75 };
 // 같은 기관에서 질수록 몸이 지친다: 실패 1번마다 목표 −4% (최대 −12%). 강화 1~3번이면 넘을 수 있게
-const failEase = id => 1 - Math.min(0.3, 0.06 * ((save.fails || {})[save.host + ':' + id] || 0));
+const failEase = id => 1 - Math.min(0.45, 0.06 * ((save.fails || {})[save.host + ':' + id] || 0));
 const HOSTS = [
   { name:'어린이', mul:1.0, note:'면역 기억이 적다' }, { name:'만성질환 노인', mul:1.35, note:'면역이 약하지만 약을 자주 쓴다' },
   { name:'건강한 성인', mul:1.7, note:'균형 잡힌 면역' }, { name:'엘리트 운동선수', mul:2.1, note:'최상급 면역' },
@@ -3961,6 +3966,7 @@ const ui = {
     return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} <span style="color:${RARITY[D.rarity].color}">${stars(g.star)}</span> <small>Lv${g.lv || 1}</small></b>
       <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · 맞는 칸 <b style="color:#9fd8ff">${D.legend ? '어디든 +10%' : fit ? `${fit} +${Math.round(ROLE_BONUS * 100)}%` : '-'}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
       <div class="fcGr">${gr}</div>
+      ${(() => { const [go, bo] = tropOf(g.strain); return `<div class="fcSk">🏠 실제로 노리는 곳 <b style="color:#9fff6a">${go.map(o => ORG_SHORT[o]).join('·') || '-'}</b> ${D.legend ? `+${Math.round(TROP_W.leg * 100)}%<br><span style="color:#ff9a8a">⚠ 전설의 위험: 그 밖의 모든 기관에선 −${Math.round(TROP_W.bad * 100)}%</span>` : `+${Math.round(TROP_W.good * 100)}%${bo.length ? ` · <span style="color:#ff9a8a">안 맞는 곳 ${bo.map(o => ORG_SHORT[o]).join('·')} −${Math.round(TROP_W.bad * 100)}%</span>` : ''}`}</div>`; })()}
       <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>꼬리·더듬이 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
       ${cb ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반 칸에 두면 <b>${sname(cb.tg.strain)}</b>에게 <b>${cb.t}</b>를 옮겨 줄 수 있어요${cb.pp ? ` <em style="color:#9fff6a">(전투력 +${cb.pp}%)</em>` : ''} <small>동반은 전투력엔 안 들어가요</small></div>` : ''}
       ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
