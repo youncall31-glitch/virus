@@ -649,6 +649,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmTop { position: sticky; top: 0; z-index: 5; background: #140a0e; margin: 0 -2px; padding: 12px 2px 6px; box-shadow: 0 6px 8px -6px rgba(0,0,0,.8); }
   .fmSheet { position: fixed; left: 6px; right: 6px; z-index: 30; animation: fmUp .18s ease-out; filter: drop-shadow(0 -6px 12px rgba(0,0,0,.7)); } .fmSheet .fmCard { border-radius: 16px 16px 12px 12px; } @keyframes fmUp { from { transform: translateY(40px); opacity: 0; } }
   .fmSheet .fcSk small { display: none; }
+  .fmUpA { position: absolute; left: 5px; top: 48px; z-index: 3; width: 18px; height: 18px; border-radius: 50%; background: #2a8a2a; color: #fff; font-size: 11px; line-height: 18px; font-weight: 900; box-shadow: 0 0 6px #7fe05a; animation: legb .8s ease-in-out infinite alternate; }
 </style>
 </head>
 <body>
@@ -1496,6 +1497,9 @@ function levelUp(g) { const c = lvCost(g);
   if ((g.lv || 1) >= MAXLV && g.star >= MAXSTAR) { if (save.dna < c) return 'dna'; save.dna -= c; g.tier = (g.tier || 0) + 1; if (!g.mut && g.tier >= mutNeed(g)) { g.mut = true; markSeenMut(g.strain); return 'mut'; } return 'tier'; }
   if ((g.lv || 1) >= lvCap()) return 'cap';
   if (save.dna < c) return 'dna'; save.dna -= c; g.lv = (g.lv || 1) + 1; coreCheck(); return 'lv'; }
+// 지금 DNA로 강화할 수 있는 편성 카드 수 (지면 안내·카드 표시)
+const canUp = g => (g.lv || 1) < lvCap() && save.dna >= lvCost(g);
+const upCount = () => { let d = save.dna, n = 0; const sq = slotGenes().filter(Boolean).map(g => ({ lv: g.lv || 1, star: g.star })); for (let k = 0; k < 200; k++) { const g = sq.filter(x => x.lv < lvCap()).sort((a, b) => a.lv - b.lv)[0]; if (!g) break; const c = lvCost(g); if (d < c) break; d -= c; g.lv++; n++; } return n; };
 const coreReady = () => coreL() < CORE_MAX && save.genes.filter(g => (g.lv || 1) >= lvCap()).length >= CORE_NEED;
 const coreGift = l => l % 5 === 0 ? { t10: 1 } : l % 2 ? { t1: 1 } : { shards: 15 };
 const giftTxt = r => r.t10 ? '🎟 10번 뽑기권' : r.t1 ? '🎟 뽑기권 1장' : r.shards ? `🧫 흔적 ${r.shards}` : '';
@@ -1546,7 +1550,8 @@ function breed(a, b) {
   }
   return { child, p, reassort, mutation, isNew, rc };
 }
-const lvMul = g => 1 + 0.06 * ((g.lv || 1) - 1);
+// 강화 체감: Lv10까지는 레벨마다 +12%, 그 뒤로는 +6%
+const lvMul = g => { const l = (g.lv || 1) - 1; return 1 + 0.12 * Math.min(l, 9) + 0.06 * Math.max(0, l - 9); };
 function geneStats(g) {
   const d = STRAINS[g.strain], s = STAR[g.star], b = g.branch ? g.strain + g.branch : '';
   const hyb = d.hybrid || d.legend ? g.branch : '';
@@ -1966,7 +1971,7 @@ function stageInfo(organ) {
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
   const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm;   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.085) * (save.tutDone && save.host === 0 ? (organ.id === 'nose' ? 0.88 : organ.id === 'lung' ? 0.5 : organ.id === 'gut' ? 0.75 : organ.id === 'liver' ? 0.9 : 1) : 1);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.085) * (save.tutDone && save.host === 0 ? (organ.id === 'nose' ? 0.88 : organ.id === 'lung' ? 0.5 : organ.id === 'gut' ? 0.75 : organ.id === 'liver' ? 0.8 : 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
@@ -3893,7 +3898,7 @@ const ui = {
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (roleFit(g, sel) || D.legend ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span><b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
+      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (roleFit(g, sel) || D.legend ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span>${!pick && sel == null && canUp(g) ? '<span class="fmUpA">▲</span>' : ''}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
     const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}%  · 밝은 카드를 누르면 꽂혀요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}</div></div>
       <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
@@ -3957,7 +3962,9 @@ const ui = {
       <div class="fcHint">⬆ 위 칸을 누르면 꽂혀요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
   fmUpBind(g) { if (!g) return;
     if ($('fcLv')) $('fcLv').onclick = () => { const b = ui.growBtn(g); if (b.cap) { sfx('fail'); return toast(`본체 Lv${lvCap()}까지예요 · 바이러스 ${CORE_NEED}마리가 Lv${lvCap()}이 되면 본체가 진화해요`); } if (!b.ok) { sfx('fail'); return toast('DNA가 부족해요'); }
+      const P = () => { const f = slotFill(), ms = f.length && mineStats(f); return ms ? powerOf(ms.s, matchTotal(f, save.sel || 'nose')) : 0; }, p0 = P();
       const r = levelUp(g); if (r !== 'lv' && r !== 'tier' && r !== 'mut') return; quest('up'); persist(); sfx(r === 'lv' ? 'up' : 'clear'); buzz(15); $('hubDna').textContent = save.dna;
+      { const p1 = P(); if (p0 && p1 > p0) toast(`강화! ${sname(g.strain)} Lv${g.lv} · 전투력 ${p0} → ${p1} (+${Math.round((p1 / p0 - 1) * 100)}%)`); else toast(`강화! ${sname(g.strain)} Lv${g.lv}${slotGenes().includes(g) ? '' : ' · 편성에 넣어야 전투력에 들어가요'}`); }
       if (r === 'tier') ui.fx(`돌파 +${g.tier}!`, '#7fe05a'); else if (r === 'mut') ui.fx('변성!', '#ffd24a');
       if (ui.coreUpQ && ui.coreUpQ.length) return ui.coreUpShow(() => ui.showHub('lab')); ui.renderLab(); };
     if ($('fcSt')) $('fcSt').onclick = () => { const b = ui.starBtn(g); if (!b || !b.ok) { sfx('fail'); return toast(`🧫 흔적이 부족해요 (${save.shards || 0}) · 같은 바이러스가 또 나오면 모여요`); }
@@ -4435,6 +4442,7 @@ const ui = {
     const pct = Math.min(100, Math.round(R.infAmt / R.st.quota * 100)), C = R.cr, fitRole = (ROLES[(ORGAN_FIT[R.st.organ.id] || {}).role] || {}).name || '';
     const dl = [['감염시킨 만큼', C.inf], ['목표까지 들어간 바이러스', C.reach], ['성공 보상', C.win], ['처음 성공 보너스', C.first], ['빨리 끝낸 보너스', C.time], ['아깝다! 보너스', C.near], ['새로 딴 별', C.star], ['보스 처치', C.boss], ['DNA 강화 효과', C.perk], ['다시 하기 (85%)', C.replay]].filter(x => x[1] > 0 || x[1] < 0);
     const tip = win ? (R.starCond && !R.starCond[1] ? '보초에게 안 들키고 숨어들면 별을 하나 더 받아요.' : R.starCond && !R.starCond[2] ? '시간을 30% 넘게 남기고 이기면 별을 하나 더 받아요.' : '인체 지도에서 다음 기관을 골라 보세요.')
+      : upCount() >= 2 ? `지금 DNA로 편성 카드를 <b>${upCount()}번 강화</b>할 수 있어요! 연구소에서 카드를 눌러 <b>강화</b>하면 훨씬 세져요.`
       : (R.trop || 1) < 1 ? `꽂은 카드 중에 <b>${ORG_SHORT[R.st.organ.id]}에 안 먹히는 바이러스</b>가 있어요. 지도에서 '잘 먹히는 바이러스'를 확인해 보세요.`
       : !R.fitTrue && fitRole ? `이 기관은 <b>${fitRole}</b> 몸통 카드가 유리해요. 연구소에서 몸통 카드를 바꿔 보세요.`
       : R.sth && R.sth.caught ? '숨어들 때 들켰어요. 노란 부채꼴(보초 시야) 안에서는 멈춰 있으세요.'
@@ -4460,7 +4468,7 @@ const ui = {
     $('rsDna').onclick = () => { const l = $('rsList'); l.hidden = !l.hidden; };
     const organId = R.st.organ.id;
     if ($('bRetry')) $('bRetry').onclick = () => { save.sel = organId; $('result').hidden = true; run = null; paused = false; startRun(); };
-    $('bBack').onclick = () => ui.showHub(win ? 'body' : 'lab');
+    $('bBack').onclick = () => { if (!win) { const g = slotGenes().filter(Boolean).filter(canUp).sort((a, b) => (a.lv || 1) - (b.lv || 1))[0]; if (g) ui.fmPick = g.uid; } ui.showHub(win ? 'body' : 'lab'); };
     if ($('resRc')) $('resRc').onclick = () => { ui.showHub('lab'); setTimeout(() => ui.recombine(), 250); };
     if ($('resPull')) $('resPull').onclick = () => { ui.showHub('lab'); setTimeout(pullMenu, 250); };
     const pb = $('perkBox'); if (pb) pb.querySelectorAll('button').forEach(b => b.onclick = () => { const k = b.dataset.k; save.perks = save.perks || {}; save.perks[k] = (save.perks[k] || 0) + 1; persist();
