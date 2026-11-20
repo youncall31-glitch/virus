@@ -591,6 +591,24 @@ img.legend { animation: legGlow 3s linear infinite; }
   .cpHead { display: flex; gap: 10px; align-items: center; margin-top: 8px; } .cpHead > img { width: 72px; height: 72px; flex: 0 0 72px; object-fit: contain; }
   .cpRow { display: flex; gap: 8px; align-items: flex-start; padding: 6px; border-radius: 10px; background: #1a0f14; border: 1px solid #3a2a2e; margin-bottom: 5px; } .cpRow > img { width: 44px; height: 44px; flex: 0 0 44px; object-fit: contain; } .cpRow b { font-size: 14px; }
   .cpOp { font-size: 12.5px; margin-top: 2px; } .cpOp em { font-style: normal; font-weight: 800; color: #9fff6a; } .cpOp.best { color: #ffd24a; } .cpOp.best::after { content: ' ★추천'; font-size: 11px; }
+  .fmWrap { padding: 2px 2px 12px; } .fmH { font-weight: 900; font-size: 15px; display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; } .fmH small { font-weight: 400; font-size: 11px; color: #b59f86; flex: 1; }
+  .fmRc { margin-left: auto; border: 1.5px solid #ffd24a; background: #2a1a10; color: #ffd24a; border-radius: 10px; font-weight: 800; font-size: 12px; padding: 2px 8px; }
+  .fmRow { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 4px; padding-top: 9px; }
+  .fmS { position: relative; border-radius: 12px; border: 2px solid #4a2c33; background: #1d1014; padding: 3px 2px 4px; color: #f3e6d4; text-align: center; min-height: 90px; font-family: inherit; }
+  .fmS.on { border-color: #ffd24a; box-shadow: 0 0 10px rgba(255,210,74,.5); } .fmS.lock { opacity: .5; border-style: dashed; } .fmS.comp { border-color: #8a5ac0; background: #1a1022; }
+  .fmS .fmL { display: block; font-size: 10.5px; color: #cdb8c8; white-space: nowrap; } .fmS img { width: 44px; height: 44px; object-fit: contain; display: block; margin: 2px auto 0; }
+  .fmS b { display: block; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .fmE { display: grid; place-items: center; height: 44px; font-size: 22px; color: #6a5a5a; line-height: 1; } .fmE small { display: block; font-size: 10px; }
+  .fmS .fmG { position: absolute; left: 6px; right: 6px; bottom: 2px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #c58cff var(--g), #3a2040 var(--g)); }
+  .fmP { position: absolute; left: 50%; top: -10px; transform: translateX(-50%); padding: 0 6px; border-radius: 8px; font-size: 11px; font-weight: 900; background: #1d1014; border: 1.5px solid #8a7a6a; z-index: 2; white-space: nowrap; color: #cdb8c8; } .fmP.up { color: #9fff6a; border-color: #9fff6a; } .fmP.dn { color: #ff8a7a; border-color: #ff8a7a; }
+  .fmS.wig { animation: fmWig .45s ease-in-out infinite alternate; border-color: #ffd24a; } @keyframes fmWig { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+  .fmBar { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 12px; background: #2a1a10; border: 1.5px solid #ffd24a; } .fmBar img { width: 38px; height: 38px; object-fit: contain; } .fmBar > div { flex: 1; font-size: 13px; line-height: 1.25; } .fmBar small { display: block; font-size: 10.5px; color: #b59f86; } .fmBar .btn { min-height: 34px; padding: 2px 10px; font-size: 12px; }
+  .fmGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .fmC { position: relative; border-radius: 12px; border: 1.5px solid #3a2a2e; background: #1a0f14; padding: 15px 2px 4px; text-align: center; color: #f3e6d4; font-family: inherit; transition: transform .15s, opacity .15s; } .fmC img { width: 56px; height: 56px; object-fit: contain; display: block; margin: 0 auto; }
+  .fmC b { display: block; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .fmC small { font-size: 10px; letter-spacing: -1px; } .fmC small .lv { color: #b59f86; letter-spacing: 0; margin-left: 3px; }
+  .fmC.in { border-color: #4a8a3a; background: #14200f; } .fmC.cp { border-color: #8a5ac0; } .fmC.best { border-color: #ffd24a; box-shadow: 0 0 8px rgba(255,210,74,.45); }
+  .fmC.pick { border-color: #ffd24a; transform: translateY(-4px) scale(1.04); box-shadow: 0 6px 14px rgba(255,210,74,.5); z-index: 1; } .fmC.dim { opacity: .45; }
+  .fmTag, .fmD { position: absolute; left: 3px; right: 3px; top: 2px; font-size: 10.5px; font-weight: 800; border-radius: 6px; line-height: 14px; z-index: 4; }
+  .fmTag { background: #2e5a1c; color: #c8ffb0; } .fmTag.cpT { background: #3a2050; color: #e9c8ff; } .fmD { color: #b59f86; } .fmD.up { color: #9fff6a; } .fmD.dn { color: #ff8a7a; }
 </style>
 </head>
 <body>
@@ -2281,9 +2299,9 @@ const HUB_TIPS = [
   { id: 'boss', t: '보스', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .bossChip', txt: '목표 앞의 <b>보스</b>를 쓰러뜨리면 감염 ×1.25!' },
   { id: 'lab', when: () => doneCount() >= 1 || save.dnaSpent, tab: 'body', sel: '#tabLab', txt: '<b>연구소</b>에서 카드를 강화하고 뽑아요.' },
   { id: 'lab1', when: () => true, tab: 'lab', sel: '#csCore', step: '1/5', txt: '<b>내 바이러스</b> = 칸에 꽂은 카드를 합친 모습.' },
-  { id: 'lab2', when: () => true, tab: 'lab', sel: '#railList .rail', step: '2/5', txt: '줄마다 <b>칸</b> 하나. 맨 앞 초록 카드가 지금 꽂힌 카드예요.' },
-  { id: 'lab3', when: () => true, tab: 'lab', sel: '#railList .rc.best, #railList .rc[data-u]:not(.cur)', step: '3/5', txt: '금색 <b>+숫자</b> 카드를 누르면 비교하고 바로 꽂을 수 있어요.' },
-  { id: 'lab4', when: () => true, tab: 'lab', sel: '#railList .rLock', step: '4/5', txt: '🔒 칸은 <b>본체</b>를 키우면 열려요.' },
+  { id: 'lab2', when: () => true, tab: 'lab', sel: '#railList .fmRow', step: '2/5', txt: '위는 <b>칸</b>이에요. 칸을 누르면 그 칸에 좋은 카드가 아래에 숫자로 보여요.' },
+  { id: 'lab3', when: () => true, tab: 'lab', sel: '#railList .fmC:not(.in)', step: '3/5', txt: '카드를 누르면 위 칸마다 <b>+숫자</b>가 떠요. 넣을 칸을 누르면 끝!' },
+  { id: 'lab4', when: () => true, tab: 'lab', sel: '#railList .fmS.lock', step: '4/5', txt: '🔒 칸은 <b>본체</b>를 키우면 열려요.' },
   { id: 'lab5', when: () => true, tab: 'lab', sel: '#bAuto', step: '5/5', txt: '고민되면 <b>⭐ 추천 조합</b>! 전체 카드는 📦 보관함에.' },
   { id: 'fit', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .fitBox', txt: '<b>궁합</b>이 높을수록 세져요. 낮으면 추천대로 카드를 바꿔 보세요!' },
   { id: 'stars', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo h3 .stars, #organInfo h3', txt: '<b>별 3개</b>: 성공 · 안 들키기 · 시간 30% 남기기.' },
@@ -3791,7 +3809,44 @@ const ui = {
     const pool = save.genes.filter(g => g !== g0).sort((a, b) => gv(b) - gv(a) || power(b) - power(a)).slice(0, n);
     return pool.map(g => ({ g, r: ui.slotDelta(g, i) })).sort((a, b) => b.r.pt - a.r.pt);
   },
+  // ★ 편성 화면 (클래시 로얄·AFK식): 위 = 고정 칸, 아래 = 순서가 안 바뀌는 내 바이러스 목록 하나
+  //   칸 먼저: 칸을 누르면 카드 위에 그 칸 기준 전투력 변화 → 카드를 누르면 바로 꽂힘
+  //   카드 먼저: 카드를 누르면 위 칸들이 흔들리며 칸마다 변화 숫자 → 칸을 누르면 꽂힘
   renderRails() {
+    const sq = slotGenes(), inSq = new Map(); SL.forEach(i => { if (sq[i]) inSq.set(sq[i], i); });
+    let pick = ui.fmPick != null ? geneById(ui.fmPick) : null; if (!pick) ui.fmPick = null;
+    let sel = ui.fmSel; if (sel != null && !slotOpen(sel)) sel = ui.fmSel = null;
+    const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
+    const sock = i => { const open = slotOpen(i), g = sq[i], pd = pick && open && g !== pick ? ui.slotDelta(pick, i).pp : null;
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open ? ' wig' : ''}${open ? '' : ' lock'}" data-fs="${i}"><span class="fmL">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>Lv${slotNeed(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
+    const comp = `<button class="fmS comp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1"><span class="fmL">🤝 동반</span>${!compOn ? `<span class="fmE">🔒<small>Lv${RC.lvComp}</small></span>` : cg ? pimg(cg) : '<span class="fmE">+</span>'}<b>${!compOn ? '' : gv >= 1 ? '<span style="color:#ffd24a">🧬 준비</span>' : cg ? sname(cg.strain) : '비어 있음'}</b>${compOn && cg ? `<i class="fmG" style="--g:${Math.min(100, gv * 100 % 100 || (gv >= 1 ? 100 : 0)).toFixed(0)}%"></i>` : ''}</button>`;
+    const list = sortGenes(save.genes);
+    const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
+    const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
+    const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
+      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}" data-fu="${g.uid}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
+    const head = pick ? `<div class="fmBar">${pimg(pick)}<div><b>${sname(pick.strain)}</b> 을(를) 어느 칸에 넣을까요?<small>칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화 · 같은 카드를 다시 누르면 취소</small></div><button class="btn" id="fmInfo">ⓘ 정보</button></div>`
+      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> 칸 고름 · 아래 카드를 누르면 바로 꽂혀요` : '칸을 누르면 그 칸에 좋은 카드가 보여요 · 카드를 누르면 넣을 칸을 골라요'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}</div>`;
+    $('railList').innerHTML = `<div class="fmWrap">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}${comp}</div>
+      <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>`;
+    $('railList').style.setProperty('--rg', '6px');
+    ui.sortChips('sortRail', () => ui.renderRails());
+    const L = $('railList');
+    L.querySelectorAll('[data-fs]').forEach(b => b.onclick = () => { const i = +b.dataset.fs;
+      if (!slotOpen(i)) { toast(`본체 Lv${slotNeed(i)}에 열려요`); return ui.showHub('hero'); }
+      if (pick) { if (sq[i] === pick) { ui.fmPick = null; return ui.renderRails(); } if (assignSlot(pick, i)) { sfx('build'); buzz(15); ui.fmPick = null; ui.fmSel = null; ui.showHub('lab'); } return; }
+      ui.fmSel = sel === i ? null : i; sfx('tap'); ui.renderRails(); });
+    L.querySelector('[data-fc]').onclick = () => { if (!compOn) { toast(`본체 Lv${RC.lvComp}에 열려요`); return ui.showHub('hero'); }
+      if (pick) { const g = pick; ui.fmPick = null; ui.renderRails(); return ui.compSheet(g); }
+      if (cg) return ui.compSheet(cg); toast('카드를 먼저 누르고 🤝 동반 칸을 눌러요'); };
+    L.querySelectorAll('[data-fu]').forEach(b => b.onclick = () => { const g = geneById(+b.dataset.fu); if (!g) return;
+      if (pick === g) { ui.fmPick = null; return ui.renderRails(); }
+      if (!pick && sel != null) { if (sq[sel] === g) return ui.detail(g); if (assignSlot(g, sel)) { sfx('build'); buzz(15); ui.fmSel = null; ui.showHub('lab'); } return; }
+      ui.fmPick = g.uid; ui.fmSel = null; sfx('tap'); ui.renderRails(); });
+    if ($('fmInfo')) $('fmInfo').onclick = () => { const g = pick; ui.fmPick = null; ui.renderRails(); ui.detail(g); };
+    if ($('bRcGo')) $('bRcGo').onclick = () => ui.recombine();
+  },
+  renderRailsOld() {
     const sq = slotGenes(), used = new Map(); SL.forEach(i => { if (sq[i]) used.set(sq[i].uid, i); });
     let h = '';
     for (const i of SLOT_ORDER) {
