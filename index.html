@@ -1353,7 +1353,7 @@ const save = { dna: 300, host: 0, done: {}, legacy: {}, sel: 'nose', genes: [], 
 // ★ 저장 보호: 저장마다 버전 번호. 업데이트로 구조가 바뀌면 옛 저장을 백업해 두고 새 구조로 옮긴다.
 //   없어진 바이러스·잘못된 값은 고쳐서 불러오고, 아예 깨진 저장은 따로 보관한 뒤 새로 시작한다.
 const SAVE_KEY = 'virus-v4', SAVE_VER = 5;
-let SKILL_CD_MUL = 0.6, MAP_VARIANT = 0;
+let SKILL_CD_MUL = 0.6, MAP_VARIANT = 0, map0Type = 'h';
 const REPLAY = { hp: 0.8, dna: 0.85, medEvery: 1.4, medDur: 0.7 };
 // ★ 본체 칸: 처음 2칸(대장·공격) → 본체 Lv1·5·12에 하나씩 열려 최대 5칸
 const SL = [0, 1, 2, 3, 4], SLOT_ORDER = [0, 3, 1, 2, 4], SLOT_LV = [0, 0, 3, 8, 999], CORE_MAX = 30;
@@ -1730,32 +1730,37 @@ function genRaw(type, rnd, box) {
     if ((n - 1) % 2 === 1) { const last = raw.at(-1); raw.push([last[0], (y0 + y1) / 2]); }
   } else {                                               // 사각 나선 (목표가 가운데)
     const s = clamp(Math.min(x1 - x0, y1 - y0) / 4, 96, 120);
-    let L = x0, R = x1, T = y0, B = y1;
-    const fromLeft = rnd() < 0.5;
+    // 지도마다 다르게: 바깥 테두리와 감기는 간격을 조금씩 흔든다
+    let L = x0 + rnd() * 26, R = x1 - rnd() * 26, T = y0 + rnd() * 50, B = y1 - rnd() * 40;
+    const fromLeft = rnd() < 0.5, js = () => s * (0.85 + rnd() * 0.4);
     const X = x => fromLeft ? x : x0 + x1 - x;
     raw.push([X(L), H + 60], [X(L), B]);
     for (let lap = 0; lap < 4; lap++) {
       raw.push([X(L), T], [X(R), T]);
       if (B - T < s * 1.4) break;
       raw.push([X(R), B]);
-      L += s; if (R - L < s * 0.9) break;
+      L += js(); if (R - L < s * 0.9) break;
       raw.push([X(L), B]);
-      T += s; R -= s; B -= s;
+      T += js(); R -= js(); B -= js();
       if (B - T < s * 0.9 || R - L < s * 0.9) { raw.push([X(L), (T + B) / 2]); break; }
     }
   }
   return raw;
 }
+// ★ 기관마다 지도 4장: 길 모양(가로 지그재그 h · 세로 지그재그 v · 나선 s)과 배치를 바꿔 돌아가며 나온다
+const MAP_TYPES = { nose: ['h', 's', 'v', 'h'], lung: ['v', 'h', 's', 'v'], gut: ['h', 'v', 's', 'h'], liver: ['s', 'h', 'v', 'h'], blood: ['h', 's', 'h', 's'], skin: ['h', 'v', 's', 'v'], lymph: ['s', 'h', 'v', 's'], brain: ['s', 'h', 's', 'v'] };
+const MAP_N = 4, mapTypeOf = (organ, ix) => (MAP_TYPES[organ.id] || [organ.path])[ix % MAP_N] || organ.path;
 function buildMap(organ, hostIdx, variant = 0) {
+  const ptype = mapTypeOf(organ, variant);
   const seed = (hostIdx + 1) * 1000 + ORGANS.indexOf(organ) * 37 + 7 + variant * 7777, rnd = mulberry(seed);
   const box = { x0: 44, x1: W - 44, y0: TOP + 40, y1: H - BOTTOM - 22 };
-  const raw = genRaw(organ.path, rnd, box);
+  const raw = genRaw(ptype, rnd, box); map0Type = ptype;
   const pts = roundCorners(raw, 22);
   const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
   const len = cum.at(-1);
   const corners = raw.slice(2, -1).map(c => nearestD(pts, cum, c[0], c[1])).sort((a, b) => a - b);
   const goal = pts.at(-1);
-  const forks = unlocked('fork') ? findForks({ pts, cum, len }, rnd, organ.path === 's') : [];
+  const forks = unlocked('fork') ? findForks({ pts, cum, len }, rnd, ptype === 's') : [];
   // 받침: 길에서 30~48 떨어진 곳, 서로 46 이상 (갈림길 위는 제외)
   const cand = [];
   for (let y = box.y0 - 10; y <= box.y1 + 10; y += 8) for (let x = 30; x <= W - 30; x += 8) {
@@ -2009,7 +2014,7 @@ function stageInfo(organ) {
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
   const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.02) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
-    towers: Math.max(3, organ.towers + RULES.towerAdj - (organ.path === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
+    towers: Math.max(3, organ.towers + RULES.towerAdj - (mapTypeOf(organ, MAP_VARIANT) === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
 // 탑 배치: 길을 따라 고르게 (같은 기관·숙주면 매번 같은 배치 → 실패에서 배울 수 있다)
 const COUNTER = { tank: { tcell: 4, complement: 1 }, swarm: { macro: 3, complement: 3 }, stealth: { dendri: 4, nk: 2 }, dps: { cilia: 3, neutro: 2 }, heal: { nk: 3, neutro: 2 } };
@@ -2907,7 +2912,7 @@ function startRun() {
   const trop = TA() ? tropMul(cards, organ.id) : 1; STRAINS.mine.atk *= trop; STRAINS.mine.hp *= trop;   // 기관 궁합
   const st = stageInfo(organ);
   // ★ 이미 정복한 기관 다시 하기: 매번 다른 길 · 보스 없음 · 탑 체력 −20% · 약 투여 뜸하게 · DNA 85%
-  const replay = !wk && !!save.done[organ.id] && save.tutDone; MAP_VARIANT = replay ? 1 + Math.floor(Math.random() * 997) : 0; st.replay = replay; if (replay) st.mul *= REPLAY.hp;
+  const replay = !wk && !!save.done[organ.id] && save.tutDone; save.mapIx = save.mapIx || {}; MAP_VARIANT = !save.tutDone || wk ? 0 : (save.mapIx[organ.id] || 0) % MAP_N; if (save.tutDone && !wk) save.mapIx[organ.id] = MAP_VARIANT + 1; st.replay = replay; if (replay) st.mul *= REPLAY.hp;
   BOTTOM = (TA() ? 124 : 206) * KS;
   buildMap(organ, save.host, MAP_VARIANT);
   const w = ImmuneAI.weights(organ);
@@ -4374,7 +4379,7 @@ const ui = {
   showRun() {
     $('bottom').classList.toggle('ta', !!run.ta); $('outChooser').classList.toggle('taOut', !!run.ta);
     $('hub').hidden = true; $('result').hidden = true; $('hubTip').hidden = true; ['top', 'info2', 'bottom'].forEach(id => $(id).hidden = false);
-    const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
+    const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 지도 ${MAP_VARIANT + 1}/${MAP_N} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
     $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [돌격]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길은 자동으로 지름길부터' : '부대를 눌러 출격 순서를 정하세요';
     $('timerTag').hidden = !run.ta; ui.renderDeploy(); ui.renderSkills(); ui.tick();
     $('goalLbl').textContent = st.qm < 1 ? `감염 (목표 −${Math.round((1 - st.qm) * 100)}%)` : '감염';
