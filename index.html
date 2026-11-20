@@ -655,6 +655,11 @@ img.legend { animation: legGlow 3s linear infinite; }
   .rcRow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #3a2a2e; font-size: 13px; text-align: left; } .rcRow > b { width: 56px; font-size: 12px; } .rcRow img { width: 38px; height: 38px; object-fit: contain; } .rcRow small { font-size: 11px; }
   .sortRow .srtT { margin-left: auto; border-color: #6a5030 !important; color: #ffd27a; } .sortRow button small { font-size: 10px; opacity: .7; }
   #sortRail { flex-wrap: wrap; overflow: visible; } #sortRail button { padding: 4px 9px; font-size: 12.5px; }
+  .fmC { padding-bottom: 3px !important; } .cfoot { display: flex; align-items: center; justify-content: center; gap: 3px; margin-top: 2px; flex-wrap: wrap; }
+  .cfoot .rl { font-style: normal; font-size: 10px; font-weight: 900; color: #111; padding: 0 5px; border-radius: 6px; line-height: 15px; }
+  .cfoot .rl.leg { background: linear-gradient(90deg, #ffd24a, #ff9ad8, #8ae8ff); }
+  .cfoot .og { font-style: normal; display: flex; gap: 2px; } .cfoot .og u { text-decoration: none; font-size: 10px; color: #cdb8c8; border: 1px solid #5a4a50; border-radius: 6px; padding: 0 3px; line-height: 13px; } .cfoot .og u.on { color: #0d1a0a; background: #9fff6a; border-color: #9fff6a; font-weight: 900; }
+  .fmUpA { width: auto !important; height: auto !important; padding: 0 5px; border-radius: 8px !important; font-size: 10.5px !important; line-height: 16px !important; left: 4px !important; top: 44px !important; animation: none !important; }
 </style>
 </head>
 <body>
@@ -3954,7 +3959,7 @@ const ui = {
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g) && canSlot(g, sel)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span>${!pick && sel == null && canUp(g) ? '<span class="fmUpA">▲</span>' : ''}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
+      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}${!pick && sel == null && !isComp(g) && canUp(g) ? '<span class="fmUpA">▲강화</span>' : ''}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small>${ui.cardFoot(g)}</button>`; }).join('');
     const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} 칸 = ${slotRule(sel)} · 밝은 카드를 누르면 꽂혀요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 3, 1, 2].map(sock).join('')}</div></div>
       <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
@@ -4005,6 +4010,10 @@ const ui = {
       document.addEventListener('pointermove', mv, { passive: false }); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
     }));
   },
+  // 카드 아래: 역할 글자 칩 + 실제로 노리는 기관 (지금 고른 기관이면 초록)
+  cardFoot(g) { const D = STRAINS[g.strain], r = ROLES[ROLE_OF[g.strain]], [go] = tropOf(g.strain), cur = save.sel || 'nose';
+    const role = isComp(g) ? '<i class="rl" style="background:#6a3a90">🤝 동반</i>' : D.legend ? '<i class="rl leg">🌟 전설</i>' : r ? `<i class="rl" style="background:${r.col}">${r.name.replace('형', '')}</i>` : '';
+    return `<span class="cfoot">${role}<i class="og">${go.slice(0, 2).map(o => `<u class="${o === cur ? 'on' : ''}">${ORG_SHORT[o]}</u>`).join('')}</i></span>`; },
   // 동반으로 두면 주전에게 줄 수 있는 가장 좋은 것
   compBest(g, sq) { let best = null; for (const t of (sq || slotGenes()).filter(Boolean)) { if (t === g) continue; for (const o of rcOptions(g, t)) if (!o.lock && !o.none && (!best || (o.pp || 0) > (best.pp || 0))) best = { ...o, tg: t }; } return best; },
   // 카드를 고르면 위에 뜨는 설명: 역할·맞는 칸·능력치 등급·스킬·동반 효과
