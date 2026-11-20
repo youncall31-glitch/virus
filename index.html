@@ -1030,7 +1030,7 @@ const ORGANS = [
     w:{ neutro:3, macro:2, complement:2, nk:1 }, tint:'#33201a', fact:'길이 꿀렁꿀렁 움직이고 위산이 있어요. 버티는 힘이 필요해요.' },
   { id:'liver', name:'간',          diff:1.1,  path:'s', towers:5, valves:0, x:-30, y:60, ax:43.7, ay:43.8, lab:'보통',
     w:{ macro:2, neutro:2, nk:2, complement:1 }, tint:'#2e1414', fact:'몸의 청소부예요. 녹이는 물질이 길 위를 왔다 갔다 해요.' },
-  { id:'blood', name:'혈관',        diff:1.2,  path:'v', towers:4, valves:2, x:-30, y:84, ax:28, ay:44, lab:'다소 강함',
+  { id:'blood', name:'혈관',        diff:1.2,  path:'h', towers:4, valves:2, x:-30, y:84, ax:28, ay:44, lab:'다소 강함',
     w:{ neutro:3, complement:3, nk:2 }, tint:'#3a0e14', fact:'심장이 뛸 때마다 물살 방향이 바뀌어요. 문(판막)이 길을 막기도 해요.' },
   { id:'skin',  name:'피부 상처',    diff:1.35, path:'h', towers:5, valves:0, x:130, y:84, ax:59.6, ay:62.4, lab:'강함',
     w:{ dendri:3, neutro:3, macro:2 }, tint:'#2e2218', fact:'튼튼한 벽이에요. 딱딱한 각질이 자라서 길을 막아요.' },
@@ -3078,7 +3078,7 @@ function helpLines(id, g) {
 // ★ 액티브 스킬은 2개(번식·지원 칸 카드 우선, 탑을 고르는 스킬은 늘 직접). 나머지는 패시브 = 준비되면 저절로
 function activeSkills(R = run) { if (R.activeSk) return R.activeSk; const sk = R.skillGenes.filter(g => !STRAINS[g.strain].hero), sq = slotGenes(), has1 = s => sk.some(g => g.strain === s);
   const a = sk.filter(g => geneSkill(g).aim).map(g => g.strain); for (const i of [3]) { const g = sq[i]; if (g && has1(g.strain) && !a.includes(g.strain)) a.push(g.strain); }
-  for (const g of sk) { if (a.length >= 2) break; if (!a.includes(g.strain)) a.push(g.strain); }
+  for (const g of sk) { if (a.length >= 3) break; if (!a.includes(g.strain)) a.push(g.strain); }
   return R.activeSk = a; }
 function autoSkills(dt) { const R = run; if (!R || !R.single || R.over || stealthOn()) return; R.autoT = (R.autoT || 0) - dt; if (R.autoT > 0) return; R.autoT = 0.6;
   if (R.units.filter(u => u.alive && !u.hero && u.d > 0).length < 5) return; const act = activeSkills(R);
@@ -4383,13 +4383,13 @@ const ui = {
   renderDeploy() {
     const hg = run.hero.gene;
     if (stealthOn()) { const T = run.sth;
-      $('deploy').innerHTML = run.groups.concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
+      $('deploy').innerHTML = (run.single ? [] : run.groups).concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
         + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta) {
       const hOK = unlocked('hero'), oOK = unlocked('out');
       $('deploy').innerHTML = (hOK ? `<button class="dp v hero" id="dpHero" aria-label="슈퍼바이러스">${pimg(hg)}<div><b>${HEROES[hg.strain].name}</b><small></small></div></button>` : '')
-        + run.groups.map((g, i) => `<button class="dp v" data-i="${i}" aria-label="${STRAINS[g.strain].name} 방출">${pimg(g.gene)}<div><b>${g.reawake ? '재활성' : STRAINS[g.strain].name}</b><small></small>${g.reawake ? '' : '<em></em>'}</div><i></i></button>`).join('')
+        + (run.single ? [] : run.groups).map((g, i) => `<button class="dp v" data-i="${i}" aria-label="${STRAINS[g.strain].name} 방출">${pimg(g.gene)}<div><b>${g.reawake ? '재활성' : STRAINS[g.strain].name}</b><small></small>${g.reawake ? '' : '<em></em>'}</div><i></i></button>`).join('')
         + (run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => `<button class="dp v sk2" data-sk="${g.strain}" aria-label="${geneSkill(g).name}">${pimg(g)}<div><b>${skCat(g)}</b><small></small></div><i></i></button>`).join('') : '')
         + (oOK && !nestOn() && !run.single ? `<button class="dp v" id="dpOut" aria-label="감염 거점"><img src="assets/out_cauldron.png" alt=""><div><b>거점</b><small></small></div></button>` : '')
         + (unlocked('mutate') ? `<button class="dp v" id="dpMut" aria-label="항원 변이">${has('mutate') ? '<img src="assets/mutate.png" alt="">' : '<div class="mutic">🧬</div>'}<div><b>변이</b><small></small></div></button>` : '')
