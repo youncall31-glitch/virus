@@ -646,6 +646,9 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fcRing { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(#c58cff var(--g), #3a2040 var(--g)); font-size: 13px; } .fcRing img { width: 24px !important; height: 24px !important; border-radius: 50%; background: #1a0f14; object-fit: contain; }
   .fmComp .fmP { top: -12px; } .fcHint { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
   .fmH { align-items: center; } .fmH > small { flex: 1 1 100% !important; order: 9; margin-top: 1px; line-height: 1.35; }
+  .fmTop { position: sticky; top: 0; z-index: 5; background: #140a0e; margin: 0 -2px; padding: 12px 2px 6px; box-shadow: 0 6px 8px -6px rgba(0,0,0,.8); }
+  .fmSheet { position: fixed; left: 6px; right: 6px; z-index: 30; animation: fmUp .18s ease-out; filter: drop-shadow(0 -6px 12px rgba(0,0,0,.7)); } .fmSheet .fmCard { border-radius: 16px 16px 12px 12px; } @keyframes fmUp { from { transform: translateY(40px); opacity: 0; } }
+  .fmSheet .fcSk small { display: none; }
 </style>
 </head>
 <body>
@@ -3882,10 +3885,10 @@ const ui = {
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
       return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (roleFit(g, sel) || D.legend ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span><b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
-    const head = pick ? ui.fmCard(pick, sq).replace('<div class="fcHint">', `<div class="fcHint">${compOn ? comp : ''}`)
-      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}%  · 밝은 카드를 누르면 꽂혀요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
-    $('railList').innerHTML = `<div class="fmWrap">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}</div>
-      <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>`;
+    const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}%  · 밝은 카드를 누르면 꽂혀요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
+    $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}</div></div>
+      <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
+    { const sh = $('fmSheet'), nb = document.querySelector('#hub .navBar'); if (sh) { const tp = Math.min(nb ? nb.getBoundingClientRect().top : innerHeight, $('bGo') ? $('bGo').getBoundingClientRect().top : innerHeight), bt = innerHeight - tp + 4; sh.style.bottom = bt + 'px'; $('railList').style.paddingBottom = (sh.offsetHeight + 8) + 'px'; } else $('railList').style.paddingBottom = ''; }
     $('railList').style.setProperty('--rg', '6px');
     ui.sortChips('sortRail', () => ui.renderRails());
     const L = $('railList');
@@ -3942,7 +3945,7 @@ const ui = {
       <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>꼬리·더듬이 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
       ${cb ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반 칸에 두면 <b>${sname(cb.tg.strain)}</b>에게 <b>${cb.t}</b>를 옮겨 줄 수 있어요${cb.pp ? ` <em style="color:#9fff6a">(전투력 +${cb.pp}%)</em>` : ''} <small>동반은 전투력엔 안 들어가요</small></div>` : ''}
       ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
-      <div class="fcHint">👆 넣을 칸을 누르세요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
+      <div class="fcHint">⬆ 위 칸을 누르면 꽂혀요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
   fmUpBind(g) { if (!g) return;
     if ($('fcLv')) $('fcLv').onclick = () => { const b = ui.growBtn(g); if (b.cap) { sfx('fail'); return toast(`본체 Lv${lvCap()}까지예요 · 바이러스 ${CORE_NEED}마리가 Lv${lvCap()}이 되면 본체가 진화해요`); } if (!b.ok) { sfx('fail'); return toast('DNA가 부족해요'); }
       const r = levelUp(g); if (r !== 'lv' && r !== 'tier' && r !== 'mut') return; quest('up'); persist(); sfx(r === 'lv' ? 'up' : 'clear'); buzz(15); $('hubDna').textContent = save.dna;
