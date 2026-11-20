@@ -638,6 +638,13 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmDBar small { display: block; font-size: 11px; color: #b59f86; } .fmDBar .up { color: #9fff6a; } .fmDBar .dn { color: #ff8a7a; } .fmDBar em { font-style: normal; font-weight: 900; }
   .fmS.hov { transform: scale(1.08); border-color: #fff !important; box-shadow: 0 0 14px #ffd24a; animation: none; } .fmC.lift { opacity: .35; }
   .fmC { touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  #railList { overflow-x: hidden; padding-right: 8px; } .fmRow { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; } .fmGrid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  #railList img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; pointer-events: none; } #railList button { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+  .fmC.dimS { filter: grayscale(.85) brightness(.6); opacity: .55; } .fmC.fit { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.4); }
+  .fmComp { position: relative; display: flex; align-items: center; gap: 4px; margin-left: 4px; padding: 2px 8px 2px 3px; border-radius: 20px; border: 1.5px solid #9a5ad0; background: #2a1240; color: #e9c8ff; font-family: inherit; font-size: 11px; font-weight: 700; }
+  .fmComp.lock { opacity: .55; border-style: dashed; } .fmComp.wig { animation: fmWig .45s ease-in-out infinite alternate; border-color: #ffd24a; } .fmComp.hov { border-color: #fff; box-shadow: 0 0 12px #ffd24a; }
+  .fcRing { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(#c58cff var(--g), #3a2040 var(--g)); font-size: 13px; } .fcRing img { width: 24px !important; height: 24px !important; border-radius: 50%; background: #1a0f14; object-fit: contain; }
+  .fmComp .fmP { top: -12px; } .fcHint { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -3868,15 +3875,15 @@ const ui = {
     const sock = i => { const open = slotOpen(i), g = sq[i], pd = pick && open && g !== pick ? ui.slotDelta(pick, i).pp : null;
       return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open ? ' wig' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${SLOT_COL[i][0]};border-color:${!pick && sel === i ? '#ffd24a' : SLOT_COL[i][1]}"><span class="fmL">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span><span class="fmRl">${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(roleBadge0).join('')}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>Lv${slotNeed(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
     const cgv = pick && compOn ? ui.compBest(pick, sq) : null;
-    const comp = `<button class="fmS comp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1"><span class="fmL">🤝 동반</span>${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}${!compOn ? `<span class="fmE">🔒<small>Lv${RC.lvComp}</small></span>` : cg ? pimg(cg) : '<span class="fmE">+</span>'}<b>${!compOn ? '' : gv >= 1 ? '<span style="color:#ffd24a">🧬 준비</span>' : cg ? sname(cg.strain) : '비어 있음'}</b>${compOn && cg ? `<i class="fmG" style="--g:${Math.min(100, gv * 100 % 100 || (gv >= 1 ? 100 : 0)).toFixed(0)}%"></i>` : ''}</button>`;
+    const comp = `<button class="fmComp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1" aria-label="동반">${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}<span class="fcRing" style="--g:${compOn && cg ? Math.min(100, (gv % 1) * 100 || (gv >= 1 ? 100 : 0)).toFixed(0) : 0}%">${!compOn ? '🔒' : cg ? pimg(cg) : '+'}</span><small>🤝 동반${!compOn ? ` Lv${RC.lvComp}` : gv >= 1 ? ' 🧬' : ''}</small></button>`;
     const list = sortGenes(save.genes);
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick && roleFit(g, sel) ? ' fit' : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span><b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
-    const head = pick ? ui.fmCard(pick, sq)
-      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> = ${SLOT_STAT[sel]}${sel >= 3 ? '·직접 쓰는 스킬' : ''} 담당 · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}% · 카드를 누르면 꽂혀요` : '카드를 <b>꾹 눌러 칸으로 끌면</b> 바로 꽂혀요 (놓기 전에 전투력 변화가 보여요) · 톡 누르면 능력·강화'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천 조합</button></div>`;
-    $('railList').innerHTML = `<div class="fmWrap">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}${comp}</div>
+      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (roleFit(g, sel) || D.legend ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span><b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
+    const head = pick ? ui.fmCard(pick, sq).replace('<div class="fcHint">', `<div class="fcHint">${compOn ? comp : ''}`)
+      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}%  · 밝은 카드를 누르면 꽂혀요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
+    $('railList').innerHTML = `<div class="fmWrap">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}</div>
       <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>`;
     $('railList').style.setProperty('--rg', '6px');
     ui.sortChips('sortRail', () => ui.renderRails());
@@ -3885,7 +3892,7 @@ const ui = {
       if (!slotOpen(i)) { toast(`본체 Lv${slotNeed(i)}에 열려요`); return ui.coreModal(); }
       if (pick) { if (sq[i] === pick) { ui.fmPick = null; return ui.renderRails(); } if (assignSlot(pick, i)) { sfx('build'); buzz(15); ui.fmPick = null; ui.fmSel = null; ui.showHub('lab'); } return; }
       ui.fmSel = sel === i ? null : i; sfx('tap'); ui.renderRails(); });
-    L.querySelector('[data-fc]').onclick = () => { if (!compOn) { toast(`본체 Lv${RC.lvComp}에 열려요`); return ui.coreModal(); }
+    if (L.querySelector('[data-fc]')) L.querySelector('[data-fc]').onclick = () => { if (!compOn) { toast(`본체 Lv${RC.lvComp}에 열려요`); return ui.coreModal(); }
       if (pick) { const g = pick; ui.fmPick = null; ui.renderRails(); return ui.compSheet(g); }
       if (cg) return ui.compSheet(cg); toast('카드를 먼저 누르고 🤝 동반 칸을 눌러요'); };
     L.querySelectorAll('[data-fu]').forEach(b => b.onclick = () => { if (b.dataset.dragged) return; const g = geneById(+b.dataset.fu); if (!g) return;
@@ -3896,21 +3903,21 @@ const ui = {
     if ($('fmX')) $('fmX').onclick = () => { ui.fmPick = null; ui.renderRails(); };
     if ($('bRcGo')) $('bRcGo').onclick = () => ui.recombine();
     if ($('bAuto2')) $('bAuto2').onclick = () => $('bAuto').onclick();
-    ui.fmUpBind(pick); ui.fmDrag(L, sq, compOn);
+    ui.fmUpBind(pick); ui.fmDrag(L, sq, compOn); L.oncontextmenu = e => e.preventDefault(); L.querySelectorAll('img').forEach(im => { im.draggable = false; });
   },
   // ★ 끌어서 꽂기: 카드를 꾹 누르면 집어 올림 → 칸 위에 올리면 '전투력 A → B (+x%)' 미리 보기 → 놓으면 꽂힘
   fmDrag(L, sq, compOn) {
-    L.querySelectorAll('[data-fu]').forEach(card => card.addEventListener('pointerdown', e => {
+    L.querySelectorAll('[data-fu],[data-fs]').forEach(card => card.addEventListener('pointerdown', e => { if (!card.dataset.fu) return;
       const g = geneById(+card.dataset.fu); if (!g || e.button > 0) return; const x0 = e.clientX, y0 = e.clientY; let D = null;
       const cancel = () => { clearTimeout(tm); document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up); };
       const start = () => { const ds = SL.map(i => slotOpen(i) && sq[i] !== g ? ui.slotDelta(g, i) : null), base = ds.find(Boolean);
         D = ui._drag = { g, ds, gh: document.createElement('div'), bar: document.createElement('div'), over: null };
         D.gh.className = 'fmGhost'; D.gh.innerHTML = pimg(g); document.body.appendChild(D.gh); D.bar.className = 'fmDBar'; document.body.appendChild(D.bar);
         L.querySelectorAll('[data-fs]').forEach(b => { const d = ds[+b.dataset.fs]; if (d) b.insertAdjacentHTML('beforeend', `<span class="fmP ${d.pp > 0 ? 'up' : d.pp < 0 ? 'dn' : ''}">${d.pp > 0 ? '+' : ''}${d.pp}%</span>`); b.classList.add('wig'); });
-        if (compOn) L.querySelector('[data-fc]').classList.add('wig');
+        if (compOn && L.querySelector('[data-fc]')) L.querySelector('[data-fc]').classList.add('wig');
         card.classList.add('lift'); buzz(12); sfx('tap'); D.bar.innerHTML = `<b>${sname(g.strain)}</b> 을(를) 칸 위로 끌어 놓으세요<small>${ORG_SHORT[save.sel || 'nose']} 전투력 ${base ? base.pf : ''}</small>`; place(x0, y0); };
       const place = (x, y) => { D.gh.style.left = x + 'px'; D.gh.style.top = y + 'px'; D.gh.hidden = true; const el = document.elementFromPoint(x, y); D.gh.hidden = false;
-        const so = el && el.closest('[data-fs],[data-fc]'); L.querySelectorAll('.fmS.hov').forEach(b => b.classList.remove('hov')); D.over = so; if (!so) return; so.classList.add('hov');
+        const so = el && el.closest('[data-fs],[data-fc]'); L.querySelectorAll('.hov').forEach(b => b.classList.remove('hov')); D.over = so; if (!so) return; so.classList.add('hov');
         if (so.dataset.fc) { const cb = compOn ? ui.compBest(g, sq) : null; D.bar.innerHTML = compOn ? `🤝 <b>동반</b>에 두면 ${cb ? `${sname(cb.tg.strain)}에게 <b>${cb.t}</b> 옮겨 줌${cb.pp ? ` <em class="up">전투력 +${cb.pp}%</em>` : ''}` : '옮겨 줄 게 없어요'}` : `🔒 동반 칸은 본체 Lv${RC.lvComp}에 열려요`; return; }
         const i = +so.dataset.fs, d = D.ds[i]; D.bar.innerHTML = !slotOpen(i) ? `🔒 ${SLOT_NAME[i]} 칸은 본체 Lv${slotNeed(i)}에 열려요` : !d ? '이미 이 칸에 있어요'
           : `${SLOT_ICON[i]} <b>${SLOT_NAME[i]}</b>에 넣으면 전투력 <b>${d.pf}</b> → <b class="${d.pp >= 0 ? 'up' : 'dn'}">${d.pt}</b> <em class="${d.pp >= 0 ? 'up' : 'dn'}">${d.pp > 0 ? '+' : ''}${d.pp}%</em>${roleFit(g, i) ? ' · 역할 칸 +' + Math.round(ROLE_BONUS * 100) + '%' : ''}`; };
