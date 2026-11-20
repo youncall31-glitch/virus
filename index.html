@@ -373,6 +373,13 @@
   .resHead { text-align: center; font-size: 12px; color: #c9b9a2; margin-top: 6px }
   .resTip { margin: 0; padding: 6px 10px; border-radius: 10px; background: #1f1712; border: 1px solid #6a5030; font-size: 13px; line-height: 1.5; word-break: keep-all }
   .resList, .resTip, .resDna small, .resBar span { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
+  .rs2 h1 { margin-bottom: 0; } .rsStars { text-align: center; font-size: 40px; line-height: 1; letter-spacing: 6px; } .rsStars b { color: #4a3a2e; } .rsStars b.on { color: #ffd24a; text-shadow: 0 0 10px #ffb000; } .rsStars b.new { display: inline-block; animation: legb .8s ease-in-out infinite alternate; }
+  .rsMiss { text-align: center; font-size: 12px; color: #b59f86; }
+  .rsGot { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; padding: 8px; border-radius: 14px; background: #1a120e; border: 1.5px solid #4f3a28; }
+  .rsGot > span, .rsDna { padding: 4px 10px; border-radius: 12px; background: #24180f; border: 1px solid #4f3a28; font-size: 14px; font-weight: 800; color: #f3e6d4; font-family: inherit; }
+  .rsDna { display: flex; align-items: baseline; gap: 4px; } .rsDna b { font-size: 24px; color: #9fff6a; } .rsDna small { font-size: 10px; color: #9c8a76; font-weight: 400; }
+  .resList[hidden] { display: none; } .rsGot .rcG { display: flex; align-items: center; gap: 6px; color: #e9a3ff; } .rsGot .rcG i { width: 44px; height: 6px; border-radius: 3px; background: #3a2040; overflow: hidden; } .rsGot .rcG u { display: block; height: 100%; background: #c58cff; }
+  .rsNotes { font-size: 12.5px; line-height: 1.45; padding: 6px 10px; border-radius: 10px; background: #1f1712; border: 1px solid #5a4030; } .rsNotes > div + div { margin-top: 3px; }
   .starRow { display:flex; gap:6px; margin:6px 0 }
   .starRow div { flex:1; text-align:center; border:1px solid #3a2a20; border-radius:8px; padding:4px 2px; background:#1a120e; color:#5a4a3a }
   .starRow div b { display:block; font-size:22px; line-height:1 } .starRow div small { font-size:10px; color:#8a7a6a }
@@ -3686,10 +3693,9 @@ const ui = {
           <div class="bar"><i style="width:${Math.round(Math.min(got, CORE_NEED) / CORE_NEED * 100)}%"></i></div><small>진화 선물: ${giftTxt(coreGift(L + 1))}${CORE_MILE.find(m => m.l === L + 1) ? ' + ' + CORE_MILE.find(m => m.l === L + 1).t : ''}</small></div>`}</div>
       ${ui.coreGot ? `<div class="coreGot" style="text-align:center">🎉 ${ui.coreGot.t}!</div>` : next ? `<div class="cvGift" id="cvGift"><span>🎁</span><div><b>다음 큰 보상 · Lv ${next.l}</b><small>${next.t} (${next.l - L}레벨 남음)</small></div></div>` : ''}
       <button class="cvTrack" id="cvTrack">${CORE_MILE.map(m => `<span class="${L >= m.l ? 'ok' : m === next ? 'nx' : ''}"><i>${m.t.split(' ')[0]}</i>Lv${m.l}</span>`).join('')}<div class="bar"><i style="width:${Math.round(L / CORE_MAX * 100)}%"></i></div></button>
-      <button class="btn red cvGo" id="bEvo">📈 바이러스 키우러 가기<small>🧬 ${save.dna}</small></button>`;
+      <div class="sub" style="text-align:center;margin-top:6px">바이러스 강화는 <b>연구소 › 📈 성장</b>에서 해요</div>`;
     ui.coreGot = null;
     $('cvTrack').onclick = () => ui.coreRoad(); if ($('cvGift')) $('cvGift').onclick = () => ui.coreRoad();
-    $('bEvo').onclick = () => { ui.showHub('lab'); if ($('bGrow')) $('bGrow').click(); };
   },
   // 로드맵: Lv 1~20 길 (지나온 곳 ✓, 지금 금색)
   coreRoad() {
@@ -4342,22 +4348,25 @@ const ui = {
       : !R.fitTrue && fitRole ? `이 기관은 <b>${fitRole}</b> 몸통 카드가 유리해요. 연구소에서 몸통 카드를 바꿔 보세요.`
       : R.sth && R.sth.caught ? '숨어들 때 들켰어요. 노란 부채꼴(보초 시야) 안에서는 멈춰 있으세요.'
       : pct < 50 ? '연구소에서 DNA로 카드를 강화하면 훨씬 세져요.' : '거의 다 왔어요! 화면 테두리가 초록색일 때 돌격하면 더 세요.';
-    $('result').innerHTML = `<div class="resBody"><h1>${win ? `🎉 ${R.st.organ.name} 감염 성공!` : '😵 아쉽게 실패했어요'}</h1>
-      <div class="sub" style="text-align:center">${win ? '목표만큼 감염시켰어요.' : R.medicated ? '시간이 다 돼서 약이 들어왔어요.' : '면역 탑에 막혔어요.'}</div>
-      <div class="resBar"><i style="width:${pct}%"></i><span>목표의 ${pct}% 감염</span></div>
-      <div class="resDna">받은 DNA <b>+${credits}</b> 🧬<small>DNA로 연구소에서 카드를 강화해요</small></div>
-      <div class="resList">${dl.map(([t, v]) => `<span>${t} <b>+${v}</b></span>`).join('')}</div>
-      <div class="resHead">별 모으기</div>
-      <div class="starRow">${['성공하기', '안 들키고 숨어들기', '시간 30% 남기기'].map((t, i) => `<div class="${R.starCond[i] ? 'on' : ''}${R.starNew[i] ? ' new' : ''}"><b>★</b><small>${t}${R.starNew[i] ? ' NEW' : ''}</small></div>`).join('')}</div>
-      <div class="resTip">💡 ${tip}</div>
-      
-      ${ending ? `<div class="ending">엔딩 ${ending.isNew ? '새로 열림' : '다시 봄'}: <b>${ending.name}</b>${hostDone && save.host > 0 ? `<br><span class="sub">이 사람의 몸을 전부 감염시켰어요! 다음 사람(${HOSTS[save.host].name})으로 넘어가요.<br>${hostRule().icon} <b>${hostRule().title}</b> — ${hostRule().desc}</span>` : ''}</div>` : ''}
-      ${R.rcComp ? `<div class="ending rcRes" style="border-color:#c58cff"><div class="rcRow">${pimg(R.rcComp)}<div style="flex:1"><b>🤝 동반 ${sname(R.rcComp.strain)}</b> 재조합 게이지 <b style="color:#e9a3ff">+${Math.round(R.rcGain * 100)}%</b><div class="rcBar"><i class="nw" style="width:${Math.min(100, save.rcG * 100).toFixed(0)}%"></i><i style="width:${Math.min(100, R.rcFrom * 100).toFixed(0)}%"></i></div></div></div>${save.rcG >= 1 ? `<button class="btn red" id="resRc" style="width:100%;margin-top:6px">🧬 재조합하기 (${Math.floor(save.rcG)}번)</button>` : ''}</div>` : ''}
-      ${R.tix ? `<div class="ending tixWin" style="border-color:#9fff6a">🎟 <b>${R.tix.t10 ? `10번 뽑기권 ${R.tix.t10}장` : ''}${R.tix.t10 && R.tix.t1 ? ' + ' : ''}${R.tix.t1 ? `뽑기권 ${R.tix.t1}장` : ''}${(R.tix.sh || 0) + (R.starShard || 0) ? ` · 🧫${(R.tix.sh || 0) + (R.starShard || 0)}` : ''}</b> 받았어요 <button class="btn green" id="resPull" style="min-height:34px;padding:4px 12px;margin-left:6px">바로 뽑기</button></div>` : ''}
-      ${R.newUnlocks && R.newUnlocks.length ? `<div class="ending" style="border-color:#e8c45a">🔓 새 기능 열림: <b>${R.newUnlocks.join(' · ')}</b></div>` : ''}
-      ${win && !hostDone && save.done[R.st.organ.id] ? `<div class="ending" style="border-color:#b0503a">🚨 <b>몸이 눈치챘어요! 다음 기관부터 면역 탑이 ${Math.round(ALERT_STEP * 100)}% 더 세져요</b><br><span class="sub">몸의 경계 ${doneCount()}단계 · 감염시킬수록 면역이 깨어나요</span></div>` : ''}
-      ${R.legacyNew ? `<div class="ending" style="border-color:#4f7a2a">✅ <b>다음 판 도움: ${LEGACY[R.legacyNew].help}</b><br><span class="sub">몸에 남긴 흔적 "${LEGACY[R.legacyNew].name}" — ${LEGACY[R.legacyNew].desc}</span></div>` : ''}
+    // ★ 결과 화면: 한 화면에. 제목 → 별 → 보상 한 칸 → 꼭 알아야 할 것 한두 줄 → 버튼
+    const SL3 = ['성공', '안 들키고 숨어들기', '시간 30% 남기기'], miss = R.starCond ? SL3.find((t, i) => !R.starCond[i]) : null;
+    const tixT = R.tix ? [R.tix.t10 ? `🎟 10연차 ×${R.tix.t10}` : '', R.tix.t1 ? `🎟 ×${R.tix.t1}` : ''].filter(Boolean).join(' ') : '', shT = (R.tix && R.tix.sh || 0) + (R.starShard || 0);
+    const notes = [
+      ending ? `🏁 엔딩 ${ending.isNew ? '새로 열림' : ''}: <b>${ending.name}</b>${hostDone && save.host > 0 ? ` · 다음 사람(${HOSTS[save.host].name})으로! ${hostRule().icon} ${hostRule().title}` : ''}` : '',
+      R.newUnlocks && R.newUnlocks.length ? `🔓 새 기능: <b>${R.newUnlocks.join(' · ')}</b>` : '',
+      R.legacyNew ? `✅ 다음 판 도움: <b>${LEGACY[R.legacyNew].help}</b>` : '',
+      win && !hostDone && save.done[R.st.organ.id] ? `🚨 몸이 눈치챘어요 · 다음 기관 면역 탑 <b>+${Math.round(ALERT_STEP * 100)}%</b>` : '',
+    ].filter(Boolean);
+    $('result').innerHTML = `<div class="resBody rs2"><h1>${win ? `🎉 ${R.st.organ.name} 감염 성공!` : '😵 아쉽게 실패했어요'}</h1>
+      ${win ? `<div class="rsStars">${[0, 1, 2].map(i => `<b class="${R.starCond[i] ? 'on' : ''}${R.starNew[i] ? ' new' : ''}">★</b>`).join('')}</div>${miss ? `<div class="rsMiss">☆ ${miss} 하면 별 하나 더</div>` : ''}`
+        : `<div class="sub" style="text-align:center">${R.medicated ? '시간이 다 돼서 약이 들어왔어요.' : '면역 탑에 막혔어요.'}</div><div class="resBar"><i style="width:${pct}%"></i><span>목표의 ${pct}% 감염</span></div>`}
+      <div class="rsGot"><button class="rsDna" id="rsDna">🧬 <b>+${credits}</b><small>자세히 ▾</small></button>${tixT ? `<span>${tixT}</span>` : ''}${shT ? `<span>🧫 +${shT}</span>` : ''}${R.rcComp ? `<span class="rcG">🤝 +${Math.round(R.rcGain * 100)}%<i><u style="width:${Math.min(100, save.rcG * 100).toFixed(0)}%"></u></i></span>` : ''}</div>
+      <div class="resList" id="rsList" hidden>${dl.map(([t, v]) => `<span>${t} <b>+${v}</b></span>`).join('')}</div>
+      ${win ? '' : `<div class="resTip">💡 ${tip}</div>`}
+      ${notes.length ? `<div class="rsNotes">${notes.map(n => `<div>${n}</div>`).join('')}</div>` : ''}
+      ${R.tix || (R.rcComp && save.rcG >= 1) ? `<div class="row" style="margin:0">${R.tix ? '<button class="btn green" id="resPull" style="min-height:40px;flex:1">🎟 바로 뽑기</button>' : ''}${R.rcComp && save.rcG >= 1 ? `<button class="btn" id="resRc" style="min-height:40px;flex:1;border-color:#c58cff">🧬 재조합 (${Math.floor(save.rcG)})</button>` : ''}</div>` : ''}
       </div><div class="row resBtns">${hostDone ? '' : `<button class="btn ${win ? '' : 'red'}" id="bRetry" style="min-height:50px;${win ? 'flex:1 1 30%' : ''}">↻ ${win ? '다시' : '다시 도전'}</button>`}<button class="btn ${win ? 'red' : ''}" id="bBack" style="min-height:50px;${win ? 'flex:2 1 60%' : ''}">${hostDone ? '다음 사람으로 ▶' : win ? '다음 기관으로 ▶' : '연구소에서 강화'}</button></div>`;
+    $('rsDna').onclick = () => { const l = $('rsList'); l.hidden = !l.hidden; };
     const organId = R.st.organ.id;
     if ($('bRetry')) $('bRetry').onclick = () => { save.sel = organId; $('result').hidden = true; run = null; paused = false; startRun(); };
     $('bBack').onclick = () => ui.showHub(win ? 'body' : 'lab');
