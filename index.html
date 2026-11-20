@@ -652,6 +652,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmUpA { position: absolute; left: 5px; top: 48px; z-index: 3; width: 18px; height: 18px; border-radius: 50%; background: #2a8a2a; color: #fff; font-size: 11px; line-height: 18px; font-weight: 900; box-shadow: 0 0 6px #7fe05a; animation: legb .8s ease-in-out infinite alternate; }
   .fmH .role { position: static; display: inline-grid; width: 16px; height: 16px; vertical-align: -3px; }
   .fmS.no { filter: grayscale(.9) brightness(.5); } .fmS.no::after { content: '🚫'; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 26px; }
+  .rcRow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #3a2a2e; font-size: 13px; text-align: left; } .rcRow > b { width: 56px; font-size: 12px; } .rcRow img { width: 38px; height: 38px; object-fit: contain; } .rcRow small { font-size: 11px; }
 </style>
 </head>
 <body>
@@ -3962,6 +3963,7 @@ const ui = {
     L.querySelectorAll('[data-fs]').forEach(b => b.onclick = () => { const i = +b.dataset.fs;
       if (!slotOpen(i)) { toast(`본체 Lv${slotNeed(i)}에 열려요`); return ui.coreModal(); }
       if (pick) { if (sq[i] === pick) { ui.fmPick = null; return ui.renderRails(); } if (assignSlot(pick, i)) { sfx('build'); buzz(15); ui.fmPick = null; ui.fmSel = null; ui.showHub('lab'); } return; }
+      if (sq[i] && sel !== i) { ui.fmPick = sq[i].uid; ui.fmSel = null; sfx('tap'); return ui.renderRails(); }
       ui.fmSel = sel === i ? null : i; sfx('tap'); ui.renderRails(); });
     if (L.querySelector('[data-fc]')) L.querySelector('[data-fc]').onclick = () => { if (!compOn) { toast(`본체 Lv${RC.lvComp}에 열려요`); return ui.coreModal(); }
       if (pick) { const g = pick; ui.fmPick = null; ui.renderRails(); return ui.compSheet(g); }
@@ -4017,8 +4019,9 @@ const ui = {
       <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>번식·지원 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
       ${D.legend ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반으로 데려가도 돼요: ✨ ${LEG_COMP.name} — ${LEG_COMP.desc} · 정위치 ${SLOT_NAME[(ROLE_SLOT[rk] || [0])[0]]} +${Math.round(ROLE_BONUS * 100)}% / 다른 칸 −${Math.round(LEG_OFF * 100)}%</div>` : ''}
       ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
+      ${slotGenes().includes(g) ? `<div class="fcUp"><button class="btn" id="fcSwap">🔄 이 칸에 다른 카드 넣기</button></div>` : ''}
       <div class="fcHint">⬆ 위 칸을 누르면 꽂혀요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
-  fmUpBind(g) { if (!g) return; if ($('fcComp')) $('fcComp').onclick = () => { ui.fmPick = null; ui.renderRails(); ui.compSheet(g); };
+  fmUpBind(g) { if (!g) return; if ($('fcSwap')) $('fcSwap').onclick = () => { ui.fmSel = slotGenes().indexOf(g); ui.fmPick = null; ui.renderRails(); }; if ($('fcComp')) $('fcComp').onclick = () => { ui.fmPick = null; ui.renderRails(); ui.compSheet(g); };
     if ($('fcLv')) $('fcLv').onclick = () => { const b = ui.growBtn(g); if (b.cap) { sfx('fail'); return toast(`본체 Lv${lvCap()}까지예요 · 본체를 강화하면 상한이 올라가요`); } if (!b.ok) { sfx('fail'); return toast('DNA가 부족해요'); }
       const P = () => { const f = slotFill(), ms = f.length && mineStats(f); return ms ? powerOf(ms.s, matchTotal(f, save.sel || 'nose')) : 0; }, p0 = P();
       const r = levelUp(g); if (r !== 'lv' && r !== 'tier' && r !== 'mut') return; quest('up'); persist(); sfx(r === 'lv' ? 'up' : 'clear'); buzz(15); $('hubDna').textContent = save.dna;
@@ -5000,27 +5003,21 @@ function playCatch(g) {
   requestAnimationFrame(step);
 }
 
-function autoSquad() {   // 고른 기관에 맞춰 카드 3장과 자리(대장·속도·공격)를 함께 고른다: 잘 먹히는 바이러스·적성 대장 우대
-  const org = save.sel || 'nose', S = new Map(save.genes.filter(g => !STRAINS[g.strain].hero).map(g => [g, geneStats(g)]));
-  const tf = g => 1 + 0.15 * tropScore(g.strain, org);
-  const pool = [...S.keys()].filter(g => canSlot(g, 0)).sort((a, b) => power(b) * tf(b) - power(a) * tf(a)).slice(0, 12);
-  let best = null, bs = -1;
-  const shell = slotOpen(1);
-  const all = [...S.keys()], cP = shell ? all.filter(g => canSlot(g, 1)) : [], kP = slotOpen(2) ? all.filter(g => canSlot(g, 2)) : [];
-  for (const b of pool) for (const c of (cP.length ? cP : [null])) for (const k of (kP.length ? kP : [null])) {
-    if (b === c || (c && c === k) || b === k) continue; const L = [b, c, k].filter(g => g && STRAINS[g.strain].legend).length; if (L > legCap()) continue;
-    const x = S.get(b), y = c ? S.get(c) : x, z = k ? S.get(k) : x, hp = x.hp * 0.6 + y.hp * 0.2 + z.hp * 0.2, atk = x.atk * 0.2 + y.atk * 0.2 + z.atk * 0.6, spd = x.spd * 0.2 + y.spd * 0.6 + z.spd * 0.2;
-    const cnt = Math.min(260, x.count + (c ? y.count : 0) + (k ? z.count : 0)), fit = fitSq(org, [b, c, k]) ? FIT_MUL : 1, tr = clamp(1 + 0.15 * (tropScore(b.strain, org) + (c ? tropScore(c.strain, org) : 0) + (k ? tropScore(k.strain, org) : 0)), 0.7, 1.45);
-    const sc = atk * cnt * Math.sqrt(hp) * Math.sqrt(spd) * fit * fit * tr * tr; if (sc > bs) { bs = sc; best = [b, c, k]; } }
-  if (!best) best = pool.slice(0, 3);
-  // 번식·지원: 남은 카드 중 센 것 (새 스킬이 되도록 다른 계통 우대 · 전설은 1장)
-  const used = best.filter(Boolean), extra = [];
-  for (const i of [3]) { if (!slotOpen(i)) continue; const leg = used.concat(extra).filter(g => STRAINS[g.strain].legend).length >= legCap(), have = new Set(used.concat(extra).map(g => g.strain));
-    const cand = [...S.keys()].filter(g => canSlot(g, i) && !used.includes(g) && !extra.includes(g) && !(leg && STRAINS[g.strain].legend)).sort((a, b) => power(b) * tf(b) * (have.has(b.strain) ? 0.7 : 1) - power(a) * tf(a) * (have.has(a.strain) ? 0.7 : 1));
-    if (cand[0]) extra.push(cand[0]); }
-  const ex = { 3: null, 4: null }; for (const i of [3, 4]) if (slotOpen(i)) ex[i] = extra.find(g => canSlot(g, i) && g !== ex[3]) || null;
-  save.squad = SL.map(i => i < 3 ? (best[i] && slotOpen(i) ? best[i].uid : null) : ex[i] ? ex[i].uid : null);
-  if (coreL() >= RC.lvComp) { const d = bestDonor(); if (d) save.comp = d.uid; }
+// ★ 추천 조합: ① 기관 궁합(그 기관에 맞는 역할 카드가 있나) → ② 실제로 그 기관을 노리는 바이러스 수 → ③ 전투력 순으로 고른다
+function autoSquad() {
+  const org = save.sel || 'nose', S = new Map(save.genes.filter(g => !STRAINS[g.strain].hero && !isComp(g)).map(g => [g, geneStats(g)]));
+  const tf = g => 1 + 0.15 * tropScore(g.strain, org), all = [...S.keys()], top = (i, n) => slotOpen(i) ? all.filter(g => canSlot(g, i)).sort((a, b) => power(b) * tf(b) - power(a) * tf(a)).slice(0, n) : [];
+  const P0 = top(0, 8), P1 = top(1, 6), P2 = top(2, 6), P3 = top(3, 6), opt = P => P.length ? P : [null];
+  let best = null, bk = null;
+  for (const a of opt(P0)) for (const c of opt(P1)) for (const k of opt(P2)) for (const d of opt(P3)) {
+    const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap()) continue;
+    const f = fitSq(org, u) ? 1 : 0, tr = u.reduce((t, g) => t + tropScore(g.strain, org), 0), z = cs.map(g => g ? S.get(g) : null), x = z[0] || z.find(Boolean);
+    if (!x) continue; const y = z[1] || x, w = z[2] || x, hp = x.hp * 0.6 + y.hp * 0.2 + w.hp * 0.2, atk = x.atk * 0.2 + y.atk * 0.2 + w.atk * 0.6, spd = x.spd * 0.2 + y.spd * 0.6 + w.spd * 0.2, cnt = Math.min(260, z.reduce((t, q) => t + (q ? q.count : 0), 0));
+    const pw = atk * cnt * Math.sqrt(hp) * Math.sqrt(spd) * clamp(1 + 0.15 * tr, 0.7, 1.45), key = [f, tr, pw];
+    if (!bk || key[0] > bk[0] || (key[0] === bk[0] && (key[1] > bk[1] || (key[1] === bk[1] && key[2] > bk[2])))) { bk = key; best = cs; } }
+  if (!best) return;
+  save.squad = SL.map(i => i < 4 && best[i] && slotOpen(i) ? best[i].uid : null); normSquad();
+  if (coreL() >= RC.lvComp) { const dn = bestDonor(); if (dn) save.comp = dn.uid; }
 }
 // 좋은 동반 카드: 주전이 아닌 카드 중 별 높고 등급 높은 것 (주전 카드에 아직 없는 궁합을 가진 것 우대)
 function bestDonor() { const sq = new Set(save.squad.filter(Boolean)), fill = slotFill();
@@ -5050,16 +5047,16 @@ $('pgNext').onclick = () => { page++; ui.renderLab(); };
 $('bDex').onclick = () => dexView();
 // ★ 추천 조합: 고른 기관에 가장 좋은 조합을 계산해서, 카드가 한 장씩 날아가 칸에 꽂힌다
 $('bAuto').onclick = () => {
-  if (ui.recoBusy) return; const old = [...save.squad]; autoSquad(); const nw = [...save.squad]; save.squad = old;
-  const moves = SLOT_ORDER.filter(i => slotOpen(i) && nw[i] && nw[i] !== old[i]);
-  if (!moves.length) return toast('지금이 추천 조합이에요 👍');
-  ui.recoBusy = true; let k = 0;
-  for (const i of moves) { const g = geneById(nw[i]), src = document.querySelector(`#railList .rail[data-slot="${i}"] .rc[data-u="${g.uid}"]:not(.cur)`) || document.querySelector(`#railList .rc[data-u="${g.uid}"]`) || $('bAuto'), dst = document.querySelector(`#railList .rail[data-slot="${i}"] .rc:first-child`);
-    if (!dst) continue; const a = src.getBoundingClientRect(), b = dst.getBoundingClientRect(), gh = document.createElement('div'); gh.className = 'dragGhost fly2'; gh.innerHTML = pimg(g);
-    gh.style.transform = `translate(${a.left + a.width / 2 - 32}px, ${a.top + a.height / 2 - 32}px)`; document.body.appendChild(gh);
-    setTimeout(() => { gh.style.transition = 'transform .38s cubic-bezier(.4,0,.2,1.3)'; gh.style.transform = `translate(${b.left + b.width / 2 - 32}px, ${b.top + b.height / 2 - 32}px) scale(.8)`; dst.classList.add('landing'); sfx('build'); }, 30 + k * 170);
-    setTimeout(() => gh.remove(), 470 + k * 170); k++; }
-  setTimeout(() => { save.squad = nw; normSquad(); persist(); ui.recoBusy = false; ui.showHub(); toast(`${organById(save.sel || 'nose').name}에 맞춘 추천 조합!`); }, 480 + (k - 1) * 170);
+  const old = JSON.stringify(save.squad); autoSquad(); persist(); ui.showHub('lab'); const org = organById(save.sel || 'nose'), f = ORGAN_FIT[org.id], sq = slotGenes(), cap = lvCap();
+  const rows = [0, 3, 1, 2].filter(slotOpen).map(i => { const g = sq[i]; if (!g) return `<div class="rcRow"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]}</b><span style="color:#ff9a8a">비어 있음 · 이 칸에 맞는 카드가 없어요</span></div>`;
+    const t = tropScore(g.strain, org.id), lw = (g.lv || 1) < cap - 1;
+    return `<div class="rcRow"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]}</b>${pimg(g)}<span>${sname(g.strain)} <small>${stars(g.star)}</small><br><small>${t > 0 ? '<em style="color:#9fff6a">🏠 이 기관을 노리는 바이러스</em>' : t < 0 ? '<em style="color:#ff9a8a">⚠ 이 기관엔 안 맞음</em>' : '보통'} · Lv${g.lv || 1}/${cap}${lw ? ' <b style="color:#ffd24a">▲ 강화 필요</b>' : ''}</small></span></div>`; }).join('');
+  const fitOk = fitSq(org.id, sq.filter(Boolean)), low = sq.filter(g => g && (g.lv || 1) < cap - 1);
+  ui.modal(`<h3 style="margin:0 0 4px">⭐ ${org.name} 추천 조합</h3><div class="sub">① 기관 궁합 → ② 이 기관을 노리는 바이러스 → ③ 전투력 순으로 골랐어요</div>
+    <div class="fcSk" style="margin:6px 0">${fitOk ? `✅ 궁합 맞음: ${roleBadge0(f.role)}<b>${ROLES[f.role].name}</b> 카드가 있어요 (+40%)` : `❌ 궁합 없음: ${f ? `${roleBadge0(f.role)}<b>${ROLES[f.role].name}</b> 카드가 없어요. 뽑기로 구해 보세요` : ''}`}</div>${rows}
+    ${low.length ? `<div class="sub" style="margin-top:6px;color:#ffd24a">▲ ${low.length}장이 본체 레벨(Lv${cap})보다 낮아요. 강화하면 훨씬 세져요!</div>` : ''}
+    <div class="row">${low.length ? '<button class="btn green" id="rcUp">▲ 강화하러 가기</button>' : ''}<button class="btn" id="rcOk">${old === JSON.stringify(save.squad) ? '확인 (이미 추천 조합)' : '좋아요'}</button></div>`);
+  $('rcOk').onclick = ui.closeModal; if ($('rcUp')) $('rcUp').onclick = () => { ui.closeModal(); ui.fmPick = low.sort((a, b) => (a.lv || 1) - (b.lv || 1))[0].uid; ui.renderRails(); };
 };
 $('bCatch').onclick = () => pullMenu(); $('navPull').onclick = () => pullMenu();
 $('bBox').onclick = () => { ui.labMode = 'box'; page = 0; ui.renderLab(); };
