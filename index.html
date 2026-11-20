@@ -1782,7 +1782,7 @@ const PERI = { every: 4, speed: 60, width: 56, push: 42, amp: 6 };   // push < s
 let WOBON = false, WOBT = 0;
 // ★ 움직이는 기관: 폐는 숨 쉬고(들숨 빨려 듦 / 날숨 밀려남), 혈관은 박동마다 물살 방향이 바뀌고, 코는 섬모가 쉬지 않고 밀어낸다
 const BREATH = { period: 7, inMul: 1.25, outMul: 0.5, push: 0.3, amp: 0.025 };   // push: 개체 속도 대비 비율
-const FLOW = { period: 8, fwd: 1.35, back: 0.4, push: 0.35 };
+const FLOW = { period: 8, fwd: 1.35, back: 0.2, push: 0 };
 const CILIA = { zones: [[0.26, 0.4], [0.6, 0.74]], push: 0.2, slow: 0.65 };   // 적성이 안 맞아도 느리게나마 앞으로 가게 (막힘 방지)
 function initPeri() { const id = run.st.organ.id; run.peri = id === 'gut' ? { t: 2.5, waves: [], told: false } : null; WOBON = false; WOBT = 0;
   const MVT = { lung: 'breath', blood: 'flow', nose: 'cilia', liver: 'enzyme', skin: 'plates', lymph: 'net', brain: 'zap' };
@@ -1797,9 +1797,10 @@ function stepMove(dt) {
     R.mvMul = inh ? BREATH.inMul : 1 - (1 - BREATH.outMul) * (fit ? 0.5 : 1);
     if (!inh) for (const u of R.units) if (u.alive && !u.hero && u.d > (map.d0 || 0)) u.d -= BREATH.push * u.spd * dt * (fit ? 0.5 : 1); }
   else if (M.type === 'flow') { const ph = (M.t % FLOW.period) / FLOW.period, fwd = ph < 0.5, p = fwd ? 'f' : 'b';
-    if (p !== M.ph) { M.ph = p; M.n = (M.n || 0) + 1; shake(3); sfx('beat'); if (M.n <= 4) banner(fwd ? '두근! 물살이 목표 쪽으로 — 지금 달려라' : '두근! 물살이 거꾸로 — 버텨라' + (fit ? ' (공격형 몸통은 덜 밀림)' : '')); }
+    if (p !== M.ph) { M.ph = p; M.n = (M.n || 0) + 1; shake(3); sfx('beat'); if (M.n <= 4) banner(fwd ? '두근! 물살이 목표 쪽으로 — 지금 달려라' : '두근… 물살이 거꾸로 — 벽에 붙어 버텨요' + (fit ? ' (공격형 몸통은 덜 느려짐)' : '')); }
     R.mvMul = fwd ? FLOW.fwd : 1 - (1 - FLOW.back) * (fit ? 0.5 : 1); M.beat = (M.beat || 0) + dt; R.zoomK = 1 + 0.008 * Math.max(0, Math.sin(M.t * TAU / 0.9)) ** 8;
-    if (!fwd) for (const u of R.units) if (u.alive && !u.hero && u.d > (map.d0 || 0)) u.d -= FLOW.push * u.spd * dt * (fit ? 0.5 : 1); }
+    // 역류 때 뒤로 끌려가면 '되돌아가는' 것처럼 보여서, 이제는 혈관 벽에 붙어 버틴다(거의 멈춤). 밀어내지 않는다
+  }
   else if (M.type === 'enzyme') { const f0 = R.frontD || 0, L = map.len - f0; M.zd = f0 + L * (0.5 + 0.32 * Math.sin(M.t * ENZ.sp)) - ENZ.len / 2;
     if (!M.told) { M.told = true; banner('해독 효소가 길을 오간다 · 회복형 몸통이 버틴다'); }
     for (const u of R.units) if (u.alive && !u.hero && u.d > M.zd && u.d < M.zd + ENZ.len) { u.mvS = fit ? 0.9 : ENZ.slow; if (!fit) hurtU(u, ENZ.dps * dt, '#d8ff6a'); } }
