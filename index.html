@@ -975,7 +975,7 @@ const tropG = (g, org) => { if (g.rc && g.rc.tr && g.rc.tr.includes(org)) return
 const TROP_W = { good: 0.2, leg: 0.35, bad: 0.15 };
 const tropMul = (cards, org) => clamp(1 + [...new Set(cards)].reduce((a, c) => { const t = tropG(c, org); return a + (t > 0 ? (STRAINS[c.strain].legend ? TROP_W.leg : TROP_W.good) : t < 0 ? -TROP_W.bad : 0); }, 0), 0.6, 1.7);
 const sigOf = st => SIGNATURE[st] || SIGNATURE[(STRAINS[st].parents || [])[0]];
-const STAR = { 1:{ hp:1, spd:1, cnt:1, cd:1, atk:1 }, 2:{ hp:1.5, spd:1.05, cnt:1.25, cd:0.8, atk:1.3 }, 3:{ hp:2.2, spd:1.1, cnt:1.5, cd:0.8, atk:1.7 }, 4:{ hp:3.0, spd:1.14, cnt:1.7, cd:0.75, atk:2.2 }, 5:{ hp:4.0, spd:1.18, cnt:1.9, cd:0.7, atk:2.8 } };
+const STAR = { 1:{ hp:1, spd:1, cnt:1, cd:1, atk:1 }, 2:{ hp:1.5, spd:1.05, cnt:1.25, cd:0.8, atk:1.3 }, 3:{ hp:2.2, spd:1.1, cnt:1.5, cd:0.8, atk:1.7 }, 4:{ hp:2.7, spd:1.14, cnt:1.7, cd:0.75, atk:2.0 }, 5:{ hp:3.3, spd:1.18, cnt:1.9, cd:0.7, atk:2.4 } };
 
 /* ---------- [data/towers.js] 면역 세포 7종 ---------- */
 const TOWERS = {
