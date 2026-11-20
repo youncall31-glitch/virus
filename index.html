@@ -2914,8 +2914,8 @@ function startRun() {
   // ★ 이미 정복한 기관 다시 하기: 매번 다른 길 · 보스 없음 · 탑 체력 −20% · 약 투여 뜸하게 · DNA 85%
   const replay = !wk && !!save.done[organ.id] && save.tutDone; save.mapIx = save.mapIx || {}; MAP_VARIANT = !save.tutDone || wk ? 0 : (save.mapIx[organ.id] || 0) % MAP_N; if (save.tutDone && !wk) save.mapIx[organ.id] = MAP_VARIANT + 1; st.replay = replay; if (replay) st.mul *= REPLAY.hp;
   BOTTOM = (TA() ? 124 : 206) * KS;
-  // ★ 지도 길이에 맞춰 시간 보정: 1번 지도보다 길면 그만큼 시간을 더 준다 (0.85~1.5배)
-  let mapTimeK = 1; if (MAP_VARIANT > 0) { buildMap(organ, save.host, 0); const ref = map.len; buildMap(organ, save.host, MAP_VARIANT); mapTimeK = clamp(map.len / ref, 0.85, 1.5); } else buildMap(organ, save.host, MAP_VARIANT);
+  // ★ 지도 길이에 맞춰 시간 보정: 길이 비율의 제곱근만큼 (실측: 시간이 길이에 그대로 비례하진 않음) 0.9~1.3배
+  let mapTimeK = 1; if (MAP_VARIANT > 0) { buildMap(organ, save.host, 0); const ref = map.len; buildMap(organ, save.host, MAP_VARIANT); mapTimeK = clamp(Math.sqrt(map.len / ref), 0.9, 1.3); } else buildMap(organ, save.host, MAP_VARIANT);
   const w = ImmuneAI.weights(organ);
   if (hasLegacy('retro')) { if (w.tcell) w.tcell *= 0.5; if (w.nk) w.nk *= 0.5; }
   if (hasLegacy('rota') && organ.id === 'gut') map.valves = [];
