@@ -640,7 +640,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmC { touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   #railList { overflow-x: hidden; padding-right: 8px; } .fmRow { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; } .fmGrid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
   #railList img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; pointer-events: none; } #railList button { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
-  .fmC.dimS { filter: grayscale(.6) brightness(.8); opacity: .75; } .fmC.dimS::after { content: '역할 다름 · 보너스 없음'; position: absolute; left: 2px; right: 2px; bottom: 34px; font-size: 9.5px; color: #e8d8c8; background: rgba(0,0,0,.6); border-radius: 6px; } .fmC.fit { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.4); }
+  .fmC.dimS { filter: grayscale(.9) brightness(.55); opacity: .5; } .fmC.dimS::after { content: '이 칸엔 못 들어가요'; position: absolute; left: 2px; right: 2px; bottom: 34px; font-size: 9.5px; color: #e8d8c8; background: rgba(0,0,0,.6); border-radius: 6px; } .fmC.fit { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.4); }
   .fmComp { position: relative; display: flex; align-items: center; gap: 4px; margin-left: 4px; padding: 2px 8px 2px 3px; border-radius: 20px; border: 1.5px solid #9a5ad0; background: #2a1240; color: #e9c8ff; font-family: inherit; font-size: 11px; font-weight: 700; }
   .fmComp.lock { opacity: .55; border-style: dashed; } .fmComp.wig { animation: fmWig .45s ease-in-out infinite alternate; border-color: #ffd24a; } .fmComp.hov { border-color: #fff; box-shadow: 0 0 12px #ffd24a; }
   .fcRing { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(#c58cff var(--g), #3a2040 var(--g)); font-size: 13px; } .fcRing img { width: 24px !important; height: 24px !important; border-radius: 50%; background: #1a0f14; object-fit: contain; }
@@ -651,6 +651,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmSheet .fcSk small { display: none; }
   .fmUpA { position: absolute; left: 5px; top: 48px; z-index: 3; width: 18px; height: 18px; border-radius: 50%; background: #2a8a2a; color: #fff; font-size: 11px; line-height: 18px; font-weight: 900; box-shadow: 0 0 6px #7fe05a; animation: legb .8s ease-in-out infinite alternate; }
   .fmH .role { position: static; display: inline-grid; width: 16px; height: 16px; vertical-align: -3px; }
+  .fmS.no { filter: grayscale(.9) brightness(.5); } .fmS.no::after { content: '🚫'; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 26px; }
 </style>
 </head>
 <body>
@@ -1004,7 +1005,7 @@ const TOWER_TIP = { bcell:'한 계통만 알아본다 · 항원 변이로 따돌
 /* ---------- [data/body.js] 숙주 4명 × 기관 8곳 (취약할수록 쉬움) ---------- */
 // 숙주별 추가 목표: 아기 몸은 아슬아슬하게 이기고, 다음 몸부터는 기관마다 강화 1~3번이 필요하게
 // 아기 몸: 코·폐는 첫판에 아슬아슬, 장부터는 2~3번 도전(지면서 DNA로 강화)
-const HOST0_Q = { nose: 1.0, lung: 0.95, gut: 1.2, liver: 1.1, blood: 1.2, skin: 1.25, lymph: 1.35 };
+const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin: 1.25, lymph: 1.35 };
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 1.6, liver: 1.6, blood: 1.6, skin: 1.7, lymph: 1.8 };
 const HOST_Q = [1.8, 4.2, 5.1, 6.0];
@@ -1361,6 +1362,9 @@ const SLOT_COL = [['#5c1a28', '#e0506a'], ['#14385c', '#4aa0e0'], ['#5c3410', '#
 const roleSlotOf = g => { const r = ROLE_OF[g.strain]; return r && ROLE_SLOT[r] ? ROLE_SLOT[r][0] : -1; };
 const cardBg = g => { if (STRAINS[g.strain].legend) return 'background:linear-gradient(135deg,#3a2a08,#2a0f2e 45%,#0f2a30);border-color:#e8c45a'; const i = roleSlotOf(g); return i >= 0 ? `background:linear-gradient(180deg,${SLOT_COL[i][0]},#1a0f14 85%);border-color:${SLOT_COL[i][1]}` : ''; };
 const roleFit = (g, i) => { const r = ROLE_OF[g.strain]; return !!(r && (ROLE_SLOT[r] || []).includes(i)); };
+// ★ 칸 규칙 (오버워치 역할 고정처럼): 👑대장 = 아무 역할(무리의 타입을 정함) · 나머지 칸 = 그 역할만 · 전설은 어디든
+const canSlot = (g, i) => !!g && (i === 0 || !!(STRAINS[g.strain] && STRAINS[g.strain].legend) || roleFit(g, i));
+const slotRule = i => i === 0 ? '아무 역할이나 (대장의 타입이 무리 전체의 타입)' : `${ROLES[Object.keys(ROLE_SLOT).find(r => ROLE_SLOT[r].includes(i))].name}만 (전설은 어디든)`;
 const roleK = (g, i) => roleFit(g, i) ? 1 + ROLE_BONUS : STRAINS[g.strain] && STRAINS[g.strain].legend ? 1.1 : 1;
 function updTix() { const n = (save.t1 || 0) + (save.t10 || 0) * 10, np = $('navPull'); if (!np) return; let bd = np.querySelector('.tixB'); if (!bd) { bd = document.createElement('i'); bd.className = 'tixB'; np.appendChild(bd); } bd.textContent = n > 99 ? '99+' : n; bd.hidden = !n; }
 function persist() { try { updTix(); } catch (e) {} try { localStorage.setItem(SAVE_KEY, JSON.stringify({ ...save, uid, ver: SAVE_VER })); } catch (e) {} }
@@ -1406,7 +1410,7 @@ function migrate(s) {
         if (save.genes.length) return; } }
     catch (e) { try { localStorage.setItem(SAVE_KEY + '-broken-' + Date.now(), raw); } catch (e2) {} window.__saveBroken = true; }
   }
-  ['rhino','rhino','noro','adeno','herpes','retro'].forEach(k => save.genes.push(newGene(k))); save.seen = {}; for (const g of save.genes) save.seen[g.strain] = true;
+  ['rhino','rota','noro','adeno','herpes','retro'].forEach(k => save.genes.push(newGene(k))); save.seen = {}; for (const g of save.genes) save.seen[g.strain] = true;
 })();
 const geneById = id => save.genes.find(g => g.uid === id);
 const squadGenes = () => SL.map(i => slotOpen(i) ? geneById(save.squad[i]) : null).filter(Boolean);
@@ -1420,7 +1424,7 @@ const slotGenes = () => SL.map(i => slotOpen(i) ? geneById(save.squad[i]) || nul
 const fillOf = a => { const f = a.find(Boolean); if (!f) return []; const out = [0, 1, 2].map(i => a[i] || f), sl = [0, 1, 2].map(i => a[i] ? i : -1);
   a.forEach((g, i) => { if (i >= 3 && g) { out.push(g); sl.push(i); } }); out.slots = sl; return out; };
 const slotFill = () => fillOf(slotGenes());
-const normSquad = () => { save.squad = SL.map(i => slotOpen(i) ? (save.squad || [])[i] || null : null); };
+const normSquad = () => { save.squad = SL.map(i => { const u = slotOpen(i) ? (save.squad || [])[i] || null : null; if (u == null || i === 0) return u; const g = (save.genes || []).find(x => x.uid === u); return g && canSlot(g, i) ? u : null; }); };
 const unSquad = uid => { save.squad = SL.map(i => save.squad[i] === uid ? null : (save.squad[i] || null)); };
 const organById = id => ORGANS.find(o => o.id === id);
 const doneCount = () => ORGANS.filter(o => o.id !== 'brain' && save.done[o.id]).length;
@@ -2271,7 +2275,7 @@ function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; sh
 
 /* ---------- [systems/mine.js] ★ 내 바이러스: 연구소의 카드 3장(대장·속도·공격)을 합성한 단 하나의 계통으로 싸운다 ----------
    대장 → 방어(체력)·정체성(역할), 속도 → 속도·은신, 공격 → 감염력. 배양력은 셋의 합. 스킬은 꽂은 카드에서 하나씩 추출. */
-const SLOT_NAME = ['대장', '속도', '공격', '번식', '지원'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력', '마릿수·스킬', '마릿수·스킬'], SLOT_ICON = ['👑', '💨', '⚔', '🦠', '✨'], SLOT_STAT = ['체력', '빠르기', '공격력', '마릿수', '마릿수'], SLOT_KEY = ['hp', 'spd', 'atk', 'count', 'count'];
+const SLOT_NAME = ['대장', '숨기', '공격', '물량', '회복'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력', '마릿수·스킬', '마릿수·스킬'], SLOT_ICON = ['👑', '👁', '⚔', '🟡', '➕'], SLOT_STAT = ['체력', '빠르기', '공격력', '마릿수', '마릿수'], SLOT_KEY = ['hp', 'spd', 'atk', 'count', 'count'];
 // 부품 그림(대장 6 · 속도 2 · 공격 6)을 겹쳐 내 바이러스 모습을 만든다
 const VP_CORE = { adeno: 0, measles: 0, herpes: 1, rsv: 1, retro: 1, noro: 2, hepb: 2, rota: 3, flu: 3, rabies: 4, rhino: 5, hpv: 5 };
 const VP_COAT = { herpes: 'env', flu: 'env', rsv: 'env', measles: 'env', retro: 'env', hepb: 'env', rabies: 'env', adeno: 'hex', hpv: 'hex', rota: 'hex', noro: '', rhino: '' };
@@ -3901,16 +3905,16 @@ const ui = {
     let pick = ui.fmPick != null ? geneById(ui.fmPick) : null; if (!pick) ui.fmPick = null;
     let sel = ui.fmSel; if (sel != null && !slotOpen(sel)) sel = ui.fmSel = null;
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
-    const sock = i => { const open = slotOpen(i), g = sq[i], pd = pick && open && g !== pick ? ui.slotDelta(pick, i).pp : null;
-      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open ? ' wig' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${SLOT_COL[i][0]};border-color:${!pick && sel === i ? '#ffd24a' : SLOT_COL[i][1]}"><span class="fmL">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span><span class="fmRl">${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(roleBadge0).join('')}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>Lv${slotNeed(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
+    const sock = i => { const open = slotOpen(i), g = sq[i], no = pick && open && !canSlot(pick, i), pd = pick && open && !no && g !== pick ? ui.slotDelta(pick, i).pp : null;
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${SLOT_COL[i][0]};border-color:${!pick && sel === i ? '#ffd24a' : SLOT_COL[i][1]}"><span class="fmL">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span><span class="fmRl">${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(roleBadge0).join('')}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>Lv${slotNeed(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
     const cgv = pick && compOn ? ui.compBest(pick, sq) : null;
     const comp = `<button class="fmComp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1" aria-label="동반">${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}<span class="fcRing" style="--g:${compOn && cg ? Math.min(100, (gv % 1) * 100 || (gv >= 1 ? 100 : 0)).toFixed(0) : 0}%">${!compOn ? '🔒' : cg ? pimg(cg) : '+'}</span><small>🤝 동반${!compOn ? ` Lv${RC.lvComp}` : gv >= 1 ? ' 🧬' : ''}</small></button>`;
     const list = sortGenes(save.genes);
-    const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
+    const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g) && canSlot(g, sel)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (roleFit(g, sel) || D.legend ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span>${!pick && sel == null && canUp(g) ? '<span class="fmUpA">▲</span>' : ''}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
-    const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}%  · 다른 카드도 넣을 수 있지만 보너스는 없어요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
+      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span>${!pick && sel == null && canUp(g) ? '<span class="fmUpA">▲</span>' : ''}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
+    const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} 칸 = ${slotRule(sel)} · 밝은 카드를 누르면 꽂혀요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}</div></div>
       <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
     { const sh = $('fmSheet'), nb = document.querySelector('#hub .navBar'); if (sh) { const tp = Math.min(nb ? nb.getBoundingClientRect().top : innerHeight, $('bGo') ? $('bGo').getBoundingClientRect().top : innerHeight), bt = innerHeight - tp + 4; sh.style.bottom = bt + 'px'; $('railList').style.paddingBottom = (sh.offsetHeight + 8) + 'px'; } else $('railList').style.paddingBottom = ''; }
@@ -3939,7 +3943,7 @@ const ui = {
     L.querySelectorAll('[data-fu],[data-fs]').forEach(card => card.addEventListener('pointerdown', e => { if (!card.dataset.fu) return;
       const g = geneById(+card.dataset.fu); if (!g || e.button > 0) return; const x0 = e.clientX, y0 = e.clientY; let D = null;
       const cancel = () => { clearTimeout(tm); document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up); };
-      const start = () => { const ds = SL.map(i => slotOpen(i) && sq[i] !== g ? ui.slotDelta(g, i) : null), base = ds.find(Boolean);
+      const start = () => { const ds = SL.map(i => slotOpen(i) && sq[i] !== g && canSlot(g, i) ? ui.slotDelta(g, i) : null), base = ds.find(Boolean);
         D = ui._drag = { g, ds, gh: document.createElement('div'), bar: document.createElement('div'), over: null };
         D.gh.className = 'fmGhost'; D.gh.innerHTML = pimg(g); document.body.appendChild(D.gh); D.bar.className = 'fmDBar'; document.body.appendChild(D.bar);
         L.querySelectorAll('[data-fs]').forEach(b => { const d = ds[+b.dataset.fs]; if (d) b.insertAdjacentHTML('beforeend', `<span class="fmP ${d.pp > 0 ? 'up' : d.pp < 0 ? 'dn' : ''}">${d.pp > 0 ? '+' : ''}${d.pp}%</span>`); b.classList.add('wig'); });
@@ -3948,7 +3952,7 @@ const ui = {
       const place = (x, y) => { D.gh.style.left = x + 'px'; D.gh.style.top = y + 'px'; D.gh.hidden = true; const el = document.elementFromPoint(x, y); D.gh.hidden = false;
         const so = el && el.closest('[data-fs],[data-fc]'); L.querySelectorAll('.hov').forEach(b => b.classList.remove('hov')); D.over = so; if (!so) return; so.classList.add('hov');
         if (so.dataset.fc) { const cb = compOn ? ui.compBest(g, sq) : null; D.bar.innerHTML = compOn ? `🤝 <b>동반</b>에 두면 ${cb ? `${sname(cb.tg.strain)}에게 <b>${cb.t}</b> 옮겨 줌${cb.pp ? ` <em class="up">전투력 +${cb.pp}%</em>` : ''}` : '옮겨 줄 게 없어요'}` : `🔒 동반 칸은 본체 Lv${RC.lvComp}에 열려요`; return; }
-        const i = +so.dataset.fs, d = D.ds[i]; D.bar.innerHTML = !slotOpen(i) ? `🔒 ${SLOT_NAME[i]} 칸은 본체 Lv${slotNeed(i)}에 열려요` : !d ? '이미 이 칸에 있어요'
+        const i = +so.dataset.fs, d = D.ds[i]; D.bar.innerHTML = !slotOpen(i) ? `🔒 ${SLOT_NAME[i]} 칸은 본체 Lv${slotNeed(i)}에 열려요` : !canSlot(g, i) ? `🚫 ${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸엔 ${slotRule(i)}` : !d ? '이미 이 칸에 있어요'
           : `${SLOT_ICON[i]} <b>${SLOT_NAME[i]}</b>에 넣으면 전투력 <b>${d.pf}</b> → <b class="${d.pp >= 0 ? 'up' : 'dn'}">${d.pt}</b> <em class="${d.pp >= 0 ? 'up' : 'dn'}">${d.pp > 0 ? '+' : ''}${d.pp}%</em>${roleFit(g, i) ? ' · 역할 칸 +' + Math.round(ROLE_BONUS * 100) + '%' : ''}`; };
       const mv = ev => { if (!D) { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) cancel(); return; } ev.preventDefault(); place(ev.clientX, ev.clientY); };
       const up = () => { cancel(); if (!D) return; const so = D.over; D.gh.remove(); D.bar.remove(); ui._drag = null; card.dataset.dragged = '1'; setTimeout(() => { delete card.dataset.dragged; }, 350);
@@ -3965,7 +3969,7 @@ const ui = {
   fmCard(g, sq) { const D = STRAINS[g.strain], rk = ROLE_OF[g.strain], fit = (ROLE_SLOT[rk] || []).map(i => SLOT_NAME[i]).join('·'), sk = geneSkill(g), cb = coreL() >= RC.lvComp ? ui.compBest(g, sq) : null;
     const gr = [0, 1, 2, 3].map(i => { const v = slotGrade(g, i); return `<span>${SLOT_ICON[i]} ${SLOT_STAT[i]} <b style="color:${GRADE_COL[v]}">${v}</b></span>`; }).join('');
     return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} <span style="color:${RARITY[D.rarity].color}">${stars(g.star)}</span> <small>Lv${g.lv || 1}</small></b>
-      <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · 맞는 칸 <b style="color:#9fd8ff">${D.legend ? '어디든 +10%' : fit ? `${fit} +${Math.round(ROLE_BONUS * 100)}%` : '-'}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
+      <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · 들어갈 칸 <b style="color:#9fd8ff">${D.legend ? '어느 칸이든' : `👑대장${(ROLE_SLOT[rk] || []).filter(i => i > 0).map(i => ' · ' + SLOT_ICON[i] + SLOT_NAME[i]).join('')}`}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
       <div class="fcGr">${gr}</div>
       ${(() => { const [go, bo] = tropOf(g.strain); return `<div class="fcSk">🏠 실제로 노리는 곳 <b style="color:#9fff6a">${go.map(o => ORG_SHORT[o]).join('·') || '-'}</b> ${D.legend ? `+${Math.round(TROP_W.leg * 100)}%<br><span style="color:#ff9a8a">⚠ 전설의 위험: 그 밖의 모든 기관에선 −${Math.round(TROP_W.bad * 100)}%</span>` : `+${Math.round(TROP_W.good * 100)}%${bo.length ? ` · <span style="color:#ff9a8a">안 맞는 곳 ${bo.map(o => ORG_SHORT[o]).join('·')} −${Math.round(TROP_W.bad * 100)}%</span>` : ''}`}</div>`; })()}
       <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>번식·지원 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
@@ -4676,8 +4680,9 @@ function baseCore() { if (BASE_CORE) return BASE_CORE; if (!has('vp_core_0')) re
 function assignSlot(g, i) {
   if (!g || !slotOpen(i)) return false; const cur = squadGenes().includes(g) ? save.squad.indexOf(g.uid) : -1, sq = SL.map(k => save.squad[k] || null);
   if (cur === i) return false;
+  if (!canSlot(g, i)) { toast(`${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸엔 ${slotRule(i)}`); return false; }
   if (STRAINS[g.strain].legend && cur < 0 && squadGenes().some(x => STRAINS[x.strain].legend && x.uid !== sq[i])) { toast('전설 바이러스는 1장만 꽂을 수 있어요'); return false; }
-  if (cur >= 0) { sq[cur] = sq[i]; sq[i] = g.uid; } else sq[i] = g.uid;
+  if (cur >= 0) { const o = sq[i] && geneById(sq[i]); sq[cur] = o && canSlot(o, cur) ? sq[i] : null; sq[i] = g.uid; } else sq[i] = g.uid;
   save.squad = sq; normSquad(); persist(); return true;
 }
 // ★ 끌어다 놓기: 카드를 손가락으로 끌어 본체 둘레 칸에 놓는다 (본체 위에 놓으면 빈 칸으로). 꽂힌 카드를 밖으로 끌면 빠짐
@@ -4954,18 +4959,20 @@ function autoSquad() {   // 고른 기관에 맞춰 카드 3장과 자리(대장
   const pool = [...S.keys()].sort((a, b) => power(b) * tf(b) - power(a) * tf(a)).slice(0, 12);
   let best = null, bs = -1;
   const shell = slotOpen(1);
-  for (const b of pool) for (const c of (shell ? pool : [null])) for (const k of pool) {
-    if (b === c || c === k || b === k) continue; const L = [b, c, k].filter(g => g && STRAINS[g.strain].legend).length; if (L > 1) continue;
-    const x = S.get(b), y = c ? S.get(c) : x, z = S.get(k), hp = x.hp * 0.6 + y.hp * 0.2 + z.hp * 0.2, atk = x.atk * 0.2 + y.atk * 0.2 + z.atk * 0.6, spd = x.spd * 0.2 + y.spd * 0.6 + z.spd * 0.2;
-    const cnt = Math.min(260, x.count + (c ? y.count : 0) + z.count), fit = fitOf(org, ROLE_OF[b.strain]) ? FIT_MUL : 1, tr = clamp(1 + 0.15 * (tropScore(b.strain, org) + (c ? tropScore(c.strain, org) : 0) + tropScore(k.strain, org)), 0.7, 1.45);
+  const all = [...S.keys()], cP = shell ? all.filter(g => canSlot(g, 1)) : [], kP = slotOpen(2) ? all.filter(g => canSlot(g, 2)) : [];
+  for (const b of pool) for (const c of (cP.length ? cP : [null])) for (const k of (kP.length ? kP : [null])) {
+    if (b === c || (c && c === k) || b === k) continue; const L = [b, c, k].filter(g => g && STRAINS[g.strain].legend).length; if (L > 1) continue;
+    const x = S.get(b), y = c ? S.get(c) : x, z = k ? S.get(k) : x, hp = x.hp * 0.6 + y.hp * 0.2 + z.hp * 0.2, atk = x.atk * 0.2 + y.atk * 0.2 + z.atk * 0.6, spd = x.spd * 0.2 + y.spd * 0.6 + z.spd * 0.2;
+    const cnt = Math.min(260, x.count + (c ? y.count : 0) + (k ? z.count : 0)), fit = fitOf(org, ROLE_OF[b.strain]) ? FIT_MUL : 1, tr = clamp(1 + 0.15 * (tropScore(b.strain, org) + (c ? tropScore(c.strain, org) : 0) + (k ? tropScore(k.strain, org) : 0)), 0.7, 1.45);
     const sc = atk * cnt * Math.sqrt(hp) * Math.sqrt(spd) * fit * fit * tr * tr; if (sc > bs) { bs = sc; best = [b, c, k]; } }
   if (!best) best = pool.slice(0, 3);
   // 번식·지원: 남은 카드 중 센 것 (새 스킬이 되도록 다른 계통 우대 · 전설은 1장)
   const used = best.filter(Boolean), extra = [];
   for (const i of [3, 4]) { if (!slotOpen(i)) continue; const leg = used.concat(extra).some(g => STRAINS[g.strain].legend), have = new Set(used.concat(extra).map(g => g.strain));
-    const cand = [...S.keys()].filter(g => !used.includes(g) && !extra.includes(g) && !(leg && STRAINS[g.strain].legend)).sort((a, b) => power(b) * tf(b) * (have.has(b.strain) ? 0.7 : 1) - power(a) * tf(a) * (have.has(a.strain) ? 0.7 : 1));
+    const cand = [...S.keys()].filter(g => canSlot(g, i) && !used.includes(g) && !extra.includes(g) && !(leg && STRAINS[g.strain].legend)).sort((a, b) => power(b) * tf(b) * (have.has(b.strain) ? 0.7 : 1) - power(a) * tf(a) * (have.has(a.strain) ? 0.7 : 1));
     if (cand[0]) extra.push(cand[0]); }
-  save.squad = SL.map(i => i < 3 ? (best[i] && slotOpen(i) ? best[i].uid : null) : slotOpen(i) && extra.length ? extra.shift().uid : null);
+  const ex = { 3: null, 4: null }; for (const i of [3, 4]) if (slotOpen(i)) ex[i] = extra.find(g => canSlot(g, i) && g !== ex[3]) || null;
+  save.squad = SL.map(i => i < 3 ? (best[i] && slotOpen(i) ? best[i].uid : null) : ex[i] ? ex[i].uid : null);
   if (coreL() >= RC.lvComp) { const d = bestDonor(); if (d) save.comp = d.uid; }
 }
 // 좋은 동반 카드: 주전이 아닌 카드 중 별 높고 등급 높은 것 (주전 카드에 아직 없는 궁합을 가진 것 우대)
