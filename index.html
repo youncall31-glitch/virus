@@ -51,7 +51,7 @@
     display: grid; place-items: center; font-size: 10px; font-weight: 800; padding: 0; }
   .organ.off { width: 38px; height: 38px; background: radial-gradient(circle at 40% 35%, #3a2224, #120a0b); border: 2px solid #8a6a4a; box-shadow: 0 0 0 2px #000; }
   .organ .weak { position: absolute; top: -8px; right: -12px; font-size: 9px; padding: 0 4px; border-radius: 6px; background: #12200c; color: #cfffa8; border: 1px solid #4f7a2a; }
-  .spread { animation: flow 1.2s linear infinite; } .selring { animation: pulse2 1.2s infinite; } @keyframes pulse2 { 50% { opacity: .3; } }
+  .spread { animation: flow 1.2s linear infinite; } .selring { } @keyframes pulse2 { 50% { opacity: .3; } }
   #bodyBox .organ.off { width: 40px; height: 40px; } @keyframes flow { to { stroke-dashoffset: -18; } }
   .organ svg { width: 25px; height: 25px; }
   .organ.done { border-color: #e0453f; } .organ.done .diff { color: #ff8d7a; border-color: #e0453f; }
@@ -589,8 +589,8 @@ img.legend { animation: legGlow 3s linear infinite; }
   .gRow .gb { flex: 0 0 96px; min-height: 46px; padding: 3px 4px; font-size: 12px; line-height: 1.2; border-radius: 10px; } .gRow .gb small { display: block; font-size: 10.5px; font-weight: 400; opacity: .85; } .gRow .gb.off { opacity: .45; }
   .gRow.pop { animation: gPop .5s ease-out; } @keyframes gPop { 30% { transform: scale(1.03); box-shadow: 0 0 16px #9fff6a; } }
   .gRow .gSq { position: absolute; left: 6px; bottom: 4px; z-index: 4; line-height: 1.4; font-size: 9px; background: #2e5a1c; color: #c8ffb0; padding: 0 4px; border-radius: 5px; }
-  .symB { animation: symB 2.6s ease-in-out infinite; transform-box: fill-box; } @keyframes symB { 50% { transform: translateY(-2px); } }
-  .infDots { animation: infD 6s linear infinite; } @keyframes infD { to { transform: translate(9px, 10px); } }
+  .symB { transform-box: fill-box; } @keyframes symB { 50% { transform: translateY(-2px); } }
+  .infDots { }   /* 성능: 가려진(mask·blur) 레이어 안의 애니메이션은 모바일에서 매 프레임 다시 그려져 버벅임 */ @keyframes infD { to { transform: translate(9px, 10px); } }
   .abil { margin: 10px 0 2px; padding: 8px 10px; border-radius: 12px; background: #1a0f14; border: 1px solid #3a2a2e; } .abT { font-size: 13px; }
   .abS { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px; text-align: center; } .abS span { background: #241418; border-radius: 8px; padding: 3px 0; font-size: 12px; } .abS b { display: block; font-size: 15px; } .abS small { display: block; font-size: 9.5px; color: #b59f86; }
   .abO { margin-top: 6px; font-size: 12px; } .abO .g { color: #9fff6a; } .abO .b { color: #ff9c8a; } .abO .rcB { display: inline; }
