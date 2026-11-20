@@ -2914,7 +2914,8 @@ function startRun() {
   // ★ 이미 정복한 기관 다시 하기: 매번 다른 길 · 보스 없음 · 탑 체력 −20% · 약 투여 뜸하게 · DNA 85%
   const replay = !wk && !!save.done[organ.id] && save.tutDone; save.mapIx = save.mapIx || {}; MAP_VARIANT = !save.tutDone || wk ? 0 : (save.mapIx[organ.id] || 0) % MAP_N; if (save.tutDone && !wk) save.mapIx[organ.id] = MAP_VARIANT + 1; st.replay = replay; if (replay) st.mul *= REPLAY.hp;
   BOTTOM = (TA() ? 124 : 206) * KS;
-  buildMap(organ, save.host, MAP_VARIANT);
+  // ★ 지도 길이에 맞춰 시간 보정: 1번 지도보다 길면 그만큼 시간을 더 준다 (0.85~1.5배)
+  let mapTimeK = 1; if (MAP_VARIANT > 0) { buildMap(organ, save.host, 0); const ref = map.len; buildMap(organ, save.host, MAP_VARIANT); mapTimeK = clamp(map.len / ref, 0.85, 1.5); } else buildMap(organ, save.host, MAP_VARIANT);
   const w = ImmuneAI.weights(organ);
   if (hasLegacy('retro')) { if (w.tcell) w.tcell *= 0.5; if (w.nk) w.nk *= 0.5; }
   if (hasLegacy('rota') && organ.id === 'gut') map.valves = [];
@@ -2940,7 +2941,7 @@ function startRun() {
   if (save.host >= 2) for (const sx of (save.mem || [])) { if (!strains.includes(sx) || !plan.slots.length) continue;
     const mid = map.len * 0.45, sl = plan.slots.sort((a, b) => Math.abs(a.d - mid) - Math.abs(b.d - mid))[0]; plan.slots = plan.slots.filter(c => c !== sl);
     const t = makeTower('tcell', sl.s[0], sl.s[1], st); t.spec = sx; t.specV = 0; t.memory = true; towers.push(t); plan.built++; }
-  if (TA()) { run.ta = true; run.T = timeLimit(organ); run.antiviral = save.host === 1 ? [0.35, 0.7] : []; run.gapT = 8; run.gap = 0; run.released = 0; for (const g of groups) { g.list = []; } }
+  if (TA()) { run.ta = true; run.T = Math.round(timeLimit(organ) * mapTimeK); run.mapTimeK = mapTimeK; run.antiviral = save.host === 1 ? [0.35, 0.7] : []; run.gapT = 8; run.gap = 0; run.released = 0; for (const g of groups) { g.list = []; } }
   if (wk) { run.wk = { def: wk, dmg: 0, cells: 0, sh: 0 }; run.T = WK.time; st.quota = 1e9; }
   aiming = null; placing = null; paused = false;
   if (run.ta) initStealth();
@@ -4379,7 +4380,7 @@ const ui = {
   showRun() {
     $('bottom').classList.toggle('ta', !!run.ta); $('outChooser').classList.toggle('taOut', !!run.ta);
     $('hub').hidden = true; $('result').hidden = true; $('hubTip').hidden = true; ['top', 'info2', 'bottom'].forEach(id => $(id).hidden = false);
-    const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 지도 ${MAP_VARIANT + 1}/${MAP_N} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
+    const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 지도 ${MAP_VARIANT + 1}/${MAP_N}${run.mapTimeK > 1.02 ? ` (+${Math.round((run.mapTimeK - 1) * 100)}%⏱)` : ''} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
     $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [돌격]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길은 자동으로 지름길부터' : '부대를 눌러 출격 순서를 정하세요';
     $('timerTag').hidden = !run.ta; ui.renderDeploy(); ui.renderSkills(); ui.tick();
     $('goalLbl').textContent = st.qm < 1 ? `감염 (목표 −${Math.round((1 - st.qm) * 100)}%)` : '감염';
