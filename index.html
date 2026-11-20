@@ -2481,19 +2481,11 @@ function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
     const im = outlined(unitImg(st, 1)), wob = Math.sin(time * 3 + c.ph) * 1.5;
     ctx.globalAlpha = 0.45; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x + nx * c.o, y + ny * c.o + 1, c.h * 0.36, c.h * 0.13, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
     drawSprite(ctx, im, x + nx * c.o + wob, y + ny * c.o + 1, c.h, 0.9, true); }
-  if (nestOn() && (Math.floor(nestTotal()) > 0 || run.nestPop > 0)) { const t = Math.floor(nestTotal()), [x, y] = pathAt(Math.max(map.d0, run.frontD - 30)), R = run, go = R.gap > 0 && t, grow = t > (R.nestPrev || 0); R.nestPrev = t;
-    // ★ 둥지가 잘 보이게: 모이는 동안 고리가 차오르고 빛 알갱이가 빨려 들어감 · 기습 틈엔 초록으로 크게 깜빡임
-    const k = Math.min(1, t / 60), pulse = 1 + 0.08 * Math.sin(time * (go ? 14 : 5)), col = go ? '#9fff6a' : '#e8a0ff';
-    ctx.save(); ctx.globalAlpha = 0.2 + 0.15 * k; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y - 12, 38 * pulse, 0, TAU); ctx.fill();
-    ctx.globalAlpha = 0.95; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.beginPath(); ctx.arc(x, y - 12, 44, 0, TAU); ctx.stroke();
-    ctx.strokeStyle = col; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y - 12, 44, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke();
-    if (grow || t) for (let i = 0; i < 6; i++) { const a = time * 1.7 + i * 1.05, rr2 = 70 - ((time * 60 + i * 23) % 60); ctx.globalAlpha = Math.min(1, rr2 / 40) * 0.8; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x + Math.cos(a) * rr2, y - 12 + Math.sin(a) * rr2 * 0.7, 2.6, 0, TAU); ctx.fill(); }
-    if (R.nestPop > 0) { R.nestPop -= 1 / 60; const q = 1 - R.nestPop / 0.7; ctx.globalAlpha = 1 - q; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y - 12, 44 + q * 60, 0, TAU); ctx.stroke(); }
-    ctx.globalAlpha = 1; ctx.font = "800 17px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center';
-    const tx = go ? `지금 돌격! ${t}` : `둥지 ${t}`, tw = Math.max(76, ctx.measureText(tx).width + 20); ctx.fillStyle = go ? 'rgba(20,50,16,.92)' : 'rgba(20,8,16,.88)'; ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - tw / 2, y - 82, tw, 26, 9) : ctx.rect(x - tw / 2, y - 82, tw, 26); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = go ? '#d8ffc8' : '#f5d0ff'; ctx.fillText(tx, x, y - 63);
-    if (!t && !R.released && R.groups.some(g => g.charge > 0)) { ctx.font = "700 12px sans-serif"; ctx.fillStyle = '#e8a0ff'; ctx.fillText('카드를 눌러 둥지에 모으기', x, y + 44); }
-    else if (grow && !go) { ctx.font = "700 11px sans-serif"; ctx.fillStyle = '#e8a0ff'; ctx.fillText('모이는 중…', x, y + 44); }
+  // ★ 둥지 = 부풀어 오른 길 자체 (따로 거품을 그리지 않는다). 수는 돌격 버튼에, 처음엔 안내 글만
+  if (nestOn()) { const t = Math.floor(nestTotal()), R = run, [x, y] = pathAt(Math.max(map.d0, R.frontD - 30));
+    ctx.save(); ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.7)';
+    const say = (tx, col) => { ctx.font = "800 12px sans-serif"; ctx.strokeText(tx, x, y - 34); ctx.fillStyle = col; ctx.fillText(tx, x, y - 34); };
+    if (R.gap > 0 && t) say(`지금 돌격! ${t}`, '#9fff6a'); else if (!t && !R.released && R.groups.some(g => g.charge > 0)) say('카드를 눌러 길에 모으기', '#e8a0ff');
     ctx.restore(); }
 }
 function drawStealth(time) {
@@ -2693,13 +2685,13 @@ function drawSwell(time, nd) {
   const sw = R.swell, end = map.d0 + nd * SEG; ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   if (sw > 0.03) {
     const beat = 1 + 0.07 * Math.max(0, Math.sin(time * (4 + 4 * sw))) ** 3, path = () => { ctx.beginPath(); for (let d = map.d0; d <= end - 14; d += 8) { const [x, y] = pathAt(d); d === map.d0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } };
-    path(); ctx.lineWidth = (46 + 30 * sw) * beat; ctx.strokeStyle = `rgba(120,24,86,${(0.45 * sw).toFixed(3)})`; ctx.stroke();
+    path(); ctx.lineWidth = (46 + 30 * sw) * beat; ctx.strokeStyle = R.gap > 0 ? `rgba(40,120,30,${(0.5 * sw).toFixed(3)})` : `rgba(120,24,86,${(0.45 * sw).toFixed(3)})`; ctx.stroke();
     path(); ctx.lineWidth = (20 + 18 * sw) * beat; ctx.strokeStyle = `rgba(230,120,200,${(0.22 * sw).toFixed(3)})`; ctx.stroke();
     for (let d = map.d0 + 20, i = 0; d < end - 20; d += 34, i++) { const [x, y, nx, ny] = pathAt(d), side = i % 2 ? 1 : -1, o = side * (10 + 8 * sw), ph = Math.max(0, Math.sin(time * 5 + i * 1.7)) ** 2;
       const r = (3 + 9 * sw) * (1 + 0.18 * ph) * beat, bx = x + nx * o, by = y + ny * o;
       ctx.fillStyle = `rgba(200,70,160,${(0.55 + 0.3 * sw).toFixed(3)})`; ctx.strokeStyle = 'rgba(60,8,40,.7)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(bx, by, r, 0, TAU); ctx.fill(); ctx.stroke();
       ctx.fillStyle = 'rgba(255,220,250,.55)'; ctx.beginPath(); ctx.arc(bx - r * 0.3, by - r * 0.35, r * 0.28, 0, TAU); ctx.fill(); } }
-  // 뿜어내기: 돌격 순간 길 전체에서 앞쪽(탑 방향)으로 즙이 튄다
+  // 뿜어내기: 돌격 순간 부푼 길 양 가장자리의 물집이 길 안쪽(가운데·탑 방향)으로 터진다
   if (R.spray && R.spray.length) { for (const p of R.spray) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 1 - dt * 1.8; p.vy *= 1 - dt * 1.8; }
     R.spray = R.spray.filter(p => p.t > 0);
     for (const p of R.spray) { const a = Math.min(1, p.t / 0.35); ctx.globalAlpha = a; ctx.strokeStyle = p.c; ctx.lineWidth = p.r; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.04, p.y - p.vy * 0.04); ctx.stroke(); } ctx.globalAlpha = 1; }
@@ -2710,7 +2702,7 @@ function swellBurst() {
   R.spray = R.spray || []; const step = Math.max(10, (end - map.d0) / 70);
   for (let d = map.d0 + 6; d < end; d += step) { const [x, y, nx, ny] = pathAt(d), [x2, y2] = pathAt(Math.min(map.len, d + 3)), L = Math.hypot(x2 - x, y2 - y) || 1, tx = (x2 - x) / L, ty = (y2 - y) / L;
     for (let k = 0; k < 2; k++) { const side = Math.random() - 0.5, sp = (220 + Math.random() * 380) * (0.6 + sw);
-      R.spray.push({ x: x + nx * side * 30, y: y + ny * side * 30, vx: (tx * 0.75 + nx * side * 1.3) * sp, vy: (ty * 0.75 + ny * side * 1.3) * sp, t: 0.45 + Math.random() * 0.4, r: 2 + Math.random() * 3 * (0.5 + sw), c: cols[(Math.random() * cols.length) | 0] }); } }
+      const off = (side < 0 ? -1 : 1) * (20 + Math.random() * 12); R.spray.push({ x: x + nx * off, y: y + ny * off, vx: tx * sp * 0.7 - nx * off * 4.5, vy: ty * sp * 0.7 - ny * off * 4.5, t: 0.45 + Math.random() * 0.4, r: 2 + Math.random() * 3 * (0.5 + sw), c: cols[(Math.random() * cols.length) | 0] }); } }
   const [fx, fy] = pathAt(Math.min(map.len, end)); R.rings.push({ x: fx, y: fy, r: 14, R: 70 + 90 * sw, t: 0.55, color: '#ff9ae6' });
   shake(6 + 8 * sw); hitStop(0.06 + 0.08 * sw); buzz([30, 20, 60]); R.swell = 0;
 }
@@ -2990,6 +2982,16 @@ function helpLines(id, g) {
   }[id];
   return L || [SHORT[id] ? SHORT[id](n) : ''];
 }
+// ★ 액티브 스킬은 2개(꼬리·더듬이 칸 카드 우선, 탑을 고르는 스킬은 늘 직접). 나머지는 패시브 = 준비되면 저절로
+function activeSkills(R = run) { if (R.activeSk) return R.activeSk; const sk = R.skillGenes.filter(g => !STRAINS[g.strain].hero), sq = slotGenes(), has1 = s => sk.some(g => g.strain === s);
+  const a = sk.filter(g => geneSkill(g).aim).map(g => g.strain); for (const i of [3, 4]) { const g = sq[i]; if (g && has1(g.strain) && !a.includes(g.strain)) a.push(g.strain); }
+  for (const g of sk) { if (a.length >= 2) break; if (!a.includes(g.strain)) a.push(g.strain); }
+  return R.activeSk = a; }
+function autoSkills(dt) { const R = run; if (!R || !R.single || R.over || stealthOn()) return; R.autoT = (R.autoT || 0) - dt; if (R.autoT > 0) return; R.autoT = 0.6;
+  if (R.units.filter(u => u.alive && !u.hero && u.d > 0).length < 5) return; const act = activeSkills(R);
+  for (const g of R.skillGenes) { if (STRAINS[g.strain].hero || act.includes(g.strain) || (R.cds[g.strain] || 0) > 0 || geneSkill(g).aim) continue;
+    const t0 = window.toast; window.toast = () => {}; try { castSkill(g.strain); } finally { window.toast = t0; }
+    if ((R.cds[g.strain] || 0) > 0) { const [x, y] = pathAt(R.frontD || map.d0); float(x, y - 46, `✨ ${geneSkill(g).name}`, '#e8c8ff', 13); } break; } }
 function castSkill(strain) {
   if (!run || run.over || paused) return;
   const g = run.skillGenes.find(x => x.strain === strain); if (!g || run.cds[strain] > 0) return;
@@ -3013,7 +3015,7 @@ function update(dt) {
   stepJuice(dt); tutTick();
   if (stealthOn()) return stepStealth(dt);
   const R = run; R.time += dt;
-  for (const k in R.cds) R.cds[k] = Math.max(0, R.cds[k] - dt);
+  for (const k in R.cds) R.cds[k] = Math.max(0, R.cds[k] - dt); autoSkills(dt);
   R.stunT = Math.max(0, (R.stunT || 0) - dt); R.stormT = Math.max(0, (R.stormT || 0) - dt);
   for (const b of Object.values(R.sb)) { for (const k of SKILL_T) b[k] = Math.max(0, (b[k] || 0) - dt); if (!b.shield) b.shieldMul = 1; if (!b.spd) b.spdMul = 1; }
   if (R.ta) {
@@ -4226,14 +4228,14 @@ const ui = {
   renderDeploy() {
     const hg = run.hero.gene;
     if (stealthOn()) { const T = run.sth;
-      $('deploy').innerHTML = run.groups.concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
+      $('deploy').innerHTML = run.groups.concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
         + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta) {
       const hOK = unlocked('hero'), oOK = unlocked('out');
       $('deploy').innerHTML = (hOK ? `<button class="dp v hero" id="dpHero" aria-label="슈퍼바이러스">${pimg(hg)}<div><b>${HEROES[hg.strain].name}</b><small></small></div></button>` : '')
         + run.groups.map((g, i) => `<button class="dp v" data-i="${i}" aria-label="${STRAINS[g.strain].name} 방출">${pimg(g.gene)}<div><b>${g.reawake ? '재활성' : STRAINS[g.strain].name}</b><small></small>${g.reawake ? '' : '<em></em>'}</div><i></i></button>`).join('')
-        + (run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero).map(g => `<button class="dp v sk2" data-sk="${g.strain}" aria-label="${geneSkill(g).name}">${pimg(g)}<div><b>${skCat(g)}</b><small></small></div><i></i></button>`).join('') : '')
+        + (run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => `<button class="dp v sk2" data-sk="${g.strain}" aria-label="${geneSkill(g).name}">${pimg(g)}<div><b>${skCat(g)}</b><small></small></div><i></i></button>`).join('') : '')
         + (oOK && !nestOn() && !run.single ? `<button class="dp v" id="dpOut" aria-label="감염 거점"><img src="assets/out_cauldron.png" alt=""><div><b>거점</b><small></small></div></button>` : '')
         + (unlocked('mutate') ? `<button class="dp v" id="dpMut" aria-label="항원 변이">${has('mutate') ? '<img src="assets/mutate.png" alt="">' : '<div class="mutic">🧬</div>'}<div><b>변이</b><small></small></div></button>` : '')
         + (nestOn() ? `<button class="dp v atk" id="dpAll"><div><b style="font-size:12px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div></button>` : `<button class="dp v all" id="dpAll">${has('deploy_all') ? '<img src="assets/deploy_all.png" alt="">' : ''}<div><b>전부</b><small>방출</small></div></button>`);
