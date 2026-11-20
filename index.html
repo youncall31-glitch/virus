@@ -588,6 +588,9 @@ img.legend { animation: legGlow 3s linear infinite; }
   .abS { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px; text-align: center; } .abS span { background: #241418; border-radius: 8px; padding: 3px 0; font-size: 12px; } .abS b { display: block; font-size: 15px; } .abS small { display: block; font-size: 9.5px; color: #b59f86; }
   .abO { margin-top: 6px; font-size: 12px; } .abO .g { color: #9fff6a; } .abO .b { color: #ff9c8a; } .abO .rcB { display: inline; }
   details.slotWrap summary { list-style: none; text-align: center; padding: 8px; border-radius: 10px; border: 1px dashed #5a3a40; color: #cdb8c8; font-size: 13px; cursor: pointer; margin-top: 6px; } details.slotWrap summary::-webkit-details-marker { display: none; }
+  .cpHead { display: flex; gap: 10px; align-items: center; margin-top: 8px; } .cpHead > img { width: 72px; height: 72px; flex: 0 0 72px; object-fit: contain; }
+  .cpRow { display: flex; gap: 8px; align-items: flex-start; padding: 6px; border-radius: 10px; background: #1a0f14; border: 1px solid #3a2a2e; margin-bottom: 5px; } .cpRow > img { width: 44px; height: 44px; flex: 0 0 44px; object-fit: contain; } .cpRow b { font-size: 14px; }
+  .cpOp { font-size: 12.5px; margin-top: 2px; } .cpOp em { font-style: normal; font-weight: 800; color: #9fff6a; } .cpOp.best { color: #ffd24a; } .cpOp.best::after { content: ' ★추천'; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -3805,9 +3808,22 @@ const ui = {
     $('railList').querySelectorAll('.rc[data-empty]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.s));
     $('railList').querySelectorAll('[data-more]').forEach(b => b.onclick = () => ui.slotList(+b.dataset.more));
     $('railList').querySelectorAll('.rLock').forEach(b => b.onclick = () => ui.showHub('hero'));
-    $('railList').querySelectorAll('.rc[data-comp]').forEach(b => b.onclick = () => { const u = +b.dataset.comp; save.comp = save.comp === u ? null : u; persist(); sfx('tap'); ui.renderRails(); toast(save.comp === u ? `🤝 ${sname(geneById(u).strain)}가 따라가요 · 감염할수록 재조합 게이지가 차요` : '동반 칸을 비웠어요'); });
+    $('railList').querySelectorAll('.rc[data-comp]').forEach(b => b.onclick = () => ui.compSheet(geneById(+b.dataset.comp)));
     if ($('bRcGo')) $('bRcGo').onclick = () => ui.recombine();
   },
+  // 🤝 동반 카드 미리 보기: 넣기 전에 '무엇을 옮겨 줄 수 있는지' 확인
+  compSheet(g) { if (!g) return; const cur = compGene(), isCur = cur && cur.uid === g.uid, L = coreL(), tg = slotGenes().filter(Boolean);
+    const rows = tg.map(t => { const ops = rcOptions(g, t).filter(o => !o.lock && !o.none), best = ops.reduce((a, b) => (b.pp || 0) > (a ? a.pp || 0 : -1) ? b : a, null);
+      return `<div class="cpRow">${pimg(t)}<div style="flex:1;min-width:0"><b>${sname(t.strain)}</b>${ops.map(o => `<div class="cpOp${o === best ? ' best' : ''}">${o.t}${o.pp != null ? ` <em>${o.pp > 0 ? '+' : ''}${o.pp}%</em>` : ''}</div>`).join('') || '<div class="sub">줄 수 있는 게 없어요</div>'}</div></div>`; }).join('');
+    const locks = [L < RC.lvTrop ? `🔒 🎯 궁합 옮기기 · 본체 Lv${RC.lvTrop}` : '', L < RC.lvSkill ? `🔒 ✨ 스킬 옮기기 · 본체 Lv${RC.lvSkill}` : ''].filter(Boolean).join('<br>');
+    ui.modal(`<h3 style="margin:0 0 4px">🤝 동반 카드 미리 보기</h3><div class="sub">동반 카드는 전투력에 안 들어가요. 함께 감염하며 게이지를 채우고, 다 차면 아래 능력 중 하나를 주전 카드에 옮겨 줘요.</div>
+      <div class="cpHead">${pimg(g)}<div><b style="font-size:17px">${sname(g.strain)} ${stars(g.star)}</b><div class="sub">강점: ${RC_STAT[donorStat(g)]} · 별이 높을수록 많이 줘요</div></div></div>
+      ${ui.abilHtml(g)}
+      <div style="font-weight:800;margin:8px 0 4px">주전 카드가 받을 수 있는 것 <small style="font-weight:400;color:#b59f86">${organById(save.sel || 'nose').name} 전투력 기준</small></div>${rows}
+      ${locks ? `<div class="sub" style="margin-top:6px">${locks}</div>` : ''}
+      <div class="row"><button class="btn ${isCur ? '' : 'red'}" id="cpGo" style="flex-basis:100%;min-height:52px">${isCur ? '동반 칸 비우기' : cur ? `🤝 ${sname(cur.strain)} 대신 넣기` : '🤝 동반으로 넣기'}</button><button class="btn" id="cpNo">닫기</button></div>`);
+    $('cpNo').onclick = ui.closeModal;
+    $('cpGo').onclick = () => { save.comp = isCur ? null : g.uid; persist(); sfx('tap'); ui.closeModal(); ui.renderRails(); toast(isCur ? '동반 칸을 비웠어요' : `🤝 ${sname(g.strain)}가 따라가요 · 감염할수록 재조합 게이지가 차요`); }; },
   // 🤝 동반 칸 줄: 능력을 넘겨줄 카드 (전투력엔 안 들어감)
   compRail(used) {
     if (coreL() < RC.lvComp) return `<div class="rLock">🔒 🤝 <b>동반 칸</b> · 본체 Lv${RC.lvComp}에 열려요 — 약한 카드의 능력을 옮겨 심는 재조합 ›</div>`;
@@ -4089,7 +4105,7 @@ const ui = {
       <div class="sub">▲▼는 ${r.isNew ? '부모 중 더 높은 값' : `주 부모(${STRAINS[c.strain].name})`}와 비교. 새끼는 증식 0단계에서 시작해요.</div>
       <div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`);
   },
-  modal(html) { skPopHide(); $('modalBox').innerHTML = `<button class="mX" aria-label="닫기">✕</button>` + html; $('modal').hidden = false;
+  modal(html) { skPopHide(); if ($('hubTip')) $('hubTip').hidden = true; if (HUBSPOT) hubSpot(null); $('modalBox').innerHTML = `<button class="mX" aria-label="닫기">✕</button>` + html; $('modal').hidden = false;
     $('modalBox').querySelector('.mX').onclick = () => ui.closeX(); },
   // ✕: 닫고, 비교 시트에서 왔으면 그 시트로 돌아감
   closeX() { ui.closeModal(); const f = ui.backTo; ui.backTo = null; if (f) f(); },
