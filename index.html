@@ -628,6 +628,11 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fcGr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; } .fcGr span { text-align: center; font-size: 11px; padding: 2px 0; border-radius: 8px; background: #1d1014; } .fcGr b { font-size: 14px; margin-left: 2px; }
   .fcSk { font-size: 12px; line-height: 1.4; padding: 4px 8px; border-radius: 8px; background: #1d1014; border: 1px solid #4a2c33; } .fcSk small { display: block; font-size: 10.5px; color: #b59f86; }
   .fcHint { font-size: 11.5px; color: #ffd24a; text-align: center; }
+  .fmAuto { margin-left: auto; border: 1px solid #6a5030; background: #24180f; color: #ffd27a; border-radius: 10px; font-size: 11.5px; font-weight: 700; padding: 2px 8px; font-family: inherit; } .fmRc + .fmAuto { margin-left: 4px; }
+  .fmS img { width: 52px !important; height: 52px !important; } .fmS { min-height: 104px !important; } .fmE { height: 52px !important; }
+  .fmC img { width: 62px !important; height: 62px !important; } .fmC.in { border-width: 2px; }
+  .fmC .fmRole { right: 4px !important; top: 18px !important; left: auto; z-index: 3; } .fmC .fmRole .role { position: static; width: 18px; height: 18px; } .fmS .fmRl .role, .fcT .role, .gi .role { position: static; display: inline-grid; }
+  .fcUp { display: flex; gap: 5px; } .fcUp .btn { flex: 1; min-height: 42px; padding: 2px 6px; font-size: 13px; line-height: 1.15; } .fcUp .btn small { display: block; font-size: 10.5px; font-weight: 400; } .fcUp .btn.off { opacity: .5; }
 </style>
 </head>
 <body>
@@ -667,8 +672,8 @@ img.legend { animation: legGlow 3s linear infinite; }
     <div class="hubTop">
       <div class="host" id="hostTxt"></div>
       <button class="plate modeBtn" id="bMode" style="display:none"></button>
-      <button class="plate modeBtn" id="bReset" aria-label="처음부터 다시" title="처음부터 다시" style="color:#ffb4a8">⟲</button>
-      <button class="plate modeBtn" id="bDex" aria-label="도감"><img src="assets/codex.png" alt="" style="width:22px;height:22px"></button><button class="plate modeBtn" id="bQuest" aria-label="오늘의 임무" style="min-width:40px">📋</button><button class="plate modeBtn" id="bSnd" aria-label="소리 설정" style="min-width:40px">🔊</button>
+      <button class="plate modeBtn" id="bReset" style="display:none"></button>
+      <button class="plate modeBtn" id="bDex" aria-label="도감" style="display:none"><img src="assets/codex.png" alt="" style="width:22px;height:22px"></button><button class="plate modeBtn" id="bQuest" aria-label="오늘의 임무" style="min-width:40px">📋</button><button class="plate modeBtn" id="bSnd" aria-label="설정" style="min-width:40px">⚙</button>
       <div class="plate dna"><img src="assets/dna.png" alt=""><span id="hubDna">0</span></div>
     </div>
     <div class="view" id="viewBody">
@@ -678,7 +683,7 @@ img.legend { animation: legGlow 3s linear infinite; }
     <div class="view" id="viewLab" hidden>
       <div id="labRails">
         <div class="labHead"><button class="lhCore" id="csCore" aria-label="본체"></button><div class="sumRow lhStats" id="labNums"></div></div>
-        <div class="lhBtns"><button class="btn" id="bAuto">⭐ 추천 조합</button><button class="btn green" id="bGrow">📈 성장</button><button id="bBreed" hidden></button><button class="btn" id="bBox">📦 보관함</button></div>
+        <div class="lhBtns" style="display:none"><button class="btn" id="bAuto">⭐ 추천 조합</button><button class="btn green" id="bGrow">📈 성장</button><button id="bBreed" hidden></button><button class="btn" id="bBox">📦 보관함</button></div>
         <div id="railList"></div><div id="railMore" hidden>⌄ 아래로 밀면 더 있어요</div>
       </div>
       <div id="labBox" hidden>
@@ -1323,7 +1328,11 @@ const SL = [0, 1, 2, 3, 4], SLOT_ORDER = [0, 2, 1, 3, 4], SLOT_LV = [0, 0, 1, 5,
 // ★ 본체 = 그릇: 능력치는 주지 않는다. 칸·동반 칸을 열고, 바이러스 레벨 상한(= 본체 레벨)을 정한다
 const CORE_FX = { hp: 0, atk: 0, rep: 0, cd: 0 };
 // ★ 역할 칸: 역할에 맞는 칸에 꽂으면 그 카드 능력 +20% (전설은 어느 칸이든 +10%)
-const ROLE_SLOT = { tank: [0], heal: [0, 4], stealth: [1], dps: [2], swarm: [3, 4] }, ROLE_BONUS = 0.15;
+const ROLE_SLOT = { tank: [0], stealth: [1], dps: [2], swarm: [3], heal: [4] }, ROLE_BONUS = 0.15;
+// 칸 색: 몸통 빨강 · 껍질 파랑 · 가시 주황 · 꼬리 초록 · 더듬이 보라 (그 칸에 맞는 역할 카드도 같은 색 바탕)
+const SLOT_COL = [['#5c1a28', '#e0506a'], ['#14385c', '#4aa0e0'], ['#5c3410', '#f0a030'], ['#1a4c22', '#5cc85c'], ['#40185e', '#b070f0']];
+const roleSlotOf = g => { const r = ROLE_OF[g.strain]; return r && ROLE_SLOT[r] ? ROLE_SLOT[r][0] : -1; };
+const cardBg = g => { if (STRAINS[g.strain].legend) return 'background:linear-gradient(135deg,#3a2a08,#2a0f2e 45%,#0f2a30);border-color:#e8c45a'; const i = roleSlotOf(g); return i >= 0 ? `background:linear-gradient(180deg,${SLOT_COL[i][0]},#1a0f14 85%);border-color:${SLOT_COL[i][1]}` : ''; };
 const roleFit = (g, i) => { const r = ROLE_OF[g.strain]; return !!(r && (ROLE_SLOT[r] || []).includes(i)); };
 const roleK = (g, i) => roleFit(g, i) ? 1 + ROLE_BONUS : STRAINS[g.strain] && STRAINS[g.strain].legend ? 1.1 : 1;
 function updTix() { const n = (save.t1 || 0) + (save.t10 || 0) * 10, np = $('navPull'); if (!np) return; let bd = np.querySelector('.tixB'); if (!bd) { bd = document.createElement('i'); bd.className = 'tixB'; np.appendChild(bd); } bd.textContent = n > 99 ? '99+' : n; bd.hidden = !n; }
@@ -2323,17 +2332,17 @@ function drawTut(time) {   // 손가락 표시: 할 곳을 톡톡 가리킨다
 const HUB_TIPS = [
   { id: 'core', t: '본체 진화', when: () => coreL() >= 2 && coreL() < 5, tab: 'lab', sel: '#csCore', txt: '본체를 누르면 진화 조건이 보여요. 바이러스 3마리를 <b>본체 레벨</b>까지 키우면 본체가 저절로 진화해요. 새 <b>칸</b>과 선물!' },
   { id: 'quest', t: '오늘의 임무', when: () => doneCount() >= 1, tab: 'body', sel: '#bQuest', txt: '매일 <b>임무 3개</b> → DNA와 <b>무료 뽑기권</b>!' },
-  { id: 'shard', t: '흔적', when: () => (save.shards || 0) > 0, tab: 'lab', sel: '#bGrow', txt: '같은 바이러스가 또 나오면 <b>🧫 흔적</b>이 남아요. 모아서 <b>★ 별 올리기</b>!' },
+  { id: 'shard', t: '흔적', when: () => (save.shards || 0) > 0, tab: 'lab', sel: '#railList .fmGrid', txt: '같은 바이러스가 또 나오면 <b>🧫 흔적</b>이 남아요. 모아서 <b>★ 별 올리기</b>!' },
   { id: 'multi', t: '연속 뽑기', when: () => save.dna >= MULTI[5].cost, tab: 'lab', sel: '#navPull', txt: '<b>5번·10번</b> 뽑기는 더 싸고 <b>좋은 카드 확정</b>!' },
   { id: 'dex', t: '도감', when: () => Object.keys(save.seen || {}).length >= 8, tab: 'lab', sel: '#bDex', txt: '모은 바이러스는 <b>도감</b>에서 빛나요. 모을수록 <b>DNA 보상</b>!' },
-  { id: 'tier', t: '돌파', when: () => save.genes.some(g => g.star >= MAXSTAR && (g.lv || 1) >= MAXLV), tab: 'lab', sel: '#bBox', txt: '게이지가 꽉 차면 <b>돌파</b>! 계속하면 <b>👑 변성</b>!' },
+  { id: 'tier', t: '돌파', when: () => save.genes.some(g => g.star >= MAXSTAR && (g.lv || 1) >= MAXLV), tab: 'lab', sel: '#railList .fmGrid', txt: '게이지가 꽉 차면 <b>돌파</b>! 계속하면 <b>👑 변성</b>!' },
   { id: 'boss', t: '보스', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .bossChip', txt: '목표 앞의 <b>보스</b>를 쓰러뜨리면 감염 ×1.25!' },
   { id: 'lab', when: () => doneCount() >= 1 || save.dnaSpent, tab: 'body', sel: '#tabLab', txt: '<b>연구소</b>에서 카드를 강화하고 뽑아요.' },
   { id: 'lab1', when: () => true, tab: 'lab', sel: '#csCore', step: '1/5', txt: '<b>내 바이러스</b> = 칸에 꽂은 카드를 합친 모습.' },
   { id: 'lab2', when: () => true, tab: 'lab', sel: '#railList .fmRow', step: '2/5', txt: '위는 <b>칸</b>이에요. 칸을 누르면 그 칸에 좋은 카드가 아래에 숫자로 보여요.' },
-  { id: 'lab3', when: () => true, tab: 'lab', sel: '#railList .fmC:not(.in)', step: '3/5', txt: '카드를 누르면 위 칸마다 <b>+숫자</b>가 떠요. 넣을 칸을 누르면 끝!' },
+  { id: 'lab3', when: () => true, tab: 'lab', sel: '#railList .fmC:not(.in)', step: '3/5', txt: '카드를 누르면 <b>능력·강화</b>가 보이고, 위 칸마다 <b>+숫자</b>가 떠요. 넣을 칸을 누르면 끝!' },
   { id: 'lab4', when: () => true, tab: 'lab', sel: '#railList .fmS.lock', step: '4/5', txt: '🔒 칸은 <b>본체</b>를 키우면 열려요.' },
-  { id: 'lab5', when: () => true, tab: 'lab', sel: '#bAuto', step: '5/5', txt: '고민되면 <b>⭐ 추천 조합</b>! 전체 카드는 📦 보관함에.' },
+  { id: 'lab5', when: () => true, tab: 'lab', sel: '#bAuto2', step: '5/5', txt: '고민되면 <b>⭐ 추천 조합</b>! 카드를 누르면 <b>강화·별 올리기</b>도 거기서 해요.' },
   { id: 'fit', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo .fitBox', txt: '<b>궁합</b>이 높을수록 세져요. 낮으면 추천대로 카드를 바꿔 보세요!' },
   { id: 'stars', when: () => doneCount() >= 1, tab: 'body', sel: '#organInfo h3 .stars, #organInfo h3', txt: '<b>별 3개</b>: 성공 · 안 들키기 · 시간 30% 남기기.' },
 ];
@@ -3700,7 +3709,7 @@ const ui = {
           <div class="bar"><i style="width:${Math.round(Math.min(got, CORE_NEED) / CORE_NEED * 100)}%"></i></div><small>진화 선물: ${giftTxt(coreGift(L + 1))}${CORE_MILE.find(m => m.l === L + 1) ? ' + ' + CORE_MILE.find(m => m.l === L + 1).t : ''}</small></div>`}</div>
       ${ui.coreGot ? `<div class="coreGot" style="text-align:center">🎉 ${ui.coreGot.t}!</div>` : next ? `<div class="cvGift" id="cvGift"><span>🎁</span><div><b>다음 큰 보상 · Lv ${next.l}</b><small>${next.t} (${next.l - L}레벨 남음)</small></div></div>` : ''}
       <button class="cvTrack" id="cvTrack">${CORE_MILE.map(m => `<span class="${L >= m.l ? 'ok' : m === next ? 'nx' : ''}"><i>${m.t.split(' ')[0]}</i>Lv${m.l}</span>`).join('')}<div class="bar"><i style="width:${Math.round(L / CORE_MAX * 100)}%"></i></div></button>
-      <div class="sub" style="text-align:center;margin-top:6px">바이러스 강화는 <b>연구소 › 📈 성장</b>에서 해요</div>`;
+      <div class="sub" style="text-align:center;margin-top:6px">바이러스 강화는 <b>연구소에서 바이러스 카드를 누르면</b> 할 수 있어요</div>`;
     ui.coreGot = null;
     $('cvTrack').onclick = () => { ui.closeModal(); ui.coreRoad(); }; if ($('cvGift')) $('cvGift').onclick = () => { ui.closeModal(); ui.coreRoad(); };
   },
@@ -3852,16 +3861,16 @@ const ui = {
     let sel = ui.fmSel; if (sel != null && !slotOpen(sel)) sel = ui.fmSel = null;
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
     const sock = i => { const open = slotOpen(i), g = sq[i], pd = pick && open && g !== pick ? ui.slotDelta(pick, i).pp : null;
-      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open ? ' wig' : ''}${open ? '' : ' lock'}" data-fs="${i}"><span class="fmL">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span><span class="fmRl">${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(roleBadge0).join('')}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>Lv${slotNeed(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open ? ' wig' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${SLOT_COL[i][0]};border-color:${!pick && sel === i ? '#ffd24a' : SLOT_COL[i][1]}"><span class="fmL">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span><span class="fmRl">${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(roleBadge0).join('')}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>Lv${slotNeed(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
     const cgv = pick && compOn ? ui.compBest(pick, sq) : null;
     const comp = `<button class="fmS comp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1"><span class="fmL">🤝 동반</span>${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}${!compOn ? `<span class="fmE">🔒<small>Lv${RC.lvComp}</small></span>` : cg ? pimg(cg) : '<span class="fmE">+</span>'}<b>${!compOn ? '' : gv >= 1 ? '<span style="color:#ffd24a">🧬 준비</span>' : cg ? sname(cg.strain) : '비어 있음'}</b>${compOn && cg ? `<i class="fmG" style="--g:${Math.min(100, gv * 100 % 100 || (gv >= 1 ? 100 : 0)).toFixed(0)}%"></i>` : ''}</button>`;
     const list = sortGenes(save.genes);
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick && roleFit(g, sel) ? ' fit' : ''}" data-fu="${g.uid}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span><b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
+      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick && roleFit(g, sel) ? ' fit' : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<span class="fmTag">${SLOT_ICON[i]} ${SLOT_NAME[i]}</span>` : g === cg ? '<span class="fmTag cpT">🤝 동반</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<span class="fmRole">${roleBadge(g.strain)}</span><b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}</span></small></button>`; }).join('');
     const head = pick ? ui.fmCard(pick, sq)
-      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> = ${SLOT_STAT[sel]}${sel >= 3 ? '·직접 쓰는 스킬' : ''} 담당 · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}% · 카드를 누르면 꽂혀요` : '칸을 누르면 그 칸에 좋은 카드가 보여요 · 카드를 누르면 능력과 넣을 칸이 보여요'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}</div>`;
+      : `<div class="fmH">편성 <small>${sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> = ${SLOT_STAT[sel]}${sel >= 3 ? '·직접 쓰는 스킬' : ''} 담당 · ${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(sel)).map(r => roleBadge0(r) + ROLES[r].name).join(' ')} 이면 +${Math.round(ROLE_BONUS * 100)}% · 카드를 누르면 꽂혀요` : '칸을 누르면 그 칸에 좋은 카드가 보여요 · 카드를 누르면 능력과 넣을 칸이 보여요'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천 조합</button></div>`;
     $('railList').innerHTML = `<div class="fmWrap">${head}<div class="fmRow">${[0, 1, 2, 3, 4].map(sock).join('')}${comp}</div>
       <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>`;
     $('railList').style.setProperty('--rg', '6px');
@@ -3881,6 +3890,8 @@ const ui = {
     if ($('fmInfo')) $('fmInfo').onclick = () => { const g = pick; ui.fmPick = null; ui.renderRails(); ui.detail(g); };
     if ($('fmX')) $('fmX').onclick = () => { ui.fmPick = null; ui.renderRails(); };
     if ($('bRcGo')) $('bRcGo').onclick = () => ui.recombine();
+    if ($('bAuto2')) $('bAuto2').onclick = () => $('bAuto').onclick();
+    ui.fmUpBind(pick);
   },
   // 동반으로 두면 주전에게 줄 수 있는 가장 좋은 것
   compBest(g, sq) { let best = null; for (const t of (sq || slotGenes()).filter(Boolean)) { if (t === g) continue; for (const o of rcOptions(g, t)) if (!o.lock && !o.none && (!best || (o.pp || 0) > (best.pp || 0))) best = { ...o, tg: t }; } return best; },
@@ -3892,7 +3903,17 @@ const ui = {
       <div class="fcGr">${gr}</div>
       <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>꼬리·더듬이 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
       ${cb ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반 칸에 두면 <b>${sname(cb.tg.strain)}</b>에게 <b>${cb.t}</b>를 옮겨 줄 수 있어요${cb.pp ? ` <em style="color:#9fff6a">(전투력 +${cb.pp}%)</em>` : ''} <small>동반은 전투력엔 안 들어가요</small></div>` : ''}
+      ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
       <div class="fcHint">👆 넣을 칸을 누르세요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
+  fmUpBind(g) { if (!g) return;
+    if ($('fcLv')) $('fcLv').onclick = () => { const b = ui.growBtn(g); if (b.cap) { sfx('fail'); return toast(`본체 Lv${lvCap()}까지예요 · 바이러스 ${CORE_NEED}마리가 Lv${lvCap()}이 되면 본체가 진화해요`); } if (!b.ok) { sfx('fail'); return toast('DNA가 부족해요'); }
+      const r = levelUp(g); if (r !== 'lv' && r !== 'tier' && r !== 'mut') return; quest('up'); persist(); sfx(r === 'lv' ? 'up' : 'clear'); buzz(15); $('hubDna').textContent = save.dna;
+      if (r === 'tier') ui.fx(`돌파 +${g.tier}!`, '#7fe05a'); else if (r === 'mut') ui.fx('변성!', '#ffd24a');
+      if (ui.coreUpQ && ui.coreUpQ.length) return ui.coreUpShow(() => ui.showHub('lab')); ui.renderLab(); };
+    if ($('fcSt')) $('fcSt').onclick = () => { const b = ui.starBtn(g); if (!b || !b.ok) { sfx('fail'); return toast(`🧫 흔적이 부족해요 (${save.shards || 0}) · 같은 바이러스가 또 나오면 모여요`); }
+      if (b.risk) { ui.backTo = () => ui.showHub('lab'); return ui.forge(g, false); }
+      const r = starUp(g); if (r !== 'star' && r !== 'great') return; quest('up'); persist(); sfx('clear'); buzz([30, 20, 60]);
+      ui.fx(r === 'great' ? `✨ 대성공! ${stars(g.star)} · 공격·체력 +5%` : `별 올리기! ${sname(g.strain)} ${stars(g.star)}`, '#ffd27a'); ui.renderLab(); }; },
   renderRailsOld() {
     const sq = slotGenes(), used = new Map(); SL.forEach(i => { if (sq[i]) used.set(sq[i].uid, i); });
     let h = '';
@@ -4655,7 +4676,7 @@ function pullMenu() {
   ui.modal(`<h3 style="margin:0 0 4px">감염 뽑기</h3><div class="sub">가진 DNA ${d} · 전설 1% · 천장까지 ${PITY - (save.pity || 0)}번</div>
     ${save.t1 || save.t10 ? `<div class="row">${save.t1 ? `<button class="btn green" id="tk1" style="flex:1 1 45%">🎟 무료 뽑기 (${save.t1}장)</button>` : ''}${save.t10 ? `<button class="btn green" id="tk10" style="flex:1 1 45%">🎟 10번 뽑기권 (${save.t10}장)</button>` : ''}</div>` : ''}
     <div class="row">${b(1, RULES.gacha, '한 장씩 두근두근', '')}${b(5, MULTI[5].cost, MULTI[5].perk, 'blue')}${b(10, MULTI[10].cost, MULTI[10].perk, 'red')}</div>
-    <div class="sub" style="margin-top:6px">같은 바이러스가 또 나오면 🧫 <b>흔적</b>이 남아요 (지금 ${save.shards || 0}) → 성장에서 ★ 별 올리기</div>
+    <div class="sub" style="margin-top:6px">같은 바이러스가 또 나오면 🧫 <b>흔적</b>이 남아요 (지금 ${save.shards || 0}) → 연구소에서 카드를 눌러 ★ 별 올리기</div>
     <div class="row"><button class="btn" id="pmOdds">📋 확률 보기</button><button class="btn" id="pmNo">닫기</button></div>`);
   document.querySelectorAll('#modal [data-st]').forEach(x => x.onclick = () => { const t = +x.dataset.st, c = SHARD_PULL().find(y => y[0] === t)[1]; if ((save.shards || 0) < c) return toast('흔적이 부족해요');
     save.shards -= c; ui.closeModal(); const g = gacha({ fixTier: t }); addCard(g); quest('pull'); persist(); playCatch(g); });
@@ -4886,8 +4907,8 @@ function bestDonor() { const sq = new Set(save.squad.filter(Boolean)), fill = sl
 const sndBtns = () => { const o = sndOpt(); return `<button class="btn ${o.bgm ? 'green' : ''}" id="sBgm">🎵 음악 ${o.bgm ? '켬' : '끔'}</button><button class="btn ${o.sfx ? 'green' : ''}" id="sSfx">🔊 효과음 ${o.sfx ? '켬' : '끔'}</button><button class="btn ${o.vib !== false ? 'green' : ''}" id="sVib">📳 진동 ${o.vib !== false ? '켬' : '끔'}</button><button class="btn ${LOWQ ? 'green' : ''}" id="sLow">🪶 가벼운 화면 ${LOWQ ? '켬' : '끔'}</button>`; };
 function bindSnd(after) { const o = sndOpt(), ref = () => { persist(); applyVol(); updSndIcon(); if (after) after(); else { $('sBgm').outerHTML = sndBtns().split('</button>')[0] + '</button>'; $('sSfx').outerHTML = sndBtns().split('</button>')[1] + '</button>'; $('sVib').outerHTML = sndBtns().split('</button>')[2] + '</button>'; $('sLow').outerHTML = sndBtns().split('</button>')[3] + '</button>'; bindSnd(); } };
   $('sBgm').onclick = () => { o.bgm = !o.bgm; if (o.bgm && SND.want) playBgm(SND.want, true); ref(); }; $('sSfx').onclick = () => { o.sfx = !o.sfx; ref(); }; if ($('sVib')) $('sVib').onclick = () => { o.vib = o.vib === false; if (o.vib) buzz(30); ref(); }; if ($('sLow')) $('sLow').onclick = () => { setLowQ(!LOWQ); ref(); }; }
-const updSndIcon = () => { const o = sndOpt(); $('bSnd').textContent = o.bgm || o.sfx ? '🔊' : '🔇'; };
-$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">소리 · 진동 · 화면</h3><div class="row">${sndBtns()}</div><div class="row"><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sClose').onclick = ui.closeModal; };
+const updSndIcon = () => { $('bSnd').textContent = '⚙'; };
+$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">⚙ 설정</h3><div class="sub">소리 · 진동 · 화면</div><div class="row">${sndBtns()}</div><div class="row"><button class="btn" id="sReset" style="flex-basis:100%;color:#ffb4a8">⟲ 처음부터 다시 하기 (저장 지움)</button><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sReset').onclick = () => { ui.closeModal(); $('bReset').onclick(); }; $('sClose').onclick = ui.closeModal; };
 updSndIcon();
 $('bReset').onclick = () => {
   ui.modal(`<h3 style="margin:0 0 6px">처음부터 다시 할까요?</h3><div class="sub">바이러스, DNA, 감염한 기관, 슈퍼바이러스 강화, 영구 변이, 도감이 모두 지워지고 처음 상태로 돌아갑니다. 되돌릴 수 없어요.</div>
