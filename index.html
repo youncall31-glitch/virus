@@ -2555,7 +2555,7 @@ function stealthEnd(why, voluntary) {
     const d = nearestOnPath(S.x, S.y).d; immuneBuild(d - 60); immuneBuild(d - 60); R.plan.next = 1; }
   if (safe) { const n = nearestOnPath(T.scout.x, T.scout.y), u = spawnUnit(T.lead, { d: n.d, lane: clamp(n.off, -14, 14) }); }
   $('goalLbl').textContent = R.st.qm < 1 ? `감염 (목표 −${Math.round((1 - R.st.qm) * 100)}%)` : '감염'; $('goalBar').classList.remove('alarm');
-  $('hint').textContent = ALARM ? `많이 내보낼수록 들켜요 · 총공격 뒤 초록 틈에 돌격 ×${1 + AL.gapBonus}` : `스킬 카드를 길게 누르면 설명 · 초록 테두리 때 돌격 +30%`;
+  $('hint').textContent = ALARM ? `❓ 규칙 보기 · 많이 내보낼수록 들켜요 · 총공격 뒤 초록 틈에 돌격 ×${1 + AL.gapBonus}` : `스킬 카드를 길게 누르면 설명 · 초록 테두리 때 돌격 +30%`; if (ALARM) $('hint').onclick = () => { if (run && !run.over) alarmHelp(); };
   ui.renderDeploy(); ui.tick();
 }
 function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
@@ -2688,7 +2688,7 @@ if (window.__AL) Object.assign(AL, window.__AL);
 const alRole = s => ROLE_OF[s] || (STRAINS[s] || {}).rolek;
 function stepAlarm(dt) {
   const R = run; if (!R.ta || R.over || R.endAt || stealthOn() || !save.tutDone) return;
-  if (R.alarm == null) R.alarm = 0;
+  if (R.alarm == null) { R.alarm = 0; if (!(save.tips || {}).alarm && !window.__botMut) alarmHelp(); }
   const M = R.med;
   if (M) {
     if (M.w > 0) { M.w -= dt; const n = Math.ceil(M.w); if (n !== M.last && n > 0) { M.last = n; sfx('beat'); }
@@ -2701,6 +2701,17 @@ function stepAlarm(dt) {
   R.alLoad = load;
   R.alarm = clamp(R.alarm + (load * AL.gain * (AL.org[map.organ] || 1) - (load < AL.quiet ? AL.decay : 0)) * dt, 0, 100);
   if (R.alarm >= 100) { R.med = { w: AL.warn, d: 0, guard: false, last: 3, al: true }; sfx('alarm'); buzz(30); banner('🔥 들켰다! 2초 뒤 면역 총공격 — 돌격 멈추고 스킬로 버텨!'); }
+}
+function alarmHelp() { const R = run; R.mutPause = true; paused = true;
+  const bar = (p, c, t) => `<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><div style="flex:1;height:14px;border-radius:7px;background:#2a1a20;overflow:hidden"><div style="width:${p}%;height:100%;background:${c}"></div></div><span style="font-size:12px;color:#d8c8b0;min-width:64px">${t}</span></div>`;
+  ui.modal(`<h3 style="margin:2px 0 8px">이번 전투 규칙: 들키지 마!</h3>
+    <div style="text-align:left;font-size:14px;line-height:1.55">
+    <b style="color:#ffd27a">① 돌격하면 감염, 대신 들켜요</b><br>오른쪽 아래 <b>돌격</b>을 누르면 둥지 무리가 길로 나가요. 길 위에 많을수록 위쪽 게이지가 차요.${bar(45, '#ffd24a', '들킴 45%')}
+    <b style="color:#ff8a7a">② 꽉 차면 면역 총공격</b><br>"2초 뒤 총공격" 경고가 뜨면 <b>스킬 카드</b>를 눌러 버티세요. 못 버티면 길 위 무리가 쓰러져요.${bar(100, '#ff3b30', '총공격!')}
+    <b style="color:#9fff6a">③ 끝나면 초록 틈 = 기회</b><br>총공격 직후 몇 초 동안 돌격하면 감염 <b>×${1 + AL.gapBonus}</b>! 둥지에 모아 뒀다가 이때 한 번에!${bar(80, '#7dff6a', '틈! ×' + (1 + AL.gapBonus))}
+    <div style="margin-top:8px;color:#b59f86;font-size:12.5px">요령: 계속 누르지 말고 → 모았다가 → 틈에 한 방</div></div>
+    <div class="row" style="margin-top:10px"><button class="btn red" id="alOk">알겠어, 시작!</button></div>`);
+  $('alOk').onclick = () => { save.tips = save.tips || {}; save.tips.alarm = true; persist(); ui.closeModal(); };
 }
 function drawAlarm(time) { const R = run; if (!ALARM || !R || !R.ta || stealthOn() || R.alarm == null) return;
   const x = 14, w = W - 28, y = TOP + 6 * KS, h = 18 * KS, v = R.med ? 100 : R.alarm, gap = R.gap > 0;
