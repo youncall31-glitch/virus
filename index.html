@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>우쭈쭈 바이러스 — 몸속 정복 대작전</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Cinzel:wght@700&family=Jua&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0607; color: #eadcc2;
-    font-family: 'Nanum Myeongjo', 'Apple SD Gothic Neo', serif; -webkit-user-select: none; user-select: none; }
+    font-family: 'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-user-select: none; user-select: none; }
   #stage { position: absolute; inset: 0; margin: auto; width: min(100vw, 100dvh * 9 / 16); height: 100dvh; overflow: hidden; background: #120a0c; }
   canvas.full { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
   button { font-family: inherit; color: inherit; cursor: pointer; }
@@ -29,10 +29,10 @@
   #hub[hidden] { display: none; }
   .hubTop { display: flex; align-items: center; gap: 6px; }
   .hubTop .host { font-size: 13px; font-weight: 800; flex: 1; min-width: 0; line-height: 1.25; } .hName { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .hName em { font-style: normal; font-size: 10.5px; color: #b59f86; font-weight: 400; }
-  .hubTop .host small { display: block; font-size: 10px; -webkit-line-clamp: 1 !important; color: #b59f86; font-weight: 400; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .hubTop .host small { display: block; font-size: 10px; -webkit-line-clamp: 1 !important; color: #b59f86; font-weight: 400; font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .hubTop .modeBtn { flex: none; width: 34px; height: 34px; padding: 0; display: grid; place-items: center; font-size: 15px; white-space: nowrap; }
   .hubTop .dna { flex: none; margin-left: 0; }
-  .dna { margin-left: auto; display: flex; align-items: center; gap: 5px; padding: 5px 10px 5px 6px; font-family: 'Cinzel', serif; font-size: 15px; color: #b9f27a; border-radius: 20px; }
+  .dna { margin-left: auto; display: flex; align-items: center; gap: 5px; padding: 5px 10px 5px 6px; font-family: 'Jua', sans-serif; font-size: 15px; color: #b9f27a; border-radius: 20px; }
   .dna img { width: 20px; height: 20px; }
   .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
   .tab { min-height: 32px; font-weight: 800; font-size: 14px; border-radius: 6px; border: 1.5px solid #4a3a30; background: #170f10; color: #b59f86; }
@@ -58,7 +58,7 @@
   .organ.sel { border: 2.5px solid #ffd27a; box-shadow: 0 0 14px rgba(255,210,122,.8); }
   .organ.lock { opacity: .5; }
   @media (max-height: 780px) { .organ { width: 34px; height: 34px; } .organ svg { width: 24px; height: 24px; } .organ .lbl { font-size: 10px; padding: 1px 5px; } .organ .diff { font-size: 8.5px; } #organInfo .fitBox { padding: 3px 6px; } #organInfo .sub { font-size: 11.5px; } }
-  .sub, small, .chip, .organ .lbl, .organ .diff, .slot b, .slot small, .slab, .skillbox, #hint, .feat, .starList, .fitBox, .odds { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
+  .sub, small, .chip, .organ .lbl, .organ .diff, .slot b, .slot small, .slab, .skillbox, #hint, .feat, .starList, .fitBox, .odds { font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
   .organ .lbl { position: absolute; top: 50%; right: 100%; left: auto; transform: translateY(-50%); margin: 0 4px 0 0; white-space: nowrap; font-size: 11px; font-weight: 800; line-height: 1.1; text-align: right; padding: 0; background: none; border: 0; text-shadow: 0 1px 2px #000, 0 0 4px #000, 0 0 6px #000; pointer-events: none; } .organ .lbl.__x { border: 1px solid rgba(216,184,120,.35); text-shadow: none; pointer-events: none; }
   .organ.toL .lbl { left: 50%; right: auto; }
   #bodyBox .organ .lbl { top: 100%; left: 50%; right: auto; transform: translateX(-50%); margin: 3px 0 0; text-align: center; font-size: 11.5px; }   /* 이름표는 동그라미 바로 아래 */
@@ -209,12 +209,12 @@
   .hc img { height: 42px; } .hc small { color: #ffcf6a; font-size: 10.5px; } .hc.on { border-color: #ffcf6a; box-shadow: 0 0 10px rgba(255,207,106,.5); } .hc.lock { opacity: .55; } .hc.lock small { color: #b59f86; }
   .hmain { display: grid; grid-template-columns: 120px 1fr; gap: 8px; padding: 8px; align-items: center; }
   .hport { position: relative; height: 130px; display: grid; place-items: center; border-radius: 10px; background: radial-gradient(circle at 50% 55%, #2a1a1a, #0c0607); }
-  .hport img { height: 112px; } .hport .hlv { position: absolute; right: 6px; bottom: 2px; font-family: Cinzel, serif; font-size: 22px; text-shadow: 0 2px 4px #000; }
+  .hport img { height: 112px; } .hport .hlv { position: absolute; right: 6px; bottom: 2px; font-family: 'Jua', sans-serif; font-size: 22px; text-shadow: 0 2px 4px #000; }
   .hport.t2 { box-shadow: inset 0 0 22px #3f7aa0; } .hport.t3 { box-shadow: inset 0 0 26px #a050c0; } .hport.t4 { box-shadow: inset 0 0 30px #ffb020, 0 0 16px #ffb020; }
   .hport.win { animation: fwin .7s; } .hport.lose { animation: flose .5s; }
   @keyframes fwin { 0% { filter: brightness(3); transform: scale(1.12); } 100% { filter: none; transform: none; } }
   @keyframes flose { 0%, 100% { transform: none; } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); filter: grayscale(1); } 80% { transform: translateX(4px); } }
-  .hinfo h3 { margin: 0; font-size: 16px; } .hst { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; font-size: 11.5px; margin: 5px 0; } .hst b { color: #ffd27a; font-family: Cinzel, serif; }
+  .hinfo h3 { margin: 0; font-size: 16px; } .hst { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; font-size: 11.5px; margin: 5px 0; } .hst b { color: #ffd27a; font-family: 'Jua', sans-serif; }
   .tails { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; align-items: stretch; } .tails .tl { grid-column: 1 / -1; font-size: 11px; color: #ffe2a8; text-align: left; }
   .tslot { border: 1.5px solid #6e5a4a; border-radius: 7px; background: #170f10; padding: 3px 2px; display: flex; flex-direction: column; align-items: center; gap: 1px; min-height: 66px; justify-content: center; font-size: 10.5px; }
   .tslot img { height: 26px; } .tslot small { font-size: 9px; color: #b59f86; } .tslot.empty { border-style: dashed; color: #ffcf6a; } .tslot.empty b { font-size: 20px; } .tslot.lock { opacity: .5; } .tslot.lock img { height: 18px; }
@@ -248,12 +248,12 @@
   #top { top: 8px; padding: 0 8px; display: grid; grid-template-columns: 38px minmax(0, 1fr) 124px 38px 38px; gap: 5px; align-items: stretch; height: 40px; }
   #top > .plate { height: 40px; margin: 0; box-sizing: border-box; min-width: 0; }
   #top .stage { padding: 4px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-  #top .stage b, #top .stage small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
+  #top .stage b, #top .stage small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
   #top .stage b { font-size: 12.5px; } #top .stage small { font-size: 10px; color: #b59f86; }
-  .sq { width: 34px; height: 34px; display: grid; place-items: center; font-family: 'Cinzel', serif; font-size: 13px; padding: 0; }
+  .sq { width: 34px; height: 34px; display: grid; place-items: center; font-family: 'Jua', sans-serif; font-size: 13px; padding: 0; }
   #top .sq { width: 38px; height: 40px; }
   #goalBox { padding: 5px 8px; display: flex; flex-direction: column; justify-content: center; }
-  #goalBox .t { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; line-height: 1.2; }
+  #goalBox .t { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; line-height: 1.2; }
   #goalBox .t span:first-child { overflow: hidden; text-overflow: ellipsis; }
   #goalBox .bar { margin-top: 3px; }
   .bar { height: 7px; margin-top: 4px; background: #0c0607; border: 1px solid #4a2a2c; border-radius: 4px; overflow: hidden; }
@@ -266,10 +266,10 @@
   #info2 > #timerTag { display: flex; align-items: center; }
   @media (max-width: 380px) { #top { grid-template-columns: 34px minmax(0, 1fr) 110px 34px 34px; } #top .sq { width: 34px; } #info2 { grid-template-columns: minmax(0, 1fr) auto 188px; } #timerTag span { font-size: 10px; } }
   #info2 > .plate[hidden] { display: none; }
-  #info2 .plate { padding: 3px 8px; font-size: 10.5px; line-height: 1.25; word-break: keep-all; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
+  #info2 .plate { padding: 3px 8px; font-size: 10.5px; line-height: 1.25; word-break: keep-all; font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
   #legRow { top: 90px; padding: 0 8px; display: flex; flex-wrap: wrap; gap: 4px; }
   #legRow .chip { font-size: 10px; padding: 2px 7px; background: rgba(20,30,14,.85); border-color: #4f7a2a; color: #cfffa8; }
-  #timerTag { grid-column: 3; position: relative; justify-content: space-between; gap: 6px; padding: 2px 10px 6px !important; } #timerTag span { font-size: 10.5px; } #timerTag b { font-family: Cinzel, serif; font-size: 15px; color: #9fe8ff; }
+  #timerTag { grid-column: 3; position: relative; justify-content: space-between; gap: 6px; padding: 2px 10px 6px !important; } #timerTag span { font-size: 10.5px; } #timerTag b { font-family: 'Jua', sans-serif; font-size: 15px; color: #9fe8ff; }
   #timerTag .tbar { position: absolute; left: 8px; right: 8px; bottom: 3px; height: 3px; margin: 0; background: #0c0607; border-radius: 2px; overflow: hidden; } #timerTag .tbar i { display: block; height: 100%; background: linear-gradient(90deg, #3fa0ff, #9fe8ff); }
   #goalBar.bump { filter: brightness(1.6); transition: filter .05s; } #goalBar { transition: filter .25s; }
   .odds2 { max-height: 62vh; overflow-y: auto; text-align: left; font-size: 12px; } .odT { padding: 5px 0; border-bottom: 1px solid #3a2a22; } .odT div { color: #c8b8a0; font-size: 11.5px; margin-top: 2px; } .odds2 ul { padding-left: 16px; margin: 6px 0; color: #e8d8c0; } .odds2 li { margin: 3px 0; }
@@ -354,7 +354,7 @@
   .orb { width: 54px; height: 54px; border-radius: 50%; position: relative; overflow: hidden; display: grid; place-items: end center;
     background: radial-gradient(circle at 50% 65%, #3d2526, #140c0d); border: 2px solid #8a6a4a; box-shadow: 0 0 0 2px #000, 0 4px 8px rgba(0,0,0,.7); }
   .orb img { height: 46px; margin-bottom: 1px; }
-  .orb .cd { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font-family: 'Cinzel', serif; font-size: 16px; color: #fff; text-shadow: 0 1px 3px #000; }
+  .orb .cd { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font-family: 'Jua', sans-serif; font-size: 16px; color: #fff; text-shadow: 0 1px 3px #000; }
   .sk.ready .orb { border-color: #ffcf6a; box-shadow: 0 0 0 2px #000, 0 0 12px rgba(255,190,90,.75); }
   .sk.active .orb { border-color: #6fd35a; box-shadow: 0 0 0 2px #000, 0 0 14px rgba(111,211,90,.85); }
   .sk.aim .orb { border-color: #7fd1ff; box-shadow: 0 0 0 2px #000, 0 0 16px rgba(127,209,255,.9); }
@@ -372,7 +372,7 @@
   .resList { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: 11.5px } .resList span { padding: 2px 8px; border-radius: 10px; background: #1a120e; border: 1px solid #3a2a20 } .resList b { color: #d7ffb0 }
   .resHead { text-align: center; font-size: 12px; color: #c9b9a2; margin-top: 6px }
   .resTip { margin: 0; padding: 6px 10px; border-radius: 10px; background: #1f1712; border: 1px solid #6a5030; font-size: 13px; line-height: 1.5; word-break: keep-all }
-  .resList, .resTip, .resDna small, .resBar span { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
+  .resList, .resTip, .resDna small, .resBar span { font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
   .rs2 h1 { margin-bottom: 0; } .rsStars { text-align: center; font-size: 40px; line-height: 1; letter-spacing: 6px; } .rsStars b { color: #4a3a2e; } .rsStars b.on { color: #ffd24a; text-shadow: 0 0 10px #ffb000; } .rsStars b.new { display: inline-block; animation: legb .8s ease-in-out infinite alternate; }
   .rsMiss { text-align: center; font-size: 12px; color: #b59f86; }
   .rsGot { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; padding: 8px; border-radius: 14px; background: #1a120e; border: 1.5px solid #4f3a28; }
@@ -419,8 +419,8 @@
   #coach { position: absolute; left: 12px; right: 12px; top: 100px; padding: 12px 14px; z-index: 9; background: #1a0f0c !important; border: 2px solid #e8b860 !important; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.8) !important; }
   #coach.atBottom { top: auto; bottom: 150px; }
   #coach[hidden] { display: none; }
-  #coach .cs { font-size: 12px; font-weight: 800; color: #ffd27a; margin-bottom: 4px; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
-  #coach .ct { font-size: 15px; line-height: 1.55; color: #fff4e2; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; word-break: keep-all; } #coach .ct b { color: #ffd27a; } #coach .ct small { color: #b8a48c; font-size: 12px; }
+  #coach .cs { font-size: 12px; font-weight: 800; color: #ffd27a; margin-bottom: 4px; font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; }
+  #coach .ct { font-size: 15px; line-height: 1.55; color: #fff4e2; font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif; word-break: keep-all; } #coach .ct b { color: #ffd27a; } #coach .ct small { color: #b8a48c; font-size: 12px; }
   #coach .cr { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 11px; color: #9c8a76; }
   #coach .cr button { min-height: 28px; font-size: 12px; padding: 0 10px; }
   #intro { position: absolute; inset: 0; z-index: 60; background: #0b0607; transition: opacity .6s; overflow: hidden; } #intro.out { opacity: 0; pointer-events: none; }
@@ -487,7 +487,7 @@
   .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; } .row .btn { flex: 1 1 40%; }
   .stats { margin: 8px 0 4px; text-align: left; }
   .stat { display: grid; grid-template-columns: 44px 1fr 54px; align-items: center; gap: 6px; font-size: 11.5px; margin: 4px 0; }
-  .stat b { text-align: right; font-family: 'Cinzel', serif; font-size: 11.5px; color: #ffd27a; }
+  .stat b { text-align: right; font-family: 'Jua', sans-serif; font-size: 11.5px; color: #ffd27a; }
   .sbar { height: 7px; border-radius: 4px; background: #0c0607; border: 1px solid #4a2a2c; overflow: hidden; }
   .sbar { position: relative; } .sbar i { display: block; height: 100%; background: linear-gradient(90deg, #7d1219, #e0453f); }
   .sbar i.g2, .sbar i.g3, .sbar i.g4 { position: absolute; left: 0; top: 0; } .sbar i.g2 { background: linear-gradient(90deg, #1f6a1a, #7fe05a); } .sbar i.g3 { background: linear-gradient(90deg, #1a3a8a, #6ab0ff); } .sbar i.g4 { background: linear-gradient(90deg, #8a6a10, #ffd24a); }
@@ -662,6 +662,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmTag { background: rgba(10, 20, 8, .72) !important; color: #b8f28a !important; border: 1px solid rgba(184, 242, 138, .45); font-weight: 700 !important; letter-spacing: .5px; font-size: 10px !important; } .fmTag.cpT { color: #e0c2ff !important; border-color: rgba(224, 194, 255, .45); background: rgba(30, 12, 40, .72) !important; }
   .fmC small .upA { font-style: normal; color: #8fe06a; margin-left: 2px; font-size: 9px; }
   .fmUpA { width: auto !important; height: auto !important; padding: 0 5px; border-radius: 8px !important; font-size: 10.5px !important; line-height: 16px !important; left: 4px !important; top: 44px !important; animation: none !important; }
+  html, body { font-synthesis: none; } b, strong, h1, h2, h3 { font-weight: 400; }   /* 주아는 한 굵기라 가짜 굵게를 막는다 */
 </style>
 </head>
 <body>
@@ -671,7 +672,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   <!-- 런 HUD -->
   <div class="hud" id="top" hidden>
     <button class="plate sq" id="btnExit" aria-label="나가기">◀</button><div class="plate stage"><b id="stName"></b><small id="stSub"></small></div>
-    <div class="plate" id="goalBox"><div class="t"><span id="goalLbl">감염</span><span id="goalTxt" style="font-family: Cinzel, serif">0/0</span></div><div class="bar" id="goalBar"><i></i></div></div>
+    <div class="plate" id="goalBox"><div class="t"><span id="goalLbl">감염</span><span id="goalTxt" style="font-family: 'Jua', sans-serif">0/0</span></div><div class="bar" id="goalBar"><i></i></div></div>
     <button class="plate sq" id="btnSpeed" aria-label="배속">1×</button>
     <button class="plate sq" id="btnPause" aria-label="일시정지"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" width="3.5" height="14" fill="#eadcc2"/><rect x="7.5" width="3.5" height="14" fill="#eadcc2"/></svg></button>
   </div>
@@ -2285,7 +2286,7 @@ function drawBoss(time) {
   label(`${b.name}`, bx + bw / 2, by > b.y ? by + 20 : by - 6, '#ffd27a');
   if (b.warned) label(`${b.sk} ${Math.max(0, Math.ceil(b.t))}`, bx + bw / 2, by > b.y ? by + 36 : b.y + 22, b.color);
 }
-function label(t, x, y, c) { ctx.save(); ctx.font = "800 12px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(t, x, y); ctx.fillStyle = c; ctx.fillText(t, x, y); ctx.restore(); }
+function label(t, x, y, c) { ctx.save(); ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(t, x, y); ctx.fillStyle = c; ctx.fillText(t, x, y); ctx.restore(); }
 
 /* ---------- [render/juice.js] ★ 손맛: 화면 흔들림 · 터지는 입자 · 탑 붕괴 · 승리 연출 ---------- */
 function shake(a) { if (run) run.shk = Math.max(run.shk || 0, a); }
@@ -2305,7 +2306,7 @@ function drawJuiceOver(time) { const R = run;
   if (R.winFx) { const t = R.winFx.t, [gx, gy] = map.goal; ctx.save();
     for (let i = 0; i < 3; i++) { const k = Math.max(0, t - i * 0.25); if (k <= 0 || k > 1.8) continue; ctx.globalAlpha = Math.max(0, 0.55 - k * 0.3); ctx.strokeStyle = i === 1 ? '#ffd27a' : '#e8a0ff'; ctx.lineWidth = 16 - i * 4; ctx.beginPath(); ctx.arc(gx, gy, 30 + k * k * 420, 0, TAU); ctx.stroke(); }
     if (t < 2.2) { ctx.globalAlpha = Math.min(1, t * 3) * Math.max(0, 1 - (t - 1.6) * 2); ctx.translate(W / 2, H * 0.4); const sc = t < 0.25 ? t / 0.25 * 1.3 : 1.3 - Math.min(0.3, (t - 0.25) * 1.5); ctx.scale(sc, sc);
-      ctx.font = "800 34px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 7; ctx.strokeStyle = '#2a0a1e'; ctx.strokeText('감염 성공!', 0, 0); const g = ctx.createLinearGradient(0, -30, 0, 10); g.addColorStop(0, '#fff2c0'); g.addColorStop(1, '#ffb04a'); ctx.fillStyle = g; ctx.fillText('감염 성공!', 0, 0); }
+      ctx.font = "800 34px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 7; ctx.strokeStyle = '#2a0a1e'; ctx.strokeText('감염 성공!', 0, 0); const g = ctx.createLinearGradient(0, -30, 0, 10); g.addColorStop(0, '#fff2c0'); g.addColorStop(1, '#ffb04a'); ctx.fillStyle = g; ctx.fillText('감염 성공!', 0, 0); }
     ctx.restore(); } }
 function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; shake(10); buzz([60, 40, 140]); hitStop(0.18); R.slowT = 0.9; R.flashT = 0.35; R.flashC = '255,220,140';   // 마지막 감염: 잠깐 슬로모션
   const [gx, gy] = map.goal; for (let i = 0; i < 46; i++) { const a = Math.random() * TAU, sp = rand(80, 320); R.parts.push({ x: gx, y: gy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, t: rand(0.7, 1.3), c: ['#e8a0ff', '#ffd27a', '#9fff6a', '#ff8fd0'][i % 4], r: rand(2, 4.5) }); } }
@@ -2586,7 +2587,7 @@ function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
   // ★ 둥지 = 부풀어 오른 길 자체 (따로 거품을 그리지 않는다). 수는 돌격 버튼에, 처음엔 안내 글만
   if (nestOn()) { const t = Math.floor(nestTotal()), R = run, [x, y] = pathAt(Math.max(map.d0, R.frontD - 30));
     ctx.save(); ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.7)';
-    const say = (tx, col) => { ctx.font = "800 12px sans-serif"; ctx.strokeText(tx, x, y - 34); ctx.fillStyle = col; ctx.fillText(tx, x, y - 34); };
+    const say = (tx, col) => { ctx.font = "12px Jua, sans-serif"; ctx.strokeText(tx, x, y - 34); ctx.fillStyle = col; ctx.fillText(tx, x, y - 34); };
     if (R.gap > 0 && t) say(`지금 돌격! ${t}`, '#9fff6a'); else if (!t && !R.released && R.groups.some(g => g.charge > 0)) say('카드를 눌러 길에 모으기', '#e8a0ff');
     ctx.restore(); }
 }
@@ -2595,7 +2596,7 @@ function drawStealth(time) {
   if (S.touch) { const k = Math.min(1, S.touch.t / S.touch.need); ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = `rgba(232,160,255,${0.18 + 0.12 * Math.sin(time * 6)})`; ctx.lineWidth = 40; ctx.beginPath();
     for (let d = infFront(); d <= map.seg[S.touch.si].d + SEG; d += 8) { const [x, y] = pathAt(d); d === infFront() ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke();
     ctx.strokeStyle = '#e8a0ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(S.x, S.y - 30, 34, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke(); ctx.restore();
-    ctx.save(); ctx.font = "800 14px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#000'; const tx = `+${S.touch.gain}구간 ${(S.touch.need - S.touch.t).toFixed(1)}초`; ctx.strokeText(tx, S.x, S.y - 74); ctx.fillStyle = '#e8a0ff'; ctx.fillText(tx, S.x, S.y - 74); ctx.restore(); }
+    ctx.save(); ctx.font = "800 14px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#000'; const tx = `+${S.touch.gain}구간 ${(S.touch.need - S.touch.t).toFixed(1)}초`; ctx.strokeText(tx, S.x, S.y - 74); ctx.fillStyle = '#e8a0ff'; ctx.fillText(tx, S.x, S.y - 74); ctx.restore(); }
   for (const s of T.sents) { const p = sentView(s);
     const gr = ctx.createRadialGradient(p.x, p.y, 10, p.x, p.y, 165); gr.addColorStop(0, s.alert ? 'rgba(255,60,40,.55)' : 'rgba(255,225,120,.34)'); gr.addColorStop(1, s.alert ? 'rgba(255,60,40,.1)' : 'rgba(255,225,120,.04)');
     ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.arc(p.x, p.y, 165, p.dir - 0.72, p.dir + 0.72); ctx.closePath(); ctx.fill(); ctx.strokeStyle = s.alert ? '#ff5040' : 'rgba(255,220,120,.6)'; ctx.lineWidth = 1.5; ctx.stroke(); }
@@ -2608,7 +2609,7 @@ function drawStealth(time) {
     const h = 44, pw = tPow() - 1; T.powPulse = Math.max(0, (T.powPulse || 0) - 1 / 60);
     if (pw > 0) { ctx.save(); const r = h * (0.55 + pw * 0.9) + (run.powPulse ? 0 : 0), gl = ctx.createRadialGradient(S.x, S.y - h * 0.4, 4, S.x, S.y - h * 0.4, r); gl.addColorStop(0, `rgba(255,210,122,${0.25 + pw * 0.4})`); gl.addColorStop(1, 'rgba(255,210,122,0)');
       ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(S.x, S.y - h * 0.4, r, 0, TAU); ctx.fill(); ctx.restore(); }
-    ctx.save(); ctx.font = "800 12px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const pl = `힘 +${Math.round(pw * 100)}%`; ctx.strokeText(pl, S.x, S.y + 20); ctx.fillStyle = pw > 0 ? '#ffd27a' : '#b59f86'; ctx.fillText(pl, S.x, S.y + 20); ctx.restore();
+    ctx.save(); ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const pl = `힘 +${Math.round(pw * 100)}%`; ctx.strokeText(pl, S.x, S.y + 20); ctx.fillStyle = pw > 0 ? '#ffd27a' : '#b59f86'; ctx.fillText(pl, S.x, S.y + 20); ctx.restore();
     ctx.globalAlpha = 0.5; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(S.x, S.y + 1, h * 0.4, h * 0.15, 0, 0, TAU); ctx.fill();
     ctx.globalAlpha = 0.95; ctx.strokeStyle = safe ? '#b9f27a' : '#ffcf6a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(S.x, S.y + 1, h * 0.46, h * 0.19, 0, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
     const bob = S.moving ? Math.abs(Math.sin(time * 12)) * 3 : Math.abs(Math.sin(time * 4)); drawSprite(ctx, outlined(unitImg(T.lead.strain, T.lead.star, T.lead.branch ? T.lead.strain + T.lead.branch : '', T.lead.mix)), S.x, S.y + 1.5 - bob, h, safe ? 0.75 : 1, true);
@@ -3456,14 +3457,14 @@ function render(time) {
       const SBu = R.sb[u.strain];
       if (SBu.dive) { ctx.globalAlpha = 0.55; ctx.fillStyle = '#3a1a2a'; ctx.beginPath(); ctx.ellipse(u.x, u.y - 2, h * 0.38, h * 0.2, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = '#ff8fd0'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(u.x, u.y - 2, h * 0.45 + Math.sin(time * 8 + u.wob) * 2, h * 0.24, 0, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; continue; }
       if (u._tail > 1) drawTail(u, h, time);
-      if (u._big) { const bx = u.x + h * 0.45, by = u.y - h * 0.95, tx = '×' + u._big; ctx.save(); ctx.font = "800 12px 'Cinzel', serif"; const tw = ctx.measureText(tx).width + 12;
+      if (u._big) { const bx = u.x + h * 0.45, by = u.y - h * 0.95, tx = '×' + u._big; ctx.save(); ctx.font = "800 12px 'Jua', sans-serif"; const tw = ctx.measureText(tx).width + 12;
         ctx.fillStyle = 'rgba(16,8,10,.9)'; ctx.strokeStyle = SCOLOR[u.strain] || '#ffd27a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx - tw / 2, by - 9, tw, 18, 9) : ctx.rect(bx - tw / 2, by - 9, tw, 18); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(tx, bx, by + 0.5); ctx.restore(); }
       if (n > 1) { const im = outlined(unitImg(u.strain, u.star, u.br, u.mix)), k2 = Math.min(3, n - 1);   // 뒤에 겹친 무리: 작고 어둡게, 좌우로 살짝 비켜서
         for (let q = k2; q >= 1; q--) { const sd = q % 2 ? -1 : 1, off = h * (0.22 + 0.1 * q); ctx.save(); ctx.filter = 'brightness(.62)'; drawSprite(ctx, im, u.x + sd * off, u.y - 2 - q * 3, h * (0.78 - 0.06 * q), 0.95, true); ctx.restore(); } }
       const a = u.decoy ? 0.6 : u.revealed ? 1 : 0.78, bob = Math.abs(Math.sin(time * 9 + u.wob)) * 1.6;
       drawSprite(ctx, outlined(u.decoy && has('decoy_shell') ? IMG.decoy_shell : unitImg(u.strain, u.star, u.br, u.mix)), u.x, u.y - bob + 1.5, u.decoy ? h * 0.8 : h, a, true); ctx.globalAlpha = 1;
-      if (n >= 4) { const bx = u.x + h * 0.42, by = u.y - h * 0.92, tx = '×' + n; ctx.save(); ctx.font = "800 11px 'Cinzel', serif"; const tw = ctx.measureText(tx).width + 10;
+      if (n >= 4) { const bx = u.x + h * 0.42, by = u.y - h * 0.92, tx = '×' + n; ctx.save(); ctx.font = "800 11px 'Jua', sans-serif"; const tw = ctx.measureText(tx).width + 10;
         ctx.fillStyle = 'rgba(16,8,10,.88)'; ctx.strokeStyle = SCOLOR[u.strain] || '#ffd27a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx - tw / 2, by - 8, tw, 16, 8) : ctx.rect(bx - tw / 2, by - 8, tw, 16); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(tx, bx, by + 0.5); ctx.restore(); }
       if (marked(u)) { const my = u.y - h * 0.95; if (has('ab_mark')) drawSprite(ctx, IMG.ab_mark, u.x, my + 5, 12); else { ctx.save(); ctx.strokeStyle = '#5fe0d0'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(u.x, my + 4); ctx.lineTo(u.x, my); ctx.lineTo(u.x - 3, my - 3); ctx.moveTo(u.x, my); ctx.lineTo(u.x + 3, my - 3); ctx.stroke(); ctx.restore(); } }
@@ -3490,7 +3491,7 @@ function render(time) {
       ctx.fillStyle = '#f2f2f2'; ctx.strokeStyle = '#1a2a3a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-26, -11, 52, 22, 11) : ctx.rect(-26, -11, 52, 22); ctx.fill(); ctx.stroke();
       ctx.fillStyle = '#3fa0ff'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(0, -11, 26, 22, [0, 11, 11, 0]) : ctx.rect(0, -11, 26, 22); ctx.fill(); ctx.stroke(); ctx.restore(); }
     ctx.fillStyle = `rgba(120,200,255,${a.fired ? Math.max(0, 0.25 - (a.t - 1.4) * 0.25) : 0.08})`; ctx.fillRect(0, 0, W, H); }
-  for (const f of R.texts) { ctx.save(); ctx.globalAlpha = Math.min(1, f.t * 2); ctx.font = `800 ${f.size}px 'Nanum Myeongjo', serif`; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.strokeText(f.text, f.x, f.y); ctx.fillStyle = f.color; ctx.fillText(f.text, f.x, f.y); ctx.restore(); }
+  for (const f of R.texts) { ctx.save(); ctx.globalAlpha = Math.min(1, f.t * 2); ctx.font = `800 ${f.size}px Jua, sans-serif`; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.strokeText(f.text, f.x, f.y); ctx.fillStyle = f.color; ctx.fillText(f.text, f.x, f.y); ctx.restore(); }
   if (aiming) for (const t of R.towers) if (!t.converted) { ctx.save(); ctx.strokeStyle = '#7fd1ff'; ctx.lineWidth = 3; ctx.globalAlpha = 0.6 + Math.sin(time * 8) * 0.3; ctx.beginPath(); ctx.arc(t.x, t.y - 20, 30, 0, TAU); ctx.stroke(); ctx.restore(); }
   if (placing) { const used = new Set([...R.towers, ...R.outposts].map(t => t.x + ',' + t.y)); for (const [x, y] of map.slots) if (!used.has(x + ',' + y)) { ctx.save(); ctx.strokeStyle = '#b9f27a'; ctx.lineWidth = 2.5; ctx.globalAlpha = 0.6 + Math.sin(time * 8) * 0.3; ctx.beginPath(); ctx.arc(x, y, 18, 0, TAU); ctx.stroke(); ctx.restore(); } }
 }
@@ -3515,7 +3516,7 @@ function drawHero(u, time) {
     ctx.restore(); }
   const bw = 54, bx = u.x - bw / 2, by = u.y - 82;
   ctx.fillStyle = '#000'; ctx.fillRect(bx - 1, by - 1, bw + 2, 10); ctx.fillStyle = '#ff5a5a'; ctx.fillRect(bx, by + 5, bw * Math.max(0, u.hp / u.maxHp), 3); ctx.fillStyle = '#9fe8ff'; ctx.fillRect(bx, by, bw * Math.max(0, k), 4);
-  ctx.font = "800 12px 'Nanum Myeongjo', serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const t = `${H0.name} +${lv}`; ctx.strokeText(t, u.x, by - 4); ctx.fillStyle = col; ctx.fillText(t, u.x, by - 4);
+  ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const t = `${H0.name} +${lv}`; ctx.strokeText(t, u.x, by - 4); ctx.fillStyle = col; ctx.fillText(t, u.x, by - 4);
   ctx.restore();
 }
 function drawSwitch(f, time) {
@@ -4989,7 +4990,7 @@ function playCatch(g) {
         c.fillStyle = `rgba(170,215,170,${0.16 * fade})`; c.beginPath(); c.arc(x, y, rr, 0, TAU); c.fill(); }
       if (has('fx_sneeze') && t < 2.2) { c.save(); c.globalAlpha = clamp((2.2 - t) * 1.2, 0, 0.9); drawSprite(c, IMG.fx_sneeze, cx, cy + 30 * k, 120 + 360 * k); c.restore(); }
       if (t < 1.4) { c.save(); c.globalAlpha = clamp((1.4 - t) * 2, 0, 1); c.translate(cx, cy); const sc = 0.6 + k * 0.6; c.scale(sc, sc); c.rotate(-0.08);
-        c.font = "800 54px 'Nanum Myeongjo', serif"; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = '#000'; c.strokeText('에취!', 0, 18); c.fillStyle = '#e8f8d0'; c.fillText('에취!', 0, 18); c.restore(); } }
+        c.font = "800 54px Jua, sans-serif"; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = '#000'; c.strokeText('에취!', 0, 18); c.fillStyle = '#e8f8d0'; c.fillText('에취!', 0, 18); c.restore(); } }
     // 2) 비말 속 바이러스들이 화면 쪽으로 쏟아진다
     if (t > 0.5 && t < 2.8) { spawnAcc += dt * 40; while (spawnAcc > 1) { spawnAcc--; addPart(keys[Math.floor(Math.random() * keys.length)]); } }
     if (t > 2.2 && !chosen) chosen = addPart(g.strain, Math.PI / 2 + rand(-0.3, 0.3));
@@ -5013,7 +5014,7 @@ function playCatch(g) {
       drawJar(c, jx, jy, js, cork, sealed ? '#b8b8b8' : null, t);
       drawGlove(c, jx + 6 * js, jy + 70 * js, js);
       if (sealed) { c.save(); c.translate(jx, jy + 54 * js); c.fillStyle = '#e0cfa4'; c.strokeStyle = '#3a2416'; c.lineWidth = 2; c.beginPath(); c.rect(-40 * js, -12, 80 * js, 24); c.fill(); c.stroke();
-        c.font = `800 ${14 * js}px 'Nanum Myeongjo', serif`; c.textAlign = 'center'; c.fillStyle = '#3a1a10'; c.fillText('???', 0, 5); c.restore(); }
+        c.font = `800 ${14 * js}px Jua, sans-serif`; c.textAlign = 'center'; c.fillStyle = '#3a1a10'; c.fillText('???', 0, 5); c.restore(); }
     }
     if (t > 3.8 && !done && !sqOn) { sqOn = true; if (highTier(g) >= 2) diagnose(g, box, () => reveal()); else reveal(); }
     if (!done || t < 4.2) requestAnimationFrame(step);
