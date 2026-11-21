@@ -2700,12 +2700,15 @@ function stepMed(dt) {
 const ALARM = !!window.__ALARM;
 // ★ 시제품(proto.html): 버튼 4개 — 돌격 · 잠복 · 증식 · 대장 스킬
 const B3 = /proto/.test(location.pathname) || !!window.__B3;
-const HIDE = { max: 5, emerge: 0.4, cd: 5 }, SPR = { cost: 0.15, capUp: 0.15, cd: 3 };
+const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1 }, SPR = { cost: 0.15, capUp: 0.15, cd: 3 };
 function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
-  if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
+  if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max; H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
   else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; }
   else if (H.st === 'cd') toast(`다시 숨으려면 ${Math.ceil(H.t)}초`); }
 function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (H.st === 'ready') return; H.t -= dt;
+  // ★ 숨어 있는 동안 땅속으로 오염이 번진다: 숨은 무리 쪽으로 1초마다 한 칸 → 그 땅에 겹친 탑은 무너진다
+  if (H.st === 'hid') { H.acc = (H.acc || 0) + dt; if (H.acc >= HIDE.spread) { H.acc -= HIDE.spread; const hd = R.units.filter(u => u.alive && u.hid); const far = hd.length ? Math.max(...hd.map(u => u.d)) : 0, done = segDone();
+      if (map.seg[done] && map.seg[done].d < far && done < map.seg.length - 2) { map.seg[done].on = true; purgeContaminated(); R.frontD = Math.max(R.frontD || 0, infFront()); const [x, y] = pathAt(R.frontD); R.rings.push({ x, y, r: 8, R: 60, t: 0.5, color: '#c06ad0' }); float(x, y - 30, '땅속 오염 +1칸', '#e8a0ff', 12); } } }
   if (H.t > 0) return;
   if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; }
   else if (H.st === 'up') { for (const u of R.units) u.hid = false; H.st = 'cd'; H.t = HIDE.cd; banner('튀어나왔다!'); sfx('breakout'); }
@@ -2720,7 +2723,7 @@ function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R
 function b3Help() { const R = run; R.mutPause = true; paused = true;
   ui.modal(`<h3 style="margin:2px 0 8px">버튼 4개로 싸워요</h3><div style="text-align:left;font-size:14px;line-height:1.6">
     <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
-    <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 몸속으로 숨어요. 멈추지만 <b>약도, 탑 공격도 안 맞아요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
+    <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 몸속으로 숨어요. 멈추지만 <b>약도, 탑 공격도 안 맞아요</b>. 숨어 있는 동안 <b>1초마다 땅속 오염이 숨은 무리 쪽으로 한 칸</b> 번지고, 겹친 탑은 무너져요. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
     <b style="color:#e8a0ff">🦠 증식</b> 둥지 바이러스 일부를 써서 오염된 땅을 <b>목표 쪽으로 한 칸</b> 넓혀요. 출발점이 가까워지고 둥지 최대치가 늘어요. 그 땅의 탑은 무너져요.<br>
     <b style="color:#ffd27a">✨ 대장 스킬</b> 첫 칸 대장의 스킬이에요.<br>
     <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
