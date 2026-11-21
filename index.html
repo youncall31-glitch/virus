@@ -664,6 +664,15 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmUpA { width: auto !important; height: auto !important; padding: 0 5px; border-radius: 8px !important; font-size: 10.5px !important; line-height: 16px !important; left: 4px !important; top: 44px !important; animation: none !important; }
   html, body { font-synthesis: none; } b, strong, h1, h2, h3 { font-weight: 400; }   /* 주아는 한 굵기라 가짜 굵게를 막는다 */
   .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
+  /* ★ 등급 테두리 그림 (9분할) */
+  .fmC { border-color: transparent !important; margin: 6px 2px 4px; padding: 17px 7px 12px !important; } .fmC .cfoot { margin-top: 3px; } .fmGrid { gap: 9px 6px !important; padding-top: 6px; }
+  .fmC::before { content: ''; position: absolute; inset: -6px -5px -6px; pointer-events: none; z-index: 5; border-style: solid; border-width: 14px 12px 14px; border-image-repeat: stretch; }
+  .fmC.fr0::before { border-image-source: url(assets/frame_common.png); border-image-slice: 34 30 34 30; }
+  .fmC.fr1::before { border-image-source: url(assets/frame_rare.png); border-image-slice: 36 32 36 32; }
+  .fmC.fr2::before { border-image-source: url(assets/frame_epic.png); border-image-slice: 64 34 40 34; border-width: 24px 12px 15px; inset: -16px -5px -6px; }
+  .fmC.frL::before { border-image-source: url(assets/frame_legend.png); border-image-slice: 100 36 54 36; border-width: 32px 13px 18px; inset: -24px -6px -9px; filter: drop-shadow(0 0 4px rgba(240,200,80,.6)); }
+  .fmC .fmTag, .fmC .fmD { top: 10px !important; left: 9px !important; right: 9px !important; z-index: 6; }
+  .fmC.in::before { filter: drop-shadow(0 0 3px #9fff6a); }
 </style>
 </head>
 <body>
@@ -3967,7 +3976,7 @@ const ui = {
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g) && canSlot(g, sel)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? '<span class="fmTag">장착 중</span>' : g === cg ? '<span class="fmTag cpT">동반 중</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}${!pick && sel == null && !isComp(g) && canUp(g) ? '<em class="upA">▲</em>' : ''}</span></small>${ui.cardFoot(g)}</button>`; }).join('');
+      return `<button class="fmC ${D.legend ? 'frL' : 'fr' + Math.min(2, D.rarity)}${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? '<span class="fmTag">장착 중</span>' : g === cg ? '<span class="fmTag cpT">동반 중</span>' : d != null ? `<span class="fmD ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d}%</span>` : ''}${pimg(g)}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}${!pick && sel == null && !isComp(g) && canUp(g) ? '<em class="upA">▲</em>' : ''}</span></small>${ui.cardFoot(g)}</button>`; }).join('');
     const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `${SLOT_ICON[sel]} <b style="color:#ffd24a">${SLOT_NAME[sel]}</b> ${sel >= 3 ? '(직접 스킬)' : ''} 칸 = ${slotRule(sel)} · 밝은 카드를 누르면 꽂혀요` : '<b>꾹 눌러 칸으로 끌기</b> · 톡 누르면 능력·강화 · 칸을 누르면 맞는 카드'}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 3, 1, 2].map(sock).join('')}</div></div>
       <div class="fmH" style="margin-top:8px">내 바이러스 <small>${save.genes.length}장 · 순서는 정렬로만 바뀌어요</small></div><div class="sortRow" id="sortRail" style="margin:4px 0 6px"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
