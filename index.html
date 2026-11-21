@@ -993,7 +993,8 @@ const tropScore = (st, org) => { const [g, b] = tropOf(st); return g.includes(or
 // 궁합은 주 계통 + 붙은 계통 둘에서만 물려받음 (모든 기관 만능 방지)
 const tropG = (g, org) => { if (g.rc && g.rc.tr && g.rc.tr.includes(org)) return 1; const L = [g.strain, g.mix].filter(Boolean); if (L.length < 2) return tropScore(g.strain, org); return L.some(x => tropScore(x, org) > 0) ? 1 : tropScore(g.strain, org) < 0 ? -1 : 0; };
 // 실제로 그 기관을 노리는 바이러스면 +20% (전설 +35%), 안 맞는 기관이면 −15%
-const TROP_W = { good: 0.2, leg: 0.3, bad: 0 };   // ★ 마이너스 없음: 안 맞으면 보통, 맞으면 세짐
+const OPT = Object.assign({ newLv: 1, core2: 1 }, window.__OPT || {});   // 밸런스 스위치: 새 카드는 평균 레벨로 · 본체 보너스 ×2 (봇 실험으로 운 차이가 가장 줄어든 조합)
+const TROP_W = { good: OPT.trop35 ? 0.35 : 0.2, leg: OPT.trop35 ? 0.45 : 0.3, bad: 0 };   // ★ 마이너스 없음: 안 맞으면 보통, 맞으면 세짐
 const tropMul = (cards, org) => clamp(1 + [...new Set(cards)].reduce((a, c) => { const t = tropG(c, org); return a + (t > 0 ? (STRAINS[c.strain].legend ? TROP_W.leg : TROP_W.good) : t < 0 ? -TROP_W.bad : 0); }, 0), 1, 1.9);
 const sigOf = st => SIGNATURE[st] || SIGNATURE[(STRAINS[st].parents || [])[0]];
 const STAR = { 1:{ hp:1, spd:1, cnt:1, cd:1, atk:1 }, 2:{ hp:1.5, spd:1.05, cnt:1.25, cd:0.8, atk:1.3 }, 3:{ hp:2.2, spd:1.1, cnt:1.5, cd:0.8, atk:1.7 }, 4:{ hp:2.7, spd:1.14, cnt:1.7, cd:0.75, atk:2.0 }, 5:{ hp:3.3, spd:1.18, cnt:1.9, cd:0.7, atk:2.4 } };
@@ -4780,6 +4781,7 @@ function addCard(g) {
   const same = save.genes.filter(x => x.strain === g.strain && !x.shiny && !x.mut);
   if (same.length && g.star <= Math.max(...same.map(x => x.star))) { const n = shardGain(g.strain) * g.star; save.shards = (save.shards || 0) + n; g.shard = n; return null; }
   if (same.length) { const top = same.sort((a, b) => b.star - a.star)[0]; top.star = g.star; g.mergedTo = top; g.shard = 0; return top; }   // ★ 더 높은 별이 나오면 내 카드가 그 별로 (레벨·재조합 흔적 유지)
+  if (OPT.newLv && !g.lv) { const sq = slotGenes().filter(Boolean); if (sq.length) g.lv = Math.max(1, Math.min(lvCap(), Math.floor(sq.reduce((a, x) => a + (x.lv || 1), 0) / sq.length))); }
   save.genes.push(g); return g;
 }
 // ★ 연속 뽑기: 많이 뽑을수록 싸고, 좋은 카드가 확정으로 섞인다
@@ -4816,7 +4818,7 @@ function questView() {
 const coreTier = () => { const l = coreL(); return l >= 20 ? 3 : l >= 10 ? 2 : l >= 4 ? 1 : 0; };
 const coreCost = (l = coreL()) => Math.round(100 * Math.pow(1.16, l) / 10) * 10;
 // 본체 보너스: 레벨마다 모든 바이러스 체력·공격이 오른다. 오르는 폭이 Lv1 +0.5% → Lv30 +5%로 커진다 (Lv10 +12% · Lv20 +40% · Lv30 +82%)
-const coreInc = l => 0.005 + 0.045 * (l - 1) / 29, coreBonus = (L = coreL()) => { let b = 0; for (let l = 1; l <= L; l++) b += coreInc(l); return b; };
+const coreInc = l => 0.005 + 0.045 * (l - 1) / 29, coreBonus = (L = coreL()) => { let b = 0; for (let l = 1; l <= L; l++) b += coreInc(l); return b * (OPT.core2 ? 2 : 1); };
 /* ---------- DNA 재조합: 동반 칸 카드가 함께 감염 → 게이지 → 주전 카드에 능력 하나 옮겨 심기 ---------- */
 const RC = { mut: 0.1, gain: 0.42, lvComp: 5, lvTrop: 7, lvSkill: 10, core: 0.03, base: 10 };
 const RC_STAT = { atk: '⚔ 공격', hp: '❤ 체력', spd: '💨 속도', count: '🦠 마릿수' };
