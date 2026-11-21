@@ -655,9 +655,9 @@ img.legend { animation: legGlow 3s linear infinite; }
   .rcRow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #3a2a2e; font-size: 13px; text-align: left; } .rcRow > b { width: 56px; font-size: 12px; } .rcRow img { width: 38px; height: 38px; object-fit: contain; } .rcRow small { font-size: 11px; }
   .sortRow .srtT { margin-left: auto; border-color: #6a5030 !important; color: #ffd27a; } .sortRow button small { font-size: 10px; opacity: .7; }
   #sortRail { flex-wrap: nowrap; overflow-x: auto; margin: 3px 0 4px; gap: 4px; } #sortRail button { padding: 3px 6px; font-size: 11.5px; white-space: nowrap; flex: 0 0 auto; }
-  .fmC { padding-bottom: 3px !important; } .cfoot { display: flex; align-items: center; justify-content: center; gap: 3px; margin-top: 2px; flex-wrap: wrap; }
+  .fmC { padding-bottom: 3px !important; } .cfoot { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 3px; } .cfoot > i { height: 16px; display: flex; align-items: center; box-sizing: border-box; white-space: nowrap; }
   .cfoot .rl { font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .5px; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); padding: 0 5px; border-radius: 4px; line-height: 14px; }
-  .cfoot .rl.leg { color: #ffe39a; background: rgba(255, 210, 74, .12); border-color: rgba(255, 210, 74, .5); }
+  .cfoot .rl.leg { color: #ffe39a; background: rgba(255, 210, 74, .12); border-color: rgba(255, 210, 74, .6); padding: 0 4px 0 0; overflow: hidden; } .cfoot .rl.leg em { font-style: normal; background: #e8b83a; color: #3a2400; padding: 0 3px; margin-right: 4px; line-height: 14px; }
   .cfoot .og { font-style: normal; display: flex; gap: 2px; } .cfoot .og u { text-decoration: none; font-size: 10px; color: #a8968c; padding: 0 2px; line-height: 14px; } .cfoot .og u + u::before { content: '·'; margin-right: 2px; color: #5a4a46; } .cfoot .og u.on { color: #b8f28a; font-weight: 700; }
   .fmTag { background: rgba(10, 20, 8, .72) !important; color: #b8f28a !important; border: 1px solid rgba(184, 242, 138, .45); font-weight: 700 !important; letter-spacing: .5px; font-size: 10px !important; } .fmTag.cpT { color: #e0c2ff !important; border-color: rgba(224, 194, 255, .45); background: rgba(30, 12, 40, .72) !important; }
   .fmC small .upA { font-style: normal; color: #8fe06a; margin-left: 2px; font-size: 9px; }
@@ -4028,7 +4028,7 @@ const ui = {
   },
   // 카드 아래: 역할 글자 칩 + 실제로 노리는 기관 (지금 고른 기관이면 초록)
   cardFoot(g) { const D = STRAINS[g.strain], r = ROLES[ROLE_OF[g.strain]], [go] = tropOf(g.strain), cur = save.sel || 'nose';
-    const role = isComp(g) ? '<i class="rl" style="--c:#c58cff">동반</i>' : D.legend ? '<i class="rl leg">전설</i>' : r ? `<i class="rl" style="--c:${r.col}">${r.name.replace('형', '')}</i>` : '';
+    const role = isComp(g) ? '<i class="rl" style="--c:#c58cff">동반</i>' : D.legend && r ? `<i class="rl leg"><em>전설</em><span style="color:${r.col}">${r.name.replace('형', '')}</span></i>` : r ? `<i class="rl" style="--c:${r.col}">${r.name.replace('형', '')}</i>` : '';
     return `<span class="cfoot">${role}<i class="og">${go.slice(0, 2).map(o => `<u class="${o === cur ? 'on' : ''}">${ORG_SHORT[o]}</u>`).join('')}</i></span>`; },
   // 동반으로 두면 주전에게 줄 수 있는 가장 좋은 것
   compBest(g, sq) { let best = null; for (const t of (sq || slotGenes()).filter(Boolean)) { if (t === g) continue; for (const o of rcOptions(g, t)) if (!o.lock && !o.none && (!best || (o.pp || 0) > (best.pp || 0))) best = { ...o, tg: t }; } return best; },
