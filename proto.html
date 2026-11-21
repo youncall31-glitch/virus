@@ -664,7 +664,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmC small .upA { font-style: normal; color: #8fe06a; margin-left: 2px; font-size: 9px; }
   .fmUpA { width: auto !important; height: auto !important; padding: 0 5px; border-radius: 8px !important; font-size: 10.5px !important; line-height: 16px !important; left: 4px !important; top: 44px !important; animation: none !important; }
   html, body { font-synthesis: none; } b, strong, h1, h2, h3 { font-weight: 400; }   /* 주아는 한 굵기라 가짜 굵게를 막는다 */
-  .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
+  .b3ic { font-size: 22px; line-height: 1; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
   /* 카드 테두리: 등급 색 선만 (그림 테두리는 뺌) */
   .fmC { border-width: 2px !important; border-style: solid; margin: 2px; } .fmGrid { gap: 6px !important; }
   .fmC .fmTag, .fmC .fmD { top: 3px !important; left: 3px !important; right: 3px !important; }
@@ -2692,12 +2692,40 @@ function stepMed(dt) {
   const M = R.med;
   if (M.w > 0) { M.w -= dt; const n = Math.ceil(M.w); if (n !== M.last && n > 0) { M.last = n; sfx('beat'); }
     if (M.w <= 0) { if (R.wk && R.boss) R.rings.push({ x: R.boss.x, y: R.boss.y - 40, r: 20, R: Math.hypot(W, H), t: 0.9, color: R.boss.color }); M.d = MED.dur * (R.st.replay ? REPLAY.medDur : 1); R.medN = (R.medN || 0) + 1; if (M.guard) R.medG = (R.medG || 0) + 1; banner(M.guard ? '💊 약효 무력화! 역습 — 공격 ×1.25' : '💊 약효! 바이러스가 약해진다'); if (!M.guard) { shake(5); R.flashT = 0.25; R.flashC = '120,255,140'; } } return; }
-  M.d -= dt; const k = MED.dmg / MED.dur * dt * (M.guard ? MED.guard : 1);
+  M.d -= dt; const k = MED.dmg * (B3 ? 1.6 : 1) / MED.dur * dt * (M.guard ? MED.guard : 1);
   for (const u of R.units) if (u.alive && !u.hero && u.d > 0) damage(u, u.maxHp * k, null);
   if (M.d <= 0) { R.med = null; R.medT = MED.every * (R.st.replay ? REPLAY.medEvery : R.wk ? 0.75 : 1); }
 }
 // ★ 증상 게이지(시제품 proto.html): 길 위에 많이 나와 있을수록 몸이 알아챈다 → 꽉 차면 면역 총공격 → 끝나면 면역이 지친 틈
-const ALARM = /proto/.test(location.pathname) || !!window.__ALARM;
+const ALARM = !!window.__ALARM;
+// ★ 시제품(proto.html): 버튼 4개 — 돌격 · 잠복 · 증식 · 대장 스킬
+const B3 = /proto/.test(location.pathname) || !!window.__B3;
+const HIDE = { max: 5, emerge: 0.4, cd: 5 }, SPR = { cost: 0.15, capUp: 0.15, cd: 3 };
+function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
+  if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
+  else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; }
+  else if (H.st === 'cd') toast(`다시 숨으려면 ${Math.ceil(H.t)}초`); }
+function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (H.st === 'ready') return; H.t -= dt;
+  if (H.t > 0) return;
+  if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; }
+  else if (H.st === 'up') { for (const u of R.units) u.hid = false; H.st = 'cd'; H.t = HIDE.cd; banner('튀어나왔다!'); sfx('breakout'); }
+  else if (H.st === 'cd') { H.st = 'ready'; } }
+function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R.sprCd || 0) > 0) return toast(`증식 준비 중 ${Math.ceil(R.sprCd)}초`);
+  const done = segDone(); if (done >= map.seg.length - 2) return toast('더 넓힐 땅이 없어요');
+  const tot = nestTotal(), cost = Math.max(3, Math.round(nestCap() * SPR.cost)); if (tot < cost) return toast(`둥지에 ${cost}마리가 있어야 증식할 수 있어요`);
+  for (const k in R.nest) R.nest[k] *= 1 - cost / tot;
+  map.seg[done].on = true; purgeContaminated(); R.frontD = Math.max(R.frontD || 0, infFront()); R.capB = (R.capB || 0) + SPR.capUp; R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1;
+  const [x, y] = pathAt(R.frontD); R.rings.push({ x, y, r: 10, R: 90, t: 0.6, color: '#c06ad0' }); sfx('wall'); buzz(25);
+  float(x, y - 40, `오염 +1칸 · 둥지 최대 +${Math.round(SPR.capUp * 100)}% (−${cost}마리)`, '#e8a0ff', 14); }
+function b3Help() { const R = run; R.mutPause = true; paused = true;
+  ui.modal(`<h3 style="margin:2px 0 8px">버튼 4개로 싸워요</h3><div style="text-align:left;font-size:14px;line-height:1.6">
+    <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
+    <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 몸속으로 숨어요. 멈추지만 <b>약도, 탑 공격도 안 맞아요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
+    <b style="color:#e8a0ff">🦠 증식</b> 둥지 바이러스 일부를 써서 오염된 땅을 <b>목표 쪽으로 한 칸</b> 넓혀요. 출발점이 가까워지고 둥지 최대치가 늘어요. 그 땅의 탑은 무너져요.<br>
+    <b style="color:#ffd27a">✨ 대장 스킬</b> 첫 칸 대장의 스킬이에요.<br>
+    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
+    <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
+  $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
 const AL = { gain: 0.045, decay: 14, quiet: 8, warn: 2, dur: 2.5, dmg: 1.2, after: 20, gapDur: 4.5, gapBonus: 1.0, w: { stealth: 0.5, dps: 1.5 },
   org: { nose: 0.8, lung: 0.9, gut: 1, liver: 1, blood: 1.1, skin: 0.85, lymph: 1.2, brain: 1.3 } };
 if (window.__AL) Object.assign(AL, window.__AL);
@@ -2737,13 +2765,13 @@ function drawAlarm(time) { const R = run; if (!ALARM || !R || !R.ta || stealthOn
   ctx.font = `${Math.round(13 * KS)}px Jua, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineWidth = 3; ctx.strokeStyle = '#000';
   const t = gap ? `틈! 지금 돌격 ×${1 + AL.gapBonus}` : R.med ? '면역 총공격!' : `들킴 ${Math.round(v)}%  ·  길 위 ${Math.round(R.alLoad || 0)}`;
   ctx.strokeText(t, x + 6, y + h / 2 + 1); ctx.fillStyle = '#fff'; ctx.fillText(t, x + 6, y + h / 2 + 1); ctx.restore(); }
-function medGuard() { const R = run, M = R && R.med; if (!M || M.guard) return; M.guard = true; float(W / 2, H * 0.32, M.w > 0 ? '🛡 대비 성공! 쿨타임 절반 회복' : '🛡 변이로 버티는 중!', '#9fff6a', 18); buzz(15); }
+function medGuard() { const R = run, M = R && R.med; if (B3 || !M || M.guard) return; M.guard = true; float(W / 2, H * 0.32, M.w > 0 ? '🛡 대비 성공! 쿨타임 절반 회복' : '🛡 변이로 버티는 중!', '#9fff6a', 18); buzz(15); }
 function drawMed(time) { const R = run, M = R && R.med; if (!M) return; ctx.save(); ctx.textAlign = 'center';
   if (M.w > 0) { const n = Math.ceil(M.w), f = M.w - Math.floor(M.w), sc = 1 + 0.5 * f;
     ctx.globalAlpha = 0.85; ctx.fillStyle = 'rgba(20,60,30,.55)'; ctx.fillRect(W / 2 - 130, H * 0.22, 260, 92);
     ctx.globalAlpha = 1; ctx.fillStyle = '#b9ffb0'; ctx.font = 'bold 15px sans-serif'; ctx.fillText(M.al ? '🔥 면역 총공격까지' : '💊 약효 도달까지', W / 2, H * 0.22 + 22);
     ctx.save(); ctx.translate(W / 2, H * 0.22 + 62); ctx.scale(sc, sc); ctx.fillStyle = M.guard ? '#9fff6a' : '#fff'; ctx.font = 'bold 40px sans-serif'; ctx.fillText(n, 0, 0); ctx.restore();
-    ctx.fillStyle = M.guard ? '#9fff6a' : '#ffe2a8'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(M.guard ? '🛡 대비 완료!' : '지금 스킬 쓰면 버팀 + 쿨타임 절반!', W / 2, H * 0.22 + 86); }
+    ctx.fillStyle = M.guard ? '#9fff6a' : '#ffe2a8'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(B3 ? '지금 잠복하면 피해 0!' : M.guard ? '🛡 대비 완료!' : '지금 스킬 쓰면 버팀 + 쿨타임 절반!', W / 2, H * 0.22 + 86); }
   else if (!M.guard) { ctx.globalAlpha = 0.12 + 0.05 * Math.sin(time * 6); ctx.fillStyle = '#5aff7a'; ctx.fillRect(0, 0, W, H); }
   ctx.restore(); }
 // ★ 결전 나팔: 길 위 한 곳을 찍으면 3초간 뒤처진 무리는 빨리(멀수록 더), 앞선 무리는 기다려서 한 덩어리로. 모인 무리는 5초간 공격·감염 ×1.2
@@ -2798,7 +2826,7 @@ function biteTowers(dt) {
   const R = run, P = R.plan; if (!R.towers.length) return;
   // 탑 옆을 지나는 바이러스는 걸음을 늦추고 탑에 달려들어 문다(공격 모션). 한 번 물 때마다 피해
   for (const u of R.units) { if (!u.alive) continue; u.atkT = Math.max(0, (u.atkT || 0) - dt); u.atkCd = Math.max(0, (u.atkCd || 0) - dt); u.biting = Math.max(0, (u.biting || 0) - dt);
-    if (u.atkCd > 0 || R.sb[u.strain].stealth > 0 || R.sb[u.strain].dive || u.decoy) continue;
+    if (u.atkCd > 0 || u.hid || R.sb[u.strain].stealth > 0 || R.sb[u.strain].dive || u.decoy) continue;
     let tg = null, bd = TOWER_HP.near * TOWER_HP.near; for (const t of R.towers) { if (t.converted > 0) continue; const dx = t.x - u.x, dy = t.y - 18 - u.y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; tg = t; } }
     if (!tg) continue;
     const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'tank' ? 1.7 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
@@ -2897,7 +2925,7 @@ function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른
 }
 // ★ 둥지 크기 = 잠입 성과: 잠입 때 감염시킨 길이 길수록 둥지가 커진다 (감염 0% ×1 · 30% ×1.9 · 50% ×2.5)
 const nestZone = () => 1 + 3 * Math.min(0.6, run.sthFrac != null ? run.sthFrac : segDone() / Math.max(1, map.seg.length));
-const nestCap = () => run.groups.reduce((a, g) => a + (g.reawake ? 0 : g.max * NEST.capMul), 0) * nestZone();
+const nestCap = () => run.groups.reduce((a, g) => a + (g.reawake ? 0 : g.max * NEST.capMul), 0) * nestZone() * (1 + (run.capB || 0));
 function stepNest(dt) {
   const R = run; if (!R.nest) return; const zone = nestZone();
   for (const gr of R.groups) { const n = R.nest[gr.strain] || 0; if (n <= 0) continue; const cap = gr.max * NEST.capMul * zone;
@@ -3249,6 +3277,7 @@ function update(dt) {
     // ★ 재생형 고유 능력: 길 위에서 매초 체력 3% 회복
     if (ROLE_OF[u.strain] === 'heal' && u.hp < u.maxHp) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.03 * dt); if (u.gene.passives.includes('wartP')) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.01 * dt);
     let s = (R.mvMul || 1) * (u.mvS || 1) * (u.cil ? (R.fit ? 0.75 : CILIA.slow) : 1) * (u.sq > 0 ? (R.fit ? 0.7 : 0.25) : 1) * (u.slimeT > 0 ? 0.45 : 1) * u.spd * (u.biting > 0 && ROLE_OF[u.strain] !== 'tank' ? 0.55 : 1) * B.spdMul * (B.dive ? 1.3 : 1) * (u.boost > 0 ? 1.3 : 1) * (u.br === 'rabiesA' ? 1 + 0.8 * (1 - u.hp / u.maxHp) : 1);
+    if (u.hid) s = 0;
     if (u.gene.passives.includes('neuroP') && u.d > map.neuroFrom) s *= 1.3;
     if (R.med && R.med.w <= 0 && !R.med.guard && !u.hero) s *= MED.slow;
     // 결전 나팔: 뒤처진 무리는 멀수록 더 빨리, 앞선 무리는 나팔 자리에서 기다림
@@ -3277,7 +3306,7 @@ function update(dt) {
   }
 
   // 탑
-  stepHazard(dt); stepPeri(dt); stepMove(dt); stepAbHorn(dt); stepMed(dt); biteTowers(dt); stepBoss(dt); bossFloor(dt); if (R.calmT > 0) R.calmT -= dt;
+  stepHazard(dt); stepPeri(dt); stepMove(dt); stepAbHorn(dt); stepMed(dt); stepHide(dt); if (run.sprCd > 0) run.sprCd -= dt; biteTowers(dt); stepBoss(dt); bossFloor(dt); if (R.calmT > 0) R.calmT -= dt;
   const sP = Math.min(1.3, 1 + 0.01 * R.alert), sS = Math.min(1.3, 1 + 0.006 * R.alert);
   if ((R.crowdT = (R.crowdT || 0) - dt) <= 0) { R.crowdT = 0.5; const n = R.units.filter(u => u.alive && u.d > 0).length; R.crowd = n > 100 ? Math.min(2, 1 + (n - 100) / 150) : 1; }   // ★ 물량 대응: 무리가 클수록 범위 공격이 더 많이 맞힘
   const conv = R.towers.filter(t => t.converted > 0), slime = R.outposts.filter(o => o.type === 'out_slime'), decoys = R.outposts.filter(o => o.type === 'out_decoy' && o.hp > 0);
@@ -3337,7 +3366,7 @@ function update(dt) {
 }
 const marked = u => u.mark > 0 || (u.vax && !((run.variant || {})[u.strain]));
 function damage(u, dmg, src) {
-  if (!u.alive) return;
+  if (!u.alive || u.hid) return;
   const SB = run.sb[u.strain]; if (SB.dive) return;
   let m = SB.shieldMul * (u.br === 'hpvA' ? 0.8 : 1) * (u.gene.passives.includes('hbsag') ? 0.92 : 1);
   if (u.gene.passives.includes('capsidP')) m *= 0.85;
@@ -3540,7 +3569,7 @@ function render(time) {
         ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(tx, bx, by + 0.5); ctx.restore(); }
       if (n > 1) { const im = outlined(unitImg(u.strain, u.star, u.br, u.mix)), k2 = Math.min(3, n - 1);   // 뒤에 겹친 무리: 작고 어둡게, 좌우로 살짝 비켜서
         for (let q = k2; q >= 1; q--) { const sd = q % 2 ? -1 : 1, off = h * (0.22 + 0.1 * q); ctx.save(); ctx.filter = 'brightness(.62)'; drawSprite(ctx, im, u.x + sd * off, u.y - 2 - q * 3, h * (0.78 - 0.06 * q), 0.95, true); ctx.restore(); } }
-      const a = u.decoy ? 0.6 : u.revealed ? 1 : 0.78, bob = Math.abs(Math.sin(time * 9 + u.wob)) * 1.6;
+      const a = u.hid ? 0.28 : u.decoy ? 0.6 : u.revealed ? 1 : 0.78, bob = Math.abs(Math.sin(time * 9 + u.wob)) * 1.6;
       drawSprite(ctx, outlined(u.decoy && has('decoy_shell') ? IMG.decoy_shell : unitImg(u.strain, u.star, u.br, u.mix)), u.x, u.y - bob + 1.5, u.decoy ? h * 0.8 : h, a, true); ctx.globalAlpha = 1;
       if (n >= 4) { const bx = u.x + h * 0.42, by = u.y - h * 0.92, tx = '×' + n; ctx.save(); ctx.font = "800 11px 'Jua', sans-serif"; const tw = ctx.measureText(tx).width + 10;
         ctx.fillStyle = 'rgba(16,8,10,.88)'; ctx.strokeStyle = SCOLOR[u.strain] || '#ffd27a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx - tw / 2, by - 8, tw, 16, 8) : ctx.rect(bx - tw / 2, by - 8, tw, 16); ctx.fill(); ctx.stroke();
@@ -4489,6 +4518,20 @@ const ui = {
       $('deploy').innerHTML = (run.single ? [] : run.groups).concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
         + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
+    if (run.ta && B3 && nestOn()) { const lead = run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain))[0];
+      $('deploy').innerHTML = (lead ? `<button class="dp v sk2" data-sk="${lead.strain}" aria-label="대장 스킬">${pimg(lead)}<div><b>대장</b><small></small></div><i></i></button>` : '')
+        + `<button class="dp v" id="dpSpr" aria-label="증식"><div class="b3ic">🦠</div><div><b>증식</b><small></small></div><i></i></button>`
+        + `<button class="dp v" id="dpHide" aria-label="잠복"><div class="b3ic">🫥</div><div><b>잠복</b><small></small></div><i></i></button>`
+        + `<button class="dp v atk" id="dpAll" aria-label="돌격"><div><b style="font-size:13px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div><i></i></button>`;
+      $('dpAll').onclick = () => { if (run.endAt) return; breakout(); ui.tickDeploy(); };
+      $('dpHide').onclick = () => { hideTap(); ui.tickDeploy(); };
+      $('dpSpr').onclick = () => { spreadTap(); ui.tickDeploy(); };
+      $('deploy').querySelectorAll('.sk2').forEach(b => { b.onclick = () => { if (b.lp) { b.lp = false; return; } if (!stealthOn()) castSkill(b.dataset.sk); ui.tickDeploy(); };
+        b.onpointerdown = () => { clearTimeout(b.lt); b.lt = setTimeout(() => { b.lp = true; skillPop(run.skillGenes.find(x => x.strain === b.dataset.sk), b); buzz(15); }, 420); };
+        b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(b.lt); b.oncontextmenu = e => e.preventDefault(); });
+      $('hint').textContent = '❓ 버튼 설명 · 💊 약 경고 → 잠복 · 둥지 가득 → 돌격 또는 증식'; $('hint').onclick = () => { if (run && !run.over) b3Help(); };
+      if (!(save.tips || {}).b3 && !window.__botMut) setTimeout(() => run && !run.over && b3Help(), 400);
+      return; }
     if (run.ta) {
       const hOK = unlocked('hero'), oOK = unlocked('out');
       $('deploy').innerHTML = (hOK ? `<button class="dp v hero" id="dpHero" aria-label="슈퍼바이러스">${pimg(hg)}<div><b>${HEROES[hg.strain].name}</b><small></small></div></button>` : '')
@@ -4540,7 +4583,12 @@ const ui = {
         hb.querySelector('small').textContent = !run.hero.out ? '탭: 출격' : hu && hu.alive ? (hcd > 0 ? `캡슐 ${Math.ceil(hcd)}s` : '탭: 캡슐') : run.heroDone ? '침투 성공' : '쓰러짐'; }
       const mb = $('dpMut'); if (mb) { const tg = run.towers.filter(t => t.spec).length + (save.host >= 2 && save.vax && !run.variant[save.vax] ? 1 : 0); mb.hidden = !tg; mb.className = 'dp v' + (tg ? ' full' : ''); mb.querySelector('small').textContent = tg ? `노림 ${tg}` : '대기'; }
       $('deploy').querySelectorAll('.sk2').forEach(b => { const st = b.dataset.sk, g = run.skillGenes.find(x => x.strain === st), cd = run.cds[st] || 0, full = geneStats(g).cd; b.className = 'dp v sk2' + (cd <= 0 ? ' full' : '') + (cd <= 0 && run.med && !run.med.guard ? ' medGo' : ''); b.querySelector('small').textContent = cd > 0 ? `${Math.ceil(cd)}초` : '탭: 발동'; b.querySelector('i').style.width = ((1 - cd / full) * 100) + '%'; });
-      const ab = $('dpAll'); if (ab && nestOn()) { const t = Math.floor(nestTotal()); ab.querySelector('small').textContent = `둥지 ${t}/${Math.round(nestCap())}`; ab.classList.toggle('gapOn', gap && t > 0); }
+      const ab = $('dpAll'); if (ab && nestOn()) { const t = Math.floor(nestTotal()), cp = Math.round(nestCap()); ab.querySelector('small').textContent = `둥지 ${t}/${cp}`; ab.classList.toggle('gapOn', gap && t > 0); const ai = ab.querySelector('i'); if (ai) ai.style.width = Math.min(100, t / Math.max(1, cp) * 100) + '%'; ab.classList.toggle('full', t >= cp * 0.98); }
+      if (B3) { const hb2 = $('dpHide'); if (hb2) { const H = run.hd || { st: 'ready', t: 0 }; hb2.className = 'dp v' + (H.st === 'ready' ? (run.med && run.med.w > 0 ? ' gapOn' : ' full') : H.st === 'hid' ? ' go' : ' done');
+          hb2.querySelector('small').textContent = H.st === 'ready' ? (run.med && run.med.w > 0 ? '지금!' : '탭: 숨기') : H.st === 'hid' ? `숨음 ${H.t.toFixed(1)}s · 탭: 나오기` : H.st === 'up' ? '나오는 중' : `다시 ${Math.ceil(H.t)}s`;
+          hb2.querySelector('i').style.width = (H.st === 'hid' ? H.t / HIDE.max : H.st === 'cd' ? 1 - H.t / HIDE.cd : H.st === 'ready' ? 1 : 0) * 100 + '%'; }
+        const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd || 0, cost = Math.max(3, Math.round(nestCap() * SPR.cost)), ok = cd <= 0 && nestTotal() >= cost;
+          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = cd > 0 ? `${Math.ceil(cd)}s` : `−${cost}마리 · +1칸`; sb2.querySelector('i').style.width = (1 - cd / SPR.cd) * 100 + '%'; } }
       const ob = $('dpOut'); if (ob) { ob.className = 'dp v' + (placing ? ' gapOn' : run.outLeft ? '' : ' done'); ob.querySelector('small').textContent = `남은 ${run.outLeft}`; }
       return; }
     $('deploy').querySelectorAll('.dp[data-i]').forEach(b => { const g = run.groups[+b.dataset.i], n = g.list.length;
