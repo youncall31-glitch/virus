@@ -2044,7 +2044,7 @@ function stageInfo(organ) {
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
   const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm * (save.tutDone && save.host === 0 ? HOST0_T[organ.id] || 1 : 1) * failEase(organ.id);   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? calK(save.host, organ.id) : 0.02) * (B3 && save.tutDone ? 0.7 : 1) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? calK(save.host, organ.id) : 0.02) * (B3 && save.tutDone ? 0.6 : 1) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (mapTypeOf(organ, MAP_VARIANT) === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
@@ -3063,7 +3063,7 @@ function startRun() {
   if (save.host >= 2) for (const sx of (save.mem || [])) { if (!strains.includes(sx) || !plan.slots.length) continue;
     const mid = map.len * 0.45, sl = plan.slots.sort((a, b) => Math.abs(a.d - mid) - Math.abs(b.d - mid))[0]; plan.slots = plan.slots.filter(c => c !== sl);
     const t = makeTower('tcell', sl.s[0], sl.s[1], st); t.spec = sx; t.specV = 0; t.memory = true; towers.push(t); plan.built++; }
-  if (TA()) { run.ta = true; run.T = Math.round(timeLimit(organ) * mapTimeK); run.mapTimeK = mapTimeK; run.antiviral = save.host === 1 ? [0.35, 0.7] : []; run.gapT = 8; run.gap = 0; run.released = 0; for (const g of groups) { g.list = []; } }
+  if (TA()) { run.ta = true; run.T = Math.round(timeLimit(organ) * mapTimeK * (B3 ? 1.4 : 1.3)); run.mapTimeK = mapTimeK; run.antiviral = save.host === 1 ? [0.35, 0.7] : []; run.gapT = 8; run.gap = 0; run.released = 0; for (const g of groups) { g.list = []; } }
   if (wk) { run.wk = { def: wk, dmg: 0, cells: 0, sh: 0 }; run.T = WK.time; st.quota = 1e9; }
   aiming = null; placing = null; paused = false;
   if (run.ta) initStealth();
