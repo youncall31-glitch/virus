@@ -985,7 +985,7 @@ const TROP = {
   vaccinia: [['skin'], []], wpv: [['gut', 'brain'], []], sweat: [['lung', 'blood'], []],
   yamagata: [['nose', 'lung'], ['blood']], h2n2: [['lung', 'nose'], ['gut']], rinderpest: [['gut', 'lymph'], ['brain']], sars: [['lung', 'nose'], ['skin']],
 };
-// ★ 전설은 '고향' 기관에선 아주 세지만(+35%) 그 밖의 모든 기관에선 위험(−15%)
+// ★ 궁합은 '이 기관을 노리는 카드 1장당 +20% (전설 +30%)'. 안 맞아도 깎이지 않음
 const ALL_ORG = ['nose', 'lung', 'gut', 'liver', 'blood', 'skin', 'lymph', 'brain'];
 function tropOf(st) { const t = tropOf0(st), d = STRAINS[st]; return d && d.legend ? [t[0], ALL_ORG.filter(o => !t[0].includes(o))] : t; }
 function tropOf0(st) { if (TROP[st]) return TROP[st]; const d = STRAINS[st]; if (d && d.parents) { const ps = d.parents.map(tropOf0); return [[...new Set(ps.flatMap(p => p[0]))], [...new Set(ps.flatMap(p => p[1]))].filter(o => !ps.some(p => p[0].includes(o)))]; } return [[], []]; }
@@ -993,8 +993,8 @@ const tropScore = (st, org) => { const [g, b] = tropOf(st); return g.includes(or
 // 궁합은 주 계통 + 붙은 계통 둘에서만 물려받음 (모든 기관 만능 방지)
 const tropG = (g, org) => { if (g.rc && g.rc.tr && g.rc.tr.includes(org)) return 1; const L = [g.strain, g.mix].filter(Boolean); if (L.length < 2) return tropScore(g.strain, org); return L.some(x => tropScore(x, org) > 0) ? 1 : tropScore(g.strain, org) < 0 ? -1 : 0; };
 // 실제로 그 기관을 노리는 바이러스면 +20% (전설 +35%), 안 맞는 기관이면 −15%
-const TROP_W = { good: 0.2, leg: 0.35, bad: 0.15 };
-const tropMul = (cards, org) => clamp(1 + [...new Set(cards)].reduce((a, c) => { const t = tropG(c, org); return a + (t > 0 ? (STRAINS[c.strain].legend ? TROP_W.leg : TROP_W.good) : t < 0 ? -TROP_W.bad : 0); }, 0), 0.6, 1.7);
+const TROP_W = { good: 0.2, leg: 0.3, bad: 0 };   // ★ 마이너스 없음: 안 맞으면 보통, 맞으면 세짐
+const tropMul = (cards, org) => clamp(1 + [...new Set(cards)].reduce((a, c) => { const t = tropG(c, org); return a + (t > 0 ? (STRAINS[c.strain].legend ? TROP_W.leg : TROP_W.good) : t < 0 ? -TROP_W.bad : 0); }, 0), 1, 1.9);
 const sigOf = st => SIGNATURE[st] || SIGNATURE[(STRAINS[st].parents || [])[0]];
 const STAR = { 1:{ hp:1, spd:1, cnt:1, cd:1, atk:1 }, 2:{ hp:1.5, spd:1.05, cnt:1.25, cd:0.8, atk:1.3 }, 3:{ hp:2.2, spd:1.1, cnt:1.5, cd:0.8, atk:1.7 }, 4:{ hp:2.7, spd:1.14, cnt:1.7, cd:0.75, atk:2.0 }, 5:{ hp:3.3, spd:1.18, cnt:1.9, cd:0.7, atk:2.4 } };
 
@@ -1035,8 +1035,8 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.67, lung: 0.64, gut: 1.11, liver: 0.95, blood: 1.19, skin: 0.39, lymph: 2.13, brain: 7.7 },
-  1: { nose: 2.2, lung: 1.47, gut: 1.04, liver: 1.79, blood: 1.48, skin: 0.72, lymph: 1.51, brain: 1.41 } };
+const CAL = { 0: { nose: 0.42, lung: 0.5, gut: 0.71, liver: 0.77, blood: 0.75, skin: 0.33, lymph: 1.08, brain: 6.36 },
+  1: { nose: 1.92, lung: 2.05, gut: 1.47, liver: 1.85, blood: 1.51, skin: 0.47, lymph: 0.8, brain: 1.7 } };
 const calK = (h, o) => (CAL[h] || {})[o] || 1;
 const HOST_Q = [1.8, 4.8, 5.8, 6.8];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
@@ -2990,7 +2990,7 @@ function startRun() {
   const cards = slotFill(); if (!cards.length) return toast('연구소에서 내 바이러스에 카드를 꽂아 주세요');
   const genes = TA() ? [buildMine(cards)] : cards;
   const cfx = TA() ? compFx(compGene()) : null; if (cfx) { if (cfx.cnt) STRAINS.mine.count *= cfx.cnt; if (cfx.atk) STRAINS.mine.atk *= cfx.atk; if (cfx.hp) STRAINS.mine.hp *= cfx.hp; }
-  const fit = TA() && fitSq(organ.id, slotGenes().filter(Boolean)); if (fit) { STRAINS.mine.atk *= FIT_MUL; STRAINS.mine.hp *= FIT_MUL; }
+  const fit = false;   // 예전 '기관 적성(역할) +40%'는 궁합 하나로 합침
   const trop = TA() ? tropMul(cards, organ.id) : 1; STRAINS.mine.atk *= trop; STRAINS.mine.hp *= trop;   // 기관 궁합
   const st = stageInfo(organ);
   // ★ 이미 정복한 기관 다시 하기: 매번 다른 길 · 보스 없음 · 탑 체력 −20% · 약 투여 뜸하게 · DNA 85%
@@ -3029,8 +3029,8 @@ function startRun() {
   if (run.ta) initStealth();
   // ★ 내성형 고유 능력: 어느 기관에서든 몸의 반응(밀기·녹이기·길 막기)을 절반만 받음
   run.cfx = cfx; run.cfxT = cfx && cfx.stun ? cfx.stun : 0;
-  run.fitTrue = fit; run.fit = fit || ROLE_OF.mine === 'tank'; run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); initBoss(); run.parts = []; initPeri();
-  const r0 = run; if (TA()) setTimeout(() => run === r0 && !run.over && float(W / 2, H * 0.36, (fit ? `타입 딱 맞음! 힘 +40%` : `${(ROLES[(ORGAN_FIT[organ.id] || {}).role] || {}).name || '-'} 카드가 있으면 유리해요`) + (trop !== 1 ? ` · 궁합 ${trop > 1 ? '+' : ''}${Math.round((trop - 1) * 100)}%` : ''), fit || trop > 1 ? '#9fff6a' : '#ffd27a', 15), 900);
+  run.fitTrue = trop > 1; run.fit = trop > 1;   // 이 기관을 노리는 카드가 있으면 기관 장치(연동·판막 등)도 덜 받는다 run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); initBoss(); run.parts = []; initPeri();
+  const r0 = run; if (TA()) setTimeout(() => run === r0 && !run.over && float(W / 2, H * 0.36, (trop > 1 ? `🧬 기관 궁합 +${Math.round((trop - 1) * 100)}%` : `이 기관을 노리는 바이러스가 있으면 더 세져요`), trop > 1 ? '#9fff6a' : '#ffd27a', 15), 900);
   ui.showRun(); tutStart();
   if (st.legs.length) { banner('지난번에 남긴 흔적이 도와줘요!'); st.legs.forEach((l, i) => setTimeout(() => run && float(W / 2, H * 0.42 + i * 26, `✅ ${l.text} (${LEGACY[l.s].name})`, '#b9f27a', 15), 300 + i * 350)); }
 }
@@ -4100,7 +4100,7 @@ const ui = {
     return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} <span style="color:${RARITY[D.rarity].color}">${stars(g.star)}</span> <small>Lv${g.lv || 1}</small></b>
       <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · 들어갈 칸 <b style="color:#9fd8ff">${D.legend ? '어느 칸이든' : `🛡내성${(ROLE_SLOT[rk] || []).filter(i => i > 0).map(i => ' · ' + SLOT_ICON[i] + SLOT_NAME[i]).join('')}`}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
       <div class="fcGr">${gr}</div>
-      ${(() => { const [go, bo] = tropOf(g.strain); return `<div class="fcSk">🏠 실제로 노리는 곳 <b style="color:#9fff6a">${go.map(o => ORG_SHORT[o]).join('·') || '-'}</b> ${D.legend ? `+${Math.round(TROP_W.leg * 100)}%<br><span style="color:#ff9a8a">⚠ 전설의 위험: 그 밖의 모든 기관에선 −${Math.round(TROP_W.bad * 100)}%</span>` : `+${Math.round(TROP_W.good * 100)}%${bo.length ? ` · <span style="color:#ff9a8a">안 맞는 곳 ${bo.map(o => ORG_SHORT[o]).join('·')} −${Math.round(TROP_W.bad * 100)}%</span>` : ''}`}</div>`; })()}
+      ${(() => { const [go, bo] = tropOf(g.strain); return `<div class="fcSk">🏠 실제로 노리는 곳 <b style="color:#9fff6a">${go.map(o => ORG_SHORT[o]).join('·') || '-'}</b> +${Math.round((D.legend ? TROP_W.leg : TROP_W.good) * 100)}% <small style="color:#b59f86">(그 밖의 기관에선 보통)</small></div>`; })()}
       <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>번식·지원 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
       ${D.legend ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반으로 데려가도 돼요: ✨ ${LEG_COMP.name} — ${LEG_COMP.desc} · 정위치 ${SLOT_NAME[(ROLE_SLOT[rk] || [0])[0]]} +${Math.round(ROLE_BONUS * 100)}% / 다른 칸 −${Math.round(LEG_OFF * 100)}%</div>` : ''}
       ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
@@ -4314,8 +4314,8 @@ const ui = {
     const f = ORGAN_FIT[org], cards = slotFill(), owned = new Set(save.genes.map(g => g.strain));
     const good = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && !STRAINS[k].hybrid && tropScore(k, org) > 0 && owned.has(k));
     if (!cards.length) return '';
-    const ok = fitSq(org, cards), m = tropMul(cards, org), tot = Math.round(((ok ? FIT_MUL : 1) * m - 1) * 100);
-    const tips = [f && !ok ? `${roleBadge0(f.role)}<b>${ROLES[f.role].name}</b> 카드를 편성에` : '', good.length && m < 1.3 ? `<b>${good.slice(0, 3).map(sname).join('·')}</b> 꽂기` : ''].filter(Boolean);
+    const m = tropMul(cards, org), tot = Math.round((m - 1) * 100);
+    const tips = [good.length && m < 1.3 ? `<b>${good.slice(0, 3).map(sname).join('·')}</b> 꽂기` : ''].filter(Boolean);
     return `<div class="fitBox"><b style="font-size:14px">🧬 궁합 <span style="color:${tot > 0 ? '#9fff6a' : tot < 0 ? '#ff9c8a' : '#eadcc2'}">${tot >= 0 ? '+' : ''}${tot}%</span></b>${tips.length ? `<span> · 더 세지려면: ${tips.join(', ')}</span>` : ' <span>· 최고 궁합!</span>'}</div>`;
   },
   tropHtml(org) {
@@ -4591,7 +4591,7 @@ const ui = {
     const tip = win ? (R.starCond && !R.starCond[1] ? '보초에게 안 들키고 숨어들면 별을 하나 더 받아요.' : R.starCond && !R.starCond[2] ? '시간을 30% 넘게 남기고 이기면 별을 하나 더 받아요.' : '인체 지도에서 다음 기관을 골라 보세요.')
       : upCount() >= 2 ? `지금 DNA로 편성 카드를 <b>${upCount()}번 강화</b>할 수 있어요! 연구소에서 카드를 눌러 <b>강화</b>하면 훨씬 세져요.`
       : (R.trop || 1) < 1 ? `꽂은 카드 중에 <b>${ORG_SHORT[R.st.organ.id]}에 안 먹히는 바이러스</b>가 있어요. 지도에서 '잘 먹히는 바이러스'를 확인해 보세요.`
-      : !R.fitTrue && fitRole ? `이 기관은 <b>${fitRole}</b> 카드가 편성에 있으면 유리해요 (+40%).`
+      : !R.fitTrue && fitRole ? `이 기관을 노리는 바이러스를 넣으면 1장당 +${Math.round(TROP_W.good * 100)}%예요.`
       : R.sth && R.sth.caught ? '숨어들 때 들켰어요. 노란 부채꼴(보초 시야) 안에서는 멈춰 있으세요.'
       : pct < 50 ? '연구소에서 DNA로 카드를 강화하면 훨씬 세져요.' : '거의 다 왔어요! 화면 테두리가 초록색일 때 돌격하면 더 세요.';
     // ★ 결과 화면: 한 화면에. 제목 → 별 → 보상 한 칸 → 꼭 알아야 할 것 한두 줄 → 버튼
@@ -4862,7 +4862,7 @@ document.addEventListener('pointerup', e => dragEnd(e));
 document.addEventListener('dragstart', e => { if (e.target.closest && e.target.closest('#viewLab')) e.preventDefault(); });
 document.addEventListener('pointercancel', e => dragEnd(e, true));
 // ★ 장착 연출: 카드를 꽂거나 본체를 강화하면 가운데에 본체가 크게 떠서, 바뀐 모습과 숫자를 보여 준다 (누르면 바로 닫힘)
-function matchTotal(cards, org) { const f = ORGAN_FIT[org]; if (!cards.length) return 0; const ok = fitSq(org, cards); return Math.round(((ok ? FIT_MUL : 1) * tropMul(cards, org) - 1) * 100); }
+function matchTotal(cards, org) { if (!cards.length) return 0; return Math.round((tropMul(cards, org) - 1) * 100); }
 function snapMine() { const c = slotFill(); if (!c.length) return null; const ms = mineStats(c); return { img: imgSrc(ms.img, 'assets/rhino.png'), s: { ...ms.s }, match: matchTotal(c, save.sel || 'nose'), tier: coreTier() }; }
 function equipFx(before, o = {}) {
   const after = snapMine(); if (!after) return; const old = $('eqFx'); if (old) old.remove();
@@ -5101,7 +5101,7 @@ function autoSquad() {
   let best = null, bk = null;
   for (const a of opt(P0)) for (const c of opt(P1)) for (const k of opt(P2)) for (const d of opt(P3)) {
     const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap()) continue;
-    const f = fitSq(org, u) ? 1 : 0, tr = u.reduce((t, g) => t + tropScore(g.strain, org), 0), z = cs.map(g => g ? S.get(g) : null), x = z[0] || z.find(Boolean);
+    const f = 0, tr = u.reduce((t, g) => t + Math.max(0, tropScore(g.strain, org)), 0), z = cs.map(g => g ? S.get(g) : null), x = z[0] || z.find(Boolean);
     if (!x) continue; const y = z[1] || x, w = z[2] || x, hp = x.hp * 0.6 + y.hp * 0.2 + w.hp * 0.2, atk = x.atk * 0.2 + y.atk * 0.2 + w.atk * 0.6, spd = x.spd * 0.2 + y.spd * 0.6 + w.spd * 0.2, cnt = Math.min(260, z.reduce((t, q) => t + (q ? q.count : 0), 0));
     const pw = atk * cnt * Math.sqrt(hp) * Math.sqrt(spd) * clamp(1 + 0.15 * tr, 0.7, 1.45), key = [f, tr, pw];
     if (!bk || key[0] > bk[0] || (key[0] === bk[0] && (key[1] > bk[1] || (key[1] === bk[1] && key[2] > bk[2])))) { bk = key; best = cs; } }
@@ -5140,10 +5140,10 @@ $('bAuto').onclick = () => {
   const old = JSON.stringify(save.squad); autoSquad(); persist(); ui.showHub('lab'); const org = organById(save.sel || 'nose'), f = ORGAN_FIT[org.id], sq = slotGenes(), cap = lvCap();
   const rows = [0, 3, 1, 2].filter(slotOpen).map(i => { const g = sq[i]; if (!g) return `<div class="rcRow"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]}</b><span style="color:#ff9a8a">비어 있음 · 이 칸에 맞는 카드가 없어요</span></div>`;
     const t = tropScore(g.strain, org.id), lw = (g.lv || 1) < cap - 1;
-    return `<div class="rcRow"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]}</b>${pimg(g)}<span>${sname(g.strain)} <small>${stars(g.star)}</small><br><small>${t > 0 ? '<em style="color:#9fff6a">🏠 이 기관을 노리는 바이러스</em>' : t < 0 ? '<em style="color:#ff9a8a">⚠ 이 기관엔 안 맞음</em>' : '보통'} · Lv${g.lv || 1}/${cap}${lw ? ' <b style="color:#ffd24a">▲ 강화 필요</b>' : ''}</small></span></div>`; }).join('');
+    return `<div class="rcRow"><b>${SLOT_ICON[i]} ${SLOT_NAME[i]}</b>${pimg(g)}<span>${sname(g.strain)} <small>${stars(g.star)}</small><br><small>${t > 0 ? `<em style="color:#9fff6a">🏠 이 기관을 노림 +${Math.round((STRAINS[g.strain].legend ? TROP_W.leg : TROP_W.good) * 100)}%</em>` : '보통'} · Lv${g.lv || 1}/${cap}${lw ? ' <b style="color:#ffd24a">▲ 강화 필요</b>' : ''}</small></span></div>`; }).join('');
   const fitOk = fitSq(org.id, sq.filter(Boolean)), low = sq.filter(g => g && (g.lv || 1) < cap - 1);
   ui.modal(`<h3 style="margin:0 0 4px">⭐ ${org.name} 추천 조합</h3><div class="sub">① 기관 궁합 → ② 이 기관을 노리는 바이러스 → ③ 전투력 순으로 골랐어요</div>
-    <div class="fcSk" style="margin:6px 0">${fitOk ? `✅ 궁합 맞음: ${roleBadge0(f.role)}<b>${ROLES[f.role].name}</b> 카드가 있어요 (+40%)` : `❌ 궁합 없음: ${f ? `${roleBadge0(f.role)}<b>${ROLES[f.role].name}</b> 카드가 없어요. 뽑기로 구해 보세요` : ''}`}</div>${rows}
+    <div class="fcSk" style="margin:6px 0">${(() => { const n = sq.filter(g => g && tropScore(g.strain, org.id) > 0).length, t = Math.round((tropMul(sq.filter(Boolean), org.id) - 1) * 100); return n ? `🧬 궁합 +${t}%: 이 기관을 노리는 카드 ${n}장` : `🧬 궁합 0%: 이 기관을 노리는 카드가 없어요. 있으면 1장당 +${Math.round(TROP_W.good * 100)}%`; })()}</div>${rows}
     ${low.length ? `<div class="sub" style="margin-top:6px;color:#ffd24a">▲ ${low.length}장이 본체 레벨(Lv${cap})보다 낮아요. 강화하면 훨씬 세져요!</div>` : ''}
     <div class="row">${low.length ? '<button class="btn green" id="rcUp">▲ 강화하러 가기</button>' : ''}<button class="btn" id="rcOk">${old === JSON.stringify(save.squad) ? '확인 (이미 추천 조합)' : '좋아요'}</button></div>`);
   $('rcOk').onclick = ui.closeModal; if ($('rcUp')) $('rcUp').onclick = () => { ui.closeModal(); ui.fmPick = low.sort((a, b) => (a.lv || 1) - (b.lv || 1))[0].uid; ui.renderRails(); };
