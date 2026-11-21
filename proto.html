@@ -1035,8 +1035,10 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.42, lung: 0.5, gut: 0.71, liver: 0.77, blood: 0.75, skin: 0.33, lymph: 1.08, brain: 6.36 },
-  1: { nose: 1.92, lung: 2.05, gut: 1.47, liver: 1.85, blood: 1.51, skin: 0.47, lymph: 0.8, brain: 1.7 } };
+const CAL = { 0: { nose: 0.42, lung: 0.49, gut: 0.8, liver: 0.85, blood: 0.66, skin: 0.42, lymph: 1.41, brain: 5.69 },
+  1: { nose: 1.56, lung: 1.24, gut: 0.74, liver: 1.74, blood: 0.88, skin: 0.48, lymph: 1.03, brain: 1.32 },
+  2: { nose: 0.9, lung: 1.11, gut: 1.65, liver: 1.43, blood: 0.78, skin: 0.58, lymph: 0.75, brain: 1.41 },
+  3: { nose: 1.82, lung: 1.09, gut: 0.91, liver: 2.15, blood: 1.06, skin: 0.8, lymph: 0.79, brain: 1.51 } };
 const calK = (h, o) => (CAL[h] || {})[o] || 1;
 const HOST_Q = [1.8, 4.8, 5.8, 6.8];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
@@ -3434,6 +3436,11 @@ function endRun() {
     const first = !save.done[st.organ.id]; R.tix = first ? { t10: TIX.first } : { t1: TIX.replay }; if (st.organ.id === 'brain' && first) R.tix.t10 = (R.tix.t10 || 0) + TIX.host;
     save.t1 = (save.t1 || 0) + (R.tix.t1 || 0); save.t10 = (save.t10 || 0) + (R.tix.t10 || 0); { R.tix.sh = first ? TIX.firstShard : TIX.replayShard; save.shards = (save.shards || 0) + R.tix.sh; }
     save.done[st.organ.id] = true;
+    if (first) { // ★ 첫 정복 선물: 다음 기관을 노리는 바이러스 1장 (뽑기 운에 덜 휘둘리게)
+      const oi = ORGANS.findIndex(o => o.id === st.organ.id), nx = ORGANS[(oi + 1) % ORGANS.length].id, owned = new Set(save.genes.map(g => g.strain));
+      const cand = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && !STRAINS[k].hybrid && !STRAINS[k].legend && !STRAINS[k].comp && STRAINS[k].rarity <= 1 && tropScore(k, nx) > 0);
+      const fresh = cand.filter(k => !owned.has(k)), pool = fresh.length ? fresh : cand;
+      if (pool.length) { const k = pool[Math.floor(Math.random() * pool.length)], r = addCard(newGene(k, 1)); R.giftCard = { k, nx, shard: !r }; } }
     let lead = R.dominant || Object.entries(R.infCnt).sort((a, b) => b[1] - a[1])[0]?.[0]; if (lead === 'mine') lead = R.bodyStrain;
     if (lead && LEG_FX[lead] && LEGACY[lead] && st.organ.id !== 'brain') { save.legacy[st.organ.id] = lead; R.legacyNew = lead; }
     if (st.organ.id === 'brain') { ending = decideEnding(); ending.isNew = !save.codex[ending.id]; save.codex[ending.id] = true; hostDone = true;
@@ -4600,6 +4607,7 @@ const ui = {
     const notes = [
       ending ? `🏁 엔딩 ${ending.isNew ? '새로 열림' : ''}: <b>${ending.name}</b>${hostDone && save.host > 0 ? ` · 다음 사람(${HOSTS[save.host].name})으로! ${hostRule().icon} ${hostRule().title}` : ''}` : '',
       R.newUnlocks && R.newUnlocks.length ? `🔓 새 기능: <b>${R.newUnlocks.join(' · ')}</b>` : '',
+      R.giftCard ? `🎁 다음 기관(<b>${organById(R.giftCard.nx).name}</b>)을 노리는 <b>${sname(R.giftCard.k)}</b> 획득${R.giftCard.shard ? ' (이미 있어 흔적으로)' : ''}` : '',
       R.legacyNew ? `✅ 다음 판 도움: <b>${LEGACY[R.legacyNew].help}</b>` : '',
       win && !hostDone && save.done[R.st.organ.id] ? `🚨 몸이 눈치챘어요 · 다음 기관 면역 탑 <b>+${Math.round(ALERT_STEP * 100)}%</b>` : '',
     ].filter(Boolean);
