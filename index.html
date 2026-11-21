@@ -2762,7 +2762,7 @@ function b3Help() { const R = run; R.mutPause = true; paused = true;
     <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
     <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 몸속으로 숨어요. 멈추지만 <b>약도, 탑 공격도 안 맞아요</b>. 숨어 있는 동안 <b>1초마다 땅속 오염이 숨은 무리 쪽으로 한 칸</b> 번지고, 겹친 탑은 무너져요. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
     <b style="color:#e8a0ff">🦠 증식</b> 둥지 최대치의 ${Math.round(SPR.cost * 100)}%를 써서 오염된 땅을 <b>목표 쪽으로 ${SPR.tiles}칸</b> 넓혀요. 최대치 +${Math.round(SPR.capUp * 100)}%, 공격 +${Math.round(SPR.atkUp * 100)}% (계속 쌓임). 대신 ${SPR.slowT}초 동안 모이는 속도가 ${Math.round(SPR.slow * 100)}%로 줄고, 그 뒤 ${SPR.fastT}초는 빠르게 차요. 그 땅의 탑은 무너져요.<br>
-    <b style="color:#ffd27a">✨ 대장 스킬</b> 첫 칸 대장의 스킬이에요.<br>
+    <b style="color:#ffd27a">✨ 본체 스킬</b> 내 본체 바이러스의 스킬이에요.<br>
     <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
@@ -4561,8 +4561,8 @@ const ui = {
       $('deploy').innerHTML = (run.single ? [] : run.groups).concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
         + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
-    if (run.ta && B3 && nestOn()) { const lead = run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain))[0];
-      $('deploy').innerHTML = (lead ? `<button class="dp v sk2" data-sk="${lead.strain}" aria-label="대장 스킬">${pimg(lead)}<div><b>대장</b><small></small></div><i></i></button>` : '')
+    if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
+      $('deploy').innerHTML = (lead ? `<button class="dp v sk2" data-sk="${lead.strain}" aria-label="대장 스킬">${pimg(lead)}<div><b>${cs && lead.strain === cs ? '본체' : '대장'}</b><small></small></div><i></i></button>` : '')
         + `<button class="dp v" id="dpSpr" aria-label="증식"><div class="b3ic">🦠</div><div><b>증식</b><small></small></div><i></i></button>`
         + `<button class="dp v" id="dpHide" aria-label="잠복"><div class="b3ic">🫥</div><div><b>잠복</b><small></small></div><i></i></button>`
         + `<button class="dp v atk" id="dpAll" aria-label="돌격"><div><b style="font-size:13px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div><i></i></button>`;
