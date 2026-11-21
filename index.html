@@ -2555,7 +2555,7 @@ function stealthEnd(why, voluntary) {
     const d = nearestOnPath(S.x, S.y).d; immuneBuild(d - 60); immuneBuild(d - 60); R.plan.next = 1; }
   if (safe) { const n = nearestOnPath(T.scout.x, T.scout.y), u = spawnUnit(T.lead, { d: n.d, lane: clamp(n.off, -14, 14) }); }
   $('goalLbl').textContent = R.st.qm < 1 ? `감염 (목표 −${Math.round((1 - R.st.qm) * 100)}%)` : '감염'; $('goalBar').classList.remove('alarm');
-  $('hint').textContent = `스킬 카드를 길게 누르면 설명 · 초록 테두리 때 돌격 +30%`;
+  $('hint').textContent = ALARM ? `많이 내보낼수록 들켜요 · 총공격 뒤 초록 틈에 돌격 ×${1 + AL.gapBonus}` : `스킬 카드를 길게 누르면 설명 · 초록 테두리 때 돌격 +30%`;
   ui.renderDeploy(); ui.tick();
 }
 function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
@@ -2670,6 +2670,7 @@ const AB = { life: 4, step: 0.1, cap: 0.3 };
 // 카운트다운 중에 쓴 스킬은 쿨타임 절반 돌려받음 → 아무 때나 막 쓰기보다 타이밍을 맞추는 게 이득. 버티면 약효 동안 '역습' 공격 ×1.25
 const MED = { every: 12, first: 10, warn: 3, dur: 4, dmg: 0.6, slow: 0.6, guard: 0, refund: 0.5, counter: 1.25 };
 function stepMed(dt) {
+  if (ALARM) return stepAlarm(dt);
   const R = run; if (!R.ta || R.over || R.endAt || stealthOn() || !save.tutDone) return;
   if (!R.med) { R.medT = (R.medT ?? MED.first) - dt; if (R.medT <= 0 && R.units.filter(u => u.alive && !u.hero && u.d > 0).length < 5) R.medT = 0.5; if (R.medT <= 0) { R.med = { w: MED.warn, d: 0, guard: false, last: 4 }; sfx('alarm'); buzz(20); if (R.wk && R.boss) { banner(`💊 ${R.boss.name}이 약을 뿌리려 한다! 방어 스킬 준비`); R.rings.push({ x: R.boss.x, y: R.boss.y - 40, r: 10, R: 90, t: 0.6, color: R.boss.color }); } } return; }
   const M = R.med;
@@ -2679,11 +2680,41 @@ function stepMed(dt) {
   for (const u of R.units) if (u.alive && !u.hero && u.d > 0) damage(u, u.maxHp * k, null);
   if (M.d <= 0) { R.med = null; R.medT = MED.every * (R.st.replay ? REPLAY.medEvery : R.wk ? 0.75 : 1); }
 }
+// ★ 증상 게이지(시제품 proto.html): 길 위에 많이 나와 있을수록 몸이 알아챈다 → 꽉 차면 면역 총공격 → 끝나면 면역이 지친 틈
+const ALARM = /proto/.test(location.pathname) || !!window.__ALARM;
+const AL = { gain: 0.045, decay: 14, quiet: 8, warn: 2, dur: 2.5, dmg: 1.2, after: 20, gapDur: 4.5, gapBonus: 1.0, w: { stealth: 0.5, dps: 1.5 },
+  org: { nose: 0.8, lung: 0.9, gut: 1, liver: 1, blood: 1.1, skin: 0.85, lymph: 1.2, brain: 1.3 } };
+if (window.__AL) Object.assign(AL, window.__AL);
+const alRole = s => ROLE_OF[s] || (STRAINS[s] || {}).rolek;
+function stepAlarm(dt) {
+  const R = run; if (!R.ta || R.over || R.endAt || stealthOn() || !save.tutDone) return;
+  if (R.alarm == null) R.alarm = 0;
+  const M = R.med;
+  if (M) {
+    if (M.w > 0) { M.w -= dt; const n = Math.ceil(M.w); if (n !== M.last && n > 0) { M.last = n; sfx('beat'); }
+      if (M.w <= 0) { M.d = AL.dur; R.medN = (R.medN || 0) + 1; if (M.guard) R.medG = (R.medG || 0) + 1; banner(M.guard ? '🛡 총공격을 버텼다! 역습 — 공격 ×1.25' : '🔥 면역 총공격! 길 위 바이러스가 쓰러진다'); if (!M.guard) { shake(6); R.flashT = 0.3; R.flashC = '255,90,70'; } } return; }
+    M.d -= dt; const k = AL.dmg / AL.dur * dt * (M.guard ? MED.guard : 1);
+    for (const u of R.units) if (u.alive && !u.hero && u.d > 0) damage(u, u.maxHp * k, null);
+    if (M.d <= 0) { R.med = null; R.alarm = AL.after; R.gap = AL.gapDur; banner(`면역이 지쳤다! 지금 돌격하면 ×${1 + AL.gapBonus}`); sfx('alarm'); buzz([30, 40, 30]); R.flashT = 0.25; R.flashC = '160,255,120'; }
+    return; }
+  let load = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) load += AL.w[alRole(u.strain)] || 1;
+  R.alLoad = load;
+  R.alarm = clamp(R.alarm + (load * AL.gain * (AL.org[map.organ] || 1) - (load < AL.quiet ? AL.decay : 0)) * dt, 0, 100);
+  if (R.alarm >= 100) { R.med = { w: AL.warn, d: 0, guard: false, last: 3, al: true }; sfx('alarm'); buzz(30); banner('🔥 들켰다! 2초 뒤 면역 총공격 — 돌격 멈추고 스킬로 버텨!'); }
+}
+function drawAlarm(time) { const R = run; if (!ALARM || !R || !R.ta || stealthOn() || R.alarm == null) return;
+  const x = 14, w = W - 28, y = TOP + 6 * KS, h = 18 * KS, v = R.med ? 100 : R.alarm, gap = R.gap > 0;
+  ctx.save(); ctx.fillStyle = 'rgba(10,5,8,.72)'; ctx.fillRect(x - 4, y - 4, w + 8, h + 8);
+  const col = gap ? '#7dff6a' : R.med ? '#ff3b30' : v >= 85 ? `rgba(255,${60 + 40 * Math.sin(time * 12)},50,1)` : v >= 60 ? '#ff9a3c' : '#ffd24a';
+  ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x, y, w, h); ctx.fillStyle = col; ctx.fillRect(x, y, w * (gap ? R.gap / AL.gapDur : v / 100), h);
+  ctx.font = `${Math.round(13 * KS)}px Jua, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineWidth = 3; ctx.strokeStyle = '#000';
+  const t = gap ? `틈! 지금 돌격 ×${1 + AL.gapBonus}` : R.med ? '면역 총공격!' : `들킴 ${Math.round(v)}%  ·  길 위 ${Math.round(R.alLoad || 0)}`;
+  ctx.strokeText(t, x + 6, y + h / 2 + 1); ctx.fillStyle = '#fff'; ctx.fillText(t, x + 6, y + h / 2 + 1); ctx.restore(); }
 function medGuard() { const R = run, M = R && R.med; if (!M || M.guard) return; M.guard = true; float(W / 2, H * 0.32, M.w > 0 ? '🛡 대비 성공! 쿨타임 절반 회복' : '🛡 변이로 버티는 중!', '#9fff6a', 18); buzz(15); }
 function drawMed(time) { const R = run, M = R && R.med; if (!M) return; ctx.save(); ctx.textAlign = 'center';
   if (M.w > 0) { const n = Math.ceil(M.w), f = M.w - Math.floor(M.w), sc = 1 + 0.5 * f;
     ctx.globalAlpha = 0.85; ctx.fillStyle = 'rgba(20,60,30,.55)'; ctx.fillRect(W / 2 - 130, H * 0.22, 260, 92);
-    ctx.globalAlpha = 1; ctx.fillStyle = '#b9ffb0'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('💊 약효 도달까지', W / 2, H * 0.22 + 22);
+    ctx.globalAlpha = 1; ctx.fillStyle = '#b9ffb0'; ctx.font = 'bold 15px sans-serif'; ctx.fillText(M.al ? '🔥 면역 총공격까지' : '💊 약효 도달까지', W / 2, H * 0.22 + 22);
     ctx.save(); ctx.translate(W / 2, H * 0.22 + 62); ctx.scale(sc, sc); ctx.fillStyle = M.guard ? '#9fff6a' : '#fff'; ctx.font = 'bold 40px sans-serif'; ctx.fillText(n, 0, 0); ctx.restore();
     ctx.fillStyle = M.guard ? '#9fff6a' : '#ffe2a8'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(M.guard ? '🛡 대비 완료!' : '지금 스킬 쓰면 버팀 + 쿨타임 절반!', W / 2, H * 0.22 + 86); }
   else if (!M.guard) { ctx.globalAlpha = 0.12 + 0.05 * Math.sin(time * 6); ctx.fillStyle = '#5aff7a'; ctx.fillRect(0, 0, W, H); }
@@ -2986,7 +3017,7 @@ function spawnUnit(gene, o = {}) {
     size: d.size * RULES.unitScale * (o.small ? 0.82 : 1) * (gene.star >= 3 ? 1.15 : 1) * (gene.branch ? 1.1 : 1), br: gene.branch ? gene.strain + gene.branch : '', mix: gene.mix || '', fk: -1, fd: 0, valvePass: gene.strain === 'rota' && gene.branch === 'B' && Math.random() < 0.3, decoy: !!o.decoy, inv: 0, boost: 0, cloak: 0, revived: false, hitOnce: false, alive: true, copy: !!o.copy, born: run.time, hitT: 0, x: 0, y: 0, wob: rand(0, TAU) };
   if (gene.reawake && !run.reawakeShown) { run.reawakeShown = true; const [x, y] = pathAt(90); float(x, y - 30, '잠복 감염 재활성화 +8', '#c79cff', 15); }
   if (run.tpow > 1) { u.hp *= run.tpow; u.maxHp *= run.tpow; u.atk *= 1 + (run.tpow - 1) * 0.5; }
-  if (o.ambush) { u.atk *= 1 + RULES.ta.gapBonus; u.ambush = true; }
+  if (o.ambush) { u.atk *= 1 + (ALARM ? AL.gapBonus : RULES.ta.gapBonus); u.ambush = true; }
   if (save.host >= 2 && gene.strain === save.vax) u.vax = true;
   if (run.plan && !o.copy) { const rl = HEROES[gene.strain] ? 'tank' : ROLE_OF[gene.strain] || 'dps'; run.plan.seen[rl] = (run.plan.seen[rl] || 0) + 1; run.plan.seenN++; if (!HEROES[gene.strain]) run.plan.seenS[gene.strain] = (run.plan.seenS[gene.strain] || 0) + 1; }
   run.units.push(u); return u;
@@ -3150,7 +3181,7 @@ function update(dt) {
       else if (nestOn() && !gr.reawake && !(R.tutOn && R.tutStep < 4) && gr.charge * gr.max >= Math.max(RULES.ta.minRelease, gr.max * 0.25) && nestTotal() < nestCap()) toNest(gr, true); }
     stepNest(dt);
     R.gapT -= dt; R.gap = Math.max(0, R.gap - dt);
-    if (R.gapT <= 0) { R.gapT = RULES.ta.gapEvery; R.gap = RULES.ta.gapDur; banner('면역이 쉬는 틈! 지금 돌격하면 +30%'); sfx('alarm'); buzz([30, 40, 30]); R.flashT = 0.25; R.flashC = '160,255,120'; }
+    if (!ALARM && R.gapT <= 0) { R.gapT = RULES.ta.gapEvery; R.gap = RULES.ta.gapDur; banner('면역이 쉬는 틈! 지금 돌격하면 +30%'); sfx('alarm'); buzz([30, 40, 30]); R.flashT = 0.25; R.flashC = '160,255,120'; }
     if ((R.acT = (R.acT || 0) + dt) > 0.5) { R.acT = 0; autoCast(); }
     if (!R.endAt && R.time >= R.T) { R.endAt = R.time + 1.6; R.medicated = true; banner('환자가 약을 복용했다!'); R.av = { t: 0, fired: false, x: W / 2, y: (TOP + H - BOTTOM) / 2, final: true }; }
     if (!R.endAt && R.cleared) { R.endAt = R.time + 2; R.left = Math.max(0, R.T - R.time); toast(`남은 ${Math.ceil(R.left)}초 보너스`); }
@@ -3432,7 +3463,7 @@ function render(time) {
     ctx.restore(); }
     if (v.closed || warn) { ctx.save(); ctx.font = "700 11px 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const tx = v.closed ? '판막 닫힘' : '판막 곧 닫힘'; ctx.strokeText(tx, x, y - 26); ctx.fillStyle = v.closed ? '#ff8d8a' : '#ffd27a'; ctx.fillText(tx, x, y - 26); ctx.restore(); }
   }
-  drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time); drawBoss(time); drawAbHorn(time); drawMed(time);
+  drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time); drawBoss(time); drawAbHorn(time); drawMed(time); drawAlarm(time);
   for (const f of map.forks) drawSwitch(f, time);
   for (const t of R.towers) {
     const a = TOWERS[t.type].aura;
