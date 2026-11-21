@@ -544,6 +544,7 @@
   #wkHud .wkGt { display: flex; justify-content: space-between; align-items: center; gap: 6px; } #wkHud .wkGt b { font-size: 11.5px; white-space: nowrap; } #wkHud .wkGt span { font-size: 10px; color: #d8b8ff; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #wkHud .wkCells { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 3px; } #wkHud .wkCells i { height: 8px; border-radius: 5px; background: #2a1a30; border: 1px solid #4a2a50; } #wkHud .wkCells i.f { background: linear-gradient(#e9a3ff, #9a4ad0); border-color: #f0c8ff; box-shadow: 0 0 6px #c58cff; } #wkHud .wkCells i.p { background: linear-gradient(90deg, #e9a3ff 0 var(--f), #2a1a30 var(--f)); }
   .wkBtn { position: absolute; left: 6px; bottom: 6px; z-index: 5; padding: 6px 10px 6px 46px; min-height: 48px; border-radius: 14px; border: 1.5px solid #6ab4ff; background: linear-gradient(135deg, #132238, #22141b); color: #cfe8ff; text-align: left; font-weight: 800; font-size: 13.5px; box-shadow: 0 0 12px rgba(106,180,255,.35); }
+  .wkBtn { max-width: 104px; padding: 5px 8px 5px 40px; min-height: 42px; font-size: 12.5px; } .wkBtn small { white-space: normal; line-height: 1.2; }
   .wkBtn img { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 36px; } .wkBtn small { display: block; font-size: 10.5px; color: #8fb0d0; font-weight: 400; } .wkBtn.lock { opacity: .6; border-color: #4a3a50; box-shadow: none; }
   #rcChip .ring { position: absolute; inset: 4px; border-radius: 50%; background: #1d0a1c; }
   #rcChip img { position: relative; width: 34px; height: 34px; object-fit: contain; margin-top: -6px; }
@@ -3761,7 +3762,7 @@ const ui = {
     for (const o of ORGANS) {
       const [ax, ay] = pos(o), [bx, by] = btn(o), sel = save.sel === o.id;
       leads += `<path d="M${bx + (bx < 100 ? rU : -rU)} ${by} L${ax} ${ay}" stroke="${sel ? '#ffd27a' : '#d8b878'}" stroke-width="${sel ? 1.8 : 1}" stroke-dasharray="2 3" opacity="${sel ? 1 : 0.55}"/>`;
-      if (save.done[o.id]) inf += grow(ZONE[o.id], 1.75); else if (weakSet.has(o.id)) weak += ZONE[o.id];
+      if (save.done[o.id]) inf += grow(ZONE[o.id], 1.12); else if (weakSet.has(o.id)) weak += ZONE[o.id];
       if (sel) selz = ZONE[o.id];
     }
     const skinOK = BM || has('bodymap_skin'), base = BM ? BM.img + '_skin' : skinOK ? 'bodymap_skin' : 'bodymap';
@@ -3772,7 +3773,7 @@ const ui = {
         <mask id="mInf" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#fff" filter="url(#soft)">${inf}</g></mask>
         <mask id="mWeak" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#666" filter="url(#soft)">${weak}</g></mask>
         <filter id="toW"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
-        <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="8"/></filter>
+        <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
         <mask id="mBody" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><image href="assets/${BM ? BM.img + '_red' : 'bodymap_red'}.png" x="0" y="0" width="200" height="400" preserveAspectRatio="none" filter="url(#toW)"/></mask>
         <mask id="mInf2" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#fff" filter="url(#soft2)">${inf}</g></mask>
         <pattern id="pDots" width="9" height="10" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#ffc8ff" opacity=".7"/><circle cx="6.5" cy="7" r="1.4" fill="#d8ff80" opacity=".45"/></pattern>
@@ -3792,7 +3793,7 @@ const ui = {
       wrap.appendChild(b);
     }
     { const b = wkBoss(), w = wkSave(), open = wkOpen(), bt = document.createElement('button'), art = wkArt(b); bt.className = 'wkBtn' + (open ? '' : ' lock');
-      bt.innerHTML = `${art ? `<img src="${imgSrc(art, 'assets/pill.png')}" alt="">` : ''}💊 주간 보스<small>${open ? `${b.name} · 오늘 ${WK.tries - w.n}/${WK.tries}` : `기관 ${WK.unlock}곳 감염 뒤 열림`}</small>`; bt.onclick = () => open ? wkMenu() : toast(`기관 ${WK.unlock}곳을 감염시키면 열려요`); wrap.appendChild(bt); }
+      bt.innerHTML = `${art ? `<img src="${imgSrc(art, 'assets/pill.png')}" alt="">` : ''}주간 보스<small>${open ? `오늘 ${WK.tries - w.n}/${WK.tries}` : `기관 ${WK.unlock}곳 감염 뒤 열림`}</small>`; bt.onclick = () => open ? wkMenu() : toast(`기관 ${WK.unlock}곳을 감염시키면 열려요`); wrap.appendChild(bt); }
     const o = organById(save.sel), st = stageInfo(o);
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}${save.done[o.id] ? ' <small style="color:#9fff6a">✓</small>' : ''}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
