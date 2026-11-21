@@ -1016,12 +1016,13 @@ const HOST_RULE = [
 ];
 // 숙주별 인체 그림 (없으면 성인 그림) · zone은 200×400 좌표, anat은 지시선 끝점(%)
 const BODY = {
-  0: { img: 'bodymap_h0', zone: { brain: '<ellipse cx="101" cy="92" rx="27" ry="21"/>', nose: '<ellipse cx="100" cy="115" rx="17" ry="11"/>', lymph: '<ellipse cx="100" cy="141" rx="16" ry="8"/>',
-      lung: '<ellipse cx="101" cy="176" rx="34" ry="24"/>', liver: '<ellipse cx="91" cy="201" rx="19" ry="12"/>', gut: '<ellipse cx="108" cy="206" rx="20" ry="15"/>',
-      blood: '<ellipse cx="64" cy="197" rx="11" ry="40" transform="rotate(24 64 197)"/>', skin: '<ellipse cx="120" cy="268" rx="15" ry="26"/>' },
-    anat: { brain: [50.5, 23], nose: [50, 28.7], lymph: [49.8, 35.3], lung: [44, 44], liver: [45.5, 50.2], gut: [54, 51.5], blood: [32, 49.4], skin: [60, 67] } },
+  0: { img: 'bodymap_h0', zone: { brain: '<ellipse cx="100" cy="58" rx="44" ry="28"/>', nose: '<ellipse cx="100" cy="113" rx="11" ry="9"/>', lymph: '<ellipse cx="100" cy="155" rx="18" ry="8"/>',
+      lung: '<ellipse cx="100" cy="180" rx="30" ry="21"/>', liver: '<ellipse cx="92" cy="208" rx="22" ry="10"/>', gut: '<ellipse cx="101" cy="235" rx="29" ry="21"/>',
+      blood: '<ellipse cx="60" cy="207" rx="10" ry="42" transform="rotate(28 60 207)"/>', skin: '<ellipse cx="125" cy="285" rx="13" ry="15"/>' },
+    anat: { brain: [50, 14], nose: [50, 28.3], lymph: [50, 38.8], lung: [44, 45], liver: [44, 52], gut: [53, 59], blood: [30, 51.5], skin: [62.5, 71.3] } },
 };
-BODY[1] = { ...BODY[0], img: 'bodymap_h1' }; BODY[3] = { ...BODY[0], img: 'bodymap_h3' };   // 같은 포즈·구도로 받은 그림
+// 네 숙주 그림은 같은 자세·구도로 받아서 기관 위치가 같다
+BODY[1] = { ...BODY[0], img: 'bodymap_h1' }; BODY[2] = { ...BODY[0], img: 'bodymap_h2' }; BODY[3] = { ...BODY[0], img: 'bodymap_h3' };
 const bodyOf = () => { const b = BODY[save.host]; return b && has(b.img + '_skin') ? b : null; };
 const hostRule = () => HOST_RULE[save.host] || HOST_RULE[0];
 TOWERS.bcell = { name:'B세포 항체탑', range:120, dmg:4, rate:0.9, mode:'speed', multi:3, specific:true, antibody:true, color:'#5fe0d0', desc:'항원 특이 · 맞히면 항체 표식(받는 피해 +35%, 감속)' };
@@ -1071,9 +1072,9 @@ const NAMES = [...[0, 1, 2, 3, 4, 5].flatMap(i => ['vp_core_' + i, 'vp_spike_' +
   ...['rhino','adeno','noro','herpes','flu','rota','retro','rabies','rsv','measles','hepb','hpv'].flatMap(s => [s + '_A', s + '_B']),
   ...['zero','mimi','phage'].flatMap(h => ['hero_' + h, 'hero_' + h + '10', 'hero_' + h + '15']), 'aura','forge','forge_ok','forge_fail','enzyme',
   ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'boss_' + o), 'boss_wk_capsule', 'boss_wk_tablet', 'boss_wk_twin', 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
-  'gacha_bg','bodymap_skin','bodymap_h0_skin','bodymap_h1_skin','bodymap_h3_skin','ring_common','ring_rare','ring_hero','ring_new','fx_sneeze','jar','jar_sealed','jar_broken','glove','bodymap',
+  'gacha_bg','bodymap_skin','bodymap_h0_skin','bodymap_h1_skin','bodymap_h2_skin','bodymap_h3_skin','ring_common','ring_rare','ring_hero','ring_new','fx_sneeze','jar','jar_sealed','jar_broken','glove','bodymap',
   ...Object.keys({ inf:1, hp:1, cnt:1, cd:1, dna:1, forge:1, capsule:1, combo:1 }).map(k => 'perk_' + k), 'tab_body','tab_lab','tab_hero','codex','deploy_all','combo','legacy','lock','ebola','corona','hero_smallpox','flu1918', ...Object.keys(NEWV),'intro_bg','story_2','story_3', ...[0, 1, 2, 3].map(i => 'vp_core_L' + i)];
-const JPG = new Set(['story_2', 'story_3', 'intro_bg', 'ground', 'dirt', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h3_skin']);
+const JPG = new Set(['story_2', 'story_3', 'intro_bg', 'ground', 'dirt', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h2_skin', 'bodymap_h3_skin']);
 const has = n => IMG[n] && IMG[n].naturalWidth > 0;
 function loadAssets() {
   return Promise.all(NAMES.map(n => new Promise(res => {
