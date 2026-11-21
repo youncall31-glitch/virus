@@ -781,7 +781,7 @@ const STRAINS = {
             skill:{ id:'latency', name:'잠복', cd:40, desc:'8초간 헤르페스가 레이더에도 잡히지 않음' } },
   flu:    { name:'인플루엔자', role:'변이',     rarity:1, genome:'RNA',   seg:true,  fit:1.1, atk:0.3, hp:24,  spd:64, count:26, size:13, split:true,
             skill:{ id:'shift', name:'항원 변이', cd:50, desc:'3초간 인플루엔자가 표적에서 사라짐 + 면역 경보 절반 감소' } },
-  rota:   { name:'로타',       role:'스피드',   rarity:0, genome:'RNA',   seg:true,  fit:1.2, atk:0.15, hp:18,  spd:104, count:26, size:12,
+  rota:   { name:'로타',       role:'스피드',   rarity:0, genome:'RNA',   seg:true,  fit:1.2, atk:0.15, hp:10,  spd:94, count:26, size:12,
             skill:{ id:'spread', name:'폭발적 전파', cd:30, desc:'6초간 로타만 이동 +60%, 감속 무시' } },
   retro:  { name:'레트로',     role:'장악',     rarity:2, genome:'retro', seg:false, fit:1.0, atk:0.49, hp:30,  spd:60, count:16, size:13,
             skill:{ id:'hostify', name:'숙주화', cd:45, aim:true, desc:'탑 1개를 10초간 아군화 (레트로 10마리 소모)' } },
@@ -1418,7 +1418,7 @@ const isComp = g => !!(g && STRAINS[g.strain] && STRAINS[g.strain].comp);
 // ★ 본체 = 처음에 고른 바이러스 한 종 (바꿀 수 없음). 감염 경로로 고른다: 공기 · 음식 · 접촉
 const STARTERS = [
   { id: 'rhino', route: '🌬 공기', how: '기침·재채기를 타고 코로 들어와요', real: '가장 흔한 감기 바이러스', play: '증식형 · 물량으로 밀어요', when: '입문용 · 초반(코·폐)이 강해요' },
-  { id: 'rota', route: '🍎 음식·손', how: '손과 음식을 타고 입으로 들어와요', real: '어린이 장염의 대표 원인', play: '독성형 · 공격이 세요', when: '중반형 · 위장·간이 강해요' },
+  { id: 'rota', route: '🍎 음식·손', how: '손과 음식을 타고 입으로 들어와요', real: '어린이 장염의 대표 원인', play: '가장 빨라요 · 대신 몸이 약해요', when: '중반형 · 위장·간이 강해요' },
   { id: 'herpes', route: '✋ 접촉', how: '손과 작은 상처로 들어와요', real: '평생 몸속에 숨어 있다 다시 깨어나요', play: '침투형 · 잠복의 달인', when: '숙련자용 · 후반(피부·뇌)이 강해요' } ];
 const coreGene = () => save.starter ? (save.genes || []).find(g => g.core) || null : null;
 const coreStrain = () => { const g = coreGene(); return g ? g.strain : null; };
