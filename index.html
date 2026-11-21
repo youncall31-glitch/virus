@@ -1034,6 +1034,10 @@ const TOWER_TIP = { bcell:'한 계통만 알아본다 · 항원 변이로 따돌
 const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin: 1.25, lymph: 1.35 };
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
+// ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
+const CAL = { 0: { nose: 0.67, lung: 0.64, gut: 1.11, liver: 0.95, blood: 1.19, skin: 0.39, lymph: 2.13, brain: 7.7 },
+  1: { nose: 2.2, lung: 1.47, gut: 1.04, liver: 1.79, blood: 1.48, skin: 0.72, lymph: 1.51, brain: 1.41 } };
+const calK = (h, o) => (CAL[h] || {})[o] || 1;
 const HOST_Q = [1.8, 4.8, 5.8, 6.8];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
 const HOST_OQ = { nose: 1.06, lung: 1.28, gut: 1.28, liver: 0.72, blood: 0.85, skin: 0.85, lymph: 0.75 };
@@ -2038,7 +2042,7 @@ function stageInfo(organ) {
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
   const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm * (save.tutDone && save.host === 0 ? HOST0_T[organ.id] || 1 : 1) * failEase(organ.id);   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? 1 : 0.02) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? calK(save.host, organ.id) : 0.02) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (mapTypeOf(organ, MAP_VARIANT) === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
@@ -2549,7 +2553,7 @@ function onContam(x, y, fd, pad = 40) { const P = map.pts, C = map.cum;
   for (let i = 0; i + 1 < P.length && C[i] < fd; i++) { const [ax, ay] = P[i], [bx0, by0] = P[i + 1], L = C[i + 1] - C[i], f = Math.min(1, (fd - C[i]) / Math.max(1e-6, L)), bx = ax + (bx0 - ax) * f, by = ay + (by0 - ay) * f;
     const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy, t = l2 ? clamp(((x - ax) * dx + (y - ay) * dy) / l2, 0, 1) : 0; if (Math.hypot(ax + dx * t - x, ay + dy * t - y) < pad) return true; }
   return false; }
-function purgeContaminated() { const R = run; if (!R || !map || !map.seg) return; const done = segDone(); if (!done) return;
+function purgeContaminated() { const R = run; if (!R || !map || !map.seg || window.__noPurge) return; const done = segDone(); if (!done) return;
   const fd = map.seg[done - 1].d + SEG; let n = 0;
   for (const t of R.towers) { if (t.hp <= 0) continue; if (onContam(t.x, t.y, fd)) { t.hp = 0; t.purged = true; n++; } }
   if (R.plan) R.plan.slots = R.plan.slots.filter(c => !onContam(c.s[0], c.s[1], fd));
