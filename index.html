@@ -2724,7 +2724,7 @@ const SKTYPE = { gbvc:'stop', ttv:'stop', cowpox:'stop', polio:'stop', parvo:'st
   rhino:'grow', varicella:'grow', cmv:'grow', smallpox:'grow', noro:'grow', dengue:'grow',
   rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', hpv:'boost', mumps:'boost', adeno:'boost', aav:'boost', flu1918:'boost' };
 const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '돌격', hide: '잠복', spr: '증식' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🦠' };
-const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6 };
+const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 숨기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
 // ★ 본체 스킬 세기 = 종류 × 등급(일반·희귀·영웅·전설·전설+). 강하게·불리기는 원래 너무 세서 낮추고, 막기·숨기는 올림
 const CORE_K = { boost: [0.2, 0.22, 0.3, 0.45, 0.6], grow: [0.5, 0.6, 0.7, 0.85, 1], stop: [1, 1.1, 1.2, 1.35, 1.5], hide: [1, 1.1, 1.2, 1.35, 1.5] };
 const coreK = () => { const st = STRAINS[coreStrain()] || {}, t = SKTYPE[coreStrain()] || 'boost'; return CORE_K[t][Math.min(4, st.legend ? Math.max(3, st.rarity || 0) : (st.rarity || 0))]; };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
@@ -2754,7 +2754,7 @@ function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R
   float(x, y - 52, `🦠 증식! 땅 +${n}칸 · 최대치 +${Math.round(SPR.capUp * 100)}% · 공격 +${Math.round(SPR.atkUp * 100)}%`, '#e8a0ff', 14);
   float(x, y - 32, `−${cost}마리 · ${SPR.slowT}초 동안 모이는 속도 ${Math.round(SPR.slow * 100)}% → 그 뒤 빠르게`, '#c9b0e0', 12); }
 function stepSpread(dt) { const R = run; if (!R) return; if (R.sprCd > 0) R.sprCd -= dt;
-  if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + dt / CHG.idle + (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; }
+  if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + dt / CHG.idle + (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; if (R.growT > 0) R.growT -= dt; }
   if (R.sprSlow > 0) { R.sprSlow -= dt; if (R.sprSlow <= 0) { R.sprFast = SPR.fastT; banner('증식 완료! 둥지가 빠르게 다시 찬다'); } }
   else if (R.sprFast > 0) R.sprFast -= dt; }
 const sprChargeK = () => run.sprSlow > 0 ? SPR.slow : run.sprFast > 0 ? SPR.fast : 1;
@@ -2777,7 +2777,7 @@ function b3Help() { const R = run; R.mutPause = true; paused = true;
     <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
     <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 몸속으로 숨어요. 멈추지만 <b>약도, 탑 공격도 안 맞아요</b>. 숨어 있는 동안 <b>1초마다 땅속 오염이 숨은 무리 쪽으로 한 칸</b> 번지고, 겹친 탑은 무너져요. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
     <b style="color:#e8a0ff">🦠 증식</b> 둥지 최대치의 ${Math.round(SPR.cost * 100)}%를 써서 오염된 땅을 <b>목표 쪽으로 ${SPR.tiles}칸</b> 넓혀요. 최대치 +${Math.round(SPR.capUp * 100)}%, 공격 +${Math.round(SPR.atkUp * 100)}% (계속 쌓임). 대신 ${SPR.slowT}초 동안 모이는 속도가 ${Math.round(SPR.slow * 100)}%로 줄고, 그 뒤 ${SPR.fastT}초는 빠르게 차요. 그 땅의 탑은 무너져요.<br>
-    <b style="color:#ffd27a">✨ 본체 스킬</b> 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요. <b>👑 왕관 붙은 버튼</b>이 본체의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 🔥콤보 ×${CHG.mul}!<br>
+    <b style="color:#ffd27a">✨ 본체 스킬</b> 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요. <b>👑 왕관 붙은 버튼</b>이 본체의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 🔥콤보 ×${CHG.mul}!<br><span style="font-size:12px;color:#bbb">막기형: 탑 멈춤 + 둥지 커짐 · 숨기형: 약 면역 + 둥지 번식 ×2 · 불리기형: 바이러스 늘리기 · 강하게형: 감염력 올리기</span><br>
     <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
@@ -2984,7 +2984,7 @@ const nestCap = () => run.groups.reduce((a, g) => a + (g.reawake ? 0 : g.max * N
 function stepNest(dt) {
   const R = run; if (!R.nest) return; const zone = nestZone();
   for (const gr of R.groups) { const n = R.nest[gr.strain] || 0; if (n <= 0) continue; const cap = gr.max * NEST.capMul * zone * (1 + (R.capB || 0));
-    if (!isFinite(n)) { R.nest[gr.strain] = 0; continue; } R.nest[gr.strain] = Math.min(cap, n + n * NEST.grow * (1 + 0.012 * geneStats(gr.gene).count) * (1 + CORE_FX.rep * coreL()) * (B3 ? sprChargeK() : 1) * dt); }
+    if (!isFinite(n)) { R.nest[gr.strain] = 0; continue; } R.nest[gr.strain] = Math.min(cap, n + n * NEST.grow * (1 + 0.012 * geneStats(gr.gene).count) * (1 + CORE_FX.rep * coreL()) * (B3 && R.growT > 0 ? 2 : 1) * (B3 ? sprChargeK() : 1) * dt); }
   R.raidT = (R.raidT ?? NEST.raidEvery) - dt;
   if (R.raidT <= 0) { R.raidT = NEST.raidEvery; const tot = nestTotal(); if (R.towers.length && tot >= 4) { let lost = 0; for (const k in R.nest) { const c = R.nest[k] * NEST.raidCut; R.nest[k] -= c; lost += c; }
       const [x, y] = pathAt(Math.max(map.d0 || 0, (R.frontD || 0) - 60)); float(x, y - 40, `대식세포 습격! 둥지 −${Math.round(lost)}`, '#ff8d7a', 15); buzz(30); shake(4); R.rings.push({ x, y, r: 10, R: 80, t: 0.6, color: '#e0453f' }); } }
@@ -3263,16 +3263,17 @@ function castSkill(strain) {
   const g = run.skillGenes.find(x => x.strain === strain); if (!g) return; const isCore = B3 && strain === coreStrain();
   if (isCore ? (run.chg || 0) < 1 : run.cds[strain] > 0) { if (isCore) toast(`본체 스킬 충전 중 ${Math.floor((run.chg || 0) * 100)}% · 바이러스가 도착하면 차요`); return; }
   const sk = geneSkill(g);
-  if (isCore) { const R = run, combo = !!(R.cmb && R.cmb.by === corePair()), sb = R.sb.mine || {}, S0 = { ...sb }, T0 = R.towers.map(t => [t.stunT || 0, +t.converted || 0, t.cd || 0]), G0 = [R.stunT || 0, R.stormT || 0, R.calmT || 0, R.medImmT || 0], N0 = nestTotal();
+  if (isCore) { const R = run, combo = !!(R.cmb && R.cmb.by === corePair()), sb = R.sb.mine || {}, S0 = { ...sb }, T0 = R.towers.map(t => [t.stunT || 0, +t.converted || 0, t.cd || 0]), G0 = [R.stunT || 0, R.stormT || 0, R.calmT || 0, R.medImmT || 0, R.capB || 0, R.growT || 0], N0 = nestTotal();
     const ok = sk.aim ? (() => { const t = R.towers.filter(t => !t.converted).sort((a, b) => nearestOnPath(a.x, a.y).d - nearestOnPath(b.x, b.y).d).find(t => nearestOnPath(t.x, t.y).d > (R.frontD || 0) - 30); if (!t) { toast('앞쪽에 탑이 없어요'); return false; } t.converted = 10; burst(t.x, t.y - 20, 10, '#9fff6a'); float(t.x, t.y - 50, '숙주화!', '#9fff6a', 16); return true; })()
       : (sk.ids ? sk.ids.map(id => SKILLS[id](Object.assign(Object.create(g), { strain: 'mine' }))).some(Boolean) : SKILLS[sk.id](Object.assign(Object.create(g), { strain: 'mine' })));
     if (!ok) return; R.chg = 0; R.skN = (R.skN || 0) + 1;
     const amp = (k = CHG.mul - 1, quiet) => { for (const f in sb) if (typeof sb[f] === 'number' && sb[f] > (S0[f] || 0) && !/Mul$/.test(f)) sb[f] += (sb[f] - (S0[f] || 0)) * k;
       R.towers.forEach((t, i) => { const o = T0[i] || [0, 0, 0]; if ((t.stunT || 0) > o[0]) t.stunT += (t.stunT - o[0]) * k; if ((+t.converted || 0) > o[1]) t.converted += (t.converted - o[1]) * k; if ((t.cd || 0) > o[2]) t.cd += (t.cd - o[2]) * k; });
-      [['stunT', 0], ['stormT', 1], ['calmT', 2], ['medImmT', 3]].forEach(([f, i]) => { if ((R[f] || 0) > G0[i]) R[f] += (R[f] - G0[i]) * k; });
+      [['stunT', 0], ['stormT', 1], ['calmT', 2], ['medImmT', 3], ['capB', 4], ['growT', 5]].forEach(([f, i]) => { if ((R[f] || 0) > G0[i]) R[f] += (R[f] - G0[i]) * k; });
       if (dn > 0) { const tot = nestTotal(); if (tot > 0) for (const kk in R.nest) R.nest[kk] += R.nest[kk] / tot * dn * k; }
       if (quiet) return; R.comboN = (R.comboN || 0) + 1; banner(`🔥 콤보! ${PAIR_NAME[corePair()]} + ${sk.name} ×${CHG.mul}`); shake(5); R.flashT = 0.25; R.flashC = '255,210,74'; sfx('breakout'); buzz([20, 30, 40]); };
-    if (SKTYPE[strain] === 'hide') { R.medImmT = Math.max(R.medImmT || 0, CHG.medImm); float(W / 2, H * 0.4, '💊 약 면역!', '#9fe8ff', 18); }
+    if (SKTYPE[strain] === 'hide') { R.medImmT = Math.max(R.medImmT || 0, CHG.medImm); R.growT = Math.max(R.growT || 0, CHG.growT * coreK()); float(W / 2, H * 0.4, '💊 약 면역 · 둥지 번식 ×2', '#9fe8ff', 18); }
+    if (SKTYPE[strain] === 'stop') { R.capB = (R.capB || 0) + CHG.gnaw * coreK(); float(W / 2, H * 0.4, `탑 갉아먹기! 둥지 +${Math.round(CHG.gnaw * coreK() * 100)}%`, '#9fff6a', 18); }
     let dn = nestTotal() - N0; { const kk = coreK() - 1, mag = ['rash', 'asym', 'tox'].some(f => (sb[f] || 0) > (S0[f] || 0)); if (mag) R.bMag = coreK(); else if (kk) { amp(kk, true); dn *= 1 + kk; } } for (const f in sb) if (typeof sb[f] === 'number') S0[f] = S0[f] || 0;
     if (combo) { R.cmb = null; amp(); } else R.cmbBack = { t: CHG.win, go: () => { for (const f in S0) if (typeof sb[f] === 'number' && sb[f] < S0[f]) S0[f] = sb[f]; amp(); } };
     ui.tickDeploy(); return; }
