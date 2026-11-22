@@ -664,7 +664,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmC small .upA { font-style: normal; color: #8fe06a; margin-left: 2px; font-size: 9px; }
   .fmUpA { width: auto !important; height: auto !important; padding: 0 5px; border-radius: 8px !important; font-size: 10.5px !important; line-height: 16px !important; left: 4px !important; top: 44px !important; animation: none !important; }
   html, body { font-synthesis: none; } b, strong, h1, h2, h3 { font-weight: 400; }   /* 주아는 한 굵기라 가짜 굵게를 막는다 */
-  .b3ic { font-size: 22px; line-height: 1; } .stPick { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; } .stOpt { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px; border-radius: 12px; background: #2a1a20; border: 2px solid #5a3a40; color: #eadcc2; } .stOpt img { width: 64px; height: 64px; object-fit: contain; flex: none; } .stOpt b { font-size: 15px; display: block; } .stOpt small { display: block; font-size: 12px; color: #c8b8a0; margin: 2px 0; } .stOpt em { font-style: normal; font-size: 12.5px; color: #9fd8ff; display: block; } .stOpt i { font-style: normal; font-size: 12px; color: #ffd27a; } .cvAd { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 2px; } .cvAd u { text-decoration: none; font-size: 12px; padding: 2px 6px; border-radius: 8px; background: #2a1a20; color: #8a7a6a; } .cvAd u.nat { background: #2e4a1e; color: #b9ff8a; } .cvAd u.ad { background: #3e2450; color: #e8b0ff; } .cvAd u small { margin-left: 2px; font-size: 10px; } .cfoot .og u.ad { color: #e8b0ff !important; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
+  .b3ic { font-size: 22px; line-height: 1; } .dp.pair { position: relative; } .dp.pair::after { content: '👑'; position: absolute; top: -7px; right: -4px; font-size: 13px; line-height: 1; } .dp.combo { border-color: #ffd24a !important; box-shadow: 0 0 0 2px #ffd24a, 0 0 18px #ffb02a; animation: cmb .5s ease-in-out infinite alternate; } @keyframes cmb { to { transform: scale(1.06); } } .stPick { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; } .stOpt { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px; border-radius: 12px; background: #2a1a20; border: 2px solid #5a3a40; color: #eadcc2; } .stOpt img { width: 64px; height: 64px; object-fit: contain; flex: none; } .stOpt b { font-size: 15px; display: block; } .stOpt small { display: block; font-size: 12px; color: #c8b8a0; margin: 2px 0; } .stOpt em { font-style: normal; font-size: 12.5px; color: #9fd8ff; display: block; } .stOpt i { font-style: normal; font-size: 12px; color: #ffd27a; } .cvAd { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 2px; } .cvAd u { text-decoration: none; font-size: 12px; padding: 2px 6px; border-radius: 8px; background: #2a1a20; color: #8a7a6a; } .cvAd u.nat { background: #2e4a1e; color: #b9ff8a; } .cvAd u.ad { background: #3e2450; color: #e8b0ff; } .cvAd u small { margin-left: 2px; font-size: 10px; } .cfoot .og u.ad { color: #e8b0ff !important; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
   /* 카드 테두리: 등급 색 선만 (그림 테두리는 뺌) */
   .fmC { border-width: 2px !important; border-style: solid; margin: 2px; } .fmGrid { gap: 6px !important; }
   .fmC .fmTag, .fmC .fmD { top: 3px !important; left: 3px !important; right: 3px !important; }
@@ -2718,17 +2718,26 @@ function stepMed(dt) {
 const ALARM = !!window.__ALARM;
 // ★ 시제품(proto.html): 버튼 4개 — 돌격 · 잠복 · 증식 · 대장 스킬
 const B3 = /proto/.test(location.pathname) || !!window.__B3;
+// ★ 본체 스킬: 도착한 만큼 게이지가 차고(충전형), 짝 버튼(👑)과 3초 안에 같이 쓰면 콤보 ×1.5
+const SKTYPE = { gbvc:'stop', ttv:'stop', cowpox:'stop', polio:'stop', parvo:'stop', ebola:'stop', retro:'stop', hepb:'stop',
+  herpes:'hide', flu:'hide', rsv:'hide', ebv:'hide', corona:'hide',
+  rhino:'grow', varicella:'grow', cmv:'grow', smallpox:'grow', noro:'grow', dengue:'grow',
+  rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', hpv:'boost', mumps:'boost', adeno:'boost', aav:'boost', flu1918:'boost' };
+const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '돌격', hide: '잠복', spr: '증식' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🦠' };
+const CHG = { per: 0.3, win: 3, mul: 1.5, start: 1, idle: 30 };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
+const corePair = () => SKPAIR[SKTYPE[coreStrain()] || 'boost'];
+function comboOpen(by) { const R = run; if (!B3 || !R || by !== corePair()) return; if (R.cmbBack && R.cmbBack.t > 0) { const f = R.cmbBack.go; R.cmbBack = null; f(); } else R.cmb = { by, t: CHG.win }; }   // 순서 상관없이 3초 안에 둘 다 쓰면 콤보
 const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1 }, SPR = { cost: 0.25, tiles: 2, capUp: 0.3, atkUp: 0.12, slow: 0.4, slowT: 6, fast: 1.7, fastT: 6, cd: 8 };
 function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
   if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max; H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
-  else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; }
+  else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
   else if (H.st === 'cd') toast(`다시 숨으려면 ${Math.ceil(H.t)}초`); }
 function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (H.st === 'ready') return; H.t -= dt;
   // ★ 숨어 있는 동안 땅속으로 오염이 번진다: 숨은 무리 쪽으로 1초마다 한 칸 → 그 땅에 겹친 탑은 무너진다
   if (H.st === 'hid') { H.acc = (H.acc || 0) + dt; if (H.acc >= HIDE.spread) { H.acc -= HIDE.spread; const hd = R.units.filter(u => u.alive && u.hid); const far = hd.length ? Math.max(...hd.map(u => u.d)) : 0, done = segDone();
       if (map.seg[done] && map.seg[done].d < far && done < map.seg.length - 2) { map.seg[done].on = true; purgeContaminated(); R.frontD = Math.max(R.frontD || 0, infFront()); const [x, y] = pathAt(R.frontD); R.rings.push({ x, y, r: 8, R: 60, t: 0.5, color: '#c06ad0' }); float(x, y - 30, '땅속 오염 +1칸', '#e8a0ff', 12); } } }
   if (H.t > 0) return;
-  if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; }
+  if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
   else if (H.st === 'up') { for (const u of R.units) u.hid = false; H.st = 'cd'; H.t = HIDE.cd; banner('튀어나왔다!'); sfx('breakout'); }
   else if (H.st === 'cd') { H.st = 'ready'; } }
 function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R.sprCd || 0) > 0) return toast(`증식 준비 중 ${Math.ceil(R.sprCd)}초`);
@@ -2737,11 +2746,12 @@ function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R
   for (const k in R.nest) R.nest[k] *= 1 - cost / tot;
   let n = 0; for (let i = 0; i < SPR.tiles; i++) { const d = segDone(); if (d < map.seg.length - 2) { map.seg[d].on = true; n++; } }
   purgeContaminated(); R.frontD = Math.max(R.frontD || 0, infFront());
-  R.capB = (R.capB || 0) + SPR.capUp; R.sprAtk = (R.sprAtk || 0) + SPR.atkUp; R.sprSlow = SPR.slowT; R.sprFast = 0; R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1;
+  R.capB = (R.capB || 0) + SPR.capUp; R.sprAtk = (R.sprAtk || 0) + SPR.atkUp; R.sprSlow = SPR.slowT; R.sprFast = 0; R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1; comboOpen('spr');
   const [x, y] = pathAt(R.frontD); R.rings.push({ x, y, r: 10, R: 100, t: 0.7, color: '#c06ad0' }); sfx('wall'); buzz(25);
   float(x, y - 52, `🦠 증식! 땅 +${n}칸 · 최대치 +${Math.round(SPR.capUp * 100)}% · 공격 +${Math.round(SPR.atkUp * 100)}%`, '#e8a0ff', 14);
   float(x, y - 32, `−${cost}마리 · ${SPR.slowT}초 동안 모이는 속도 ${Math.round(SPR.slow * 100)}% → 그 뒤 빠르게`, '#c9b0e0', 12); }
 function stepSpread(dt) { const R = run; if (!R) return; if (R.sprCd > 0) R.sprCd -= dt;
+  if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + dt / CHG.idle + Math.max(0, d) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; }
   if (R.sprSlow > 0) { R.sprSlow -= dt; if (R.sprSlow <= 0) { R.sprFast = SPR.fastT; banner('증식 완료! 둥지가 빠르게 다시 찬다'); } }
   else if (R.sprFast > 0) R.sprFast -= dt; }
 const sprChargeK = () => run.sprSlow > 0 ? SPR.slow : run.sprFast > 0 ? SPR.fast : 1;
@@ -2764,7 +2774,7 @@ function b3Help() { const R = run; R.mutPause = true; paused = true;
     <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
     <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 몸속으로 숨어요. 멈추지만 <b>약도, 탑 공격도 안 맞아요</b>. 숨어 있는 동안 <b>1초마다 땅속 오염이 숨은 무리 쪽으로 한 칸</b> 번지고, 겹친 탑은 무너져요. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
     <b style="color:#e8a0ff">🦠 증식</b> 둥지 최대치의 ${Math.round(SPR.cost * 100)}%를 써서 오염된 땅을 <b>목표 쪽으로 ${SPR.tiles}칸</b> 넓혀요. 최대치 +${Math.round(SPR.capUp * 100)}%, 공격 +${Math.round(SPR.atkUp * 100)}% (계속 쌓임). 대신 ${SPR.slowT}초 동안 모이는 속도가 ${Math.round(SPR.slow * 100)}%로 줄고, 그 뒤 ${SPR.fastT}초는 빠르게 차요. 그 땅의 탑은 무너져요.<br>
-    <b style="color:#ffd27a">✨ 본체 스킬</b> 내 본체 바이러스의 스킬이에요.<br>
+    <b style="color:#ffd27a">✨ 본체 스킬</b> 바이러스가 목표에 도착할수록 게이지가 차요. <b>👑 왕관 붙은 버튼</b>이 본체의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 🔥콤보 ×1.5!<br>
     <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
@@ -2956,7 +2966,7 @@ function swellBurst() {
 function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른다. 면역 공백 때면 전부 기습
   const R = run, M = mut ? MUTS[mut] : null; sfx('breakout'); buzz(45); if (M) { R.muts.push(mut); if (M.go) M.go(R); }
   if (M && M.bloom) for (const k in R.nest) R.nest[k] *= M.bloom;
-  const tot = Math.floor(nestTotal()); if (tot > 0) swellBurst();
+  const tot = Math.floor(nestTotal()); if (tot > 0) { swellBurst(); comboOpen('brk'); }
   for (const gr of R.groups) { const n = Math.min(400, Math.floor(R.nest[gr.strain] || 0)); if (!(n > 0)) continue;
     for (let i = 0; i < n; i++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]);
     gr.amb = (gr.amb || 0) + (R.gap > 0 ? n : 0); gr.go = true; gr.rate = 26; gr.wait = Math.max(0, (R.nestOrder || []).indexOf(gr.strain)) * 0.8; R.released += n; R.nest[gr.strain] -= n; }
@@ -3240,15 +3250,28 @@ function activeSkills(R = run) { if (R.activeSk) return R.activeSk; const sk = R
   const a = sk.filter(g => geneSkill(g).aim).map(g => g.strain); for (const i of [3]) { const g = sq[i]; if (g && has1(g.strain) && !a.includes(g.strain)) a.push(g.strain); }
   for (const g of sk) { if (a.length >= 3) break; if (!a.includes(g.strain)) a.push(g.strain); }
   return R.activeSk = a; }
-function autoSkills(dt) { const R = run; if (!R || !R.single || R.over || stealthOn()) return; R.autoT = (R.autoT || 0) - dt; if (R.autoT > 0) return; R.autoT = 0.6;
+function autoSkills(dt) { const R = run; if (B3 || !R || !R.single || R.over || stealthOn()) return; R.autoT = (R.autoT || 0) - dt; if (R.autoT > 0) return; R.autoT = 0.6;
   if (R.units.filter(u => u.alive && !u.hero && u.d > 0).length < 5) return; const act = activeSkills(R);
   for (const g of R.skillGenes) { if (STRAINS[g.strain].hero || act.includes(g.strain) || (R.cds[g.strain] || 0) > 0 || geneSkill(g).aim) continue;
     const t0 = window.toast; window.toast = () => {}; try { castSkill(g.strain); } finally { window.toast = t0; }
     if ((R.cds[g.strain] || 0) > 0) { const [x, y] = pathAt(R.frontD || map.d0); float(x, y - 46, `✨ ${geneSkill(g).name}`, '#e8c8ff', 13); } break; } }
 function castSkill(strain) {
   if (!run || run.over || paused) return;
-  const g = run.skillGenes.find(x => x.strain === strain); if (!g || run.cds[strain] > 0) return;
+  const g = run.skillGenes.find(x => x.strain === strain); if (!g) return; const isCore = B3 && strain === coreStrain();
+  if (isCore ? (run.chg || 0) < 1 : run.cds[strain] > 0) { if (isCore) toast(`본체 스킬 충전 중 ${Math.floor((run.chg || 0) * 100)}% · 바이러스가 도착하면 차요`); return; }
   const sk = geneSkill(g);
+  if (isCore) { const R = run, combo = !!(R.cmb && R.cmb.by === corePair()), sb = R.sb.mine || {}, S0 = { ...sb }, T0 = R.towers.map(t => [t.stunT || 0, +t.converted || 0, t.cd || 0]), G0 = [R.stunT || 0, R.stormT || 0, R.calmT || 0], N0 = nestTotal();
+    const ok = sk.aim ? (() => { const t = R.towers.filter(t => !t.converted).sort((a, b) => nearestOnPath(a.x, a.y).d - nearestOnPath(b.x, b.y).d).find(t => nearestOnPath(t.x, t.y).d > (R.frontD || 0) - 30); if (!t) { toast('앞쪽에 탑이 없어요'); return false; } t.converted = 10; burst(t.x, t.y - 20, 10, '#9fff6a'); float(t.x, t.y - 50, '숙주화!', '#9fff6a', 16); return true; })()
+      : (sk.ids ? sk.ids.map(id => SKILLS[id](Object.assign(Object.create(g), { strain: 'mine' }))).some(Boolean) : SKILLS[sk.id](Object.assign(Object.create(g), { strain: 'mine' })));
+    if (!ok) return; R.chg = 0; R.skN = (R.skN || 0) + 1;
+    const amp = () => { const k = CHG.mul - 1; for (const f in sb) if (typeof sb[f] === 'number' && sb[f] > (S0[f] || 0) && !/Mul$/.test(f)) sb[f] += (sb[f] - (S0[f] || 0)) * k;
+      R.towers.forEach((t, i) => { const o = T0[i] || [0, 0, 0]; if ((t.stunT || 0) > o[0]) t.stunT += (t.stunT - o[0]) * k; if ((+t.converted || 0) > o[1]) t.converted += (t.converted - o[1]) * k; if ((t.cd || 0) > o[2]) t.cd += (t.cd - o[2]) * k; });
+      [['stunT', 0], ['stormT', 1], ['calmT', 2]].forEach(([f, i]) => { if ((R[f] || 0) > G0[i]) R[f] += (R[f] - G0[i]) * k; });
+      if (dn > 0) { const tot = nestTotal(); if (tot > 0) for (const kk in R.nest) R.nest[kk] += R.nest[kk] / tot * dn * k; }
+      R.comboN = (R.comboN || 0) + 1; banner(`🔥 콤보! ${PAIR_NAME[corePair()]} + ${sk.name} ×${CHG.mul}`); shake(5); R.flashT = 0.25; R.flashC = '255,210,74'; sfx('breakout'); buzz([20, 30, 40]); };
+    const dn = nestTotal() - N0; for (const f in sb) if (typeof sb[f] === 'number') S0[f] = S0[f] || 0;
+    if (combo) { R.cmb = null; amp(); } else R.cmbBack = { t: CHG.win, go: () => { for (const f in S0) if (typeof sb[f] === 'number' && sb[f] < S0[f]) S0[f] = sb[f]; amp(); } };
+    ui.tickDeploy(); return; }
   if (sk.aim) { aiming = aiming === strain ? null : strain; placing = null; $('outChooser').hidden = true; ui.renderSkills(); $('hint').textContent = aiming ? '아군으로 만들 탑을 누르세요' : '스킬을 누르면 즉시 발동'; return; }
   const gg = run.single && !STRAINS[strain].hero ? Object.assign(Object.create(g), { strain: 'mine' }) : g;   // 추출한 스킬은 내 바이러스에게 걸린다
   if ((sk.ids ? sk.ids.map((id, i) => SKILLS[id](i === 1 && g.rc && g.rc.sk ? Object.assign(Object.create(gg), { star: g.rc.skStar || 1 }) : gg)).some(Boolean) : SKILLS[sk.id](gg))) { run.cds[strain] = geneStats(g).cd * (run.med && run.med.w > 0 ? 1 - MED.refund : 1); medGuard(); sfx('skill'); toast(`${sk.name} 발동`); $('hint').textContent = `${sk.name}: ${(sk.ids || [sk.id]).map(id => SHORT[id] ? SHORT[id](STRAINS[strain].name) : '').join(' + ')}`; }
@@ -4564,7 +4587,7 @@ const ui = {
         + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
-      $('deploy').innerHTML = (lead ? `<button class="dp v sk2" data-sk="${lead.strain}" aria-label="대장 스킬">${pimg(lead)}<div><b>${cs && lead.strain === cs ? '본체' : '대장'}</b><small></small></div><i></i></button>` : '')
+      $('deploy').innerHTML = (lead ? `<button class="dp v sk2" data-sk="${lead.strain}" aria-label="본체 스킬">${pimg(lead)}<div><b style="font-size:12px">👑${geneSkill(lead).name}</b><small></small></div><i></i></button>` : '')
         + `<button class="dp v" id="dpSpr" aria-label="증식"><div class="b3ic">🦠</div><div><b>증식</b><small></small></div><i></i></button>`
         + `<button class="dp v" id="dpHide" aria-label="잠복"><div class="b3ic">🫥</div><div><b>잠복</b><small></small></div><i></i></button>`
         + `<button class="dp v atk" id="dpAll" aria-label="돌격"><div><b style="font-size:13px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div><i></i></button>`;
@@ -4627,13 +4650,17 @@ const ui = {
       if (hb) { hb.className = 'dp v hero' + (!run.hero.out ? ' hold' : hu && hu.alive ? (hcd <= 0 ? ' full' : ' go') : ' done');
         hb.querySelector('small').textContent = !run.hero.out ? '탭: 출격' : hu && hu.alive ? (hcd > 0 ? `캡슐 ${Math.ceil(hcd)}s` : '탭: 캡슐') : run.heroDone ? '침투 성공' : '쓰러짐'; }
       const mb = $('dpMut'); if (mb) { const tg = run.towers.filter(t => t.spec).length + (save.host >= 2 && save.vax && !run.variant[save.vax] ? 1 : 0); mb.hidden = !tg; mb.className = 'dp v' + (tg ? ' full' : ''); mb.querySelector('small').textContent = tg ? `노림 ${tg}` : '대기'; }
-      $('deploy').querySelectorAll('.sk2').forEach(b => { const st = b.dataset.sk, g = run.skillGenes.find(x => x.strain === st), cd = run.cds[st] || 0, full = geneStats(g).cd; b.className = 'dp v sk2' + (cd <= 0 ? ' full' : '') + (cd <= 0 && run.med && !run.med.guard ? ' medGo' : ''); b.querySelector('small').textContent = cd > 0 ? `${Math.ceil(cd)}초` : '탭: 발동'; b.querySelector('i').style.width = ((1 - cd / full) * 100) + '%'; });
+      $('deploy').querySelectorAll('.sk2').forEach(b => { if (B3 && b.dataset.sk === coreStrain()) { const c = run.chg || 0, cb = run.cmb && run.cmb.by === corePair(), rdy = c >= 1;
+          b.className = 'dp v sk2' + (rdy ? (cb ? ' combo' : ' full') : ''); b.querySelector('small').textContent = rdy ? (cb ? `🔥 콤보 ${run.cmb.t.toFixed(1)}s` : `👑+${PAIR_IC[corePair()]}${PAIR_NAME[corePair()]} = ×${CHG.mul}`) : `충전 ${Math.floor(c * 100)}%`;
+          b.querySelector('i').style.width = Math.min(100, c * 100) + '%'; return; }
+        const st = b.dataset.sk, g = run.skillGenes.find(x => x.strain === st), cd = run.cds[st] || 0, full = geneStats(g).cd; b.className = 'dp v sk2' + (cd <= 0 ? ' full' : '') + (cd <= 0 && run.med && !run.med.guard ? ' medGo' : ''); b.querySelector('small').textContent = cd > 0 ? `${Math.ceil(cd)}초` : '탭: 발동'; b.querySelector('i').style.width = ((1 - cd / full) * 100) + '%'; });
       const ab = $('dpAll'); if (ab && nestOn()) { const t = Math.floor(nestTotal()), cp = Math.round(nestCap()); ab.querySelector('small').textContent = `둥지 ${t}/${cp}`; ab.classList.toggle('gapOn', gap && t > 0); const ai = ab.querySelector('i'); if (ai) ai.style.width = Math.min(100, t / Math.max(1, cp) * 100) + '%'; ab.classList.toggle('full', t >= cp * 0.98); }
       if (B3) { const hb2 = $('dpHide'); if (hb2) { const H = run.hd || { st: 'ready', t: 0 }; hb2.className = 'dp v' + (H.st === 'ready' ? (run.med && run.med.w > 0 ? ' gapOn' : ' full') : H.st === 'hid' ? ' go' : ' done');
           hb2.querySelector('small').textContent = H.st === 'ready' ? (run.med && run.med.w > 0 ? '지금!' : '탭: 숨기') : H.st === 'hid' ? `숨음 ${H.t.toFixed(1)}s · 탭: 나오기` : H.st === 'up' ? '나오는 중' : `다시 ${Math.ceil(H.t)}s`;
           hb2.querySelector('i').style.width = (H.st === 'hid' ? H.t / HIDE.max : H.st === 'cd' ? 1 - H.t / HIDE.cd : H.st === 'ready' ? 1 : 0) * 100 + '%'; }
         const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd || 0, cost = Math.max(3, Math.round(nestCap() * SPR.cost)), ok = cd <= 0 && nestTotal() >= cost;
-          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = run.sprSlow > 0 ? `불리는 중 ${Math.ceil(run.sprSlow)}s` : cd > 0 ? `${Math.ceil(cd)}s` : `−${cost} · +${SPR.tiles}칸`; sb2.querySelector('i').style.width = (1 - cd / SPR.cd) * 100 + '%'; } }
+          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = run.sprSlow > 0 ? `불리는 중 ${Math.ceil(run.sprSlow)}s` : cd > 0 ? `${Math.ceil(cd)}s` : `−${cost} · +${SPR.tiles}칸`; sb2.querySelector('i').style.width = (1 - cd / SPR.cd) * 100 + '%'; }
+        const pb = $({ brk: 'dpAll', hide: 'dpHide', spr: 'dpSpr' }[corePair()]); if (pb) { pb.classList.add('pair'); const bk = run.cmbBack && run.cmbBack.t > 0; pb.classList.toggle('combo', bk); if (bk) pb.querySelector('small').textContent = `🔥 지금! ${run.cmbBack.t.toFixed(1)}s`; } }
       const ob = $('dpOut'); if (ob) { ob.className = 'dp v' + (placing ? ' gapOn' : run.outLeft ? '' : ' done'); ob.querySelector('small').textContent = `남은 ${run.outLeft}`; }
       return; }
     $('deploy').querySelectorAll('.dp[data-i]').forEach(b => { const g = run.groups[+b.dataset.i], n = g.list.length;
