@@ -776,29 +776,29 @@ const $ = id => document.getElementById(id);
 /* ---------- [data/strains.js] ---------- */
 const STRAINS = {
   rhino:  { name:'라이노',     role:'기본 보병', rarity:0, genome:'RNA',   seg:false, fit:1.2, atk:0.22, hp:30,  spd:65, count:38, size:13,
-            skill:{ id:'replicate', name:'자가 증식', cd:40, desc:'살아 있는 라이노가 절반 확률로 하나씩 복제됨 (최대 +40, 복제체 체력·감염력 50%)' } },
+            skill:{ id:'replicate', name:'자가 증식', cd:40, desc:'살아 있는 바이러스가 절반 확률로 하나씩 복제 (최대 +40, 복제체는 체력·감염력 50%)' } },
   adeno:  { name:'아데노',     role:'탱커',     rarity:1, genome:'DNA',   seg:false, fit:0.8, atk:0.5,  hp:150, spd:52, count:10, size:18,
-            skill:{ id:'capsid', name:'캡시드 장벽', cd:30, desc:'6초간 아데노만 받는 피해 −50%' } },
+            skill:{ id:'capsid', name:'캡시드 장벽', cd:30, desc:'6초간 받는 피해 −50%' } },
   noro:   { name:'노로',       role:'물량',     rarity:0, genome:'RNA',   seg:false, fit:1.3, atk:0.15, hp:12,  spd:74, count:48, size:10,
-            skill:{ id:'outbreak', name:'집단 발병', cd:35, desc:'대기 중인 노로를 맨 앞으로 당겨 한꺼번에 방출 + 6초간 노로 이동 +25%' } },
+            skill:{ id:'outbreak', name:'집단 발병', cd:35, desc:'대기 중인 바이러스를 맨 앞으로 당겨 한꺼번에 방출 + 6초간 이동 +25%' } },
   herpes: { name:'헤르페스',   role:'은신',     rarity:1, genome:'DNA',   seg:false, fit:0.9, atk:0.37,  hp:26,  spd:64, count:19, size:13, stealth:true,
-            skill:{ id:'latency', name:'신경 속 잠적', cd:40, desc:'8초간 헤르페스가 레이더에도 잡히지 않음' } },
+            skill:{ id:'latency', name:'신경 속 잠적', cd:40, desc:'8초간 레이더(수지상 세포)에도 안 잡힘' } },
   flu:    { name:'인플루엔자', role:'변이',     rarity:1, genome:'RNA',   seg:true,  fit:1.1, atk:0.3, hp:24,  spd:64, count:26, size:13, split:true,
-            skill:{ id:'shift', name:'항원 변이', cd:50, desc:'3초간 인플루엔자가 표적에서 사라짐 + 면역 경보 절반 감소' } },
+            skill:{ id:'shift', name:'항원 변이', cd:50, desc:'3초간 표적에서 사라짐 + 면역 경보 절반 감소' } },
   rota:   { name:'로타',       role:'스피드',   rarity:0, genome:'RNA',   seg:true,  fit:1.2, atk:0.15, hp:10,  spd:94, count:26, size:12,
-            skill:{ id:'spread', name:'폭발적 전파', cd:40, desc:'4초간 로타만 이동 +40%, 감속 무시' } },
+            skill:{ id:'spread', name:'폭발적 전파', cd:40, desc:'4초간 이동 +40%, 감속 무시' } },
   retro:  { name:'레트로',     role:'장악',     rarity:2, genome:'retro', seg:false, fit:1.0, atk:0.49, hp:30,  spd:60, count:16, size:13,
-            skill:{ id:'hostify', name:'숙주화', cd:45, aim:true, desc:'탑 1개를 10초간 아군화 (레트로 10마리 소모)' } },
+            skill:{ id:'hostify', name:'숙주화', cd:45, aim:true, desc:'앞쪽 탑 1개를 10초간 아군화' } },
   rabies: { name:'라비',       role:'돌파',     rarity:2, genome:'RNA',   seg:false, fit:0.9, atk:0.42,  hp:28,  spd:79, count:13, size:12,
-            skill:{ id:'neuro', name:'신경 질주', cd:45, desc:'가장 앞선 라비 12마리를 다음 꺾임으로 순간이동' } },
+            skill:{ id:'neuro', name:'신경 질주', cd:45, desc:'가장 앞선 바이러스 12마리를 다음 꺾임으로 순간이동' } },
   rsv:    { name:'RSV',        role:'잠행',     rarity:1, genome:'RNA',   seg:false, fit:1.0, atk:0.34,  hp:30,  spd:60, count:22, size:13,
-            skill:{ id:'dive', name:'점막 이동', cd:38, desc:'5초간 RSV가 점막 아래로 파고듦: 공격받지 않고 감속·판막 무시, 이동 +30%' } },
+            skill:{ id:'dive', name:'점막 이동', cd:38, desc:'5초간 점막 아래로 파고듦: 공격받지 않고 감속·판막 무시, 이동 +30%' } },
   measles:{ name:'홍역',       role:'폭발 감염', rarity:1, genome:'RNA',  seg:false, fit:1.1, atk:0.32,  hp:22,  spd:62, count:24, size:12,
-            skill:{ id:'rash', name:'전신 발진', cd:40, desc:'8초간 홍역의 감염력 ×2' } },
+            skill:{ id:'rash', name:'전신 발진', cd:40, desc:'8초간 감염력 ×2' } },
   hepb:   { name:'B형 간염',   role:'미끼',     rarity:2, genome:'DNA',   seg:false, fit:0.9, atk:0.4,  hp:55,  spd:56, count:14, size:15,
-            skill:{ id:'decoy', name:'항원 미끼', cd:40, desc:'B형 간염 앞에 빈 껍데기 16개를 뿌려 탑의 공격을 대신 받게 함 (껍데기는 감염 못 함)' } },
+            skill:{ id:'decoy', name:'항원 미끼', cd:40, desc:'빈 껍데기 16개를 뿌려 탑의 공격을 대신 받게 함 (껍데기는 감염 못 함)' } },
   hpv:    { name:'파필로마',   role:'재생',     rarity:0, genome:'DNA',   seg:false, fit:1.0, atk:0.34,  hp:42,  spd:52, count:26, size:13,
-            skill:{ id:'wart', name:'각질 재생', cd:35, desc:'8초간 파필로마가 매초 최대 체력의 12%를 회복' } },
+            skill:{ id:'wart', name:'각질 재생', cd:35, desc:'8초간 매초 최대 체력의 12% 회복' } },
 };
 // 역할 기호: 탱(방패) · 딜(검) · 힐(십자) · 물량(무리) · 잠행(눈)
 const ROLE_OF = { rhino:'swarm', adeno:'tank', noro:'swarm', herpes:'stealth', flu:'stealth', rota:'dps', retro:'heal', rabies:'dps', rsv:'stealth', measles:'dps', hepb:'tank', hpv:'heal',
@@ -1447,7 +1447,7 @@ const COMP_FX = {
 const LEG_COMP = { name: '전설의 기운', desc: '체력·공격 +10%', atk: 1.1, hp: 1.1 };
 const compFx = g => !g ? null : COMP_FX[g.strain] || (STRAINS[g.strain].legend ? LEG_COMP : null);
 STRAINS.sweat && (STRAINS.sweat.legend = true);
-for (const k of Object.keys(COMP_FX)) { const d = STRAINS[k]; if (!d) continue; d.comp = true; if (!d.legend) { d.atk *= 0.4; d.hp *= 0.4; } d.skill = { ...(d.skill || {}), id: 'cfx', name: COMP_FX[k].name, desc: COMP_FX[k].desc + (COMP_FX[k].risk ? ' · ' + COMP_FX[k].risk : '') + ' (동반으로 데려가면 판 내내)', cd: 99 }; }
+for (const k of Object.keys(COMP_FX)) { if (['rinderpest', 'yamagata', 'h2n2', 'sars'].includes(k)) continue; const d = STRAINS[k]; if (!d) continue; d.comp = true; if (!d.legend) { d.atk *= 0.4; d.hp *= 0.4; } d.skill = { ...(d.skill || {}), id: 'cfx', name: COMP_FX[k].name, desc: COMP_FX[k].desc + (COMP_FX[k].risk ? ' · ' + COMP_FX[k].risk : '') + ' (동반으로 데려가면 판 내내)', cd: 99 }; }
 const isComp = g => !!(g && STRAINS[g.strain] && STRAINS[g.strain].comp);
 // ★ 본체 = 처음에 고른 바이러스 한 종 (바꿀 수 없음). 감염 경로로 고른다: 공기 · 음식 · 접촉
 const STARTERS = [
@@ -2201,7 +2201,7 @@ const ORGAN_HZ = {
 };
 // ★ 기관마다 유리한 본체 스킬 종류: 맞으면 그 기관 방해물이 40%로 약해진다 (궁합 맞는 본체면 60%, 둘 다면 24%)
 const HZ_FAV = { nose: 'hide', lung: 'hide', gut: 'boost', lymph: 'boost', liver: 'grow', skin: 'stop', brain: 'stop' };
-const SKT_NAME = { stop: '🛑 막기형', hide: '🫥 숨기형', grow: '🦠 불리기형', boost: '⚔ 강하게형' };
+const SKT_NAME = { stop: '🛑 막기형', hide: '🛡 버티기형', grow: '🦠 불리기형', boost: '⚔ 강하게형' };
 const hzFav = (org = save.sel) => HZ_FAV[org] && coreStrain() && (SKTYPE[coreStrain()] || 'boost') === HZ_FAV[org];
 function initHazard() { const R = run, c = ORGAN_HZ[R.st.organ.id]; if (!c) return; R.hz = { ...c, t: c.every || c.shut || 0, closed: c.type === 'gate', d: (c.at || 0) * map.len, warned: false }; }
 function stepHazard(dt) {
@@ -2808,12 +2808,10 @@ const ALG = { per: 0.12, lvDmg: 1.35, lvR: 1.15, maxLv: 3, start: 2 };
 const stageIx = (org = save.sel) => (save.host || 0) * 8 + Math.max(0, ORGANS.findIndex(o => o.id === org));
 const twMax = (org = save.sel) => Math.min(8, 3 + Math.floor(stageIx(org) / 3));   // 어린이 코 3개 … 운동선수 8개   // ★ 시제품: 탑이 더 아프게 (막기·숨기가 의미 있도록)
 // ★ 본체 스킬: 처음엔 가득·30초 자연충전·도착하면 더 빨리 참. 짝 버튼(👑)과 3초 안에 같이 쓰면 콤보 ×1.3
-const SKTYPE = { astro:'boost', hepa:'hide', hepc:'hide', westnile:'grow', zika:'boost', hanta:'stop', norosyd:'grow', yellowf:'boost', gbvc:'stop', ttv:'stop', cowpox:'stop', polio:'stop', parvo:'stop', ebola:'stop', retro:'stop', hepb:'stop',
-  herpes:'hide', flu:'hide', rsv:'hide', ebv:'hide', corona:'hide',
-  rhino:'grow', varicella:'grow', cmv:'grow', smallpox:'grow', noro:'grow', dengue:'grow',
-  rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', hpv:'boost', mumps:'boost', adeno:'boost', aav:'boost', flu1918:'boost' };
+// ★ 본체 스킬 4종류 (효과대로): 🛑막기=탑 무력화 · 🛡버티기=안 맞기·덜 맞기·회복 · 🦠불리기=수 늘리기 · ⚔강하게=빠르고 세게 감염
+const SKTYPE = { retro:'stop', hepb:'stop', ebola:'stop', polio:'stop', parvo:'stop', ttv:'stop', gbvc:'stop', cowpox:'stop', hanta:'stop', h2n2:'stop', flu1918:'stop', adeno:'hide', herpes:'hide', flu:'hide', rsv:'hide', hpv:'hide', ebv:'hide', mumps:'hide', aav:'hide', hepa:'hide', hepc:'hide', yamagata:'hide', corona:'hide', rhino:'grow', smallpox:'grow', norosyd:'grow', varicella:'grow', cmv:'grow', noro:'boost', rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', zika:'boost', yellowf:'boost', astro:'boost', dengue:'boost', westnile:'boost', rinderpest:'boost', sars:'boost' };
 const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '돌격', hide: '잠복', spr: '증식' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🦠' };
-const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 숨기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
+const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 버티기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
 // ★ 본체 스킬 세기 = 종류 × 등급(일반·희귀·영웅·전설·전설+). 강하게·불리기는 원래 너무 세서 낮추고, 막기·숨기는 올림
 const CORE_K = { boost: [0.2, 0.22, 0.3, 0.45, 0.6], grow: [0.5, 0.6, 0.7, 0.85, 1], stop: [1, 1.1, 1.2, 1.35, 1.5], hide: [1, 1.1, 1.2, 1.35, 1.5] };
 const coreK = () => { const st = STRAINS[coreStrain()] || {}, t = SKTYPE[coreStrain()] || 'boost'; return CORE_K[t][Math.min(4, st.legend ? Math.max(3, st.rarity || 0) : (st.rarity || 0))]; };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
@@ -2866,7 +2864,7 @@ function b3Help() { const R = run; R.mutPause = true; paused = true;
     <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
     <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 세포 속으로 흡수돼요. <b>느리게(35%) 계속 나아가고, 약·탑 침·방해물을 다 무시해요</b>. 숨어 있는 동안 <b>1초마다 땅속 오염이 숨은 무리 쪽으로 한 칸</b> 번지고, 겹친 탑은 무너져요. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
     <b style="color:#e8a0ff">🦠 증식</b> 둥지 최대치의 ${Math.round(SPR.cost * 100)}%를 써서 오염된 땅을 <b>목표 쪽으로 ${SPR.tiles}칸</b> 넓혀요. 최대치 +${Math.round(SPR.capUp * 100)}%, 공격 +${Math.round(SPR.atkUp * 100)}% (계속 쌓임). 대신 ${SPR.slowT}초 동안 모이는 속도가 ${Math.round(SPR.slow * 100)}%로 줄고, 그 뒤 ${SPR.fastT}초는 빠르게 차요. 그 땅의 탑은 무너져요.<br>
-    <b style="color:#ffd27a">✨ 본체 스킬</b> 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요. <b>👑 왕관 붙은 버튼</b>이 본체의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 🔥콤보 ×${CHG.mul}!<br><span style="font-size:12px;color:#bbb">막기형: 탑 멈춤 + 둥지 커짐 · 숨기형: 약 면역 + 둥지 번식 ×2 · 불리기형: 바이러스 늘리기 · 강하게형: 감염력 올리기</span><br>
+    <b style="color:#ffd27a">✨ 본체 스킬</b> 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요. <b>👑 왕관 붙은 버튼</b>이 본체의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 🔥콤보 ×${CHG.mul}!<br><span style="font-size:12px;color:#bbb">막기형: 탑 멈춤 + 둥지 커짐 · 버티기형: 약 면역 + 둥지 번식 ×2 · 불리기형: 바이러스 늘리기 · 강하게형: 감염력 올리기</span><br>
     <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
@@ -4706,7 +4704,7 @@ const ui = {
   renderDeploy() {
     const hg = run.hero.gene;
     if (stealthOn()) { const T = run.sth;
-      $('deploy').innerHTML = (run.single ? [] : run.groups).concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
+      $('deploy').innerHTML = (run.single ? [] : run.groups).concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && (B3 ? g.strain === coreStrain() : activeSkills().includes(g.strain))).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
         + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
