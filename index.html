@@ -5257,7 +5257,7 @@ function playCatch(g) {
 function autoSquad() {
   const org = save.sel || 'nose', S = new Map(save.genes.filter(g => !STRAINS[g.strain].hero && !isComp(g)).map(g => [g, geneStats(g)]));
   const tf = g => 1 + 0.15 * tropScore(g.strain, org), all = [...S.keys()], top = (i, n) => slotOpen(i) ? all.filter(g => canSlot(g, i)).sort((a, b) => power(b) * tf(b) - power(a) * tf(a)).slice(0, n) : [];
-  const P0 = top(0, 8), P1 = top(1, 6), P2 = top(2, 6), P3 = top(3, 6), opt = P => P.length ? P : [null];
+  const P0 = top(0, 8), P1 = top(1, 6), P2 = top(2, 6), P3 = top(3, 6), opt = P => [...P, null];   // 빈 칸도 후보 (후보가 겹칠 때 전부 막히지 않게)
   let best = null, bk = null;
   for (const a of opt(P0)) for (const c of opt(P1)) for (const k of opt(P2)) for (const d of opt(P3)) {
     const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap()) continue;
