@@ -654,6 +654,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmH .role { position: static; display: inline-grid; width: 16px; height: 16px; vertical-align: -3px; }
   .fmS.no { filter: grayscale(.9) brightness(.5); } .fmS.no::after { content: '🚫'; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 26px; }
   .rcRow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #3a2a2e; font-size: 13px; text-align: left; } .rcRow > b { width: 56px; font-size: 12px; } .rcRow img { width: 38px; height: 38px; object-fit: contain; } .rcRow small { font-size: 11px; }
+  .sortRow button.on { background: #3ae0c0 !important; color: #06302a !important; border-color: #3ae0c0 !important; }
   .sortRow .srtT { margin-left: auto; border-color: #6a5030 !important; color: #ffd27a; } .sortRow button small { font-size: 10px; opacity: .7; }
   #sortRail { flex-wrap: nowrap; overflow-x: auto; margin: 3px 0 4px; gap: 4px; } #sortRail button { padding: 3px 6px; font-size: 11.5px; white-space: nowrap; flex: 0 0 auto; }
   .fmStrip { display: flex; justify-content: space-between; align-items: center; margin: -1px -1px 3px; padding: 1px 5px; border-radius: 9px 9px 0 0; font-size: 10.5px; font-weight: 800; color: #1a0f0c; line-height: 15px; white-space: nowrap; }
@@ -679,6 +680,20 @@ img.legend { animation: legGlow 3s linear infinite; }
   .navGo { margin-top: -8px !important; height: 56px !important; border-radius: 16px !important; font-size: 15px !important; border-width: 1.5px !important; } .navGo small { font-size: 10px; }
   .fmStrip { overflow: hidden; } .fmStrip > span { overflow: hidden; text-overflow: ellipsis; }
   .rbw, .rbwT { background: linear-gradient(90deg,#ff6a6a,#ffd24a,#7ad070,#5ad0ff,#b07aff); -webkit-background-clip: text; background-clip: text; color: transparent !important; } .fmC small.rbw .lv { -webkit-text-fill-color: #b59f86; }
+  .fmLegend { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #c9b9a2; margin: 2px 0 6px; } .fmLegend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; border: 1px solid rgba(255,255,255,.15); margin-left: 6px; } .fmLegend i:first-child { margin-left: 0; }
+  .fmPanel { display: block; background: rgba(20,12,16,.8); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 5px 9px; font-size: 12px; line-height: 1.7; color: #eadcc2; } .fmPanel > span { display: block; } .fmPanel em { font-style: normal; color: #b59f86; display: inline-block; width: 34px; } .fmPanel b { color: #3ae0c0; } .fmPanel small { color: #b59f86; }
+  .fmC { background-clip: padding-box; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; padding: 6px 2px 5px !important; box-shadow: none; }
+  .fmC.in { box-shadow: inset 0 0 0 1.5px #3ae0c0 !important; }
+  .fmC .fmPic { display: block; height: 56px; } .fmC .fmPic img { width: 56px !important; height: 56px !important; object-fit: contain; }
+  .fmC b { font-size: 12px; height: 16px; line-height: 16px; margin-top: 2px; }
+  .fmC .fmSt { display: block; font-size: 9.5px !important; letter-spacing: -.5px; height: 13px; line-height: 13px; } .fmC .fmSt i { font-style: normal; color: #4a3a30; }
+  .fmC .fmLv { display: block; font-size: 10.5px !important; color: #b59f86; letter-spacing: 0 !important; height: 14px; line-height: 14px; white-space: nowrap; }
+  .fmMk { position: absolute; right: 4px; top: 4px; z-index: 3; font-style: normal; font-size: 10px; font-weight: 900; border-radius: 9px; min-width: 18px; height: 18px; line-height: 18px; padding: 0 3px; }
+  .fmMk.eq { background: #3ae0c0; color: #06302a; } .fmMk.cr { background: rgba(0,0,0,.5); } .fmMk.up { background: rgba(0,0,0,.6); color: #3ae0c0; } .fmMk.dn { background: rgba(0,0,0,.6); color: #ff9c8a; }
+  .fmC.foil { overflow: hidden; } .fmC.foil::before { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg,transparent 30%,rgba(255,255,255,.22) 45%,rgba(255,220,255,.1) 55%,transparent 70%); pointer-events: none; }
+  .navGo { background: linear-gradient(#9ffcea,#3ae0c0 45%,#14a088) !important; border: 0 !important; box-shadow: 0 6px 0 #0a6a5a, 0 10px 16px rgba(0,0,0,.45) !important; text-shadow: 0 2px 0 rgba(0,0,0,.45); position: relative; overflow: hidden; }
+  .navGo::before { content: ''; position: absolute; left: 10px; right: 10px; top: 4px; height: 11px; border-radius: 10px; background: linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0)); }
+  .navGo:active { transform: translateY(5px); box-shadow: 0 1px 0 #0a6a5a, 0 3px 6px rgba(0,0,0,.45) !important; } .navGo small { color: #e8fffa !important; }
   .cpList { display: flex; flex-direction: column; gap: 6px; max-height: 52vh; overflow: auto; margin-top: 8px; } .cpOpt { display: flex; gap: 10px; align-items: center; text-align: left; background: #2a1d14; border: 1px solid #5a4430; border-radius: 10px; padding: 6px 8px; color: #f3e6d3; } .cpOpt img { width: 40px; height: 40px; object-fit: contain; } .cpOpt small { display: block; color: #c9b9a2; font-size: 12px; }
   .dp.pair { position: relative; } .dp.pair::after { content: '👑'; position: absolute; top: -7px; right: -4px; font-size: 13px; line-height: 1; } .dp.combo { border-color: #ffd24a !important; box-shadow: 0 0 0 2px #ffd24a, 0 0 18px #ffb02a; animation: cmb .5s ease-in-out infinite alternate; } @keyframes cmb { to { transform: scale(1.06); } } .stPick { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; } .stOpt { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px; border-radius: 12px; background: #2a1a20; border: 2px solid #5a3a40; color: #eadcc2; } .stOpt img { width: 64px; height: 64px; object-fit: contain; flex: none; } .stOpt b { font-size: 15px; display: block; } .stOpt small { display: block; font-size: 12px; color: #c8b8a0; margin: 2px 0; } .stOpt em { font-style: normal; font-size: 12.5px; color: #9fd8ff; display: block; } .stOpt i { font-style: normal; font-size: 12px; color: #ffd27a; } .cvAd { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 2px; } .cvAd u { text-decoration: none; font-size: 12px; padding: 2px 6px; border-radius: 8px; background: #2a1a20; color: #8a7a6a; } .cvAd u.nat { background: #2e4a1e; color: #b9ff8a; } .cvAd u.ad { background: #3e2450; color: #e8b0ff; } .cvAd u small { margin-left: 2px; font-size: 10px; } .cfoot .og u.ad { color: #e8b0ff !important; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
   /* 카드 테두리: 등급 색 선만 (그림 테두리는 뺌) */
@@ -1019,8 +1034,15 @@ const ALL_ORG = ['nose', 'lung', 'gut', 'liver', 'blood', 'skin', 'lymph', 'brai
 const ROUTE = { air: { n: '공기', s: '공기', ic: '🌬', c: '#8ad0ff' }, food: { n: '음식·손', s: '음식', ic: '🍎', c: '#ffa04a' }, touch: { n: '접촉·침', s: '접촉', ic: '✋', c: '#c08aff' }, blood: { n: '혈액', s: '혈액', ic: '🩸', c: '#ff6a6a' }, vector: { n: '모기·동물', s: '모기', ic: '🦟', c: '#7ad070' } };
 const ROUTE_OF = {}; for (const [r, L] of Object.entries({ air: 'rhino flu rsv measles yamagata h2n2 sars corona flu1918', food: 'noro rota astro adeno coxsackie hepa polio norosyd', touch: 'hpv cowpox varicella mumps aav herpes ebv smallpox', blood: 'ttv gbvc hepc hepb retro cmv parvo ebola', vector: 'westnile dengue rinderpest zika rabies hanta yellowf' })) for (const k of L.split(' ')) ROUTE_OF[k] = r;
 const routeOf = st => ROUTE_OF[st] || ROUTE_OF[((STRAINS[st] || {}).parents || [])[0]] || 'air';
-const SET_B = [0, 0, 0.05, 0.10, 0.15, 0.20];
-const LEAD_SET = 0.10;   // ★ 리더 보너스: 본체도 세트 색이면 +10%
+const SET_B = [0, 0, 0, 0, 0, 0];   // 색깔 세트 없앰
+const LEAD_SET = 0;   // 색깔 세트·리더 색 보너스는 없앰 (역할 전략으로 대체)
+// ★ 역할 팀 효과: 팀(본체 포함)에 있는 역할마다 전투 버튼 하나가 세진다 (역할당 2장까지)
+const ROLE_FX = { tank: { n: '내성', t: '잠복 +1초' }, swarm: { n: '증식', t: '증식 +1칸' }, dps: { n: '독성', t: '공격 +10%' }, stealth: { n: '침투', t: '본체 충전 +10%' }, heal: { n: '재생', t: '약 피해 −15%' } };
+const roleCnt = cards => { const n = {}; for (const g of new Set(cards.filter(Boolean))) { const r = ROLE_OF[g.strain]; if (ROLE_FX[r]) n[r] = Math.min(2, (n[r] || 0) + 1); } return n; };
+// ★ 기관 보스 약점: 그 역할 카드 장당 +15% (최대 2장 +30%)
+const ORG_WEAK = { nose: 'dps', lung: 'tank', gut: 'dps', liver: 'heal', blood: 'stealth', skin: 'tank', lymph: 'swarm', brain: 'stealth' };
+const weakB = (cards, org = save.sel) => B3 && !window.__noWeak ? 0.15 * ((roleCnt(cards)[ORG_WEAK[org]]) || 0) : 0;
+const teamRole = () => (run && run.roleN) || {};   // ★ 리더 보너스: 본체도 세트 색이면 +10%
 const setInfo = cards => { const n = {}, cs = [...new Set(cards.filter(Boolean))]; for (const g of cs) { const r = routeOf(g.strain); n[r] = (n[r] || 0) + 1; } const cg = cs.find(g => g.core), cr = cg && routeOf(cg.strain);
   const top = Object.entries(n).sort((a, b) => b[1] - a[1] || (a[0] === cr ? -1 : b[0] === cr ? 1 : 0))[0] || ['air', 0], lead = !!(cr && top[0] === cr && top[1] >= 2); return { r: top[0], n: top[1], b: SET_B[Math.min(5, top[1])] + (lead ? LEAD_SET : 0), set: SET_B[Math.min(5, top[1])], lead, all: n }; };
 // ★ 리더 적합도: 본체로 싸운 판수만큼 모든 기관 궁합이 조금씩 (판당 +1%, 최대 +15%)
@@ -1086,7 +1108,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.2, lung: 0.18, gut: 0.8, liver: 0.85, blood: 0.66, skin: 0.42, lymph: 1.41, brain: 5.69 },
+const CAL = { 0: { nose: 0.15, lung: 0.14, gut: 0.8, liver: 0.85, blood: 0.66, skin: 0.42, lymph: 1.41, brain: 5.69 },
   1: { nose: 1.56, lung: 1.24, gut: 0.74, liver: 1.74, blood: 0.88, skin: 0.48, lymph: 0.8, brain: 1.32 },
   2: { nose: 0.9, lung: 1.11, gut: 1.65, liver: 1.43, blood: 0.78, skin: 0.58, lymph: 0.75, brain: 1.41 },
   3: { nose: 1.82, lung: 1.09, gut: 0.91, liver: 2.15, blood: 1.06, skin: 0.8, lymph: 0.79, brain: 1.51 } };
@@ -1445,9 +1467,10 @@ const SLOT_COL = [['#5c1a28', '#e0506a'], ['#14385c', '#4aa0e0'], ['#5c3410', '#
 const roleSlotOf = g => { const r = ROLE_OF[g.strain]; return r && ROLE_SLOT[r] ? ROLE_SLOT[r][0] : -1; };
 // ★ 카드 테두리 = 등급 (클래시 로얄·하스스톤식): 일반 회갈색 · 희귀 파랑 · 영웅 보라 · 전설 금빛. 바탕은 어두운 무채색에 역할 색을 아주 살짝
 const RAR_FRAME = ['#6e6862', '#cfd6e2', '#e8b830'];
-const cardBg = g => { const D = STRAINS[g.strain], tint = typeof ROUTE !== 'undefined' ? ROUTE[routeOf(g.strain)].c : '#888';   // ★ 카드 바탕 = 색깔(전파 경로)
-  if (D.legend) return `background:linear-gradient(180deg,color-mix(in srgb,${tint} 14%,#1d1418) 30%,color-mix(in srgb,${tint} 34%,#150d11)) padding-box,linear-gradient(135deg,#ff6a6a,#ffd24a,#7ad070,#5ad0ff,#b07aff,#ff6ad0) border-box;border-color:transparent;box-shadow:0 0 9px rgba(255,180,240,.45)`;
-  return `background:linear-gradient(180deg,color-mix(in srgb,${tint} 14%,#1d1418) 30%,color-mix(in srgb,${tint} 34%,#150d11));border-color:${RAR_FRAME[D.rarity] || RAR_FRAME[0]}`; };
+// ★ 카드 바탕 = 등급 (옅은 파스텔 반투명) · 전설은 무지개빛 + 반짝임
+const RAR_BG = ['linear-gradient(160deg,rgba(190,184,176,.26),rgba(120,114,108,.16))', 'linear-gradient(160deg,rgba(170,205,255,.32),rgba(110,140,200,.16))', 'linear-gradient(160deg,rgba(255,214,120,.36),rgba(200,140,40,.18))'], LEG_BG = 'linear-gradient(160deg,rgba(255,150,150,.32),rgba(255,220,120,.3),rgba(150,230,170,.28),rgba(140,200,255,.3),rgba(200,160,255,.32))';
+const rarBg = g => { const D = STRAINS[g.strain]; return D.legend ? LEG_BG : RAR_BG[D.rarity] || RAR_BG[0]; };
+const cardBg = g => `background:${rarBg(g)};border-color:rgba(255,255,255,.08)`;
 const roleFit = (g, i) => { const r = ROLE_OF[g.strain]; return !!(r && (ROLE_SLOT[r] || []).includes(i)); };
 // ★ 칸 규칙 (오버워치 역할 고정처럼): 🛡내성 = 아무 역할(무리의 타입을 정함) · 나머지 칸 = 그 역할만 · 전설은 어디든
 // ★ 동반 전용 '사라진 바이러스': 능력치는 아주 약하지만 판 내내 도는 강한 스킬
@@ -2124,7 +2147,7 @@ function stageInfo(organ) {
   const C = RULES.curve, ci = ORGANS.indexOf(organ) / (ORGANS.length - 1), cm = C.start + (1 - C.start) * Math.min(1, ci * 7) + C.mul * Math.pow(ci, C.pow);
   const mul = (RULES.mulBase + RULES.mulSlope * organ.diff) * host.mul * (1 + ALERT_STEP * doneCount()) * cm * (save.tutDone && save.host === 0 ? HOST0_T[organ.id] || 1 : 1) * failEase(organ.id);   // 몸의 경계 + 난이도 곡선
   // 첫 튜토리얼 판은 꼭 이길 수 있게 (처음엔 칸이 2개뿐)
-  const qx = (C.q[organ.id] || 1) * (save.tutDone ? calK(save.host, organ.id) : 0.02) * (B3 && save.tutDone ? 0.45 : 1) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
+  const qx = (C.q[organ.id] || 1) * (save.tutDone ? calK(save.host, organ.id) : 0.02) * (B3 && save.tutDone ? 0.6 : 1) * (save.tutDone && save.host === 0 ? (HOST0_Q[organ.id] || 1) : 1);
   return { organ, host, quota: +(quota * qx).toFixed(0) * 1, quotaBase: quota, qm, legs: legacyFor(organ), mul, rateMul: hasLegacy('noro') ? 1.05 : 1,
     towers: Math.max(3, organ.towers + RULES.towerAdj - (mapTypeOf(organ, MAP_VARIANT) === 's' ? 1 : 0) + save.host + Math.floor(doneCount() / 3) + tw + Math.round(C.towers * ci)) };
 }
@@ -2470,7 +2493,7 @@ function buildMine(cards) {
   STRAINS.mine = { ...B, name: '내 바이러스', hybrid: false, hero: false, rarity: 0, parents: null,
     hp: avg('hp'), atk: avg('atk'), spd: avg('spd') / RULES.spdScale,
     count: Math.round(Math.min(MINE_CAP, mineRaw(cards) * (1 + 0.1 * S.filter(x => x[2] === 'count').length))), size: 7.5, stealth: !!(B.stealth || STRAINS[c.strain].stealth), split: !!(B.split || STRAINS[k.strain].split) };
-  { const ob = overBonus(mineRaw(cards)), set = setInfo(U).b; STRAINS.mine.over = ob; STRAINS.mine.set = set; STRAINS.mine.atk *= (1 + ob) * (1 + set); STRAINS.mine.hp *= 1 + set; STRAINS.mine.hp *= 1 + coreBonus(); STRAINS.mine.atk *= 1 + coreBonus(); STRAINS.mine.size = 7.5 * (coreTier() >= 2 ? 1.15 : 1); }   // 색깔 세트 보너스 · 넘침 보너스(공격)
+  { const ob = overBonus(mineRaw(cards)), set = setInfo(U).b; STRAINS.mine.over = ob; STRAINS.mine.set = set; STRAINS.mine.atk *= (1 + ob) * (1 + set) * (1 + (B3 && !window.__noRole ? 0.1 * (roleCnt(U).dps || 0) : 0)) * (1 + weakB(U)); STRAINS.mine.hp *= 1 + set; STRAINS.mine.hp *= 1 + coreBonus(); STRAINS.mine.atk *= 1 + coreBonus(); STRAINS.mine.size = 7.5 * (coreTier() >= 2 ? 1.15 : 1); }   // 색깔 세트 보너스 · 넘침 보너스(공격)
   ROLE_OF.mine = ROLE_OF[b.strain]; SCOLOR.mine = SCOLOR[b.strain] || '#e8a0ff';
   const vb = VSHAPE[b.strain] || {}, vk = VSHAPE[k.strain] || {}, vc = VSHAPE[c.strain] || {};
   VSHAPE.mine = { sp: vk.sp || 12, len: vk.len || 0.3, knob: (vk.knob || 0.1) * 0.5, body: vc.body === 'env' ? 'env' : (vb.body || 'round'), spikeCol: '#b9b4bc', soft: true };
@@ -2810,7 +2833,7 @@ function stepMed(dt) {
   const M = R.med;
   if (M.w > 0) { M.w -= dt; const n = Math.ceil(M.w); if (n !== M.last && n > 0) { M.last = n; sfx('beat'); }
     if (M.w <= 0) { if (R.wk && R.boss) R.rings.push({ x: R.boss.x, y: R.boss.y - 40, r: 20, R: Math.hypot(W, H), t: 0.9, color: R.boss.color }); M.d = MED.dur * (R.st.replay ? REPLAY.medDur : 1); R.medN = (R.medN || 0) + 1; if (M.guard) R.medG = (R.medG || 0) + 1; banner(M.guard ? '💊 약효 무력화! 역습 — 공격 ×1.25' : '💊 약효! 바이러스가 약해진다'); if (!M.guard) { shake(5); R.flashT = 0.25; R.flashC = '120,255,140'; } } return; }
-  M.d -= dt; const k = MED.dmg * (B3 ? 1.3 : 1) / MED.dur * dt * (M.guard ? MED.guard : 1);
+  M.d -= dt; const k = MED.dmg * (B3 ? 1.3 : 1) / MED.dur * dt * (M.guard ? MED.guard : 1) * (1 - 0.15 * (teamRole().heal || 0));
   if (!(R.medImmT > 0)) for (const u of R.units) if (u.alive && !u.hero && u.d > 0) damage(u, u.maxHp * k, null);
   if (M.d <= 0) { R.med = null; R.medT = MED.every * (R.st.replay ? REPLAY.medEvery : R.wk ? 0.75 : 1); }
 }
@@ -2838,7 +2861,7 @@ const corePair = () => SKPAIR[SKTYPE[coreStrain()] || 'boost'];
 function comboOpen(by) { const R = run; if (!B3 || !R || by !== corePair()) return; if (R.cmbBack && R.cmbBack.t > 0) { const f = R.cmbBack.go; R.cmbBack = null; f(); } else R.cmb = { by, t: CHG.win }; }   // 순서 상관없이 3초 안에 둘 다 쓰면 콤보
 const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35 }, SPR = { cost: 0.25, tiles: 2, capUp: 0.3, atkUp: 0.12, slow: 0.4, slowT: 6, fast: 1.7, fastT: 6, cd: 8 };
 function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
-  if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max; H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
+  if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max + (teamRole().tank || 0); H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
   else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
   else if (H.st === 'cd') toast(`다시 숨으려면 ${Math.ceil(H.t)}초`); }
 function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (H.st === 'ready') return; H.t -= dt;
@@ -2853,14 +2876,14 @@ function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R
   const done = segDone(); if (done >= map.seg.length - 2) return toast('더 넓힐 땅이 없어요');
   const tot = nestTotal(), cost = Math.max(3, Math.round(nestCap() * SPR.cost)); if (tot < cost) return toast(`둥지에 ${cost}마리가 있어야 증식할 수 있어요`);
   for (const k in R.nest) R.nest[k] *= 1 - cost / tot;
-  let n = 0; for (let i = 0; i < SPR.tiles; i++) { const d = segDone(); if (d < map.seg.length - 2) { map.seg[d].on = true; n++; } }
+  let n = 0; for (let i = 0; i < SPR.tiles + (teamRole().swarm || 0); i++) { const d = segDone(); if (d < map.seg.length - 2) { map.seg[d].on = true; n++; } }
   purgeContaminated(); R.frontD = Math.max(R.frontD || 0, infFront());
   R.capB = (R.capB || 0) + SPR.capUp; R.sprAtk = (R.sprAtk || 0) + SPR.atkUp; R.sprSlow = SPR.slowT; R.sprFast = 0; R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1; comboOpen('spr');
   const [x, y] = pathAt(R.frontD); R.rings.push({ x, y, r: 10, R: 100, t: 0.7, color: '#c06ad0' }); sfx('wall'); buzz(25);
   float(x, y - 52, `🦠 증식! 땅 +${n}칸 · 최대치 +${Math.round(SPR.capUp * 100)}% · 공격 +${Math.round(SPR.atkUp * 100)}%`, '#e8a0ff', 14);
   float(x, y - 32, `−${cost}마리 · ${SPR.slowT}초 동안 모이는 속도 ${Math.round(SPR.slow * 100)}% → 그 뒤 빠르게`, '#c9b0e0', 12); }
 function stepSpread(dt) { const R = run; if (!R) return; if (R.sprCd > 0) R.sprCd -= dt;
-  if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + dt / CHG.idle + (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; if (R.growT > 0) R.growT -= dt; }
+  if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + (1 + 0.1 * (teamRole().stealth || 0)) * (dt / CHG.idle) + (1 + 0.1 * (teamRole().stealth || 0)) * (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; if (R.growT > 0) R.growT -= dt; }
   if (R.sprSlow > 0) { R.sprSlow -= dt; if (R.sprSlow <= 0) { R.sprFast = SPR.fastT; banner('증식 완료! 둥지가 빠르게 다시 찬다'); } }
   else if (R.sprFast > 0) R.sprFast -= dt; }
 const sprChargeK = () => run.sprSlow > 0 ? SPR.slow : run.sprFast > 0 ? SPR.fast : 1;
@@ -3210,6 +3233,7 @@ function startRun() {
           time: 0, spawnT: 0, spawnRate: 10, infected: 0, infAmt: 0, infBy: {}, infCnt: {}, dominant: null, alert: 0, over: false, cleared: false,
           sb: Object.fromEntries(Object.keys(STRAINS).map(k => [k, { shieldMul: 1, spdMul: 1 }])), mono: strains.length === 1,
           cds: Object.fromEntries([...strains, ...skillGenes.map(g => g.strain), hid].map(s => [s, 3])), single: TA(), cards, bodyStrain: cards[0].strain, skillGenes, genes, total: groups.reduce((a, g) => a + g.total, 0), antiviral: [0.45, 0.8], av: null };
+  run.roleN = B3 && !window.__noRole ? roleCnt(cards) : {};   // ★ 역할 팀 효과
   run.variant = {}; run.mutCd = {}; if (save.host > 0) setTimeout(() => toast(`${hostRule().icon} ${hostRule().title}`), 300);
   if (save.host >= 2) for (const sx of (save.mem || [])) { if (!strains.includes(sx) || !plan.slots.length) continue;
     const mid = map.len * 0.45, sl = plan.slots.sort((a, b) => Math.abs(a.d - mid) - Math.abs(b.d - mid))[0]; plan.slots = plan.slots.filter(c => c !== sl);
@@ -3223,7 +3247,7 @@ function startRun() {
   run.fitTrue = trop > 1; run.fit = trop > 1; run.hzK = (trop > 1 ? 0.6 : 1) * (B3 && !window.__noFav && hzFav(organ.id) ? 0.4 : 1);   // 이 기관을 노리는 카드가 있으면 기관 장치(연동·판막 등)도 덜 받는다 run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); initBoss(); run.parts = []; initPeri();
   const r0 = run; if (TA()) setTimeout(() => { if (run !== r0 || run.over) return; const si = setInfo(cards), cg = coreGene(), fav = HZ_FAV[organ.id];
     float(W / 2, H * 0.33, trop > 1 ? `👑 본체 궁합 +${Math.round((trop - 1) * 100)}%` : cg ? `👑 궁합 없음 · 적응 ${adaptOf(cg, organ.id)}/${ADAPT.need}판` : '이 기관에 맞는 본체면 더 세져요', trop > 1 ? '#9fff6a' : '#ffd27a', 15);
-    if (si.b) float(W / 2, H * 0.37, `${ROUTE[si.r].ic} 같은 색 ${si.n}개 +${Math.round(si.set * 100)}%${si.lead ? ' · 👑 리더 +' + Math.round(LEAD_SET * 100) + '%' : ''}`, ROUTE[si.r].c, 14);
+    { const rc = run.roleN || {}, wn = rc[ORG_WEAK[organ.id]] || 0; if (Object.keys(rc).length) float(W / 2, H * 0.37, Object.entries(rc).map(([r, n]) => ROLE_FX[r].t.replace(/\d+/, m => +m * n)).join(' · ') + (wn ? ` · 약점 +${wn * 15}%` : ''), '#3ae0c0', 13); }
     if (B3 && fav && ORGAN_HZ[organ.id]) float(W / 2, H * 0.41, hzFav(organ.id) ? `${SKT_NAME[fav]} 본체: ${ORGAN_HZ[organ.id].name} 약해짐!` : `💡 여기선 ${SKT_NAME[fav]} 본체가 유리해요`, hzFav(organ.id) ? '#9fe8ff' : '#c9b9a2', 13);
     const sn = slotsOpenN(); if (cg && sn > (save.seenSlots || 2)) { save.seenSlots = sn; banner(`🔓 칸 ${sn}개! 바이러스가 더 많아졌어요`); } }, 900);
   ui.showRun(); tutStart();
@@ -4128,7 +4152,7 @@ const ui = {
   numsHtml(ms) {
     const tot = matchTotal(slotFill(), save.sel || 'nose');
     const t = (k, lb, v) => `<span data-k="${k}" class="tile${k === 'match' ? (tot > 0 ? ' good' : tot < 0 ? ' bad' : '') : ''}" onclick="statHelp('${k}')"><small class="lb">${lb}</small><b>${v}</b></span>`;
-    return t('pow', `🎯 ${ORG_SHORT[save.sel || 'nose']} 전투력`, powerOf(ms.s, tot)) + t('match', `🧬 ${ORG_SHORT[save.sel || 'nose']} 궁합`, `${tot >= 0 ? '+' : ''}${tot}%`) + t('hp', '❤ 체력', ms.s.hp) + t('spd', '💨 속도', ms.s.spd) + t('atk', '⚔ 공격', Math.round(ms.s.atk * 100)) + t('count', '🦠 마릿수', ms.s.count);
+    return t('pow', `🎯 ${ORG_SHORT[save.sel || 'nose']} 전투력`, powerOf(ms.s, tot)) + t('match', `👑 ${ORG_SHORT[save.sel || 'nose']} 궁합`, `${tot >= 0 ? '+' : ''}${tot}%`);   // ★ 숫자는 2개만 (나머지는 카드 상세에)
   },
   // ★ 본체가 바뀌면: 옛 모습이 스르륵 사라지고 새 모습이 커지며 나타남 + 숫자가 굴러가며 바뀌고 +/− 가 떠오름
   animMine(pic, nums, ms, key) {
@@ -4266,15 +4290,16 @@ const ui = {
     let sel = ui.fmSel; if (sel != null && !slotOpen(sel)) sel = ui.fmSel = null;
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
     const sock = i => { const open = slotOpen(i), g = sq[i], no = pick && open && !canSlot(pick, i), pd = pick && open && !no && g !== pick ? ui.slotDelta(pick, i).pp : null;
-      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? `color-mix(in srgb,${ROUTE[routeOf(g.strain)].c} 38%,#1a120e)` : '#241a16'};border-color:${!pick && sel === i ? '#ffd24a' : g ? ROUTE[routeOf(g.strain)].c : '#5a4430'}"><span class="fmL">칸 ${[0, 3, 1, 2].indexOf(i) + 1}</span><span class="fmRl">${g ? `<span class="rtB" style="border-color:${ROUTE[routeOf(g.strain)].c}">${ROUTE[routeOf(g.strain)].ic}</span>` : ''}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? rarBg(g) + ',#1a120e' : '#241a16'};border-color:${!pick && sel === i ? '#3ae0c0' : g ? 'rgba(255,255,255,.15)' : '#5a4430'}"><span class="fmL">칸 ${[0, 3, 1, 2].indexOf(i) + 1}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
     const cgv = null;
     const comp = RC.lvComp > 100 ? '' : `<button class="fmComp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1" aria-label="동반">${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}<span class="fcRing" style="--g:${compOn && cg ? Math.min(100, (gv % 1) * 100 || (gv >= 1 ? 100 : 0)).toFixed(0) : 0}%">${!compOn ? '🔒' : cg ? pimg(cg) : '+'}</span><small>🤝 동반${!compOn ? ` Lv${RC.lvComp}` : gv >= 1 ? ' 🧬' : ''}</small></button>`;
     const list = sortGenes(save.genes);
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g) && canSlot(g, sel)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${(() => { const R0 = ROUTE[routeOf(g.strain)]; return `<span class="fmStrip" style="background:${R0.c}"><span>${R0.ic} ${R0.s}</span>${i != null ? `<em class="${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}</span>`; })()}${pimg(g)}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}"${D.legend ? ' class="rbw"' : ''}>${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}${!pick && sel == null && !isComp(g) && canUp(g) ? '<em class="upA">▲</em>' : ''}</span></small>${ui.cardFoot(g)}</button>`; }).join('');
-    const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const si = setInfo(sq.filter(Boolean)), R0 = ROUTE[si.r]; return `<b style="color:${R0.c}">${R0.ic} 같은 색 ${si.n}개 ${si.set ? '+' + Math.round(si.set * 100) + '%' : '(2개부터 보너스)'}${si.lead ? ' · 👑 리더 +' + Math.round(LEAD_SET * 100) + '%' : coreGene() && si.n >= 2 ? ` · 👑 본체도 ${R0.ic}이면 +${Math.round(LEAD_SET * 100)}%` : ''}</b> <span style="color:#b59f86">${Object.entries(si.all).map(([r, n]) => ROUTE[r].ic + n).join(' ')}</span>`; })()}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
+      return `<button class="fmC${STRAINS[g.strain].legend ? ' foil' : ''}${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<em class="fmMk ${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="fmMk ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}<span class="fmPic">${pimg(g)}</span><b>${sname(g.strain)}</b><small class="fmSt" style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<i>${'★'.repeat(Math.max(0, 5 - g.star))}</i></small><small class="fmLv">Lv${g.lv || 1} · <span style="color:${(ROLES[ROLE_OF[g.strain]] || {}).col || '#ccc'}">${((ROLES[ROLE_OF[g.strain]] || {}).name || '').replace('형', '')}</span></small></button>`; }).join('');
+    const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const rc = roleCnt(sq.filter(Boolean)), wk = ORG_WEAK[save.sel], wn = rc[wk] || 0, R = r => (ROLES[r] || {}).name.replace('형', '');
+  return `<span class="fmLegend">${['일반', '희귀', '영웅'].map((t, k) => `<i style="background:${RAR_BG[k]}"></i>${t}`).join('')}<i style="background:${LEG_BG}"></i>전설</span><span class="fmPanel"><span><em>역할</em>${Object.keys(rc).length ? Object.entries(rc).map(([r, n]) => `<b>${ROLE_FX[r].t.replace(/\d+/, m => +m * n)}</b>`).join(' · ') : '팀에 넣으면 전투 버튼이 세져요'}</span><span><em>약점</em>${ORG_SHORT[save.sel]} 보스는 <b style="color:#ff9c8a">${R(wk)}</b>에 약해요 ${wn ? `→ ${wn}장 <b>+${wn * 15}%</b>` : `<small>(${R(wk)} 넣으면 장당 +15%)</small>`}</span></span>`; })()}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">자동 편성</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 3, 1, 2].map(sock).join('')}</div></div>
       <div class="fmH2">내 바이러스 <span>${save.genes.length}장</span></div><div class="sortRow" id="sortRail"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
     { const sh = $('fmSheet'), nb = document.querySelector('#hub .navBar'); if (sh) { const tp = Math.min(nb ? nb.getBoundingClientRect().top : innerHeight, $('bGo') ? $('bGo').getBoundingClientRect().top : innerHeight), bt = innerHeight - tp + 4; sh.style.bottom = bt + 'px'; $('railList').style.paddingBottom = (sh.offsetHeight + 8) + 'px'; } else $('railList').style.paddingBottom = ''; }
@@ -4557,7 +4582,7 @@ const ui = {
     if (!cards.length) return '';
     const m = tropMul(cards, org), tot = Math.round((m - 1) * 100), cg = coreGene(), si = setInfo(cards), R0 = ROUTE[si.r];
     const tip = cg && tropG(cg, org) > 0 ? ` · 숙련 ${mastN(cg, org)}판${mastN(cg, org) < MAST.b ? ` (${mastN(cg, org) < MAST.a ? MAST.a : MAST.b}판에 +${Math.round((FIT_B + (mastN(cg, org) < MAST.a ? MAST.ka : MAST.kb)) * 100)}%)` : ' 최고!'}` : tot < Math.round(FIT_B * 100) ? (good.length ? ` · 이 기관에 맞는 본체: <b>${good.slice(0, 3).map(sname).join('·')}</b>` : cg ? ` · 적응 ${adaptOf(cg, org)}/${ADAPT.need}판` : '') : ' · 딱 맞는 본체!';
-    return `<div class="fitBox"><b style="font-size:14px">👑 본체 궁합 <span style="color:${tot > 0 ? '#9fff6a' : '#eadcc2'}">+${tot}%</span></b><span>${tip}${cg ? ` · 리더 ${cg.lead || 0}판 +${Math.round(leadB(cg) * 100)}%` : ''}</span><br><b style="font-size:13px;color:${R0.c}">${R0.ic} 같은 색 ${si.n}개${si.lead ? ' 👑' : ''} ${si.b ? `+${Math.round(si.b * 100)}%` : '(2개부터 보너스)'}</b> <small style="color:#b59f86">${Object.entries(si.all).map(([r, n]) => ROUTE[r].ic + n).join(' ')}</small></div>`;
+    return `<div class="fitBox"><b style="font-size:14px">👑 본체 궁합 <span style="color:${tot > 0 ? '#9fff6a' : '#eadcc2'}">+${tot}%</span></b><span>${tip}${cg ? ` · 리더 ${cg.lead || 0}판 +${Math.round(leadB(cg) * 100)}%` : ''}</span><br><small style="color:#eadcc2">약점: 보스는 <b style="color:#ff9c8a">${(ROLES[ORG_WEAK[org]] || {}).name || ''}</b>에 약해요 (장당 +15%)</small></div>`;
   },
   tropHtml(org) {
     const all = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && !STRAINS[k].hybrid && tropScore(k, org) > 0), owned = new Set(save.genes.map(g => g.strain)), mine = all.filter(k => owned.has(k));
@@ -4795,9 +4820,9 @@ const ui = {
       const ab = $('dpAll'); if (ab && nestOn()) { const t = Math.floor(nestTotal()), cp = Math.round(nestCap()); ab.querySelector('small').textContent = `둥지 ${t}/${cp}`; ab.classList.toggle('gapOn', gap && t > 0); const ai = ab.querySelector('i'); if (ai) ai.style.width = Math.min(100, t / Math.max(1, cp) * 100) + '%'; ab.classList.toggle('full', t >= cp * 0.98); }
       if (B3) { const hb2 = $('dpHide'); if (hb2) { const H = run.hd || { st: 'ready', t: 0 }; hb2.className = 'dp v' + (H.st === 'ready' ? (run.med && run.med.w > 0 ? ' gapOn' : ' full') : H.st === 'hid' ? ' go' : ' done');
           hb2.querySelector('small').textContent = H.st === 'ready' ? (run.med && run.med.w > 0 ? '지금!' : '탭: 숨기') : H.st === 'hid' ? `숨음 ${H.t.toFixed(1)}s · 탭: 나오기` : H.st === 'up' ? '나오는 중' : `다시 ${Math.ceil(H.t)}s`;
-          hb2.querySelector('i').style.width = (H.st === 'hid' ? H.t / HIDE.max : H.st === 'cd' ? 1 - H.t / HIDE.cd : H.st === 'ready' ? 1 : 0) * 100 + '%'; }
+          hb2.querySelector('i').style.width = (H.st === 'hid' ? H.t / (HIDE.max + (teamRole().tank || 0)) : H.st === 'cd' ? 1 - H.t / HIDE.cd : H.st === 'ready' ? 1 : 0) * 100 + '%'; }
         const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd || 0, cost = Math.max(3, Math.round(nestCap() * SPR.cost)), ok = cd <= 0 && nestTotal() >= cost;
-          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = run.sprSlow > 0 ? `불리는 중 ${Math.ceil(run.sprSlow)}s` : cd > 0 ? `${Math.ceil(cd)}s` : `−${cost} · +${SPR.tiles}칸`; sb2.querySelector('i').style.width = (1 - cd / SPR.cd) * 100 + '%'; }
+          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = run.sprSlow > 0 ? `불리는 중 ${Math.ceil(run.sprSlow)}s` : cd > 0 ? `${Math.ceil(cd)}s` : `−${cost} · +${SPR.tiles + (teamRole().swarm || 0)}칸`; sb2.querySelector('i').style.width = (1 - cd / SPR.cd) * 100 + '%'; }
         { const h = $('hint'); if (h && run.algInit) { const al = run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).length; h.textContent = `🧪 면역 경보 ${Math.floor((run.alg || 0) * 100)}% · 탑 ${al}/${twMax(run.st.organ.id)}${run.hd && run.hd.st === 'hid' ? ' · 숨는 중엔 안 참' : ''} · ❓`; } }
         const pb = $({ brk: 'dpAll', hide: 'dpHide', spr: 'dpSpr' }[corePair()]); if (pb) { pb.classList.add('pair'); const bk = run.cmbBack && run.cmbBack.t > 0; pb.classList.toggle('combo', bk); if (bk) pb.querySelector('small').textContent = `🔥 지금! ${run.cmbBack.t.toFixed(1)}s`; } }
       const ob = $('dpOut'); if (ob) { ob.className = 'dp v' + (placing ? ' gapOn' : run.outLeft ? '' : ' done'); ob.querySelector('small').textContent = `남은 ${run.outLeft}`; }
@@ -5066,8 +5091,8 @@ function rcApply(donor, target, op, dry, repIx) {
 const rcBadges = g => { const r = g.rc; if (!r) return ''; const a = []; for (const k in r.st || {}) if (r.st[k]) a.push(`${RC_STAT[k].split(' ')[0]}+${r.st[k]}`); for (const o of r.tr || []) a.push(`🎯${ORG_SHORT[o]}`); if (r.sk) a.push(`✨${STRAINS[r.sk].skill.name}`); return a.length ? `<span class="rcB">${a.join(' ')}</span>` : ''; };
 // ★ 정렬·분류 (클래시 로얄식: 위치 탭 + 정렬 버튼 하나). '강한 순' = 전설 > 별 > 등급 > 레벨
 const SORTS = { star: { t: '강한 순' }, new: { t: '최근 순' } };
-const GFILT = [['all', '전체'], ['air', '🌬'], ['food', '🍎'], ['touch', '✋'], ['blood', '🩸'], ['vector', '🦟']];   // ★ 색깔(전파 경로) 필터
-const gFilt = g => { const f = save.gfilt || 'all'; if (f === 'all' || !ROUTE[f]) return true; return routeOf(g.strain) === f; };
+const GFILT = [['all', '전체'], ['dps', '독성'], ['tank', '내성'], ['swarm', '증식'], ['stealth', '침투'], ['heal', '재생']];   // ★ 역할 필터
+const gFilt = g => { const f = save.gfilt || 'all'; if (f === 'all' || !ROLE_FX[f]) return true; return ROLE_OF[g.strain] === f; };
 function sortGenes(arr) { const k = save.sortBy || 'star', R = g => STRAINS[g.strain].legend ? 9 : STRAINS[g.strain].rarity, P = g => power(g);
   const can = g => { const b = ui.growBtn(g); return b.ok ? 1 : 0; };
   const f = { star: (a, b) => b.star - a.star || R(b) - R(a) || (b.lv || 1) - (a.lv || 1), rar: (a, b) => R(b) - R(a) || b.star - a.star || (b.lv || 1) - (a.lv || 1), lv: (a, b) => (b.star * 10 + (b.lv || 1)) - (a.star * 10 + (a.lv || 1)) || R(b) - R(a),
@@ -5373,7 +5398,7 @@ function autoSquad() {
     const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap()) continue;
     const f = 0, tr = 0, z = cs.map(g => g ? S.get(g) : null), x = z[0] || z.find(Boolean);
     if (!x) continue; const cg0 = coreGene(), UU = cg0 ? [...u, cg0] : u, SS = UU.map(g => [S.get(g) || geneStats(g), MAINST[ROLE_OF[g.strain]]]), av = k => teamStat(SS, k);
-    const sb = setInfo(UU).b, cnt = Math.min(260, SS.reduce((t, [st, m]) => t + st.count, 0) * (1 + 0.1 * SS.filter(q => q[1] === 'count').length)), pw = av('atk') * (1 + sb) * cnt * Math.sqrt(av('hp') * (1 + sb)) * Math.sqrt(av('spd')), key = [f, tr, pw];   // ★ 실제 능력치 계산과 같은 방식 (주 능력 100% · 나머지 30% · 같은 색 보너스)   // ★ 같은 색 세트 보너스(체력·공격)까지 따져서
+    const sb = setInfo(UU).b, rc0 = roleCnt(UU), rk = (B3 ? 1 + 0.1 * (rc0.dps || 0) : 1) * (1 + weakB(UU, org)) * (B3 ? 1 + 0.03 * Object.keys(rc0).length : 1), cnt = Math.min(260, SS.reduce((t, [st, m]) => t + st.count, 0) * (1 + 0.1 * SS.filter(q => q[1] === 'count').length)), pw = av('atk') * (1 + sb) * rk * cnt * Math.sqrt(av('hp') * (1 + sb)) * Math.sqrt(av('spd')), key = [f, tr, pw];   // ★ 실제 능력치 계산과 같은 방식 (주 능력 100% · 나머지 30% · 같은 색 보너스)   // ★ 같은 색 세트 보너스(체력·공격)까지 따져서
     if (!bk || key[0] > bk[0] || (key[0] === bk[0] && (key[1] > bk[1] || (key[1] === bk[1] && key[2] > bk[2])))) { bk = key; best = cs; } }
   if (!best) return;
   save.squad = SL.map(i => i < 4 && best[i] && slotOpen(i) ? best[i].uid : null); normSquad();
