@@ -1074,7 +1074,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.25, lung: 0.18, gut: 0.8, liver: 0.85, blood: 0.66, skin: 0.42, lymph: 1.41, brain: 5.69 },
+const CAL = { 0: { nose: 0.2, lung: 0.18, gut: 0.8, liver: 0.85, blood: 0.66, skin: 0.42, lymph: 1.41, brain: 5.69 },
   1: { nose: 1.56, lung: 1.24, gut: 0.74, liver: 1.74, blood: 0.88, skin: 0.48, lymph: 0.8, brain: 1.32 },
   2: { nose: 0.9, lung: 1.11, gut: 1.65, liver: 1.43, blood: 0.78, skin: 0.58, lymph: 0.75, brain: 1.41 },
   3: { nose: 1.82, lung: 1.09, gut: 0.91, liver: 2.15, blood: 1.06, skin: 0.8, lymph: 0.79, brain: 1.51 } };
@@ -2447,10 +2447,13 @@ const MINE_CAP = 260, overBonus = raw => Math.min(0.3, 0.02 * Math.floor(Math.ma
 const coreCount = () => Math.round(12 + 0.8 * coreL());
 const mineRaw = cards => [...new Set(cards)].reduce((a, x) => a + (isCoreG(x) ? coreCount() : geneStats(x).count), 0);
 // ★ 능력치: 바이러스마다 주 능력(탱커=체력 · 공격=공격 · 은신=속도 · 회복=체력)은 100%, 나머지는 30%만 섞인다. 마릿수는 모두 더함
-const MAINST = { tank: 'hp', heal: 'hp', dps: 'atk', stealth: 'spd', swarm: 'count' };
+const MAINST = { tank: 'hp', heal: 'hp', dps: 'atk', stealth: 'spd', swarm: 'count' }, TEAM_REF = { hp: 1.55, atk: 1.35 }, TEAM_DIM = 0.8;
+// ★ 체력·공격 = 더하기 (주 능력 100% · 나머지 30%, 센 카드부터 1 · 0.8 · 0.64 … 로 조금씩 줄여서) → 카드를 채우면 무조건 세진다. 속도만 평균
+function teamStat(SS, k) { if (k === 'spd') { let v = 0, w = 0; for (const [st, m] of SS) { const q = m === k ? 1 : 0.3; v += st[k] * q; w += q; } return w ? v / w : 0; }
+  const c = SS.map(([st, m]) => st[k] * (m === k ? 1 : 0.3)).sort((a, b) => b - a); let v = 0; c.forEach((x, i) => v += x * Math.pow(TEAM_DIM, i)); return v / TEAM_REF[k]; }
 function buildMine(cards) {
   const U = [...new Set(cards.filter(Boolean))], b = U.find(isCoreG) || U[0], B = STRAINS[b.strain], S = U.map(g => [g, geneStats(g), MAINST[ROLE_OF[g.strain]]]);
-  const avg = k => { let w = 0, v = 0; for (const [, st, m] of S) { const ww = m === k ? 1 : 0.3; w += ww; v += st[k] * ww; } return w ? v / w : 0; };
+  const avg = k => teamStat(S.map(([, st, m]) => [st, m]), k);
   const pick = k => (S.find(x => x[2] === k && x[0] !== b) || S.find(x => x[0] !== b) || S[0])[0], c = pick('spd'), k = pick('atk');
   STRAINS.mine = { ...B, name: '내 바이러스', hybrid: false, hero: false, rarity: 0, parents: null,
     hp: avg('hp'), atk: avg('atk'), spd: avg('spd') / RULES.spdScale,
@@ -5359,7 +5362,7 @@ function autoSquad() {
   for (const a of opt(P0)) for (const c of opt(P1)) for (const k of opt(P2)) for (const d of opt(P3)) {
     const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap()) continue;
     const f = 0, tr = 0, z = cs.map(g => g ? S.get(g) : null), x = z[0] || z.find(Boolean);
-    if (!x) continue; const cg0 = coreGene(), UU = cg0 ? [...u, cg0] : u, SS = UU.map(g => [S.get(g) || geneStats(g), MAINST[ROLE_OF[g.strain]]]), av = k => { let ww = 0, v = 0; for (const [st, m] of SS) { const q = m === k ? 1 : 0.3; ww += q; v += st[k] * q; } return v / ww; };
+    if (!x) continue; const cg0 = coreGene(), UU = cg0 ? [...u, cg0] : u, SS = UU.map(g => [S.get(g) || geneStats(g), MAINST[ROLE_OF[g.strain]]]), av = k => teamStat(SS, k);
     const sb = setInfo(UU).b, cnt = Math.min(260, SS.reduce((t, [st, m]) => t + st.count, 0) * (1 + 0.1 * SS.filter(q => q[1] === 'count').length)), pw = av('atk') * (1 + sb) * cnt * Math.sqrt(av('hp') * (1 + sb)) * Math.sqrt(av('spd')), key = [f, tr, pw];   // ★ 실제 능력치 계산과 같은 방식 (주 능력 100% · 나머지 30% · 같은 색 보너스)   // ★ 같은 색 세트 보너스(체력·공격)까지 따져서
     if (!bk || key[0] > bk[0] || (key[0] === bk[0] && (key[1] > bk[1] || (key[1] === bk[1] && key[2] > bk[2])))) { bk = key; best = cs; } }
   if (!best) return;
