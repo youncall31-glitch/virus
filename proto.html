@@ -1433,9 +1433,9 @@ const SLOT_COL = [['#5c1a28', '#e0506a'], ['#14385c', '#4aa0e0'], ['#5c3410', '#
 const roleSlotOf = g => { const r = ROLE_OF[g.strain]; return r && ROLE_SLOT[r] ? ROLE_SLOT[r][0] : -1; };
 // ★ 카드 테두리 = 등급 (클래시 로얄·하스스톤식): 일반 회갈색 · 희귀 파랑 · 영웅 보라 · 전설 금빛. 바탕은 어두운 무채색에 역할 색을 아주 살짝
 const RAR_FRAME = ['#9a8a74', '#4aa8f0', '#c070f0'];
-const cardBg = g => { const D = STRAINS[g.strain], i = roleSlotOf(g), tint = i >= 0 ? SLOT_COL[i][1] : '#888';
+const cardBg = g => { const D = STRAINS[g.strain], tint = typeof ROUTE !== 'undefined' ? ROUTE[routeOf(g.strain)].c : '#888';   // ★ 카드 바탕 = 색깔(전파 경로)
   if (D.legend) return 'background:radial-gradient(120% 80% at 50% 0%,#40300e,#1a1014 72%);border-color:#f0c850;box-shadow:inset 0 0 12px rgba(240,200,80,.25),0 0 8px rgba(240,200,80,.35)';
-  return `background:linear-gradient(180deg,#1d1418 40%,color-mix(in srgb,${tint} 12%,#150d11));border-color:${RAR_FRAME[D.rarity] || RAR_FRAME[0]}`; };
+  return `background:linear-gradient(180deg,color-mix(in srgb,${tint} 14%,#1d1418) 30%,color-mix(in srgb,${tint} 34%,#150d11));border-color:${RAR_FRAME[D.rarity] || RAR_FRAME[0]}`; };
 const roleFit = (g, i) => { const r = ROLE_OF[g.strain]; return !!(r && (ROLE_SLOT[r] || []).includes(i)); };
 // ★ 칸 규칙 (오버워치 역할 고정처럼): 🛡내성 = 아무 역할(무리의 타입을 정함) · 나머지 칸 = 그 역할만 · 전설은 어디든
 // ★ 동반 전용 '사라진 바이러스': 능력치는 아주 약하지만 판 내내 도는 강한 스킬
@@ -4254,7 +4254,7 @@ const ui = {
     let sel = ui.fmSel; if (sel != null && !slotOpen(sel)) sel = ui.fmSel = null;
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
     const sock = i => { const open = slotOpen(i), g = sq[i], no = pick && open && !canSlot(pick, i), pd = pick && open && !no && g !== pick ? ui.slotDelta(pick, i).pp : null;
-      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${SLOT_COL[i][0]};border-color:${!pick && sel === i ? '#ffd24a' : g ? ROUTE[routeOf(g.strain)].c : SLOT_COL[i][1]}"><span class="fmL">칸 ${[0, 3, 1, 2].indexOf(i) + 1}</span><span class="fmRl">${g ? `<span class="rtB" style="border-color:${ROUTE[routeOf(g.strain)].c}">${ROUTE[routeOf(g.strain)].ic}</span>` : ''}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? `color-mix(in srgb,${ROUTE[routeOf(g.strain)].c} 38%,#1a120e)` : '#241a16'};border-color:${!pick && sel === i ? '#ffd24a' : g ? ROUTE[routeOf(g.strain)].c : '#5a4430'}"><span class="fmL">칸 ${[0, 3, 1, 2].indexOf(i) + 1}</span><span class="fmRl">${g ? `<span class="rtB" style="border-color:${ROUTE[routeOf(g.strain)].c}">${ROUTE[routeOf(g.strain)].ic}</span>` : ''}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
     const cgv = null;
     const comp = RC.lvComp > 100 ? '' : `<button class="fmComp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1" aria-label="동반">${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}<span class="fcRing" style="--g:${compOn && cg ? Math.min(100, (gv % 1) * 100 || (gv >= 1 ? 100 : 0)).toFixed(0) : 0}%">${!compOn ? '🔒' : cg ? pimg(cg) : '+'}</span><small>🤝 동반${!compOn ? ` Lv${RC.lvComp}` : gv >= 1 ? ' 🧬' : ''}</small></button>`;
     const list = sortGenes(save.genes);
