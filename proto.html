@@ -678,6 +678,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .dSk { text-align: left; background: #221712; border: 1px solid #4a3426; border-radius: 10px; padding: 6px 9px; } .dSk b { display: block; color: #ffd27a; font-size: 13px; } .dSk span { display: block; font-size: 12.5px; margin: 2px 0; } .dSk small { color: #b59f86; font-size: 11.5px; }
   .navGo { margin-top: -8px !important; height: 56px !important; border-radius: 16px !important; font-size: 15px !important; border-width: 1.5px !important; } .navGo small { font-size: 10px; }
   .fmStrip { overflow: hidden; } .fmStrip > span { overflow: hidden; text-overflow: ellipsis; }
+  .rbw, .rbwT { background: linear-gradient(90deg,#ff6a6a,#ffd24a,#7ad070,#5ad0ff,#b07aff); -webkit-background-clip: text; background-clip: text; color: transparent !important; } .fmC small.rbw .lv { -webkit-text-fill-color: #b59f86; }
   .cpList { display: flex; flex-direction: column; gap: 6px; max-height: 52vh; overflow: auto; margin-top: 8px; } .cpOpt { display: flex; gap: 10px; align-items: center; text-align: left; background: #2a1d14; border: 1px solid #5a4430; border-radius: 10px; padding: 6px 8px; color: #f3e6d3; } .cpOpt img { width: 40px; height: 40px; object-fit: contain; } .cpOpt small { display: block; color: #c9b9a2; font-size: 12px; }
   .dp.pair { position: relative; } .dp.pair::after { content: '👑'; position: absolute; top: -7px; right: -4px; font-size: 13px; line-height: 1; } .dp.combo { border-color: #ffd24a !important; box-shadow: 0 0 0 2px #ffd24a, 0 0 18px #ffb02a; animation: cmb .5s ease-in-out infinite alternate; } @keyframes cmb { to { transform: scale(1.06); } } .stPick { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; } .stOpt { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px; border-radius: 12px; background: #2a1a20; border: 2px solid #5a3a40; color: #eadcc2; } .stOpt img { width: 64px; height: 64px; object-fit: contain; flex: none; } .stOpt b { font-size: 15px; display: block; } .stOpt small { display: block; font-size: 12px; color: #c8b8a0; margin: 2px 0; } .stOpt em { font-style: normal; font-size: 12.5px; color: #9fd8ff; display: block; } .stOpt i { font-style: normal; font-size: 12px; color: #ffd27a; } .cvAd { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 2px; } .cvAd u { text-decoration: none; font-size: 12px; padding: 2px 6px; border-radius: 8px; background: #2a1a20; color: #8a7a6a; } .cvAd u.nat { background: #2e4a1e; color: #b9ff8a; } .cvAd u.ad { background: #3e2450; color: #e8b0ff; } .cvAd u small { margin-left: 2px; font-size: 10px; } .cfoot .og u.ad { color: #e8b0ff !important; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
   /* 카드 테두리: 등급 색 선만 (그림 테두리는 뺌) */
@@ -890,7 +891,7 @@ function legacyFor(organ) {                              // 이 기관에 걸리
     if (f.global) out.push({ s, text: f.global, global: true }); }
   return out;
 }
-const RARITY = [{ name:'일반', w:50, color:'#c9b9a2' }, { name:'희귀', w:35, color:'#7fc0ff' }, { name:'영웅', w:13.5, color:'#e9a3ff' }];
+const RARITY = [{ name:'일반', w:50, color:'#a8a29a' }, { name:'희귀', w:35, color:'#e6ecf5' }, { name:'영웅', w:13.5, color:'#ffd24a' }];   // ★ 등급 = 금속색 (무광·은·금·무지개) → 색깔(경로)과 안 겹침
 const PASSIVES = {
   rapid:   { name:'고속 복제', from:'rhino',  desc:'출격 수 +15%' },
   capsidP: { name:'캡시드 경화', from:'adeno', desc:'받는 피해 −15%' },
@@ -931,7 +932,7 @@ for (const r of RECIPES) {
     short: [fa.short, fb.short].filter(Boolean).join(', '), global: [fa.global, fb.global].filter(Boolean).join(', ') || undefined, noValve: fa.noValve || fb.noValve };
 }
 // ★ 전설 바이러스: 뽑기 1.5% (50회 천장). 능력치 영웅급 +30%, 전용 스킬 1개. parents는 그림·분류 fallback용
-RARITY.push({ name:'전설', w:1.0, color:'#ffcf4a' });
+RARITY.push({ name:'전설', w:1.0, color:'#ff9ee8' });
 const LEGENDS = {
   ebola:    { name:'출혈 군주 (에X라)',        role:'출혈 돌격', img:'ebola',         parents:['rabies', 'retro'], col:'#ff3a3a', rolek:'dps',     atk:0.62, hp:72,  spd:62, count:22, size:15,
               skill:{ id:'hemo',     name:'출혈열',     cd:55, desc:'모든 탑이 5초간 마비 (공격 정지)' } },
@@ -1443,9 +1444,9 @@ const ROLE_SLOT = { tank: [0], heal: [0], stealth: [1], dps: [2], swarm: [3] }, 
 const SLOT_COL = [['#5c1a28', '#e0506a'], ['#14385c', '#4aa0e0'], ['#5c3410', '#f0a030'], ['#1a4c22', '#5cc85c'], ['#40185e', '#b070f0']];
 const roleSlotOf = g => { const r = ROLE_OF[g.strain]; return r && ROLE_SLOT[r] ? ROLE_SLOT[r][0] : -1; };
 // ★ 카드 테두리 = 등급 (클래시 로얄·하스스톤식): 일반 회갈색 · 희귀 파랑 · 영웅 보라 · 전설 금빛. 바탕은 어두운 무채색에 역할 색을 아주 살짝
-const RAR_FRAME = ['#9a8a74', '#4aa8f0', '#c070f0'];
+const RAR_FRAME = ['#6e6862', '#cfd6e2', '#e8b830'];
 const cardBg = g => { const D = STRAINS[g.strain], tint = typeof ROUTE !== 'undefined' ? ROUTE[routeOf(g.strain)].c : '#888';   // ★ 카드 바탕 = 색깔(전파 경로)
-  if (D.legend) return 'background:radial-gradient(120% 80% at 50% 0%,#40300e,#1a1014 72%);border-color:#f0c850;box-shadow:inset 0 0 12px rgba(240,200,80,.25),0 0 8px rgba(240,200,80,.35)';
+  if (D.legend) return `background:linear-gradient(180deg,color-mix(in srgb,${tint} 14%,#1d1418) 30%,color-mix(in srgb,${tint} 34%,#150d11)) padding-box,linear-gradient(135deg,#ff6a6a,#ffd24a,#7ad070,#5ad0ff,#b07aff,#ff6ad0) border-box;border-color:transparent;box-shadow:0 0 9px rgba(255,180,240,.45)`;
   return `background:linear-gradient(180deg,color-mix(in srgb,${tint} 14%,#1d1418) 30%,color-mix(in srgb,${tint} 34%,#150d11));border-color:${RAR_FRAME[D.rarity] || RAR_FRAME[0]}`; };
 const roleFit = (g, i) => { const r = ROLE_OF[g.strain]; return !!(r && (ROLE_SLOT[r] || []).includes(i)); };
 // ★ 칸 규칙 (오버워치 역할 고정처럼): 🛡내성 = 아무 역할(무리의 타입을 정함) · 나머지 칸 = 그 역할만 · 전설은 어디든
@@ -4272,7 +4273,7 @@ const ui = {
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g) && canSlot(g, sel)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${(() => { const R0 = ROUTE[routeOf(g.strain)]; return `<span class="fmStrip" style="background:${R0.c}"><span>${R0.ic} ${R0.s}</span>${i != null ? `<em class="${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}</span>`; })()}${pimg(g)}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}${!pick && sel == null && !isComp(g) && canUp(g) ? '<em class="upA">▲</em>' : ''}</span></small>${ui.cardFoot(g)}</button>`; }).join('');
+      return `<button class="fmC${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${(() => { const R0 = ROUTE[routeOf(g.strain)]; return `<span class="fmStrip" style="background:${R0.c}"><span>${R0.ic} ${R0.s}</span>${i != null ? `<em class="${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}</span>`; })()}${pimg(g)}<b>${sname(g.strain)}</b><small style="color:${RARITY[D.rarity].color}"${D.legend ? ' class="rbw"' : ''}>${'★'.repeat(g.star)}<span class="lv">Lv${g.lv || 1}${!pick && sel == null && !isComp(g) && canUp(g) ? '<em class="upA">▲</em>' : ''}</span></small>${ui.cardFoot(g)}</button>`; }).join('');
     const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const si = setInfo(sq.filter(Boolean)), R0 = ROUTE[si.r]; return `<b style="color:${R0.c}">${R0.ic} 같은 색 ${si.n}개 ${si.set ? '+' + Math.round(si.set * 100) + '%' : '(2개부터 보너스)'}${si.lead ? ' · 👑 리더 +' + Math.round(LEAD_SET * 100) + '%' : coreGene() && si.n >= 2 ? ` · 👑 본체도 ${R0.ic}이면 +${Math.round(LEAD_SET * 100)}%` : ''}</b> <span style="color:#b59f86">${Object.entries(si.all).map(([r, n]) => ROUTE[r].ic + n).join(' ')}</span>`; })()}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">⭐ 추천</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 3, 1, 2].map(sock).join('')}</div></div>
       <div class="fmH2">내 바이러스 <span>${save.genes.length}장</span></div><div class="sortRow" id="sortRail"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
@@ -4441,7 +4442,7 @@ const ui = {
   railMore() { const L = $('railList'), m = $('railMore'); if (!L || !m) return; m.hidden = !(L.scrollHeight - L.scrollTop - L.clientHeight > 20); },
   // 이 바이러스 자체의 능력 (한눈에): 타입 · 능력치 4개 · 궁합 · 재조합 흔적
   abilHtml(g) { const s = geneStats(g), rk = ROLE_OF[g.strain], gd = fitOrgans(g), bd = [], d = STRAINS[g.strain];
-    return `<div class="abil"><div class="abT">${rk && ROLES[rk] ? `<b style="color:${ROLES[rk].col}">${ROLES[rk].name}</b>` : ''} <span style="color:${RARITY[d.rarity].color}">${d.legend ? '전설' : RARITY[d.rarity].name}</span> · 스킬 ×${skK(g)}${g.star >= 5 ? ' · 각성' : ''}</div>
+    return `<div class="abil"><div class="abT">${rk && ROLES[rk] ? `<b style="color:${ROLES[rk].col}">${ROLES[rk].name}</b>` : ''} <span style="color:${RARITY[d.rarity].color}"${d.legend ? ' class="rbwT"' : ''}>${d.legend ? '전설' : RARITY[d.rarity].name}</span> · 스킬 ×${skK(g)}${g.star >= 5 ? ' · 각성' : ''}</div>
       <div class="abS"><span>⚔<b>${Math.round(s.atk * 100)}</b><small>공격</small></span><span>❤<b>${s.hp}</b><small>체력</small></span><span>💨<b>${s.spd}</b><small>속도</small></span><span>🦠<b>${s.count}</b><small>마릿수</small></span><span>⏱<b>${s.cd}초</b><small>쿨타임</small></span></div>
       <div class="abO"><span class="g">👍 ${gd.map(o => ORG_SHORT[o]).join('·') || '-'}</span>${bd.length ? ` <span class="b">👎 ${bd.map(o => ORG_SHORT[o]).join('·')}</span>` : ''}${g.rc ? ` ${rcBadges(g)}` : ''}</div></div>`; },
   // ★ 비교 시트: 이 칸에 꽂으면 무엇이 얼마나 바뀌는지 크게
@@ -4590,7 +4591,7 @@ const ui = {
     const R0 = ROUTE[routeOf(g.strain)], sk = geneSkill(g), st = geneStats(g), rl = ROLES[ROLE_OF[g.strain]], real = fitReal(g), fo = fitOrgans(g), skt = SKTYPE[g.strain] || 'boost';
     const mx = { atk: 1.5, hp: 1500, count: 60, spd: 80 }, bar = (t, k, v, col) => `<div class="dSt"><span>${t}</span><i><b style="width:${Math.min(100, v / mx[k] * 100)}%;background:${col}"></b></i><em>${k === 'atk' ? v.toFixed(2) : Math.round(v)}</em></div>`;
     ui.modal(`<div class="dTop"><div class="dImg" style="background:color-mix(in srgb,${R0.c} 30%,#1a120e)">${pimg(g)}</div><div class="dHd">
-        <h3>${gname(g)} <span style="color:#ffd27a">${stars(g.star)}</span></h3>
+        <h3>${gname(g)} <span style="color:${RARITY[d.rarity].color}"${d.legend ? ' class="rbwT"' : ''}>${stars(g.star)}</span></h3>
         <div class="sub"><span style="color:${RARITY[d.rarity].color}">${d.legend ? '전설' : RARITY[d.rarity].name}</span> · ${rl ? `<span style="color:${rl.col}">${rl.name}</span>` : ''} · <span style="color:${R0.c}">${R0.ic} ${R0.n}</span></div>
         <div class="sub">👍 ${fo.map(o => real.includes(o) ? ORG_SHORT[o] : `<b style="color:#ffd27a">${ORG_SHORT[o]}🧬</b>`).join('·')}${fo.length > real.length ? ` <button class="mini" id="mRoll">🎲 🧫${REROLL(g)}</button>` : ''}</div></div></div>
       <div class="dGrid">${bar('공격', 'atk', st.atk, '#ff7a5a')}${bar('체력', 'hp', st.hp, '#5aa8ff')}${bar('마릿수', 'count', st.count, '#7ad070')}${bar('속도', 'spd', st.spd, '#ffd24a')}</div>
