@@ -781,7 +781,7 @@ const STRAINS = {
   noro:   { name:'노로',       role:'물량',     rarity:0, genome:'RNA',   seg:false, fit:1.3, atk:0.15, hp:12,  spd:74, count:48, size:10,
             skill:{ id:'outbreak', name:'집단 발병', cd:35, desc:'대기 중인 노로를 맨 앞으로 당겨 한꺼번에 방출 + 6초간 노로 이동 +25%' } },
   herpes: { name:'헤르페스',   role:'은신',     rarity:1, genome:'DNA',   seg:false, fit:0.9, atk:0.37,  hp:26,  spd:64, count:19, size:13, stealth:true,
-            skill:{ id:'latency', name:'잠복', cd:40, desc:'8초간 헤르페스가 레이더에도 잡히지 않음' } },
+            skill:{ id:'latency', name:'신경 속 잠적', cd:40, desc:'8초간 헤르페스가 레이더에도 잡히지 않음' } },
   flu:    { name:'인플루엔자', role:'변이',     rarity:1, genome:'RNA',   seg:true,  fit:1.1, atk:0.3, hp:24,  spd:64, count:26, size:13, split:true,
             skill:{ id:'shift', name:'항원 변이', cd:50, desc:'3초간 인플루엔자가 표적에서 사라짐 + 면역 경보 절반 감소' } },
   rota:   { name:'로타',       role:'스피드',   rarity:0, genome:'RNA',   seg:true,  fit:1.2, atk:0.15, hp:10,  spd:94, count:26, size:12,
@@ -2193,19 +2193,23 @@ const ORGAN_HZ = {
   skin:  { type: 'gate', name: '딱지', open: 6, shut: 3.5, at: 0.5, color: '#c0703a' },
   brain: { type: 'gate', name: '혈뇌장벽', open: 2.5, shut: 6, at: 0.72, gap: true, color: '#7fc0ff' },
 };
+// ★ 기관마다 유리한 본체 스킬 종류: 맞으면 그 기관 방해물이 40%로 약해진다 (궁합 맞는 본체면 60%, 둘 다면 24%)
+const HZ_FAV = { nose: 'hide', lung: 'hide', gut: 'boost', lymph: 'boost', liver: 'grow', skin: 'stop', brain: 'stop' };
+const SKT_NAME = { stop: '🛑 막기형', hide: '🫥 숨기형', grow: '🦠 불리기형', boost: '⚔ 강하게형' };
+const hzFav = (org = save.sel) => HZ_FAV[org] && coreStrain() && (SKTYPE[coreStrain()] || 'boost') === HZ_FAV[org];
 function initHazard() { const R = run, c = ORGAN_HZ[R.st.organ.id]; if (!c) return; R.hz = { ...c, t: c.every || c.shut || 0, closed: c.type === 'gate', d: (c.at || 0) * map.len, warned: false }; }
 function stepHazard(dt) {
   const R = run, z = R.hz; if (!z) return;
   if (z.type === 'push' || z.type === 'wave') { z.t -= dt;
     if (z.t <= z.warn && !z.warned) { z.warned = true; banner(z.warnTxt); }
     if (z.t <= 0) { z.t = z.every; z.warned = false; shake(z.type === 'push' ? 7 : 5); z.fire = 0.8; sfx(z.type === 'push' ? 'sneeze' : 'wave');
-      if (z.type === 'push') { let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > (R.frontD || 0) + 20) { u.d = Math.max((R.frontD || 0) + 10, u.d - z.push * rand(0.7, 1.1) * (R.fit ? 0.5 : 1)); n++; }
+      if (z.type === 'push') { let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > (R.frontD || 0) + 20 && !u.hid) { u.d = Math.max((R.frontD || 0) + 10, u.d - z.push * rand(0.7, 1.1) * (R.hzK ?? 1)); n++; }
         float(W / 2, H * 0.45, `${z.name}! 바이러스 ${n}마리가 밀려났다`, z.color, 16); }
-      else { const al = R.units.filter(u => u.alive && !u.hero && u.d > 0).sort((a, b) => a.hp - b.hp), k = Math.floor(al.length * z.kill * (R.fit ? 0.5 : 1)); for (let i = 0; i < k; i++) { al[i].alive = false; pop(al[i], z.color); }
+      else { const al = R.units.filter(u => u.alive && !u.hero && u.d > 0 && !u.hid).sort((a, b) => a.hp - b.hp), k = Math.floor(al.length * z.kill * (R.hzK ?? 1)); for (let i = 0; i < k; i++) { al[i].alive = false; pop(al[i], z.color); }
         float(W / 2, H * 0.45, `${z.name} · ${k}마리 녹음`, z.color, 16); } } }
-  else if (z.type === 'zone') { for (const u of R.units) if (u.alive && !u.hero && u.d > z.d && u.d < z.d + z.len) { u.hp -= u.maxHp * z.dps * dt * (R.fit ? 0.5 : 1); u.inZone = 0.1; if (u.hp <= 0) { u.alive = false; pop(u, z.color); } } }
+  else if (z.type === 'zone') { for (const u of R.units) if (u.alive && !u.hero && u.d > z.d && u.d < z.d + z.len && !u.hid) { u.hp -= u.maxHp * z.dps * dt * (R.hzK ?? 1); u.inZone = 0.1; if (u.hp <= 0) { u.alive = false; pop(u, z.color); } } }
   else if (z.type === 'gate') { z.t -= dt; const open = z.gap ? R.gap > 0 || (!z.closed && z.t > 0) : !z.closed;
-    if (z.t <= 0) { z.closed = !z.closed; z.t = z.closed ? z.shut * (R.fit ? 0.6 : 1) : z.open * (R.fit ? 1.4 : 1); if (!z.closed && !z.toldOpen) { z.toldOpen = true; banner(`${z.name}이 열렸다 닫혔다 한다 · 열릴 때 통과`); } }
+    if (z.t <= 0) { z.closed = !z.closed; z.t = z.closed ? z.shut * (R.hzK ?? 1) : z.open * (2 - (R.hzK ?? 1)); if (!z.closed && !z.toldOpen) { z.toldOpen = true; banner(`${z.name}이 열렸다 닫혔다 한다 · 열릴 때 통과`); } }
     if (z.gap) z.closedNow = !(R.gap > 0) && z.closed; else z.closedNow = z.closed; }
   z.fire = Math.max(0, (z.fire || 0) - dt);
 }
@@ -2762,6 +2766,7 @@ function stepMed(dt) {
 const ALARM = !!window.__ALARM;
 // ★ 시제품(proto.html): 버튼 4개 — 돌격 · 잠복 · 증식 · 대장 스킬
 const B3 = /proto/.test(location.pathname) || !!window.__B3;
+const B3TW = 1.6;   // ★ 시제품: 탑이 더 아프게 (막기·숨기가 의미 있도록)
 // ★ 본체 스킬: 처음엔 가득·30초 자연충전·도착하면 더 빨리 참. 짝 버튼(👑)과 3초 안에 같이 쓰면 콤보 ×1.3
 const SKTYPE = { astro:'boost', hepa:'hide', hepc:'hide', westnile:'grow', zika:'boost', hanta:'stop', norosyd:'grow', yellowf:'boost', gbvc:'stop', ttv:'stop', cowpox:'stop', polio:'stop', parvo:'stop', ebola:'stop', retro:'stop', hepb:'stop',
   herpes:'hide', flu:'hide', rsv:'hide', ebv:'hide', corona:'hide',
@@ -2944,7 +2949,7 @@ function biteTowers(dt) {
 }
 function makeTower(type, x, y, st) { const d = TOWERS[type];
   const hp = TOWER_HP.base * st.mul * (d.aura ? 0.7 : 1);
-  return { hp, maxHp: hp, type, x, y, range: d.range, baseDmg: d.dmg * st.mul * RULES.dmgScale, baseRate: d.rate * st.rateMul * RULES.rateScale, cd: rand(0, 1), flash: 0, converted: 0, recoil: 0, pulseT: 0 }; }
+  return { hp, maxHp: hp, type, x, y, range: d.range, baseDmg: d.dmg * st.mul * RULES.dmgScale * (B3 ? B3TW : 1), baseRate: d.rate * st.rateMul * RULES.rateScale, cd: rand(0, 1), flash: 0, converted: 0, recoil: 0, pulseT: 0 }; }
 const leftN = () => run.groups.reduce((a, g) => a + g.list.length, 0);
 function goAll() { if (run.ta) { for (const g of run.groups) release(g, true); spawnHero(); return; } for (const g of run.groups) g.go = true; spawnHero(); }
 // 타임어택 방출: 충전된 비율만큼 그 계통 무리를 한꺼번에 내보낸다
@@ -3158,8 +3163,12 @@ function startRun() {
   if (run.ta) initStealth();
   // ★ 내성형 고유 능력: 어느 기관에서든 몸의 반응(밀기·녹이기·길 막기)을 절반만 받음
   run.cfx = cfx; run.cfxT = cfx && cfx.stun ? cfx.stun : 0;
-  run.fitTrue = trop > 1; run.fit = trop > 1;   // 이 기관을 노리는 카드가 있으면 기관 장치(연동·판막 등)도 덜 받는다 run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); initBoss(); run.parts = []; initPeri();
-  const r0 = run; if (TA()) setTimeout(() => run === r0 && !run.over && float(W / 2, H * 0.36, (trop > 1 ? `🧬 기관 궁합 +${Math.round((trop - 1) * 100)}%` : `이 기관을 노리는 바이러스가 있으면 더 세져요`), trop > 1 ? '#9fff6a' : '#ffd27a', 15), 900);
+  run.fitTrue = trop > 1; run.fit = trop > 1; run.hzK = (trop > 1 ? 0.6 : 1) * (B3 && !window.__noFav && hzFav(organ.id) ? 0.4 : 1);   // 이 기관을 노리는 카드가 있으면 기관 장치(연동·판막 등)도 덜 받는다 run.trop = trop; run.muts = []; playBgm(runBgm()); initHazard(); initBoss(); run.parts = []; initPeri();
+  const r0 = run; if (TA()) setTimeout(() => { if (run !== r0 || run.over) return; const si = setInfo(cards), cg = coreGene(), fav = HZ_FAV[organ.id];
+    float(W / 2, H * 0.33, trop > 1 ? `👑 본체 궁합 +${Math.round((trop - 1) * 100)}%` : cg ? `👑 궁합 없음 · 적응 ${adaptOf(cg, organ.id)}/${ADAPT.need}판` : '이 기관에 맞는 본체면 더 세져요', trop > 1 ? '#9fff6a' : '#ffd27a', 15);
+    if (si.b) float(W / 2, H * 0.37, `${ROUTE[si.r].ic} 같은 색 ${si.n}개 +${Math.round(si.b * 100)}%`, ROUTE[si.r].c, 14);
+    if (B3 && fav && ORGAN_HZ[organ.id]) float(W / 2, H * 0.41, hzFav(organ.id) ? `${SKT_NAME[fav]} 본체: ${ORGAN_HZ[organ.id].name} 약해짐!` : `💡 여기선 ${SKT_NAME[fav]} 본체가 유리해요`, hzFav(organ.id) ? '#9fe8ff' : '#c9b9a2', 13);
+    const sn = slotsOpenN(); if (cg && sn > (save.seenSlots || 2)) { save.seenSlots = sn; banner(`🔓 칸 ${sn}개! 바이러스가 더 많아졌어요`); } }, 900);
   ui.showRun(); tutStart();
   if (st.legs.length) { banner('지난번에 남긴 흔적이 도와줘요!'); st.legs.forEach((l, i) => setTimeout(() => run && float(W / 2, H * 0.42 + i * 26, `✅ ${l.text} (${LEGACY[l.s].name})`, '#b9f27a', 15), 300 + i * 350)); }
 }
@@ -4006,6 +4015,7 @@ const ui = {
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}${save.done[o.id] ? ' <small style="color:#9fff6a">✓</small>' : ''}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
       ${ui.matchHtml(o.id)}
+      ${B3 && HZ_FAV[o.id] && ORGAN_HZ[o.id] ? `<div class="sub" style="font-size:12px;margin:2px 0">💡 ${ORGAN_HZ[o.id].name} → <b style="color:${hzFav(o.id) ? '#9fff6a' : '#ffd27a'}">${SKT_NAME[HZ_FAV[o.id]]}</b> 본체가 유리 (방해물 약해짐)${hzFav(o.id) ? ' ✓' : ''}</div>` : ''}
       <div class="feat">${TA() ? `<span class="chip" style="border-color:#3f7aa0;color:#9fe8ff">⏱ ${timeLimit(o)}초</span>` : ''}<span class="chip">🎯 ${Math.round(st.quota)}</span>${BOSS[o.id] ? `<span class="chip bossChip" style="border-color:#a0303a;color:#ffb4a8">${BOSS[o.id].ico} ${BOSS[o.id].name}${(save.bossKO || {})[o.id] ? ' ✓' : ''}</span>` : ''}${ORGAN_HZ[o.id] ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ ${ORGAN_HZ[o.id].name}</span>` : o.valves ? `<span class="chip" style="border-color:#c79a45;color:#ffe2a8">⚠ 판막</span>` : ''}${doneCount() ? `<span class="chip warn">🚨 탑 +${Math.round(ALERT_STEP * 100 * doneCount())}%</span>` : ''}</div>
       ${st.legs.length ? `<div class="feat">${st.legs.map(l => `<span class="chip ok">✅ ${l.text}</span>`).join('')}</div>` : ''}`;
     { const nf = (save.fails || {})[save.host + ':' + o.id] || 0; if (nf && !save.done[o.id]) $('organInfo').insertAdjacentHTML('beforeend', `<div class="feat"><span class="chip" style="border-color:#7fc0ff;color:#bfe0ff">💤 몸이 지쳤어요: 목표 −${Math.round((1 - failEase(o.id)) * 100)}% (실패 ${nf}번)</span></div>`); }
