@@ -963,13 +963,13 @@ const LEGENDS = {
               skill:{ id:'asympt',   name:'무증상 전파', cd:50, desc:'8초간 완전 은신 + 감염력 1.5배' } },
   // ★ 전설 4종 추가 (역할마다 전설 2장씩) · 그림 오기 전엔 부모 그림을 물들여 임시로
   h5n1:     { name:'불사조 독감 (조X 독감)',   role:'불사조 재생', img:'h5n1',  parents:['flu', 'hepb'],     col:'#ff7a3a', rolek:'heal',    atk:0.5,  hp:80,  spd:60, count:30, size:14,
-              skill:{ id:'migrate', name:'철새 이동', cd:52, desc:'둥지 40%가 철새를 타고 길 70% 지점으로 + 모든 내 바이러스 체력 40% 회복 · 철새를 타고 대륙을 건너요' } },
+              skill:{ id:'migrate', name:'철새 이동', cd:52, desc:'둥지 40%만큼 새 무리가 철새를 타고 길 70% 지점에 나타나요 (둥지는 그대로) + 모든 내 바이러스 체력 40% 회복 · 철새를 타고 대륙을 건너요' } },
   mpox:     { name:'허물 황제 (엠X스)',        role:'허물 재생',   img:'mpox',  parents:['hpv', 'adeno'],     col:'#e8c890', rolek:'heal',    atk:0.48, hp:84,  spd:56, count:28, size:14,
-              skill:{ id:'scab', name:'딱지 갑옷', cd:52, desc:'10초 동안 받는 피해 절반 + 쓰러진 바이러스 30%가 다시 일어나요 · 천X두의 친척으로, 발진이 딱지가 되며 나아요' } },
+              skill:{ id:'scab', name:'딱지 갑옷', cd:52, desc:'12초 동안 받는 피해 절반 + 쓰러진 바이러스 50%가 다시 일어나요 · 천X두의 친척으로, 발진이 딱지가 되며 나아요' } },
   nipah:    { name:'그림자 박쥐 (니X)',        role:'그림자 급습', img:'nipah', parents:['rabies', 'herpes'], col:'#7050a0', rolek:'stealth', atk:0.5,  hp:50,  spd:84, count:40, size:13, stealth:true,
-              skill:{ id:'batwing', name:'박쥐 날개', cd:52, desc:'6초 투명 + 앞장선 15마리가 다음 굽이를 날아 넘어요 · 과일박쥐 → 돼지 → 사람으로 옮겨 왔어요' } },
+              skill:{ id:'batwing', name:'박쥐 날개', cd:52, desc:'8초 투명 + 앞장선 22마리가 다음 굽이를 날아 넘어요 · 과일박쥐 → 돼지 → 사람으로 옮겨 왔어요' } },
   marburg:  { name:'철혈 기사 (마X그)',        role:'철벽 출혈',   img:'marburg', parents:['adeno', 'retro'], col:'#c0c8d8', rolek:'tank',    atk:0.5,  hp:180, spd:54, count:16, size:17,
-              skill:{ id:'labescape', name:'실험실 탈출', cd:55, desc:'앞쪽 탑 3개 6초 마비 + 8초 받는 피해 절반 · 1967년 독일 마르부르크 실험실에서 처음 발견됐어요' } },
+              skill:{ id:'labescape', name:'실험실 탈출', cd:55, desc:'앞쪽 탑 4개 7초 마비 + 8초 받는 피해 절반 · 1967년 독일 마르부르크 실험실에서 처음 발견됐어요' } },
 };
 for (const [id, L] of Object.entries(LEGENDS)) {
   STRAINS[id] = { name: L.name, role: L.role, rarity: RARITY.length - 1, genome: 'RNA', seg: false, fit: 1.2, atk: L.atk, hp: L.hp, spd: L.spd, count: L.count, size: L.size,
@@ -1008,22 +1008,22 @@ const NEWV = {
   zika:      { name:'지카',         role:'모기 독침', rarity:1, base:'dengue',  tint:'#b0f070', rolek:'dps',     atk:0.38, hp:28, spd:66, count:22, size:12, skill:{ id:'rash', name:'모기 독침', cd:40, desc:'8초 동안 감염력 2배' } },
   hanta:     { name:'한타',         role:'들쥐 방패', rarity:2, base:'rabies',  tint:'#a0b080', rolek:'tank',    atk:0.3,  hp:70, spd:54, count:16, size:15, skill:{ id:'anemia', name:'한탄강 출혈열', cd:48, desc:'8초 동안 모든 탑 공격력 절반 · 1976년 이호왕 박사가 처음 찾은 바이러스' } },
   // ★ 바이러스 20종 확장 (일반 6 · 희귀 4 · 영웅 6) · 그림 오기 전엔 비슷한 바이러스를 물들여 임시로
-  chikv:     { name:'치쿤구니야',   role:'관절 콕콕',   rarity:0, base:'dengue',  tint:'#ffa040', rolek:'dps',     atk:0.32, hp:26, spd:64, count:24, size:12, skill:{ id:'joint', name:'관절 굳히기', cd:42, desc:'앞쪽 탑 3개가 6초 동안 절반 속도로 쏴요 · 치쿤구니야는 "몸이 구부러진다"는 뜻이에요. 관절이 아파 몸을 못 펴요' } },
+  chikv:     { name:'치쿤구니야',   role:'관절 콕콕',   rarity:0, base:'dengue',  tint:'#ffa040', rolek:'dps',     atk:0.32, hp:26, spd:64, count:24, size:12, skill:{ id:'joint', name:'관절 굳히기', cd:42, desc:'앞쪽 탑 2개가 5초 동안 절반 속도로 쏴요 · 치쿤구니야는 "몸이 구부러진다"는 뜻이에요. 관절이 아파 몸을 못 펴요' } },
   hmpv:      { name:'메타뉴모',     role:'기침 연사',   rarity:0, base:'rsv',     tint:'#80d0ff', rolek:'dps',     atk:0.3,  hp:26, spd:62, count:26, size:12, skill:{ id:'cough', name:'기침 비말', cd:40, desc:'둥지 25%가 기침을 타고 조금 앞으로 튀어 나가요 · 2001년에야 처음 찾은 바이러스로, 기침 방울로 퍼져요' } },
-  bkv:       { name:'BK 바이러스',  role:'콩팥 숨기',   rarity:0, base:'herpes',  tint:'#c0a0ff', rolek:'stealth', atk:0.22, hp:28, spd:62, count:26, size:12, stealth:true, skill:{ id:'wakeup', name:'면역 틈 깨우기', cd:42, desc:'6초 투명. 탑이 4개 이상이면 10초 투명 + 감염력 1.5배 · 어릴 때 들어와 평생 콩팥에 숨어 있다가 면역이 약해지면 깨어나요' } },
-  mcv:       { name:'물사마귀',     role:'진주 껍질',   rarity:0, base:'hpv',     tint:'#f0b890', rolek:'stealth', atk:0.2,  hp:30, spd:60, count:28, size:12, stealth:true, skill:{ id:'mcblock', name:'면역 신호 차단', cd:42, desc:'8초 동안 면역 경보가 오르지 않고 4초 투명 · 염증 신호를 막는 단백질로 면역 눈을 피해요' } },
-  sapo:      { name:'사포',         role:'단단한 껍질', rarity:0, base:'noro',    tint:'#f0e060', rolek:'tank',    atk:0.15, hp:80, spd:50, count:16, size:14, skill:{ id:'nodisinfect', name:'소독 무시', cd:42, desc:'8초 동안 약 피해 면역 + 받는 피해 −30% · 껍질이 단단해서 손 소독제에도 잘 안 죽어요' } },
+  bkv:       { name:'BK 바이러스',  role:'콩팥 숨기',   rarity:0, base:'herpes',  tint:'#c0a0ff', rolek:'stealth', atk:0.22, hp:28, spd:62, count:26, size:12, stealth:true, skill:{ id:'wakeup', name:'면역 틈 깨우기', cd:42, desc:'8초 투명. 탑이 4개 이상이면 12초 투명 + 감염력 1.5배 · 어릴 때 들어와 평생 콩팥에 숨어 있다가 면역이 약해지면 깨어나요' } },
+  mcv:       { name:'물사마귀',     role:'진주 껍질',   rarity:0, base:'hpv',     tint:'#f0b890', rolek:'stealth', atk:0.2,  hp:30, spd:60, count:28, size:12, stealth:true, skill:{ id:'mcblock', name:'면역 신호 차단', cd:42, desc:'10초 동안 면역 경보가 오르지 않고 6초 투명 · 염증 신호를 막는 단백질로 면역 눈을 피해요' } },
+  sapo:      { name:'사포',         role:'단단한 껍질', rarity:0, base:'noro',    tint:'#f0e060', rolek:'tank',    atk:0.15, hp:80, spd:50, count:16, size:14, skill:{ id:'nodisinfect', name:'소독 무시', cd:42, desc:'8초 동안 약 피해 면역 + 받는 피해 −45% + 6초 체력 회복 · 껍질이 단단해서 손 소독제에도 잘 안 죽어요' } },
   boca:      { name:'보카',         role:'꼬마 방패',   rarity:0, base:'adeno',   tint:'#b0b0c0', rolek:'tank',    atk:0.15, hp:70, spd:52, count:18, size:13, skill:{ id:'tiny', name:'꼬마 몸집', cd:42, desc:'6초 동안 탑 공격 절반이 빗나가요 · 가장 작은 바이러스 중 하나예요' } },
   hhv6:      { name:'6형 헤르페스', role:'장미 발진',   rarity:1, base:'herpes',  tint:'#ff9ac8', rolek:'heal',    atk:0.3,  hp:42, spd:56, count:22, size:13, skill:{ id:'roseola', name:'돌발진', cd:40, desc:'4초 동안 받는 피해 절반, 끝나면 체력 35% 회복 · 사흘 고열이 내리면 장미 발진이 피어요' } },
-  hev:       { name:'E형 간염',     role:'새싹 재생',   rarity:1, base:'hepb',    tint:'#a0e070', rolek:'heal',    atk:0.3,  hp:44, spd:56, count:20, size:13, skill:{ id:'selfheal', name:'스스로 회복', cd:40, desc:'체력이 절반 아래인 바이러스는 60%, 나머지는 20% 회복 · 대부분 저절로 낫는 간염이에요' } },
-  piv:       { name:'파라인플루엔자', role:'크루프 떼', rarity:1, base:'flu',     tint:'#80c0ff', rolek:'swarm',   atk:0.24, hp:30, spd:60, count:36, size:12, skill:{ id:'croup', name:'크루프 기침', cd:40, desc:'둥지 ×1.3 + 5초 동안 이동 +30% · 개 짖는 듯한 기침(크루프)을 일으켜요' } },
+  hev:       { name:'E형 간염',     role:'새싹 재생',   rarity:1, base:'hepb',    tint:'#a0e070', rolek:'heal',    atk:0.3,  hp:44, spd:56, count:20, size:13, skill:{ id:'selfheal', name:'스스로 회복', cd:40, desc:'체력이 절반 아래인 바이러스는 70%, 나머지는 30% 회복 · 대부분 저절로 낫는 간염이에요' } },
+  piv:       { name:'파라인플루엔자', role:'크루프 떼', rarity:1, base:'flu',     tint:'#80c0ff', rolek:'swarm',   atk:0.24, hp:30, spd:60, count:36, size:12, skill:{ id:'croup', name:'크루프 기침', cd:40, desc:'둥지의 40%만큼 새 바이러스가 무리 앞쪽에 생겨요 · 개 짖는 듯한 기침(크루프)을 일으켜요' } },
   tbev:      { name:'진드기뇌염',   role:'진드기 갑옷', rarity:1, base:'rabies',  tint:'#b08860', rolek:'tank',    atk:0.3,  hp:66, spd:52, count:16, size:14, skill:{ id:'tickbite', name:'진드기 물기', cd:44, desc:'앞쪽 탑 2개에 달라붙어 체력 25%를 갉고 3초 마비 · 진드기가 며칠씩 붙어 있으면서 옮겨요' } },
   jcv:       { name:'JC 바이러스',  role:'뇌 잠입',     rarity:2, base:'herpes',  tint:'#6070d0', rolek:'stealth', atk:0.38, hp:40, spd:66, count:22, size:13, stealth:true, skill:{ id:'pml', name:'뇌 잠입', cd:46, desc:'7초 투명, 끝날 때 앞쪽 탑 2개 3초 마비 · 거의 모든 사람 몸에 숨어 있다가 면역이 약해지면 뇌로 가요' } },
-  mers:      { name:'메르스',       role:'낙타 잠복',   rarity:2, base:'corona',  tint:'#e0c080', rolek:'stealth', atk:0.4,  hp:40, spd:64, count:22, size:14, stealth:true, extinct:'2012년 중동에서 처음 찾았고, 2015년 한국에서도 유행했어요', skill:{ id:'incub', name:'긴 잠복기', cd:48, desc:'6초 투명, 끝나면 8초 동안 감염력 2배 · 잠복기가 최대 2주예요. 2015년 한국 병원에서도 퍼졌어요' } },
+  mers:      { name:'메르스',       role:'낙타 잠복',   rarity:2, base:'corona',  tint:'#e0c080', rolek:'stealth', atk:0.4,  hp:40, spd:64, count:22, size:14, stealth:true, extinct:'2012년 중동에서 처음 찾았고, 2015년 한국에서도 유행했어요', skill:{ id:'incub', name:'긴 잠복기', cd:48, desc:'6초 투명, 끝나면 5초 동안 감염력 2배 · 잠복기가 최대 2주예요. 2015년 한국 병원에서도 퍼졌어요' } },
   htlv:      { name:'HTLV',         role:'수십 년 잠복', rarity:2, base:'retro',  tint:'#8050c0', rolek:'stealth', atk:0.36, hp:42, spd:64, count:22, size:14, stealth:true, skill:{ id:'tcell', name:'T세포 감염', cd:48, desc:'T세포·항체 탑 2개를 6초 동안 내 편으로 (없으면 앞쪽 탑) · 면역을 맡은 T세포 안에 숨어 살아요' } },
-  cchf:      { name:'크림콩고',     role:'진드기 떼',   rarity:2, base:'noro',    tint:'#ff5050', rolek:'swarm',   atk:0.26, hp:42, spd:56, count:48, size:14, skill:{ id:'tickswarm', name:'진드기 떼', cd:48, desc:'길 위 바이러스 25%가 더 앞쪽에 분신을 만들어요 · 진드기가 가축을 옮겨 다니며 퍼뜨려요' } },
-  ev71:      { name:'엔테로71',     role:'손발입 대유행', rarity:2, base:'rota',  tint:'#60d080', rolek:'swarm',   atk:0.26, hp:40, spd:60, count:46, size:13, skill:{ id:'daycare', name:'어린이집 유행', cd:46, desc:'길 위에 30마리 이상이면 60%, 아니면 30%가 분신 · 손발입병, 아이들끼리 손으로 빠르게 퍼져요' } },
-  lassa:     { name:'라사',         role:'쥐 독침',     rarity:2, base:'rabies',  tint:'#c0a080', rolek:'dps',     atk:0.46, hp:40, spd:60, count:22, size:14, skill:{ id:'interferon', name:'인터페론 끄기', cd:50, desc:'8초 동안 면역 경보 정지 + 모든 탑 공격력 절반 · 몸의 첫 경보(인터페론)를 꺼버려요. 들쥐가 옮겨요' } },
+  cchf:      { name:'크림콩고',     role:'진드기 떼',   rarity:2, base:'noro',    tint:'#ff5050', rolek:'swarm',   atk:0.26, hp:42, spd:56, count:48, size:14, skill:{ id:'tickswarm', name:'진드기 떼', cd:48, desc:'길 위 바이러스 40%가 더 앞쪽에 분신을 만들어요 · 진드기가 가축을 옮겨 다니며 퍼뜨려요' } },
+  ev71:      { name:'엔테로71',     role:'손발입 대유행', rarity:2, base:'rota',  tint:'#60d080', rolek:'swarm',   atk:0.26, hp:40, spd:60, count:46, size:13, skill:{ id:'daycare', name:'어린이집 유행', cd:46, desc:'길 위에 20마리 이상이면 60%, 아니면 40%가 분신 · 손발입병, 아이들끼리 손으로 빠르게 퍼져요' } },
+  lassa:     { name:'라사',         role:'쥐 독침',     rarity:2, base:'rabies',  tint:'#c0a080', rolek:'dps',     atk:0.46, hp:40, spd:60, count:22, size:14, skill:{ id:'interferon', name:'인터페론 끄기', cd:50, desc:'8초 동안 면역 경보 정지 + 5초 동안 모든 탑 공격력 절반 · 몸의 첫 경보(인터페론)를 꺼버려요. 들쥐가 옮겨요' } },
 };
 for (const [id, V] of Object.entries(NEWV)) {
   STRAINS[id] = { name: V.name, role: V.role, rarity: V.rarity, genome: 'RNA', seg: false, fit: 1.1, atk: V.atk, hp: V.hp, spd: V.spd, count: V.count, size: V.size, stealth: !!V.stealth, parents: [V.base], newv: true, skill: V.skill, extinct: V.extinct };
@@ -3380,33 +3380,34 @@ const SKILLS = {
   asympt(g) { const b = run.sb[g.strain], T = 8 + (g.star >= 3 ? 2 : 0); b.stealth = T; b.asym = T; const a = mine(g.strain); float(...centerOf(a), '무증상 전파', '#ff6fae', 18); return true; },
   wart(g) { run.sb[g.strain].regen = 8 + (g.branch === 'B' ? 4 : 0) + (g.star >= 3 ? 2 : 0); return true; },
   // ── 진짜 바이러스 특징을 살린 스킬 (20종 확장분) ──
-  joint(g) { const ts = frontT(3); if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const t of ts) { t.slowT = Math.max(t.slowT || 0, 6); float(t.x, t.y - 48, '관절 굳음!', '#ffa040', 14); } return true; },
+  joint(g) { const ts = frontT(2); if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const t of ts) { t.slowT = Math.max(t.slowT || 0, 5); float(t.x, t.y - 48, '관절 굳음!', '#ffa040', 14); } return true; },
   cough(g) { const R = run, tot = nestTotal(); if (tot < 3) { toast('둥지에 바이러스를 더 모아 주세요'); return false; } const n = Math.floor(tot * 0.25), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.35;
     for (const k in R.nest) R.nest[k] *= 0.75; let m = 0; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 50); i++) if (spawnUnit(gene, { d: d0 + rand(-25, 25), small: true })) m++;
     const b = R.sb[g.strain]; b.spd = 4; b.spdMul = 1.2; const [x, y] = pathAt(d0); burst(x, y, 12, '#80d0ff'); float(x, y - 30, `기침 비말 ${m}마리!`, '#80d0ff', 18); return true; },
-  wakeup(g) { const R = run, busy = R.towers.length >= 4, b = R.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, busy ? 10 : 6); if (busy) b.asym = Math.max(b.asym || 0, 8); float(W / 2, H * 0.42, busy ? '면역이 바쁜 틈에 깨어남!' : '콩팥에 숨기', '#c0a0ff', 18); return true; },
-  mcblock(g) { const R = run, b = R.sb[g.strain]; R.frzT = Math.max(R.frzT || 0, 8); b.stealth = Math.max(b.stealth || 0, 4); float(W / 2, H * 0.42, '면역 신호 차단! 경보 멈춤', '#f0b890', 18); return true; },
-  nodisinfect(g) { const R = run, b = R.sb[g.strain]; R.medImmT = Math.max(R.medImmT || 0, 8); b.shield = 8; b.shieldMul = 0.7; float(W / 2, H * 0.42, '소독 무시! 약이 안 들어요', '#f0e060', 18); return true; },
+  wakeup(g) { const R = run, busy = R.towers.length >= 4, b = R.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, busy ? 12 : 8); if (busy) b.asym = Math.max(b.asym || 0, 8); float(W / 2, H * 0.42, busy ? '면역이 바쁜 틈에 깨어남!' : '콩팥에 숨기', '#c0a0ff', 18); return true; },
+  mcblock(g) { const R = run, b = R.sb[g.strain]; R.frzT = Math.max(R.frzT || 0, 10); b.stealth = Math.max(b.stealth || 0, 6); float(W / 2, H * 0.42, '면역 신호 차단! 경보 멈춤', '#f0b890', 18); return true; },
+  nodisinfect(g) { const R = run, b = R.sb[g.strain]; R.medImmT = Math.max(R.medImmT || 0, 8); b.shield = 8; b.shieldMul = 0.55; b.regen = Math.max(b.regen || 0, 6); float(W / 2, H * 0.42, '소독 무시! 약이 안 들어요', '#f0e060', 18); return true; },
   tiny(g) { run.missT = Math.max(run.missT || 0, 6); float(W / 2, H * 0.42, '너무 작아서 탑이 빗나가요', '#b0b0c0', 18); return true; },
   roseola(g) { const R = run, b = R.sb[g.strain], s = g.strain; b.shield = 4; b.shieldMul = 0.5; (R.later = R.later || []).push({ t: 4, f: () => { const al = mine(s); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.35); if (al.length) float(...centerOf(al), '열이 내리고 발진! 회복', '#ff9ac8', 18); } });
     float(W / 2, H * 0.42, '고열 버티기', '#ff9ac8', 18); return true; },
-  selfheal(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * (u.hp < u.maxHp * 0.5 ? 0.6 : 0.2)); float(...centerOf(al), '스스로 회복!', '#a0e070', 18); return true; },
-  croup(g) { const R = run, b = R.sb[g.strain]; if (R.nest && nestTotal() >= 1) for (const k in R.nest) R.nest[k] *= 1.3; b.spd = 5; b.spdMul = 1.3; float(W / 2, H * 0.42, '크루프 기침! 둥지 ×1.3', '#80c0ff', 18); return true; },
+  selfheal(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * (u.hp < u.maxHp * 0.5 ? 0.7 : 0.3)); float(...centerOf(al), '스스로 회복!', '#a0e070', 18); return true; },
+  croup(g) { const R = run, tot = nestTotal(), al = mine(g.strain), n0 = Math.min(45, Math.round(Math.max(tot * 0.4, al.length * 0.35))); if (n0 < 2) { toast('둥지와 길에 바이러스를 더 모아 주세요'); return false; } let m = 0; const gene = R.genes[0], f = R.frontD || 0;
+    for (let i = 0; i < n0; i++) if (spawnUnit(gene, { d: Math.max(0, f - rand(0, 60)), small: true, hpMul: 0.8 })) m++; float(W / 2, H * 0.42, `크루프 기침! +${m}마리`, '#80c0ff', 18); return true; },
   tickbite(g) { const ts = frontT(2); if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const t of ts) { t.hp -= t.maxHp * 0.25; t.stunT = Math.max(t.stunT || 0, 3); t.bitten = 0.3; burst(t.x, t.y - 20, 8, '#b08860'); float(t.x, t.y - 48, '진드기 물기!', '#b08860', 14); } return true; },
   pml(g) { const R = run, b = R.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, 7); (R.later = R.later || []).push({ t: 7, f: () => { for (const t of frontT(2)) { t.stunT = Math.max(t.stunT || 0, 3); float(t.x, t.y - 48, '신경 침범!', '#6070d0', 14); } } }); float(W / 2, H * 0.42, '뇌로 잠입…', '#6070d0', 18); return true; },
-  incub(g) { const R = run, b = R.sb[g.strain], s = g.strain; b.stealth = Math.max(b.stealth || 0, 6); (R.later = R.later || []).push({ t: 6, f: () => { R.sb[s].rash = Math.max(R.sb[s].rash || 0, 8); float(W / 2, H * 0.42, '잠복기 끝! 감염력 2배', '#e0c080', 18); } }); float(W / 2, H * 0.42, '긴 잠복기…', '#e0c080', 18); return true; },
+  incub(g) { const R = run, b = R.sb[g.strain], s = g.strain; b.stealth = Math.max(b.stealth || 0, 6); (R.later = R.later || []).push({ t: 6, f: () => { R.sb[s].rash = Math.max(R.sb[s].rash || 0, 5); float(W / 2, H * 0.42, '잠복기 끝! 감염력 2배', '#e0c080', 18); } }); float(W / 2, H * 0.42, '긴 잠복기…', '#e0c080', 18); return true; },
   tcell(g) { const R = run; let ts = R.towers.filter(t => !t.converted && TOWERS[t.type].specific).slice(0, 2); if (!ts.length) ts = frontT(2); if (!ts.length) { toast('아직 탑이 없어요'); return false; }
     for (const t of ts) { t.converted = Math.max(+t.converted || 0, 6); burst(t.x, t.y - 20, 10, '#8050c0'); float(t.x, t.y - 50, 'T세포 감염!', '#8050c0', 15); } return true; },
-  tickswarm(g) { const al = mine(g.strain).filter(u => u.d > 0); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length * 0.25))) if (spawnUnit(u.gene, { d: Math.min(map.len - 20, u.d + rand(20, 60)), copy: true, small: true, hpMul: 0.7 })) n++; float(...centerOf(al), `진드기 떼 +${n}`, '#ff5050', 18); return true; },
-  daycare(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } const big = al.length >= 30; let n = 0; for (const u of al.slice(0, Math.ceil(al.length * (big ? 0.6 : 0.3)))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.6 })) n++; float(...centerOf(al), `${big ? '집단 유행' : '손으로 전파'} +${n}`, '#60d080', 18); return true; },
-  interferon(g) { const R = run; R.frzT = Math.max(R.frzT || 0, 8); R.stormT = Math.max(R.stormT || 0, 8); float(W / 2, H * 0.42, '인터페론 끄기! 경보 정지·탑 약화', '#c0a080', 18); return true; },
+  tickswarm(g) { const al = mine(g.strain).filter(u => u.d > 0); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length * 0.4))) if (spawnUnit(u.gene, { d: Math.min(map.len - 20, u.d + rand(20, 60)), copy: true, small: true, hpMul: 0.7 })) n++; float(...centerOf(al), `진드기 떼 +${n}`, '#ff5050', 18); return true; },
+  daycare(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } const big = al.length >= 20; let n = 0; for (const u of al.slice(0, Math.ceil(al.length * (big ? 0.6 : 0.4)))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.6 })) n++; float(...centerOf(al), `${big ? '집단 유행' : '손으로 전파'} +${n}`, '#60d080', 18); return true; },
+  interferon(g) { const R = run; R.frzT = Math.max(R.frzT || 0, 8); R.stormT = Math.max(R.stormT || 0, 5); float(W / 2, H * 0.42, '인터페론 끄기! 경보 정지·탑 약화', '#c0a080', 18); return true; },
   migrate(g) { const R = run, tot = nestTotal(), al = mine(g.strain); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.4); let m = 0;
-    if (tot >= 3) { const n = Math.floor(tot * 0.4), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.7; for (const k in R.nest) R.nest[k] *= 0.6; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 70); i++) if (spawnUnit(gene, { d: d0 + rand(-20, 20), small: true })) m++; const [x, y] = pathAt(d0); burst(x, y, 16, '#ff7a3a'); }
+    if (tot >= 3) { const n = Math.floor(tot * 0.4), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.7; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 70); i++) if (spawnUnit(gene, { d: d0 + rand(-20, 20) })) m++; const [x, y] = pathAt(d0); burst(x, y, 16, '#ff7a3a'); }
     if (!m && !al.length) { toast('둥지와 길이 모두 비었어요'); return false; } float(W / 2, H * 0.4, `철새 이동! ${m}마리 · 체력 회복`, '#ff7a3a', 20); return true; },
-  scab(g) { const b = run.sb[g.strain]; b.shield = 10; b.shieldMul = 0.5; b.revive = 10; float(W / 2, H * 0.42, '딱지 갑옷! 쓰러져도 다시 일어나요', '#e8c890', 18); return true; },
-  batwing(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, 6); const lead = mine(g.strain).filter(u => u.d > 0).sort((a, c) => c.d - a.d).slice(0, 15);
+  scab(g) { const b = run.sb[g.strain]; b.shield = 12; b.shieldMul = 0.5; b.revive = 12; float(W / 2, H * 0.42, '딱지 갑옷! 쓰러져도 다시 일어나요', '#e8c890', 18); return true; },
+  batwing(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, 8); const lead = mine(g.strain).filter(u => u.d > 0).sort((a, c) => c.d - a.d).slice(0, 22);
     for (const u of lead) { const c = map.corners.find(c => c > u.d + 10); if (c) { burst(u.x, u.y, 3, '#7050a0'); u.d = c + rand(4, 16); u.fk = -1; } } float(W / 2, H * 0.42, '박쥐 날개! 굽이를 날아 넘어요', '#7050a0', 18); return true; },
-  labescape(g) { const ts = frontT(3), b = run.sb[g.strain]; for (const t of ts) { t.stunT = Math.max(t.stunT || 0, 6); burst(t.x, t.y - 20, 8, '#c0c8d8'); } b.shield = 8; b.shieldMul = 0.5; shake(6); float(W / 2, H * 0.4, '실험실 탈출! 탑 마비·철벽', '#c0c8d8', 20); return true; },
+  labescape(g) { const ts = frontT(4), b = run.sb[g.strain]; for (const t of ts) { t.stunT = Math.max(t.stunT || 0, 7); burst(t.x, t.y - 20, 8, '#c0c8d8'); } b.shield = 8; b.shieldMul = 0.5; shake(6); float(W / 2, H * 0.4, '실험실 탈출! 탑 마비·철벽', '#c0c8d8', 20); return true; },
 };
 const frontT = n => { const R = run; return R.towers.filter(t => !t.converted).map(t => [t, nearestOnPath(t.x, t.y).d]).filter(([, d]) => d > (R.frontD || 0) - 30).sort((a, b) => a[1] - b[1]).slice(0, n).map(x => x[0]); };
 // 스킬 상세 설명 (대상 · 수치 · ★3 · 갈래)
@@ -3421,11 +3422,11 @@ const SK_CAT = { replicate: '🦠 증식', outbreak: '🦠 증식', blister: '�
   nodisinfect: '🛡 방어', roseola: '🛡 방어', selfheal: '🛡 방어', scab: '🛡 방어', cough: '🦠 증식', croup: '🦠 증식', tickswarm: '🦠 증식', daycare: '🦠 증식', migrate: '🦠 증식', tcell: '🏳 탑 뺏기' };
 const skCat = g => { const sk = geneSkill(g), ids = sk.ids || [sk.id]; return (SK_CAT[ids[0]] || '✨ 스킬') + (ids.length > 1 ? '+' : ''); };
 const SHORT = {
-  joint: () => '앞쪽 탑 3개 6초 절반 속도', cough: () => '둥지 25%를 조금 앞으로 튀김', wakeup: () => '6초 투명 (탑 4개↑면 10초 + 감염 1.5배)', mcblock: () => '8초 경보 멈춤 + 4초 투명',
-  nodisinfect: () => '8초 약 면역 + 피해 −30%', tiny: () => '6초 동안 탑 공격 절반 빗나감', roseola: () => '4초 피해 절반 → 체력 35% 회복', selfheal: () => '약한 바이러스일수록 많이 회복',
-  croup: () => '둥지 ×1.3 + 5초 이동 +30%', tickbite: () => '앞쪽 탑 2개 체력 −25% · 3초 마비', pml: () => '7초 투명 → 끝에 탑 2개 3초 마비', incub: () => '6초 투명 → 끝나면 8초 감염력 2배',
-  tcell: () => 'T세포·항체 탑 2개 6초 내 편', tickswarm: () => '길 위 25%가 더 앞에 분신', daycare: () => '30마리↑면 60%, 아니면 30% 분신', interferon: () => '8초 경보 정지 + 탑 공격력 절반',
-  migrate: () => '둥지 40%를 길 70% 지점으로 + 체력 40%', scab: () => '10초 피해 절반 + 쓰러지면 30% 부활', batwing: () => '6초 투명 + 앞장 15마리 굽이 넘기', labescape: () => '앞쪽 탑 3개 6초 마비 + 8초 피해 절반',
+  joint: () => '앞쪽 탑 2개 5초 절반 속도', cough: () => '둥지 25%를 조금 앞으로 튀김', wakeup: () => '8초 투명 (탑 4개↑면 12초 + 감염 1.5배)', mcblock: () => '10초 경보 멈춤 + 6초 투명',
+  nodisinfect: () => '8초 약 면역 · 피해 −45% · 회복', tiny: () => '6초 동안 탑 공격 절반 빗나감', roseola: () => '4초 피해 절반 → 체력 35% 회복', selfheal: () => '약하면 70%, 아니면 30% 회복',
+  croup: () => '둥지 40%만큼 새로 생김', tickbite: () => '앞쪽 탑 2개 체력 −25% · 3초 마비', pml: () => '7초 투명 → 끝에 탑 2개 3초 마비', incub: () => '6초 투명 → 끝나면 5초 감염력 2배',
+  tcell: () => 'T세포·항체 탑 2개 6초 내 편', tickswarm: () => '길 위 40%가 더 앞에 분신', daycare: () => '길 위 40~60% 분신', interferon: () => '8초 경보 정지 + 5초 탑 공격력 절반',
+  migrate: () => '둥지 40%만큼 길 70% 지점에 추가 + 체력 40%', scab: () => '12초 피해 절반 + 쓰러지면 50% 부활', batwing: () => '8초 투명 + 앞장 22마리 굽이 넘기', labescape: () => '앞쪽 탑 4개 7초 마비 + 8초 피해 절반',
   replicate: n => `${n} 수를 1.5배로 불림`, capsid: n => `6초간 ${n} 받는 피해 절반`, outbreak: n => `${n}를 즉시 가득 채워 방출`,
   latency: n => `8초간 ${n} 완전 은신`, shift: n => `3초간 ${n}가 표적에서 사라짐`, spread: n => `6초간 ${n} 속도 +60%`,
   neuro: n => `앞선 ${n} 12마리 순간이동`, hostify: () => '탑 1개를 10초간 아군으로', dive: n => `5초간 ${n} 무적·가속`,
@@ -3684,7 +3685,7 @@ function damage(u, dmg, src) {
   u.hp -= dmg * m; u.hitT = 0.1;
   if (u.br === 'herpesA' && !u.hitOnce) { u.hitOnce = true; u.cloak = 3; }
   if (u.hp <= 0) { u.alive = false; pop(u); if (src && !u.decoy) { src.kills = (src.kills || 0) + 1; run.twKill = (run.twKill || 0) + 1; }
-    if (run.sb[u.strain] && run.sb[u.strain].revive > 0 && !u.revived && !u.decoy && Math.random() < 0.3) { u.alive = true; u.revived = true; u.hp = u.maxHp * 0.5; float(u.x, u.y - 16, '딱지 부활!', '#e8c890', 11); return; }
+    if (run.sb[u.strain] && run.sb[u.strain].revive > 0 && !u.revived && !u.decoy && Math.random() < 0.5) { u.alive = true; u.revived = true; u.hp = u.maxHp * 0.5; float(u.x, u.y - 16, '딱지 부활!', '#e8c890', 11); return; }
     if (u.br === 'herpesB' && !u.revived && Math.random() < 0.2) { u.alive = true; u.revived = true; u.hp = u.maxHp * 0.5; float(u.x, u.y - 16, '재활성!', '#c79cff', 11); return; }
     if (u.br === 'noroA') for (const o of run.units) if (o.alive && Math.hypot(o.x - u.x, o.y - u.y) < 40) o.boost = 2;
     if (STRAINS[u.strain].split && !u.copy && Math.random() < (u.br === 'fluB' ? 0.65 : 0.35)) { run.fx.push({ x: u.x, y: u.y - 6, t: 0.35, s: 20, img: 'split' });
