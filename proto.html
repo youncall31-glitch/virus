@@ -2122,13 +2122,6 @@ function renderMapLayer() {
     }
   }
   for (const [x, y] of map.slots) drawSprite(g, IMG.pad, x, y + 2, 26, 0.6);
-  // ★ 다리: 위로 지나가는 길을 한 번 더 그려서 아래 길을 덮는다 (그림자 · 난간)
-  for (const b of map.bridges || []) { g.save(); g.translate(b.x, b.y); g.rotate(b.ang); const L = 84, Wd = 50;
-    g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(-L / 2 + 4, -Wd / 2 + 6, L, Wd);
-    g.fillStyle = '#2a1c18'; g.fillRect(-L / 2, -Wd / 2, L, Wd); if (IMG.dirt.width) { g.fillStyle = g.createPattern(IMG.dirt, 'repeat'); g.fillRect(-L / 2, -Wd / 2 + 6, L, Wd - 12); }
-    g.fillStyle = 'rgba(255,230,190,.10)'; g.fillRect(-L / 2, -Wd / 2 + 8, L, Wd - 16);
-    for (const sd of [-1, 1]) { g.fillStyle = '#8a6a5a'; g.fillRect(-L / 2, sd * Wd / 2 - (sd > 0 ? 6 : 0), L, 6); g.fillStyle = '#4a3028'; for (let x = -L / 2 + 4; x < L / 2; x += 14) g.fillRect(x, sd * Wd / 2 - (sd > 0 ? 9 : -3), 4, 6); }
-    g.restore(); }
 }
 
 /* ---------- [render/goals.js] 기관별 목표 그림 (에셋이 오기 전 임시 벡터) ---------- */
@@ -2911,9 +2904,9 @@ function brPaths(fd, sx, sy, gx, gy, n, box) {
     for (let k = 1; k < n; k++) { let found = null; for (let q = 0; q < 60 && !found; q++) { const c = R(cands); if (set.includes(c)) continue; if (set.every(S => ok2(S, c))) found = c; } if (!found) break; set.push(found); }
     if (set.length < n) continue;
     const lens = set.map(P => P.len), ratio = Math.max(...lens) / Math.min(...lens); if (ratio > 1.7) continue;
-    let cr = 0; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) cr += brCross(set[a], set[b], 50, 70).length;
+    let cr = 0, near = 0; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) for (const c of brCross(set[a], set[b], 50, 70)) { cr++; if (Math.hypot(c.x - sx, c.y - sy) < 140 || Math.hypot(c.x - gx, c.y - gy) < 110) near++; }
     let spread = 1e9; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) { const S = samplePath(set[a], 24).filter(([, , d]) => d > 80 && d < set[a].len - 90); if (S.length) spread = Math.min(spread, S.reduce((m, [x, y]) => m + distTo(set[b].pts, x, y), 0) / S.length); }
-    const score = -Math.abs(cr - 1) * 60 - (ratio - 1) * 80 + Math.min(spread, 160) + set.reduce((m, P) => m + P.raw.length, 0) * 4;
+    const score = -near * 90 - Math.abs(cr - 1) * 60 - (ratio - 1) * 80 + Math.min(spread, 160) + set.reduce((m, P) => m + P.raw.length, 0) * 4;
     if (!best || score > best.score) best = { set, score }; }
   if (!best) { const set = [cands.sort((a, b) => a.len - b.len)[0]]; return brWrap(set); }
   return brWrap(best.set.sort((a, b) => a.pts[Math.floor(a.pts.length / 2)][0] - b.pts[Math.floor(b.pts.length / 2)][0])); }
@@ -2955,6 +2948,24 @@ function drawSprBub(time) { const R = run; if (!R.br) return; const cd = R.sprCd
   else { const tot = (R.sprN || 0) ? SPR.cd : SPR.first, q = 1 - cd / tot; ctx.globalAlpha = 0.85; ctx.fillStyle = '#1a2414'; ctx.beginPath(); ctx.arc(x, y, 21, 0, TAU); ctx.fill();
     ctx.strokeStyle = '#9fff6a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 18, -Math.PI / 2, -Math.PI / 2 + TAU * q); ctx.stroke(); ctx.font = "800 10px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.fillStyle = '#cfe8c0'; ctx.fillText(`🦠${Math.ceil(cd)}s`, x, y + 4); }
   ctx.restore(); }
+// ★ 다리 (매 프레임, 갈래 색 위에): 나무 다리 + 굵은 난간 + 위 길 색 띠 + 그림자 + 아래 길에 굴 입구
+function drawBridges(time) { const R = run; if (!R.br || !map.bridges) return;
+  for (const b of map.bridges) { const col = BR.col[b.top] || '#fff', L = 104, Wd = 62; ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.ang);
+    // 아래 길: 다리 양쪽 입구를 어둡게 (굴로 들어가는 느낌)
+    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(-L / 2 - 2, -Wd / 2 - 14, L + 4, 14); ctx.fillRect(-L / 2 - 2, Wd / 2, L + 4, 14);
+    // 그림자
+    ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-L / 2 + 6, -Wd / 2 + 9, L, Wd, 8) : ctx.rect(-L / 2 + 6, -Wd / 2 + 9, L, Wd); ctx.fill();
+    // 바닥 (나무 판자)
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-L / 2, -Wd / 2, L, Wd, 8) : ctx.rect(-L / 2, -Wd / 2, L, Wd); ctx.fillStyle = '#b98a5a'; ctx.fill();
+    ctx.strokeStyle = '#7a5434'; ctx.lineWidth = 2; for (let x = -L / 2 + 9; x < L / 2; x += 11) { ctx.beginPath(); ctx.moveTo(x, -Wd / 2 + 8); ctx.lineTo(x, Wd / 2 - 8); ctx.stroke(); }
+    ctx.globalAlpha = 0.35; ctx.fillStyle = col; ctx.fillRect(-L / 2, -Wd / 2 + 8, L, Wd - 16); ctx.globalAlpha = 1;
+    // 난간 (밝은 테두리 + 기둥)
+    for (const sd of [-1, 1]) { const y = sd * (Wd / 2 - 4); ctx.lineWidth = 7; ctx.strokeStyle = '#2a160c'; ctx.beginPath(); ctx.moveTo(-L / 2, y); ctx.lineTo(L / 2, y); ctx.stroke();
+      ctx.lineWidth = 4; ctx.strokeStyle = '#f3dcb0'; ctx.beginPath(); ctx.moveTo(-L / 2, y); ctx.lineTo(L / 2, y); ctx.stroke();
+      ctx.fillStyle = '#2a160c'; for (const x of [-L / 2, -L / 6, L / 6, L / 2]) { ctx.beginPath(); ctx.arc(x, y, 5, 0, TAU); ctx.fill(); ctx.fillStyle = '#f3dcb0'; ctx.beginPath(); ctx.arc(x, y, 3, 0, TAU); ctx.fill(); ctx.fillStyle = '#2a160c'; } }
+    // 바깥 테두리
+    ctx.lineWidth = 3; ctx.strokeStyle = '#1a0c06'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-L / 2, -Wd / 2, L, Wd, 8) : ctx.rect(-L / 2, -Wd / 2, L, Wd); ctx.stroke();
+    ctx.restore(); } }
 function drawBranchTint(time) { const R = run; if (!R.br) return; ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   for (const f of map.forks) { ctx.globalAlpha = 0.3 + (R.br.upT[f.br] && R.time - R.br.upT[f.br] < 3 ? 0.15 * Math.abs(Math.sin(time * 8)) : 0); ctx.strokeStyle = BR.col[f.br]; ctx.lineWidth = 36; ctx.beginPath(); f.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
     const [x, y] = pathAt(f.len * 0.32, f); ctx.globalAlpha = 1; ctx.fillStyle = BR.col[f.br]; ctx.beginPath(); ctx.arc(x, y, 13, 0, TAU); ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#000'; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = "900 16px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(f.br + 1, x, y + 6); ctx.fillText(f.br + 1, x, y + 6); }
@@ -4020,7 +4031,7 @@ function render(time) {
     if (v.closed || warn) { ctx.save(); ctx.font = "700 11px 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const tx = v.closed ? '판막 닫힘' : '판막 곧 닫힘'; ctx.strokeText(tx, x, y - 26); ctx.fillStyle = v.closed ? '#ff8d8a' : '#ffd27a'; ctx.fillText(tx, x, y - 26); ctx.restore(); }
   }
   drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time); drawBoss(time); drawAbHorn(time); drawMed(time); drawAlarm(time);
-  if (run.br) { drawBranchTint(time); drawSprBub(time); } else for (const f of map.forks) drawSwitch(f, time);
+  if (run.br) { drawBranchTint(time); drawBridges(time); drawSprBub(time); } else for (const f of map.forks) drawSwitch(f, time);
   for (const t of R.towers) {
     const a = TOWERS[t.type].aura;
     if (a && !t.converted) { ctx.save(); ctx.globalAlpha = 0.1; ctx.fillStyle = TOWERS[t.type].color; ctx.beginPath(); ctx.arc(t.x, t.y - 20, t.range, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.45; ctx.setLineDash([5, 6]); ctx.strokeStyle = TOWERS[t.type].color; ctx.lineWidth = 1.2; ctx.stroke(); ctx.restore(); }
