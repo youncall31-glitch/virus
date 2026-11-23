@@ -1146,7 +1146,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.08, lung: 0.16, gut: 0.27, liver: 0.42, blood: 0.6, skin: 0.24, lymph: 0.8, brain: 3.5 },
+const CAL = { 0: { nose: 0.055, lung: 0.16, gut: 0.27, liver: 0.42, blood: 0.6, skin: 0.24, lymph: 0.8, brain: 3.5 },
   1: { nose: 0.99, lung: 0.78, gut: 0.47, liver: 1.1, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
@@ -2850,13 +2850,9 @@ const brDefault = () => { const B = run.br; let bk = 0, bv = 1e9; for (let k = 0
 function buildBranches() {
   const R = run; if (!BR.on(R.st.organ) || R.br) return;
   const fd = Math.min(map.len - 80, (R.frontD || infFront()) + 6), [sx, sy] = pathAt(fd), [gx, gy] = map.goal, n = segDone() >= BR.n3 ? 3 : 2;
-  const box = { x0: 34, x1: W - 34, y0: TOP + 26, y1: H - BOTTOM - 14 };
-  const dx = gx - sx, dy = gy - sy, L = Math.hypot(dx, dy) || 1, px = -dy / L, py = dx / L, offs = n === 3 ? [-1, 0, 1] : [-0.75, 0.75];
-  const mk = (o, k) => { const amp = Math.max(120, L * 0.6) * o, c1 = [sx + dx * 0.2 + px * amp * 1.25, sy + dy * 0.2 + py * amp * 1.25], c2 = [sx + dx * 0.8 + px * amp, sy + dy * 0.8 + py * amp], pts = [];
-    for (let i = 0; i <= 48; i++) { const t = i / 48, u = 1 - t, x = u * u * u * sx + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * gx, y = u * u * u * sy + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * gy; pts.push([clamp(x, box.x0, box.x1), clamp(y, box.y0, box.y1)]); }
-    const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
-    return { d1: fd, d2: map.len, pts, cum, len: cum.at(-1), sw: 'BR', br: k, pass: 0, adapt: 0, sx: -999, sy: -999 }; };
-  map.forks = offs.map(mk); map.brD = fd;
+  const box = { x0: 40, x1: W - 40, y0: TOP + 34, y1: H - BOTTOM - 20 };
+  map.forks = brPaths(fd, sx, sy, gx, gy, n, box);
+
   // 탑 자리: 갈래마다 길에서 30~48 떨어진 곳 (다른 길과 겹치지 않게)
   const trunk = map.pts.filter((p, i) => map.cum[i] <= fd), paths = [trunk, ...map.forks.map(f => f.pts)], slots = [];
   for (const f of map.forks) for (let d = 40; d < f.len - 50; d += 10) { const [x, y, nx, ny] = pathAt(d, f);
@@ -2868,9 +2864,33 @@ function buildBranches() {
   // 잠입 때 지은 탑: 새 갈래·몸통 근처가 아니면 치운다, 남은 탑은 가까운 갈래에 속한다
   R.towers = R.towers.filter(t => paths.some(Q => distTo(Q, t.x, t.y) < 64)); for (const t of R.towers) { let bk = 0, bd = 1e9; for (const f of map.forks) { const d = distTo(f.pts, t.x, t.y); if (d < bd) { bd = d; bk = f.br; } } t.br = bk; }
   R.br = { n, threat: [0, 0, 0], sent: [0, 0, 0], ir: 0, ai: BR_ORG[R.st.organ.id] || 'honest', bluffN: 0, upT: [0, 0, 0], tw0: [0, 0, 0] };
-  renderMapLayer(); banner(`⚡ 길이 ${n}갈래로 갈라졌어요! 출발 버튼을 꾹 눌러 보내요`);
+  map.brD = fd; renderMapLayer(); banner(`⚡ 길이 ${n}갈래로 갈라졌어요! 출발 버튼을 꾹 눌러 보내요`);
   ui.renderDeploy();
 }
+// ★ 갈래 모양: 몸통 방향으로 조금 나간 뒤 부채꼴로 벌어지고, 장기에는 서로 다른 방향에서 들어간다 (화면 안 · 서로 70 이상 떨어지게)
+function brPaths(fd, sx, sy, gx, gy, n, box) {
+  const [, , tnx, tny] = pathAt(fd), tx = tny, ty = -tnx;   // pathAt 의 법선(nx,ny) → 진행 방향
+  const dir = (() => { const [x2, y2] = pathAt(Math.min(map.len, fd + 8)); const l = Math.hypot(x2 - sx, y2 - sy) || 1; return [(x2 - sx) / l, (y2 - sy) / l]; })();
+  const inBox = ([x, y]) => [clamp(x, box.x0, box.x1), clamp(y, box.y0, box.y1)];
+  const spline = P => { const out = []; for (let i = 0; i < P.length - 1; i++) { const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+      for (let t = 0; t < 1; t += 0.05) { const t2 = t * t, t3 = t2 * t; out.push([0, 1].map(j => 0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3))); } }
+    out.push(P.at(-1)); return out.map(inBox); };
+  const trunk = map.pts.filter((p, i) => map.cum[i] <= fd - 30);
+  const tryMake = (spread, offs) => { const F1 = inBox([sx + dir[0] * 46, sy + dir[1] * 46]), gdx = gx - F1[0], gdy = gy - F1[1], L = Math.hypot(gdx, gdy) || 1, ux = gdx / L, uy = gdy / L, px = -uy, py = ux;
+    const out = [];
+    for (const o of offs) { const mx = F1[0] + gdx * 0.5, my = F1[1] + gdy * 0.5;
+      let A = 0; if (o) { A = L * spread; for (let t = A; t > 20; t -= 6) { const q = [mx + px * o * t, my + py * o * t]; if (q[0] >= box.x0 + 6 && q[0] <= box.x1 - 6 && q[1] >= box.y0 + 6 && q[1] <= box.y1 - 6) { A = t; break; } A = t; } }
+      const M = inBox([mx + px * o * A, my + py * o * A]), Q1 = inBox([F1[0] + gdx * 0.22 + px * o * A * 0.75, F1[1] + gdy * 0.22 + py * o * A * 0.75]), Q2 = inBox([F1[0] + gdx * 0.78 + px * o * A * 0.7, F1[1] + gdy * 0.78 + py * o * A * 0.7]);
+      const ang = o * 0.75, ex = -(ux * Math.cos(ang) - uy * Math.sin(ang)), ey = -(ux * Math.sin(ang) + uy * Math.cos(ang)), G1 = inBox([gx + ex * 64, gy + ey * 64]);
+      const pts = spline([[sx, sy], F1, Q1, M, Q2, G1, [gx, gy]]), cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      out.push({ d1: fd, d2: map.len, pts, cum, len: cum.at(-1), sw: 'BR', br: out.length, pass: 0, adapt: 0, sx: -999, sy: -999 }); }
+    // 점수: 갈래끼리 가장 가까운 거리(양 끝 70 제외) · 몸통과의 거리
+    let gap = 1e9; for (let a = 0; a < out.length; a++) for (let b = a + 1; b < out.length; b++) for (const [x, y] of out[a].pts.filter((p, i) => out[a].cum[i] > 70 && out[a].cum[i] < out[a].len - 70)) gap = Math.min(gap, distTo(out[b].pts, x, y));
+    let tg = 1e9; for (const f of out) for (const [x, y] of f.pts.filter((p, i) => f.cum[i] > 70)) tg = Math.min(tg, trunk.length > 1 ? distTo(trunk, x, y) : 1e9);
+    return { out, score: Math.min(gap, 140) + Math.min(tg, 70) * 1.2 }; };
+  const SETS = n === 3 ? [[-1, 0, 1], [0, 0.55, 1.1], [-1.1, -0.55, 0]] : [[-1, 1], [0, 1], [-1, 0], [0.4, 1.1], [-1.1, -0.4]];
+  let best = null; for (const offs of SETS) for (const sp of [0.35, 0.5, 0.65, 0.8, 1.0]) { const r = tryMake(sp, offs); if (!best || r.score > best.score) best = r; }
+  return best.out; }
 const brTowers = k => run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura && t.br === k).length;
 // 갈래 k로 둥지의 frac만큼 출발
 function sendBranch(k, frac) {
@@ -2908,8 +2928,8 @@ function drawSprBub(time) { const R = run; if (!R.br) return; const cd = R.sprCd
     ctx.strokeStyle = '#9fff6a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 18, -Math.PI / 2, -Math.PI / 2 + TAU * q); ctx.stroke(); ctx.font = "800 10px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.fillStyle = '#cfe8c0'; ctx.fillText(`🦠${Math.ceil(cd)}s`, x, y + 4); }
   ctx.restore(); }
 function drawBranchTint(time) { const R = run; if (!R.br) return; ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  for (const f of map.forks) { ctx.globalAlpha = 0.16 + (R.br.upT[f.br] && R.time - R.br.upT[f.br] < 3 ? 0.15 * Math.abs(Math.sin(time * 8)) : 0); ctx.strokeStyle = BR.col[f.br]; ctx.lineWidth = 36; ctx.beginPath(); f.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
-    const [x, y] = pathAt(Math.min(56, f.len * 0.2), f); ctx.globalAlpha = 1; ctx.fillStyle = BR.col[f.br]; ctx.font = "900 18px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.strokeText(f.br + 1, x, y + 6); ctx.fillText(f.br + 1, x, y + 6); }
+  for (const f of map.forks) { ctx.globalAlpha = 0.3 + (R.br.upT[f.br] && R.time - R.br.upT[f.br] < 3 ? 0.15 * Math.abs(Math.sin(time * 8)) : 0); ctx.strokeStyle = BR.col[f.br]; ctx.lineWidth = 36; ctx.beginPath(); f.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+    const [x, y] = pathAt(f.len * 0.32, f); ctx.globalAlpha = 1; ctx.fillStyle = BR.col[f.br]; ctx.beginPath(); ctx.arc(x, y, 13, 0, TAU); ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#000'; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = "900 16px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(f.br + 1, x, y + 6); ctx.fillText(f.br + 1, x, y + 6); }
   ctx.restore(); }
 const stealthOn = () => run && run.sth && !run.sth.done;
 function stepAlarmG(dt) { const R = run, P = R.plan; if (stealthOn() || R.over || R.endAt) return;
