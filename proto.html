@@ -529,6 +529,17 @@
   .lgS em { position: relative; margin-top: 16px; font-style: normal; font-size: 12px; color: #d8c08a; opacity: .8; }
   @keyframes lgIn { from { opacity: 0 } } @keyframes lgSpin { to { transform: rotate(360deg) } } @keyframes lgPulse { 50% { transform: scale(1.15); opacity: .7 } }
   @keyframes lgPop { from { transform: scale(.2) rotate(-12deg); opacity: 0 } } @keyframes lgSp { from { transform: translate(0,0) scale(1.4); opacity: 1 } to { transform: translate(var(--x), var(--y)) scale(.2); opacity: 0 } }
+  .cvS { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 6px 4px 2px; }
+  .cvSPic { width: 112px; height: 112px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, rgba(255,255,255,.08), rgba(255,255,255,0) 70%); }
+  .cvSPic img { width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); }
+  .cvS h2 { margin: 6px 0 0; font-size: 21px; color: #fff; letter-spacing: -.3px; }
+  .cvSLv { font-size: 13px; color: #a8998a; margin-top: 2px; }
+  .cvSBn { width: 100%; margin: 16px 0 0; padding: 12px 4px; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); display: flex; justify-content: space-between; align-items: baseline; }
+  .cvSBn span { font-size: 13.5px; color: #d8cbb8; } .cvSBn b { font-size: 22px; color: #9fff6a; }
+  .cvSNx { width: 100%; text-align: left; font-size: 11.5px; color: #8a7d70; margin: 6px 4px 14px; }
+  .cvSGo { width: 100%; height: 48px; border: 0; border-radius: 14px; background: #3ae0c0; color: #06302a; font: 19px Jua, sans-serif; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .cvSGo span { font-size: 13px; opacity: .75; } .cvSGo.off { background: #3a3430; color: #8a7d70; }
+  .cvSSw { margin-top: 8px; background: none; border: 0; color: #ffd27a; font: 14.5px Jua, sans-serif; padding: 8px 14px; }
   .sqCard { --g: #a8a8a8; --gs: 10px; position: relative; width: min(62vw, 230px); aspect-ratio: 3 / 4.2; border-radius: 18px; overflow: hidden; box-shadow: 0 0 var(--gs) var(--g), 0 0 0 3px var(--g); transition: box-shadow .25s; animation: sqBob 1.6s ease-in-out infinite; }
   .sqCard.hold { animation: sqShake .09s linear infinite; } .sqCard.up { animation: sqUp .35s ease; } .sqCard.opened { animation: sqOpen .5s ease forwards; }
   @keyframes sqBob { 50% { transform: translateY(-6px) rotate(-1deg); } } @keyframes sqShake { 25% { transform: translate(-1px, 1px); } 75% { transform: translate(1px, -1px); } }
@@ -4640,20 +4651,21 @@ const ui = {
       ${out.length ? `<div class="sub" style="text-align:left;font-size:11.5px;margin:4px 0 0;color:#ff9a8a">⚠ 레벨이 높아 빠짐: ${out.map(x => sname(x.strain) + ' Lv' + (x.lv || 1)).join(', ')}</div>` : ''}
       <div class="row" style="margin-top:8px"><button class="btn" id="csNo">취소</button><button class="btn red" id="csGo">본체로 정하기</button></div>`);
     $('csNo').onclick = ui.closeModal; $('csGo').onclick = () => { setCore(g); if (slotGenes().slice(0, 4).filter(Boolean).length < slotsOpenN()) { autoSquad(); normSquad(); persist(); } sfx('clear'); ui.closeModal(); ui.fx(`👑 새 본체: ${sname(g.strain)}`, '#ffd24a'); ui.showHub('lab'); }; },
-  coreModal() { ui.modal(`<div id="coreM" style="display:flex;flex-direction:column;gap:7px"></div><div class="row"><button class="btn" id="cmNo">닫기</button></div>`); ui.renderCore($('coreM')); $('cmNo').onclick = ui.closeModal; },
+  coreModal() { ui.modal(`<div id="coreM"></div>`); ui.renderCore($('coreM')); },
   renderCore(el) { el = el || $('viewHero');
     const L = coreL(), max = L >= CORE_MAX, c = coreCost(), tier = coreTier(), next = CORE_MILE.find(m => m.l > L), fill = slotFill();
     const ia = coreImg() || (fill.length ? imgSrc(mineStats(fill).img, 'assets/rhino.png') : baseCore()), nb = coreBonus(L + 1) - coreBonus(L), nm = CORE_MILE.find(m => m.l === L + 1);
-    el.innerHTML = `<div class="plate cvTop">
-        <div class="cvPics"><div class="cvA t${tier}"><img src="${ia || ''}" alt="">${tier >= 3 ? '<i class="crown">👑</i>' : ''}<span>${coreStrain() ? sname(coreStrain()) + ' · ' : ''}본체 Lv ${L}</span></div></div>${coreGene() ? `<div class="cvAd">${ALL_ORG.map(o => { const g = coreGene(), t = tropScore(g.strain, o) > 0, a = adaptOf(g, o); return `<u class="${t ? 'nat' : a >= ADAPT.need ? 'ad' : ''}">${ORG_SHORT[o]}${!t && a > 0 && a < ADAPT.need ? `<small>${a}/${ADAPT.need}</small>` : ''}</u>`; }).join('')}</div>` : ''}
-        <div class="cvNeed"><b>본체 보너스: 모든 바이러스 체력·공격 <span style="color:#9fff6a">+${Math.round(coreBonus(L) * 100)}%</span></b>
-          <small>바이러스 레벨 상한 <b>Lv${lvCap()}</b> · 칸 ${[0, 1, 2, 3].filter(slotOpen).length}/4</small></div>
-        ${max ? '<div class="coreGot" style="text-align:center">👑 최고 레벨</div>' : `<div class="cvNeed"><b>다음 Lv ${L + 1}</b><small>보너스 <b style="color:#9fff6a">+${(nb * 100).toFixed(1)}%p</b> · 바이러스 상한 Lv${L + 1}${nm ? ' · ' + nm.t : ''} · 선물 ${giftTxt(coreGift(L + 1))}</small></div>`}</div>
-      ${next ? `<div class="cvGift" id="cvGift"><span>🎁</span><div><b>다음 큰 보상 · Lv ${next.l}</b><small>${next.t} (${next.l - L}레벨 남음)</small></div></div>` : ''}
-      <button class="cvTrack" id="cvTrack">${CORE_MILE.map(m => `<span class="${L >= m.l ? 'ok' : m === next ? 'nx' : ''}"><i>${m.t.split(' ')[0]}</i>Lv${m.l}</span>`).join('')}<div class="bar"><i style="width:${Math.round(L / CORE_MAX * 100)}%"></i></div></button>
-      ${coreGene() ? `<button class="btn" id="bSwap" style="border-color:#ffd24a;color:#ffd24a">👑 본체 바꾸기 <small style="font-weight:400">${RAR_NAME[coreRar()]} 본체 · 칸 ${slotsAt(coreL())}개${coreFree() ? ' · 레벨 제한 없음' : ''}</small></button>` : ''}
-      ${max ? '' : `<button class="btn red cvGo${save.dna >= c ? '' : ' off'}" id="bEvo">🧬 본체 강화 → Lv ${L + 1}<small>🧬 ${c} (가진 ${save.dna})</small></button>`}`;
-    $('cvTrack').onclick = () => { ui.closeModal(); ui.coreRoad(); }; if ($('bSwap')) $('bSwap').onclick = () => ui.corePickList(); if ($('cvGift')) $('cvGift').onclick = () => { ui.closeModal(); ui.coreRoad(); };
+    const cg = coreGene(), D = cg && STRAINS[cg.strain];
+    el.innerHTML = `<div class="cvS">
+        <div class="cvSPic t${tier}"><img src="${ia || ''}" alt=""></div>
+        <h2>${coreStrain() ? sname(coreStrain()) : '본체'}</h2>
+        <div class="cvSLv">Lv ${L}${D ? ` · ${D.legend ? '전설' : RAR_NAME[coreRar()]} ${stars(cg.star)}` : ''}</div>
+        <div class="cvSBn"><span>모든 바이러스 체력·공격</span><b>+${Math.round(coreBonus(L) * 100)}%</b></div>
+        ${max ? '<div class="cvSNx">최고 레벨</div>' : `<div class="cvSNx">다음 Lv ${L + 1} · +${(nb * 100).toFixed(1)}%p${nm ? ' · ' + nm.t : ''}</div>`}
+        ${max ? '' : `<button class="cvSGo${save.dna >= c ? '' : ' off'}" id="bEvo">강화 <span>🧬 ${c}</span></button>`}
+        ${coreGene() ? `<button class="cvSSw" id="bSwap">본체 바꾸기</button>` : ''}
+      </div>`;
+    if ($('bSwap')) $('bSwap').onclick = () => ui.corePickList();
     if ($('bEvo')) $('bEvo').onclick = () => { if (coreGene() && L >= lvCap(coreGene())) { sfx('fail'); return toast(`★${coreGene().star} 본체는 Lv${lvCap(coreGene())}까지 · 카드를 눌러 ★을 올려요`); } if (save.dna < c) { sfx('fail'); return toast(`DNA가 부족해요 (${save.dna}/${c})`); }
       save.dna -= c; const cg = coreGene(); if (cg) cg.lv = L + 1; const first = L + 1 > (save.coreL || 0); if (first) { save.coreL = L + 1; giveReward(coreGift(save.coreL)); } normSquad(); quest('up'); persist(); $('hubDna').textContent = save.dna;
       ui.coreUpQ = [L + 1]; ui.closeModal(); ui.coreUpShow(() => { ui.showHub('lab'); }); };
@@ -6071,5 +6083,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2300</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2310</div></body>
 </html>
