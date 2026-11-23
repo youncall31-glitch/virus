@@ -1145,10 +1145,10 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.2, lung: 0.18, gut: 0.59, liver: 0.98, blood: 0.83, skin: 0.36, lymph: 1.2, brain: 4.84 },
-  1: { nose: 1.33, lung: 1.05, gut: 0.63, liver: 1.48, blood: 0.75, skin: 0.41, lymph: 0.68, brain: 1.12 },
-  2: { nose: 0.77, lung: 0.94, gut: 1.4, liver: 1.22, blood: 0.66, skin: 0.49, lymph: 0.64, brain: 1.2 },
-  3: { nose: 1.55, lung: 0.93, gut: 0.77, liver: 1.83, blood: 0.9, skin: 0.68, lymph: 0.67, brain: 1.28 } };
+const CAL = { 0: { nose: 0.2, lung: 0.12, gut: 0.33, liver: 0.6, blood: 0.73, skin: 0.32, lymph: 1.06, brain: 3.96 },
+  1: { nose: 1.17, lung: 0.92, gut: 0.55, liver: 1.3, blood: 0.66, skin: 0.36, lymph: 0.6, brain: 0.99 },
+  2: { nose: 0.68, lung: 0.83, gut: 1.23, liver: 1.07, blood: 0.58, skin: 0.43, lymph: 0.56, brain: 1.06 },
+  3: { nose: 1.36, lung: 0.82, gut: 0.68, liver: 1.61, blood: 0.79, skin: 0.6, lymph: 0.59, brain: 1.13 } };
 const calK = (h, o) => (CAL[h] || {})[o] || 1;
 const HOST_Q = [1.8, 4.8, 5.8, 6.8];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
@@ -2636,6 +2636,8 @@ function hubSpot(tg) { const sp = $('tutSpot'), sr = $('stage').getBoundingClien
    · 잠복기가 끝나거나 경보 100%·발각이면 침투 시작. 감염 구역 밖에 있으면 선발이 붙잡힌다.
    · 감염 구역 끝이 출발점, 감염한 조직만큼 모든 바이러스가 강해지고, 감염된 길 옆엔 면역 탑이 못 선다. */
 const SEG = 44, HALF = 21;
+// ★ 오염할수록 다음 칸이 오래 걸린다 (야금야금): 이미 오염한 칸 1개마다 +grow
+const STEALTH_GROW = 0.06, stealthNeed = (o, done, gain, role) => STEALTH.infT(o) * (1 + 0.14 * (gain - 1)) * (1 + STEALTH_GROW * Math.max(0, done - 2)) / (role === 'swarm' ? 1.3 : 1);
 const STEALTH = { L: o => Math.round(40 + 10 * clamp(o.diff - 0.5, 0, 1.3)), infT: o => 2.3 + 0.4 * o.diff, alarmPer: o => 3.2 + 0.8 * o.diff, sent: o => Math.min(5, 2 + Math.round(o.diff * 1.4)), spd: o => 48 + 10 * o.diff };
 const LEAD_ROLE = { swarm: '감염 30% 빠름', tank: '한 번 들켜도 버팀', stealth: '시야 안 0.6초까지 안 들킴', dps: '이동 1.5배', heal: '경보 20% 덜 오름' };
 function nearestOnPath(x, y) {
@@ -2693,7 +2695,7 @@ function stepStealth(dt) {
     S.moving = Math.hypot(x - S.x, y - S.y) > 0.3; R.tutMoved = (R.tutMoved || 0) + Math.hypot(x - S.x, y - S.y); S.x = x; S.y = y; }
   const n = nearestOnPath(S.x, S.y), done = segDone(), si = clamp(Math.floor((n.d - map.d0) / SEG), 0, map.seg.length - 1); S.touch = null;
   if (!S.moving && Math.abs(n.off) >= HALF - 6 && si >= done) {
-    const gain = si - done + 1, need = STEALTH.infT(o) * (1 + 0.14 * (gain - 1)) / (T.role === 'swarm' ? 1.3 : 1);
+    const gain = si - done + 1, need = stealthNeed(o, done, gain, T.role);
     if (!S.inf || S.inf.si !== si) S.inf = { si, t: 0, need, gain }; S.inf.t += dt; S.touch = S.inf;
     if (S.inf.t >= need) { sfx('wall'); for (let k = 0; k <= si; k++) map.seg[k].on = true; purgeContaminated(); const add = STEALTH.alarmPer(o) * 2 * gain * (1 + 0.04 * si) * (T.role === 'heal' ? 0.8 : 1); T.alarm += add; S.inf = null;
       float(S.x, S.y - 92, `힘 +${gain * 6}% → 총 +${Math.round((tPow() - 1) * 100)}%`, '#ffd27a', 17); float(S.x, S.y - 70, `${gain}구간 감염 · 경보 +${Math.round(add)}%`, '#e8a0ff', 13); T.powPulse = 1; R.rings.push({ x: S.x, y: S.y - 20, r: 10, R: 90, t: 0.6, color: '#e8a0ff' });
@@ -2746,7 +2748,7 @@ function purgeContaminated() { const R = run; if (!R || !map || !map.seg || wind
   if (R.plan) R.plan.slots = R.plan.slots.filter(c => !onContam(c.s[0], c.s[1], fd));
   if (n) float(W / 2, H * 0.3, `오염된 땅의 탑 ${n}개 붕괴!`, '#e8a0ff', 16); }
 function stealthEnd(why, voluntary) {
-  try { run.sthFrac = segDone() / map.seg.length; const z = nestZone(); setTimeout(() => run && banner(`감염한 길 ${Math.round(run.sthFrac * 100)}% → 둥지 크기 ×${z.toFixed(1)}`), 900); } catch (e) {}
+  try { run.sthSeg = segDone(); const z = nestZone(); setTimeout(() => run && banner(`감염한 땅 ${run.sthSeg}칸 → 둥지 크기 ×${z.toFixed(1)}`), 900); } catch (e) {}
   const R = run, T = R.sth; if (!T || T.done) return; const safe = scoutSafe(); T.done = true; T.joy = null; T.caught = !safe;
   R.frontD = infFront(); purgeContaminated(); R.tpow = tPow(); R.time = 0; shake(safe ? 4 : 9); R.flashT = safe ? 0.15 : 0.45; R.flashC = safe ? '232,160,255' : '255,50,40';
   playBgm(R.st.organ.id === 'brain' ? 'brain' : 'assault'); sfx(safe ? 'breakout' : 'alarm');
@@ -3168,7 +3170,8 @@ function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른
   banner(`출발! ${tot}마리${M ? ` · ${M.icon} ${M.name}` : ''}${R.gap > 0 ? ' · 면역 공백 기습' : ''}`);
 }
 // ★ 둥지 크기 = 잠입 성과: 잠입 때 감염시킨 길이 길수록 둥지가 커진다 (감염 0% ×1 · 30% ×1.9 · 50% ×2.5)
-const nestZone = () => 1 + 3 * Math.min(0.6, run.sthFrac != null ? run.sthFrac : segDone() / Math.max(1, map.seg.length));
+// ★ 둥지 크기 = 잠입 때 감염한 칸 수 (길 길이와 상관없이 칸마다 +12%, 15칸까지)
+const NEST_SEG = 25, nestZone = () => 1 + 3 * Math.min(0.6, (run.sthSeg != null ? run.sthSeg : segDone()) / NEST_SEG);
 const nestCap = () => run.groups.reduce((a, g) => a + (g.reawake ? 0 : g.max * NEST.capMul), 0) * nestZone() * (1 + (run.capB || 0));
 function stepNest(dt) {
   const R = run; if (!R.nest) return; const zone = nestZone();
