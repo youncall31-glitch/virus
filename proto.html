@@ -1957,6 +1957,20 @@ function genRaw(type, rnd, box) {
       if (i < n - 1) raw.push([xs[i + 1], up ? top : bot]);
     }
     if ((n - 1) % 2 === 1) { const last = raw.at(-1); raw.push([last[0], (y0 + y1) / 2]); }
+  } else if (type === 'd') {                             // ★ 비스듬한 줄 (줄마다 기울어진 지그재그)
+    const n = clamp(Math.floor((y1 - y0) / 118) + 1, 4, 6), g = (y1 - y0 - 50) / (n - 1), tilt = 46 + rnd() * 24;
+    let side = rnd() < 0.5 ? 0 : 1; const xl = x0 + 6, xr = x1 - 6, ex = side ? xr - 40 : xl + 40;
+    raw.push([ex, H + 60], [ex, y1]);
+    for (let i = 0; i < n; i++) { const yb = y1 - i * g, xa = side ? xr : xl, xb = side ? xl : xr;
+      if (i === 0) raw.push([xa, yb]);
+      raw.push([xb, yb - tilt]); if (i < n - 1) raw.push([xb, yb - g]); side = 1 - side; }
+  } else if (type === 'm') {                             // ★ 미로 (가운데 줄기에서 양쪽으로 크게 꺾임)
+    const lv = clamp(Math.floor((y1 - y0) / 96), 5, 6), g = (y1 - y0) / lv, cx = (x0 + x1) / 2 + (rnd() - 0.5) * 40;
+    let side = rnd() < 0.5 ? 0 : 1; raw.push([cx, H + 60], [cx, y1]);
+    for (let i = 0; i + 1 <= lv; i += 2) { const ya = y1 - i * g, yb = ya - g, ex = side ? x1 - rnd() * 14 : x0 + rnd() * 14, back = cx + (side ? 1 : -1) * (36 + rnd() * 20);
+      raw.push([ex, ya], [ex, yb]);
+      if (i + 2 <= lv) { raw.push([back, yb], [back, yb - g]); raw.push([cx, yb - g]); } else raw.push([(x0 + x1) / 2, yb]);
+      side = 1 - side; }
   } else {                                               // 사각 나선 (목표가 가운데)
     const s = clamp(Math.min(x1 - x0, y1 - y0) / 4, 96, 120);
     // 지도마다 다르게: 바깥 테두리와 감기는 간격을 조금씩 흔든다
@@ -1977,7 +1991,7 @@ function genRaw(type, rnd, box) {
   return raw;
 }
 // ★ 기관마다 지도 4장: 길 모양(가로 지그재그 h · 세로 지그재그 v · 나선 s)과 배치를 바꿔 돌아가며 나온다
-const MAP_TYPES = { nose: ['h', 's', 'v', 'h'], lung: ['v', 'h', 's', 'v'], gut: ['h', 'v', 's', 'h'], liver: ['s', 'h', 'v', 'h'], blood: ['h', 's', 'h', 's'], skin: ['h', 'v', 's', 'v'], lymph: ['s', 'h', 'v', 's'], brain: ['s', 'h', 's', 'v'] };
+const MAP_TYPES = { nose: ['h', 'd', 'v', 'm'], lung: ['v', 'd', 's', 'm'], gut: ['h', 'm', 's', 'd'], liver: ['s', 'm', 'v', 'd'], blood: ['h', 'd', 's', 'm'], skin: ['h', 'm', 'd', 'v'], lymph: ['s', 'd', 'v', 'm'], brain: ['s', 'm', 'h', 'd'] };   // ★ 첫 지도는 예전 그대로(난이도 기준) · d: 비스듬한 줄 · m: 계단 미로
 const MAP_N = 4, mapTypeOf = (organ, ix) => (MAP_TYPES[organ.id] || [organ.path])[ix % MAP_N] || organ.path;
 function buildMap(organ, hostIdx, variant = 0) {
   const ptype = mapTypeOf(organ, variant);
@@ -6124,7 +6138,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0800</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0830</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
