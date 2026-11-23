@@ -517,6 +517,16 @@
   .cl .role { display: inline-block; vertical-align: -3px; } .dxo b, .dxo small b { display: inline; font-size: inherit; font-weight: 900; color: inherit; } .dxMsg b { color: inherit; } .dxTitle small, .dxHint small { display: block !important; }
   .dxo.flash::after { content: ''; position: absolute; inset: 0; background: radial-gradient(#fff8, #ffcf4a33 40%, transparent 70%); animation: sqFl .9s ease forwards; pointer-events: none; }
   .sqz { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(4,2,3,.72); touch-action: none; user-select: none; }
+.lgS { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(50,25,0,.94), rgba(0,0,0,.98)); animation: lgIn .35s ease; overflow: hidden; }
+  .lgS .ray { position: absolute; width: 220vmax; height: 220vmax; background: repeating-conic-gradient(rgba(255,210,90,.28) 0 6deg, rgba(255,210,90,0) 6deg 18deg); animation: lgSpin 9s linear infinite; }
+  .lgS .glow { position: absolute; width: 70vmin; height: 70vmin; border-radius: 50%; background: radial-gradient(circle, rgba(255,230,140,.75), rgba(255,180,40,0) 70%); animation: lgPulse 1.2s ease-in-out infinite; }
+  .lgS img { position: relative; width: min(64vw, 300px); max-height: 46vh; object-fit: contain; filter: drop-shadow(0 0 24px #ffcf4a); animation: lgPop .7s cubic-bezier(.2,1.6,.4,1) both; }
+  .lgS b { position: relative; margin-top: 10px; font: 900 28px Jua, sans-serif; color: #fff3c0; text-shadow: 0 0 14px #ffb020, 0 3px 0 #7a4a00; animation: lgPop .7s .15s cubic-bezier(.2,1.6,.4,1) both; }
+  .lgS small { position: relative; font: 900 17px Jua, sans-serif; letter-spacing: 6px; color: #ffcf4a; text-shadow: 0 0 10px #ff9a00; animation: lgPop .6s .05s both; }
+  .lgS .sp { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ffe58a; box-shadow: 0 0 8px #ffcf4a; animation: lgSp 1.6s ease-out forwards; }
+  .lgS em { position: relative; margin-top: 16px; font-style: normal; font-size: 12px; color: #d8c08a; opacity: .8; }
+  @keyframes lgIn { from { opacity: 0 } } @keyframes lgSpin { to { transform: rotate(360deg) } } @keyframes lgPulse { 50% { transform: scale(1.15); opacity: .7 } }
+  @keyframes lgPop { from { transform: scale(.2) rotate(-12deg); opacity: 0 } } @keyframes lgSp { from { transform: translate(0,0) scale(1.4); opacity: 1 } to { transform: translate(var(--x), var(--y)) scale(.2); opacity: 0 } }
   .sqCard { --g: #a8a8a8; --gs: 10px; position: relative; width: min(62vw, 230px); aspect-ratio: 3 / 4.2; border-radius: 18px; overflow: hidden; box-shadow: 0 0 var(--gs) var(--g), 0 0 0 3px var(--g); transition: box-shadow .25s; animation: sqBob 1.6s ease-in-out infinite; }
   .sqCard.hold { animation: sqShake .09s linear infinite; } .sqCard.up { animation: sqUp .35s ease; } .sqCard.opened { animation: sqOpen .5s ease forwards; }
   @keyframes sqBob { 50% { transform: translateY(-6px) rotate(-1deg); } } @keyframes sqShake { 25% { transform: translate(-1px, 1px); } 75% { transform: translate(1px, -1px); } }
@@ -1147,7 +1157,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.04, lung: 0.095, gut: 0.55, liver: 0.55, blood: 0.55, skin: 0.25, lymph: 0.5, brain: 1.8 },
+const CAL = { 0: { nose: 0.035, lung: 0.095, gut: 0.55, liver: 0.55, blood: 0.55, skin: 0.25, lymph: 0.5, brain: 1.8 },
   1: { nose: 0.65, lung: 0.6, gut: 0.42, liver: 1.28, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
@@ -3233,7 +3243,7 @@ function drawMuteAim(time) { const R = run; if (!B3 || !R.ta || stealthOn()) ret
   ctx.beginPath(); ctx.ellipse(t.x, t.y - 18 * sc, 30 * sc, 36 * sc, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
   ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0418'; ctx.fillStyle = '#e8c8ff'; const ty = t.y - 66 * sc, tx = clamp(t.x, 48, W - 48); ctx.strokeText('💫 마비 가능', tx, ty); ctx.fillText('💫 마비 가능', tx, ty); ctx.restore(); }
 function drawTw2Badge(t, time) { const st = crownSt(t), cs = 1 + CROWN.size * Math.max(0, st);
-  if (st >= 0) { ctx.save(); ctx.font = `${18 + 4 * st}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('👑', t.x, t.y - TW_H * cs - 4 + Math.sin(time * 3) * 2); ctx.font = "800 10px Jua, sans-serif"; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0408'; ctx.fillStyle = '#ffd24a'; ctx.strokeText(`처치 ${t.kills || 0}`, t.x, t.y + 22); ctx.fillText(`처치 ${t.kills || 0}`, t.x, t.y + 22); ctx.restore(); }
+  if (st >= 0) { ctx.save(); const pop = t.crownT > 0 ? (t.crownT -= 1 / 60, 1 + 0.8 * Math.sin(Math.min(1, t.crownT) * Math.PI)) : 1; if (pop > 1) { const g = ctx.createRadialGradient(t.x, t.y - TW_H * cs - 10, 2, t.x, t.y - TW_H * cs - 10, 40 * pop); g.addColorStop(0, 'rgba(255,220,90,.55)'); g.addColorStop(1, 'rgba(255,220,90,0)'); ctx.fillStyle = g; ctx.fillRect(t.x - 60, t.y - TW_H * cs - 70, 120, 120); } ctx.font = `${Math.round((18 + 4 * st) * pop)}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('👑', t.x, t.y - TW_H * cs - 4 + Math.sin(time * 3) * 2); ctx.font = "800 10px Jua, sans-serif"; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0408'; ctx.fillStyle = '#ffd24a'; ctx.strokeText(`처치 ${t.kills || 0}`, t.x, t.y + 22); ctx.fillText(`처치 ${t.kills || 0}`, t.x, t.y + 22); ctx.restore(); }
   if (t.stunT > 0) { ctx.save(); const y = t.y - TW_H * cs * 0.55; ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.save(); ctx.translate(t.x, y - 16); ctx.rotate(time * 3); ctx.fillText('💫', 0, 7); ctx.restore();
     ctx.fillStyle = '#2a1040'; ctx.strokeStyle = '#c79cff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(t.x - 15, y + 2, 30, 17, 8) : ctx.rect(t.x - 15, y + 2, 30, 17); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#fff'; ctx.font = "900 12px Jua, sans-serif"; ctx.fillText(Math.ceil(t.stunT) + 's', t.x, y + 15); ctx.restore(); } }
@@ -3995,8 +4005,8 @@ function update(dt) {
   if ((R.crowdT = (R.crowdT || 0) - dt) <= 0) { R.crowdT = 0.5; const n = R.units.filter(u => u.alive && u.d > 0).length; R.crowd = n > 100 ? Math.min(2, 1 + (n - 100) / 150) : 1; }   // ★ 물량 대응: 무리가 클수록 범위 공격이 더 많이 맞힘
   const conv = R.towers.filter(t => t.converted > 0), slime = R.outposts.filter(o => o.type === 'out_slime'), decoys = R.outposts.filter(o => o.type === 'out_decoy' && o.hp > 0);
   if (B3 && (R.crownT = (R.crownT || 0) - dt) <= 0) { R.crownT = 0.5; const best = R.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).sort((a, b) => (b.kills || 0) - (a.kills || 0))[0];
-    if (best && (best.kills || 0) >= CROWN.min && best !== R.crown && (!crownOf() || (best.kills || 0) > (R.crown.kills || 0))) { R.crown = best; float(best.x, best.y - 70, `👑 ${TW2.nm[best.type]} · 처치 ${best.kills}`, '#ffd24a', 13); }
-    const c = crownOf(); if (c) { const st2 = crownSt(c); if (st2 > (c.cst || 0)) { c.cst = st2; c.rise = 0.5; R.rings.push({ x: c.x, y: c.y - 20, r: 8, R: 80, t: 0.6, color: '#ff4060' }); float(c.x, c.y - 76, `👑 ${TW2.nm[c.type]} 커졌다! ${st2}단계`, '#ff8a94', 14); } } }
+    if (best && (best.kills || 0) >= CROWN.min && best !== R.crown && (!crownOf() || (best.kills || 0) > (R.crown.kills || 0))) { const old = crownOf(); R.crown = best; best.crownT = 1.2; float(clamp(best.x, 70, W - 70), best.y - 70, `👑 ${TW2.nm[best.type]} · 처치 ${best.kills}`, '#ffd24a', 14); R.rings.push({ x: best.x, y: best.y - 20, r: 6, R: 90, t: 0.7, color: '#ffd24a' }); if (old) { R.rings.push({ x: old.x, y: old.y - 20, r: 30, R: 6, t: 0.5, color: '#9a8a60' }); float(clamp(old.x, 70, W - 70), old.y - 50, '왕관 빼앗김', '#b0a080', 11); } banner(old ? `👑 왕관이 ${TW2.nm[best.type]}(으)로 넘어갔다!` : `👑 ${TW2.nm[best.type]}이(가) 왕관을 썼다! 💫 마비로 끄세요`); sfx('reveal'); shake(4); buzz(25); }
+    const c = crownOf(); if (c) { const st2 = crownSt(c); if (st2 > (c.cst || 0)) { c.cst = st2; c.rise = 0.5; c.crownT = 1.5; R.rings.push({ x: c.x, y: c.y - 20, r: 8, R: 80, t: 0.6, color: '#ff4060' }); R.rings.push({ x: c.x, y: c.y - 20, r: 8, R: 130, t: 0.9, color: '#ff2040' }); float(clamp(c.x, 70, W - 70), c.y - 76, `👑 ${TW2.nm[c.type]} 커졌다! ${st2}단계`, '#ff8a94', 15); banner(`⚠ 왕관 ${TW2.nm[c.type]} ${st2}단계! 공격 +${Math.round(CROWN.dmg * st2 * 100)}%`); sfx('alarm'); shake(7); buzz([40, 30, 40]); R.flashT = 0.2; R.flashC = '255,40,70'; } } }
   for (const t of R.towers) {
     const d = TOWERS[t.type];
     t.flash = Math.max(0, t.flash - dt); t.recoil = Math.max(0, t.recoil - dt * 4);
@@ -5748,6 +5758,11 @@ function oddsView() {
 }
 // ★ 쪼기: 뒷면 카드를 손가락으로 아래에서 위로 천천히 벗겨 연다. 벗길수록 테두리 빛이 회색 → 파랑 → 보라 → 금으로 '등급 상승'
 //   (실제 등급까지만 오른다) · 두 번 누르면 바로 열기
+// ★ 전설 등장: 금빛 빛줄기 + 큰 그림 + 반짝이 (탭하거나 2.6초 뒤 닫힘)
+function legendSplash(g, done) { const el = document.createElement('div'); el.className = 'lgS'; const src = (pimg(g).match(/src="([^"]+)"/) || [])[1] || '';
+  el.innerHTML = `<div class="ray"></div><div class="glow"></div><small>★ 전설 ★</small><img src="${src}" alt=""><b>${(g.mut ? '변성 ' : '') + sname(g.strain)}</b><em>눌러서 계속</em>` + Array.from({ length: 28 }, (_, i) => { const a = i / 28 * TAU, r = 120 + Math.random() * 180; return `<i class="sp" style="--x:${Math.cos(a) * r}px;--y:${Math.sin(a) * r}px;animation-delay:${Math.random() * 0.4}s"></i>`; }).join('');
+  document.body.appendChild(el); sfx('clear'); buzz([80, 40, 80, 40, 160]); let closed = false; const close = () => { if (closed) return; closed = true; el.style.transition = 'opacity .25s'; el.style.opacity = 0; setTimeout(() => { el.remove(); done && done(); }, 250); };
+  el.onclick = e => { e.stopPropagation(); close(); }; setTimeout(close, 2600); }
 function squeeze(g, parent, onDone) {
   const d = STRAINS[g.strain], rr = RARITY[d.rarity], tier = d.legend || g.mut ? 3 : d.rarity, el = document.createElement('div'); el.className = 'sqz';
   const COLS = ['#a8a8a8', RARITY[1].color, RARITY[2].color, '#ffcf4a'], STAGE = [0, 0.3, 0.55, 0.78];
@@ -5761,7 +5776,7 @@ function squeeze(g, parent, onDone) {
     card.style.setProperty('--g', COLS[stage]); card.style.setProperty('--gs', (10 + stage * 10 + p * 10) + 'px'); };
   const open = () => { if (opened) return; opened = true; p = 1; stage = Math.max(stage, tier); set(); card.classList.add('opened'); el.querySelector('.sqHint').style.opacity = 0;
     if (tier >= 3) { jingle('jg_legend'); buzz([60, 40, 140]); el.classList.add('flash'); } else { sfx('reveal'); buzz(40); }
-    setTimeout(() => { el.remove(); onDone(); }, tier >= 3 ? 1100 : 650); };
+    setTimeout(() => { el.remove(); if (tier >= 3 && (d.legend || g.mut)) legendSplash(g, onDone); else onDone(); }, tier >= 3 ? 1100 : 650); };
   el.onclick = e => e.stopPropagation();
   el.onpointerdown = e => { e.stopPropagation(); if (opened) return; const now = performance.now(); if (now - lastTap < 300) return open(); lastTap = now; y0 = e.clientY + p * card.offsetHeight * 0.95; card.classList.add('hold'); };
   el.onpointermove = e => { if (y0 == null || opened) return; const np = clamp((y0 - e.clientY) / (card.offsetHeight * 0.95), 0, 1); if (np <= p) return; p = np; set();
@@ -6046,5 +6061,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2015</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2030</div></body>
 </html>
