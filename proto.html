@@ -1146,7 +1146,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.055, lung: 0.16, gut: 0.27, liver: 0.42, blood: 0.6, skin: 0.24, lymph: 0.8, brain: 3.5 },
+const CAL = { 0: { nose: 0.045, lung: 0.13, gut: 0.27, liver: 0.42, blood: 0.6, skin: 0.24, lymph: 0.8, brain: 3.5 },
   1: { nose: 0.99, lung: 0.78, gut: 0.47, liver: 1.1, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
@@ -2844,7 +2844,8 @@ function drawStealth(time) {
    출발 1·2·3을 꾹 눌러 갈래마다 얼마나 보낼지 정한다. 면역은 자원을 모아 갈래마다 탑을 짓는다(한 번 지은 탑은 그대로).
    면역 성격: 성실형(바로 지음) · 속임형(아껴 뒀다가 대량 물량이 오는 갈래에 몰아 지음) */
 const BR = { on: o => B3 && (window.__br != null ? !!window.__br : !!(o && BR_ORG[o.id])), n3: 12, col: ['#ff6a5a', '#5aa8ff', '#5ad86a'], big: 0.45, holdT: 1.0, tapF: 0.15, extra: 2 };
-const BR_ORG = { nose: 'bluff' };
+// 면역 성격: honest = 성실형(자원 생기면 바로, 위협 큰 길에) · bluff = 속임형(아껴 뒀다가 대량 물량 오는 길에 몰아서)
+const BR_ORG = { nose: 'honest', lung: 'honest', gut: 'bluff', liver: 'honest', blood: 'bluff', skin: 'honest', lymph: 'bluff', brain: 'bluff' };
 const brOn = () => !!(run && run.br);
 const brDefault = () => { const B = run.br; let bk = 0, bv = 1e9; for (let k = 0; k < B.n; k++) { const v = brTowers(k); if (v < bv) { bv = v; bk = k; } } return bk; };
 function buildBranches() {
@@ -2878,48 +2879,66 @@ function brCross(A, B, skipA, skipB) { const out = []; for (let i = 1; i < A.pts
       const t = ((b1[0] - a1[0]) * (b2[1] - b1[1]) - (b1[1] - a1[1]) * (b2[0] - b1[0])) / d, u = ((b1[0] - a1[0]) * (a2[1] - a1[1]) - (b1[1] - a1[1]) * (a2[0] - a1[0])) / d;
       if (t >= 0 && t <= 1 && u >= 0 && u <= 1) { const x = a1[0] + (a2[0] - a1[0]) * t, y = a1[1] + (a2[1] - a1[1]) * t; if (!out.some(c => Math.hypot(c.x - x, c.y - y) < 40)) out.push({ x, y, ang: Math.atan2(a2[1] - a1[1], a2[0] - a1[0]) }); } } }
   return out; }
+// 칸(격자)으로 빠르게: 길을 30px 칸으로 바꿔서 겹침·붙음·다리를 칸으로 센다
 function brPaths(fd, sx, sy, gx, gy, n, box) {
-  const trunk = mkPath([...map.pts.filter((p, i) => map.cum[i] <= fd - 20), pathAt(fd - 20).slice(0, 2)]), rnd = mulberry(Math.round(sx * 7 + sy * 13 + gx * 3));
-  // 후보: 원래 길처럼 꺾인 길 (ㄴ자 · ㄷ자 · 계단 · 지그재그) — 모서리는 둥글게
-  const xs = [], ys = []; for (let x = box.x0; x <= box.x1; x += 28) xs.push(x); for (let y = box.y0; y <= box.y1; y += 28) ys.push(y);
+  const C = 30, key = (i, j) => i * 1000 + j, cx = x => Math.floor(x / C), cy = y => Math.floor(y / C);
+  const rnd = mulberry(Math.round(sx * 7 + sy * 13 + gx * 3 + n));
+  const raster = raw => { const cells = []; for (let i = 1; i < raw.length; i++) { const [x0, y0] = raw[i - 1], [x1, y1] = raw[i], hz = Math.abs(x1 - x0) > Math.abs(y1 - y0);
+      if (hz) { const j = cy(y0), a = cx(x0), b = cx(x1), st = b > a ? 1 : -1; for (let q = a; q !== b + st; q += st) { const c = [q, j, 'h']; const l = cells.at(-1); if (!l || l[0] !== q || l[1] !== j) cells.push(c); else l[2] = '+'; } }
+      else { const q = cx(x0), a = cy(y0), b = cy(y1), st = b > a ? 1 : -1; for (let j = a; j !== b + st; j += st) { const c = [q, j, 'v']; const l = cells.at(-1); if (!l || l[0] !== q || l[1] !== j) cells.push(c); else l[2] = '+'; } } }
+    return cells; };
+  // 몸통 칸 (+ 옆 1칸)은 못 지나감 (시작 2칸 제외)
+  const trunkSet = new Set(); { const tr = [...map.pts.filter((p, i) => map.cum[i] <= fd - 20), pathAt(fd - 20).slice(0, 2)]; for (let i = 1; i < tr.length; i++) { const L = Math.hypot(tr[i][0] - tr[i - 1][0], tr[i][1] - tr[i - 1][1]); for (let t = 0; t <= L; t += 10) { const x = tr[i - 1][0] + (tr[i][0] - tr[i - 1][0]) * t / L, y = tr[i - 1][1] + (tr[i][1] - tr[i - 1][1]) * t / L; for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) trunkSet.add(key(cx(x) + di, cy(y) + dj)); } } }
+  const xs = [], ys = []; for (let x = box.x0; x <= box.x1; x += C) xs.push(x); for (let y = box.y0; y <= box.y1; y += C) ys.push(y);
   const R = a => a[Math.floor(rnd() * a.length)], raws = [[[sx, gy]], [[gx, sy]]];
   for (const x of xs) raws.push([[x, sy], [x, gy]]); for (const y of ys) raws.push([[sx, y], [gx, y]]);
-  for (const x of xs) for (const y of ys) { raws.push([[sx, y], [x, y], [x, gy]]); raws.push([[x, sy], [x, y], [gx, y]]); }
-  for (let i = 0; i < 2500; i++) { const x1 = R(xs), x2 = R(xs), y1 = R(ys), y2 = R(ys); raws.push([[sx, y1], [x1, y1], [x1, y2], [x2, y2], [x2, gy]]); raws.push([[x1, sy], [x1, y1], [x2, y1], [x2, y2], [gx, y2]]); }
-  // 구불구불: 가로·세로를 번갈아 3~5번 더 꺾는 길
-  for (let i = 0; i < 3500; i++) { const k = 3 + Math.floor(rnd() * 3), hz = rnd() < 0.5, mid = []; let cx = sx, cy = sy;
-    for (let j = 0; j < k; j++) { if ((j % 2 === 0) === hz) cx = R(xs); else cy = R(ys); mid.push([cx, cy]); }
-    if ((k % 2 === 0) === hz) { mid.push([gx, cy]); } else { mid.push([cx, gy]); } raws.push(mid); }
-  const inB = ([x, y]) => x >= box.x0 - 1 && x <= box.x1 + 1 && y >= box.y0 - 1 && y <= box.y1 + 1, L0 = Math.abs(gx - sx) + Math.abs(gy - sy);
-  const cands = [];
+  for (let i = 0; i < 900; i++) { const x = R(xs), y = R(ys); raws.push([[sx, y], [x, y], [x, gy]]); raws.push([[x, sy], [x, y], [gx, y]]); }
+  for (let i = 0; i < 1800; i++) { const k = 3 + Math.floor(rnd() * 4), hz = rnd() < 0.5, mid = []; let px = sx, py = sy;
+    for (let j = 0; j < k; j++) { if ((j % 2 === 0) === hz) px = R(xs); else py = R(ys); mid.push([px, py]); }
+    if ((k % 2 === 0) === hz) mid.push([gx, py]); else mid.push([px, gy]); raws.push(mid); }
+  const inB = ([x, y]) => (x === sx || x === gx || (x >= box.x0 - 1 && x <= box.x1 + 1)) && (y === sy || y === gy || (y >= box.y0 - 1 && y <= box.y1 + 1)) && x > 16 && x < W - 16 && y > TOP + 10 && y < H - BOTTOM, L0 = Math.abs(gx - sx) + Math.abs(gy - sy), cands = [], seen = new Set();
   for (const mid of raws) { const raw = [[sx, sy], ...mid, [gx, gy]].filter((p, i, a) => !i || Math.hypot(p[0] - a[i - 1][0], p[1] - a[i - 1][1]) > 1);
-    if (!mid.every(inB)) continue; let ok = true;
-    for (let i = 1; i < raw.length; i++) { const l = Math.hypot(raw[i][0] - raw[i - 1][0], raw[i][1] - raw[i - 1][1]); if (l < 56) { ok = false; break; }
-      if (i > 1) { const ax = raw[i - 1][0] - raw[i - 2][0], ay = raw[i - 1][1] - raw[i - 2][1], bx = raw[i][0] - raw[i - 1][0], by = raw[i][1] - raw[i - 1][1]; if (ax * bx + ay * by < -1 || (ax * bx + ay * by > 1 && Math.abs(ax * by - ay * bx) < 1)) { ok = false; break; } } }
-    if (!ok) continue; const P = mkPath(roundCorners(raw, 22)); if (P.len > L0 * 2.6) continue;
-    { const S = samplePath(P, 14); if (S.some(([x, y, d]) => S.some(([x2, y2, d2]) => Math.abs(d2 - d) > 110 && Math.hypot(x2 - x, y2 - y) < 58))) continue; }   // 자기 자신과 붙는 고리 · 갈고리 금지
-    if (samplePath(P, 10).some(([x, y, d]) => d > 60 && trunk.len > 0 && distTo(trunk.pts, x, y) < 46)) continue;
-    if (!brOverlapOk(P, [P].filter(() => false), 60, 80)) continue; P.raw = raw; cands.push(P); }
+    if (!mid.every(inB)) continue; let ok = true, len = 0;
+    for (let i = 1; i < raw.length; i++) { const l = Math.hypot(raw[i][0] - raw[i - 1][0], raw[i][1] - raw[i - 1][1]); len += l; if (l < 56) { ok = false; break; }
+      if (Math.abs(raw[i][0] - raw[i - 1][0]) > 1 && Math.abs(raw[i][1] - raw[i - 1][1]) > 1) { ok = false; break; }
+      if (i > 1) { const ax = raw[i - 1][0] - raw[i - 2][0], ay = raw[i - 1][1] - raw[i - 2][1], bx = raw[i][0] - raw[i - 1][0], by = raw[i][1] - raw[i - 1][1]; if (ax * bx + ay * by !== 0) { ok = false; break; } } }
+    if (!ok || len > L0 * 2.6) continue; const sig = raw.map(p => p.map(Math.round).join(',')).join(';'); if (seen.has(sig)) continue; seen.add(sig);
+    const cells = raster(raw); if (cells.length < 4) continue;
+    // 몸통 · 자기 자신과 붙지 않기
+    if (cells.some((c, i) => i > 2 && trunkSet.has(key(c[0], c[1])))) continue;
+    const idx = new Map(); cells.forEach((c, i) => { if (!idx.has(key(c[0], c[1]))) idx.set(key(c[0], c[1]), i); });
+    if (idx.size < cells.length) continue;
+    let self = false; for (let i = 0; i < cells.length && !self; i++) for (let di = -1; di <= 1 && !self; di++) for (let dj = -1; dj <= 1; dj++) { const j = idx.get(key(cells[i][0] + di, cells[i][1] + dj)); if (j != null && Math.abs(j - i) > 2) { self = true; break; } }
+    if (self) continue; cands.push({ raw, cells, idx, len, dir: (() => { const [x0, y0] = raw[0], [x1, y1] = raw[1]; return Math.abs(x1 - x0) > Math.abs(y1 - y0) ? (x1 > x0 ? 'R' : 'L') : (y1 > y0 ? 'D' : 'U'); })() }); }
+  window.__brDbg = { raws: raws.length, cands: cands.length };
   if (!cands.length) return brWrap([mkPath([[sx, sy], [gx, gy]])]);
-  // 조합 고르기 (반드시): 처음 꺾는 방향이 서로 달라 바로 갈라지고 · 나란히 겹치지 않고 · 다리는 길 30~80% 지점에서만
-  // (가능하면): 다리 정확히 1개 · 길이 비슷 · 많이 구불구불
-  const dirOf = P => { const [x0, y0] = P.raw[0], [x1, y1] = P.raw[1]; return Math.abs(x1 - x0) > Math.abs(y1 - y0) ? (x1 > x0 ? 'R' : 'L') : (y1 > y0 ? 'D' : 'U'); };
-  const pairC = new Map(), pair = (A, B) => { const k = cands.indexOf(A) + ',' + cands.indexOf(B); if (pairC.has(k)) return pairC.get(k);
-    let r = null; if (brOverlapOk(A, [B], 60, 80) && brOverlapOk(B, [A], 60, 80)) { r = { cr: [], bad: false };
-      for (const c of brCross(A, B, 46, 60)) { if (Math.hypot(c.x - sx, c.y - sy) < 40 || Math.hypot(c.x - gx, c.y - gy) < 40) continue; const fa = nearestD(A.pts, A.cum, c.x, c.y) / A.len, fb = nearestD(B.pts, B.cum, c.x, c.y) / B.len; if (fa < 0.3 || fb < 0.3 || fa > 0.8 || fb > 0.8) r.bad = true; if (fa * A.len < 180 || fb * B.len < 180 || (1 - fa) * A.len < 110 || (1 - fb) * B.len < 110) r.never = true; r.cr.push({ ...c, ang: c.ang }); } }
-    pairC.set(k, r); return r; };
+  // 두 길: 처음·끝 2칸 말고는 붙으면 안 됨. 같은 칸을 지나면 = 다리 (서로 직각, 한 칸만)
+  const pc = new Map(), pair = (A, B) => { const k = cands.indexOf(A) * 9973 + cands.indexOf(B); if (pc.has(k)) return pc.get(k); let r = { cr: [], bad: false, never: false };
+    const nb = A.cells.length, nc = B.cells.length; let p0 = 0; while (p0 < Math.min(nb, nc) && A.cells[p0][0] === B.cells[p0][0] && A.cells[p0][1] === B.cells[p0][1]) p0++;   // 같이 가는 줄기 (구석에서 갈라질 때)
+    if (p0 > 7) { pc.set(k, null); return null; } const s0 = p0 + 2;
+    for (let i = s0; i < nc - 2 && r; i++) { const c = B.cells[i], j = A.idx.get(key(c[0], c[1]));
+      if (j != null) { if (j < s0 || j > nb - 3) continue; const a = A.cells[j]; if (a[2] === c[2] || a[2] === '+' || c[2] === '+') { r = null; break; }
+        const fa = j / nb, fb = i / nc; r.cr.push({ i, j, fa, fb }); if (fa < 0.3 || fb < 0.3 || fa > 0.8 || fb > 0.8) r.bad = true; if (j < s0 + 4 || i < s0 + 4 || nb - j < 4 || nc - i < 4) r.never = true; continue; }
+      for (let di = -1; di <= 1 && r; di++) for (let dj = -1; dj <= 1; dj++) { if (!di && !dj) continue; const q = A.idx.get(key(c[0] + di, c[1] + dj)); if (q == null || q < s0 || q > nb - 3) continue;
+        // 다리 바로 앞뒤 칸은 괜찮음
+        const nearX = A.idx.get(key(B.cells[i - 1][0], B.cells[i - 1][1])) != null || A.idx.get(key(B.cells[i + 1][0], B.cells[i + 1][1])) != null; if (!nearX) { r = null; break; } } }
+    pc.set(k, r); return r; };
   let best = null;
   for (const strict of [2, 1, 0]) { if (best) break;
-  for (let t = 0; t < 1600; t++) { const set = [R(cands)], used = new Set([dirOf(set[0])]);
-    for (let k = 1; k < n; k++) { let found = null; for (let q = 0; q < 50 && !found; q++) { const c = R(cands); if (set.includes(c) || (strict >= 2 && used.has(dirOf(c)))) continue; if (set.every(S => { const p = pair(S, c); return p && !p.never && (strict < 1 || !p.bad); })) found = c; } if (!found) break; set.push(found); used.add(dirOf(found)); }
-    if (set.length < n) continue;
-    const lens = set.map(P => P.len), ratio = Math.max(...lens) / Math.min(...lens); if (ratio > 1.9) continue;
-    let cr = 0; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) cr += pair(set[a], set[b]).cr.length;
-    const score = (cr === 1 ? 200 : cr === 0 ? 0 : -80 * (cr - 1)) - (ratio - 1) * 120 + set.reduce((m, P) => m + Math.min(P.raw.length, 7), 0) * 6;
-    if (!best || score > best.score) best = { set, score }; } }
-  if (!best && n > 2) return brPaths(fd, sx, sy, gx, gy, n - 1, box);   // 세 갈래가 안 나오는 지도는 두 갈래로
-  if (!best) { const set = [cands.sort((a, b) => a.len - b.len)[0]]; return brWrap(set); }
-  return brWrap(best.set.sort((a, b) => a.pts[Math.floor(a.pts.length / 2)][0] - b.pts[Math.floor(b.pts.length / 2)][0]), (A, B) => (pair(A, B) || pair(B, A) || { cr: [] }).cr, best.set); }
+    for (let t = 0; t < 700; t++) { const set = [R(cands)], used = new Set([set[0].dir]);
+      for (let k = 1; k < n; k++) { let found = null; for (let q = 0; q < 40 && !found; q++) { const c = R(cands); if (set.includes(c) || (strict >= 2 && used.has(c.dir))) continue; if (set.every(S => { const p = pair(S, c); return p && !p.never && (strict < 1 || !p.bad); })) found = c; } if (!found) break; set.push(found); used.add(found.dir); }
+      if (set.length < n) continue;
+      const lens = set.map(P => P.len), ratio = Math.max(...lens) / Math.min(...lens); if (ratio > 1.9) continue;
+      let cr = 0; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) cr += pair(set[a], set[b]).cr.length;
+      const score = (cr === 1 ? 200 : cr === 0 ? 0 : -80 * (cr - 1)) - (ratio - 1) * 120 + set.reduce((m, P) => m + Math.min(P.raw.length, 7), 0) * 6;
+      if (!best || score > best.score) best = { set, score }; } }
+  if (!best) { let ok = 0, nul = 0; for (let t = 0; t < 300; t++) { const A = R(cands), B = R(cands); if (A === B) continue; const p = pair(A, B); if (p && !p.never) ok++; else if (!p) nul++; } window.__brDbg.pairOk = ok; window.__brDbg.pairNull = nul; window.__brDbg.dirs = [...new Set(cands.map(c => c.dir))].join(''); }
+  if (!best && n > 2) return brPaths(fd, sx, sy, gx, gy, n - 1, box);
+  if (!best) return brWrap([mkPath(roundCorners(cands.sort((a, b) => a.len - b.len)[0].raw, 22))]);
+  const set = best.set.sort((a, b) => a.raw[Math.floor(a.raw.length / 2)][0] - b.raw[Math.floor(b.raw.length / 2)][0]), paths = set.map(P => mkPath(roundCorners(P.raw, 22)));
+  // 다리 위치 = 겹친 칸 가운데
+  const crossOf = (A, B) => { const a = paths.indexOf(A), b = paths.indexOf(B), p = pair(set[a], set[b]) || pair(set[b], set[a]); if (!p) return []; const real = brCross(A, B, 0, 0); return p.cr.map(c => { const cell = (pair(set[a], set[b]) ? set[b] : set[a]).cells[c.i], x0 = (cell[0] + 0.5) * C, y0 = (cell[1] + 0.5) * C, r = real.sort((u, v) => Math.hypot(u.x - x0, u.y - y0) - Math.hypot(v.x - x0, v.y - y0))[0]; return r && Math.hypot(r.x - x0, r.y - y0) < 45 ? r : { x: x0, y: y0, ang: 0 }; }); };
+  return brWrap(paths, crossOf, paths); }
 function brWrap(list, crossOf) { const F = list.map((P, k) => ({ d1: map.brD0, d2: map.len, pts: P.pts, cum: P.cum, len: P.len, sw: 'BR', br: k, pass: 0, adapt: 0, sx: -999, sy: -999 }));
   map.bridges = []; for (let a = 1; a < F.length; a++) for (let b = 0; b < a; b++) for (const c of (crossOf ? crossOf(list[a], list[b]) : brCross(F[a], F[b], 50, 70))) { const ang = (() => { for (let i = 1; i < F[a].pts.length; i++) if (distTo([F[a].pts[i - 1], F[a].pts[i]], c.x, c.y) < 2) return Math.atan2(F[a].pts[i][1] - F[a].pts[i - 1][1], F[a].pts[i][0] - F[a].pts[i - 1][0]); return c.ang; })(); map.bridges.push({ ...c, ang, top: a }); } return F; }
 const brTowers = k => run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura && t.br === k).length;
