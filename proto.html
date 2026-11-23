@@ -3171,12 +3171,36 @@ function drawRoadSeg(g, a, b, k, time, ghost) { const dx = b[0] - a[0], dy = b[1
     g.beginPath(); g.rect(Math.max(4, e - 16), -22, 22, 44); g.clip(); for (let o = -tw; o < e + 30; o += tw) g.drawImage(tx, o, -th / 2, tw, th);
     const lg = g.createLinearGradient(e - 16, 0, e + 4, 0); lg.addColorStop(0, 'rgba(170,90,230,0)'); lg.addColorStop(1, 'rgba(170,90,230,.26)'); g.fillStyle = lg; g.fillRect(e - 16, -22, 22, 44);
     g.restore(); } }
+// 세포 융합 통로 = 잠깐 생겼다 녹아 없어지는 임시 통로 (3가지 모양 시험: window.__fz = 'mem' | 'str' | 'chain')
+function drawFuse(g, a, b, k, time, left, ghost) { const st = window.__fz || 'mem', dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, l = L * k, fade = ghost ? 1 : Math.max(0, Math.min(1, left / 1.5));
+  g.save(); g.translate(a[0], a[1]); g.rotate(Math.atan2(dy, dx));
+  if (st === 'mem') { const hw = 19 * (0.5 + 0.5 * fade);
+    const blob = (x, r) => { g.beginPath(); for (let i = 0; i <= 24; i++) { const t = i / 24 * TAU, rr = r * (1 + 0.12 * Math.sin(t * 5 + time * 3 + x)); i ? g.lineTo(x + Math.cos(t) * rr, Math.sin(t) * rr) : g.moveTo(x + Math.cos(t) * rr, Math.sin(t) * rr); } g.closePath(); };
+    const body = () => { g.beginPath(); for (let x = 0; x <= l; x += 6) g.lineTo(x, -hw - 2.5 * Math.sin(x * 0.09 + time * 4)); for (let x = l; x >= 0; x -= 6) g.lineTo(x, hw + 2.5 * Math.sin(x * 0.09 + time * 4 + 1.5)); g.closePath(); };
+    g.globalAlpha *= 0.35 + 0.5 * fade;
+    g.fillStyle = 'rgba(30,0,20,.35)'; g.save(); g.translate(0, 6); body(); g.fill(); g.restore();
+    const gr = g.createLinearGradient(0, -hw, 0, hw); gr.addColorStop(0, 'rgba(255,200,250,.85)'); gr.addColorStop(0.5, 'rgba(210,130,235,.6)'); gr.addColorStop(1, 'rgba(150,70,190,.8)');
+    g.fillStyle = gr; body(); g.fill(); blob(0, hw + 7); g.fill(); if (k >= 1) { blob(l, hw + 7); g.fill(); }
+    g.strokeStyle = 'rgba(255,225,255,.85)'; g.lineWidth = 2; body(); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1.5; for (let i = 0; i < Math.floor(l / 16); i++) { const x = (i * 37 + time * 34) % l, y = Math.sin(i * 2.3) * hw * 0.55, r = 2 + (i % 3); g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke(); } }
+  else if (st === 'str') { const n = 4, w0 = 6 * (0.35 + 0.65 * fade);
+    for (let i = 0; i < n; i++) { const oy = (i - (n - 1) / 2) * 11, sag = 6 * Math.sin(time * 2.5 + i * 1.7) * (1.6 - fade);
+      g.lineCap = 'round'; for (const [w, c] of [[w0 + 3, 'rgba(70,10,60,.55)'], [w0, 'rgba(225,150,240,.9)'], [w0 * 0.35, 'rgba(255,235,255,.8)']]) { g.beginPath(); g.moveTo(0, oy * 0.7); g.quadraticCurveTo(l / 2, oy + sag + (c[5] === '7' ? 3 : 0), l, oy * 0.7); g.lineWidth = w; g.strokeStyle = c; g.stroke(); }
+      if (fade < 1) { const dx2 = l * (0.3 + 0.4 * ((i * 0.37) % 1)); g.fillStyle = 'rgba(225,150,240,.8)'; g.beginPath(); g.ellipse(dx2, oy + sag * 0.9 + 6 + (1 - fade) * 8, 2.5, 4, 0, 0, TAU); g.fill(); } }
+    for (const x of k >= 1 ? [0, l] : [0]) { const rg = g.createRadialGradient(x, 0, 2, x, 0, 26); rg.addColorStop(0, 'rgba(225,150,240,.7)'); rg.addColorStop(1, 'rgba(225,150,240,0)'); g.fillStyle = rg; g.beginPath(); g.ellipse(x, 0, 22, 26, 0, 0, TAU); g.fill(); } }
+  else { const step = 17, n = Math.max(2, Math.round(l / step)), show = ghost ? n + 1 : Math.ceil((n + 1) * Math.min(1, left / 1.2));
+    for (let i = 0; i <= n; i++) { const x = l * i / n, r = 15 + 1.5 * Math.sin(time * 4 + i), alive = Math.abs(i - n / 2) <= show / 2; if (!alive) continue;
+      g.fillStyle = 'rgba(30,0,20,.3)'; g.beginPath(); g.arc(x, 5, r, 0, TAU); g.fill();
+      const cg = g.createRadialGradient(x - r * 0.35, -r * 0.4, 1, x, 0, r); cg.addColorStop(0, 'rgba(255,225,255,.95)'); cg.addColorStop(0.45, 'rgba(220,140,240,.8)'); cg.addColorStop(1, 'rgba(140,60,180,.85)');
+      g.fillStyle = cg; g.beginPath(); g.arc(x, 0, r, 0, TAU); g.fill(); g.strokeStyle = 'rgba(255,230,255,.7)'; g.lineWidth = 1.5; g.stroke();
+      g.fillStyle = 'rgba(120,40,150,.55)'; g.beginPath(); g.arc(x + r * 0.15, r * 0.1, r * 0.3, 0, TAU); g.fill(); } }
+  g.restore(); }
 function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return;
   for (const f of map.forks) { if (!f.byp) continue; const open = f.sw === 'B', inside = R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f); if (!open && !inside) continue;
     const [a, b] = [f.pts[0], f.pts.at(-1)]; ctx.save(); ctx.lineCap = 'round';
     if (ART2 && has('road2')) { const age = R.time - (f.t0 ?? (f.t0 = R.time)), left = f.until - R.time;
-      ctx.globalAlpha = open ? (left < 1 ? 0.65 + 0.35 * Math.abs(Math.sin(time * 10)) : 1) : 0.6;
-      drawRoadSeg(ctx, a, b, Math.min(1, age / 0.5), time); ctx.globalAlpha = 1; }
+      ctx.globalAlpha = open ? 1 : 0.6;
+      drawFuse(ctx, a, b, Math.min(1, age / 0.5), time, open ? left : 0); ctx.globalAlpha = 1; }
     else {
     ctx.globalAlpha = open ? 0.5 : 0.25; ctx.shadowColor = '#c67aff'; ctx.shadowBlur = 22; ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 46; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); ctx.shadowBlur = 0;
     ctx.globalAlpha = open ? 1 : 0.5; ctx.strokeStyle = '#6a2296'; ctx.lineWidth = 34; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
@@ -3189,7 +3213,7 @@ function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) retu
     ctx.restore(); }
   // 준비됐을 때: 열릴 자리 점선 미리보기 (1초마다 다시 찾음)
   if ((R.sprCd ?? SPR.first) <= 0 && !R.bypOn) { if (!R.bypPv || time - R.bypPv.t > 1) R.bypPv = { t: time, c: bypFind() }; const c = R.bypPv.c;
-    if (c) { ctx.save(); if (ART2 && has('road2')) { ctx.globalAlpha = 0.3 + 0.12 * Math.sin(time * 5); drawRoadSeg(ctx, [c.x1, c.y1], [c.x2, c.y2], 1, time, true); ctx.globalAlpha = 1; } else { ctx.globalAlpha = 0.55 + 0.2 * Math.sin(time * 5); ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 26; ctx.setLineDash([8, 8]); ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(c.x1, c.y1); ctx.lineTo(c.x2, c.y2); ctx.stroke(); ctx.setLineDash([]); }
+    if (c) { ctx.save(); if (ART2 && has('road2')) { ctx.globalAlpha = 0.3 + 0.12 * Math.sin(time * 5); drawFuse(ctx, [c.x1, c.y1], [c.x2, c.y2], 1, time, 9, true); ctx.globalAlpha = 1; } else { ctx.globalAlpha = 0.55 + 0.2 * Math.sin(time * 5); ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 26; ctx.setLineDash([8, 8]); ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(c.x1, c.y1); ctx.lineTo(c.x2, c.y2); ctx.stroke(); ctx.setLineDash([]); }
       ctx.globalAlpha = 1; ctx.fillStyle = '#e8b8ff'; ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const mx = (c.x1 + c.x2) / 2, my = (c.y1 + c.y2) / 2 - 22, tx = c.skip ? `🧬 여기 열려요 · 탑 ${c.skip}개 건너뜀` : '🧬 여기 열려요'; ctx.strokeText(tx, mx, my); ctx.fillText(tx, mx, my); ctx.restore(); } } }
 function stepSpread(dt) { const R = run; if (!R) return; if (R.sprCd == null && R.ta && !stealthOn()) R.sprCd = SPR.first; if (R.sprCd > 0) R.sprCd -= dt;
   if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + (1 + 0.1 * (teamRole().stealth || 0)) * (dt / CHG.idle) + (1 + 0.1 * (teamRole().stealth || 0)) * (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; if (R.growT > 0) R.growT -= dt; }
@@ -5962,5 +5986,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1655</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1705</div></body>
 </html>
