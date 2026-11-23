@@ -1203,7 +1203,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
 const CAL = { 0: { nose: 0.035, lung: 0.095, gut: 0.55, liver: 0.63, blood: 0.6, skin: 0.25, lymph: 0.6, brain: 2.0 },
-  1: { nose: 0.65, lung: 0.65, gut: 0.61, liver: 1.28, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
+  1: { nose: 0.65, lung: 0.65, gut: 0.61, liver: 1.28, blood: 0.56, skin: 0.31, lymph: 0.48, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
 const calK = (h, o) => (CAL[h] || {})[o] || 1;
