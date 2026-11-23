@@ -765,6 +765,8 @@ img.legend { animation: legGlow 3s linear infinite; }
   .hT { border: 1.5px solid var(--c); border-radius: 16px; padding: 12px 6px 10px; background: color-mix(in srgb, var(--c) 10%, #1a1014); text-align: center; }
   .hT i { display: block; font-style: normal; font-size: 30px; line-height: 1.1; } .hT b { display: block; font-size: 16px; color: var(--c); margin-top: 4px; } .hT small { display: block; font-size: 12.5px; color: #e8dccb; margin-top: 2px; }
   .hTip { margin-top: 12px; font-size: 13px; color: #d8cbb8; } .hTip b { color: #ffd24a; } .hDash { display: inline-block; border: 1.5px dashed #ffd24a; color: #ffd24a; border-radius: 8px; padding: 0 6px; font-size: 11.5px; margin-right: 4px; }
+  .dp.atk.big { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; } .dp.atk.big b { font-size: 18px; } .dp.atk.big small { font-size: 11px; opacity: .8; }
+  #top .stage b { font-size: 14px; }
 </style>
 </head>
 <body>
@@ -2643,7 +2645,7 @@ const TUT = [
   { t: '움직이기', txt: '화면을 <b>손가락으로 끌어</b> 위쪽 👆으로 가 보세요.', pt: R => { const S = R.sth.scout; return [S.x, S.y - 70]; }, done: R => (R.tutMoved || 0) > 90 },
   { t: '보초 피하기', txt: '<b>노란 부채꼴</b> 안에서 움직이면 들켜요. 멈추면 괜찮아요.<br><b>[다음 ▶]</b>', pt: R => { const s = (R.sth.sents || [])[0]; if (!s) return null; const v = sentView(s); return [v.x, v.y]; }, next: true },
   { t: '벽 감염시키기', txt: '<b>벽에 붙어 잠깐 멈추면</b> 보라색으로 물들어요.', pt: R => { const n = nearestOnPath(R.sth.scout.x, R.sth.scout.y), [x, y, nx, ny] = pathAt(n.d); return [x + nx * 18, y + ny * 18]; }, done: R => segDone() > (map.free || 0) },
-  { t: '공격 시작', txt: '준비됐으면 <b>오른쪽 아래 [공격 개시]</b>!', hi: '#dpAtk', done: R => !stealthOn() },
+  { t: '공격 시작', txt: '준비됐으면 아래 <b>[⚔ 공격 시작]</b>!', hi: '#dpAtk', done: R => !stealthOn() },
   { t: '바이러스 모으기', txt: '바이러스가 <b>저절로 둥지</b>(부푼 길)에 모여요. 잠입 때 감염시킨 길이 길수록 둥지가 커요!<br><b>[다음 ▶]</b>', hi: '#dpAll', next: true },
   { t: '면역의 반격', txt: '면역은 <b>탑</b>을 짓고 둥지를 덮쳐요. 너무 오래 모으면 손해!<br><b>[다음 ▶]</b>', next: true },
   { t: '출발!', txt: '테두리가 <b>초록</b>일 때 <b>[출발]</b>! 강화 하나를 골라요.', hi: '#dpAll', on: R => { R.gapT = 0.3; }, done: R => (R.released || 0) > 0 },
@@ -3108,7 +3110,7 @@ function immuneBuild(near) {
   const ahead = open.filter(c => c.d > front + 60);
   const pick = (ahead.length ? ahead : open).sort((a, b) => Math.abs(a.d - (front + 260)) - Math.abs(b.d - (front + 260)))[0];
   P.slots = P.slots.filter(c => c !== pick);
-  const t = makeTower(type, pick.s[0], pick.s[1], R.st); t.slot = pick; t.cd = 1.2; t.fresh = 2; t.rise = 0; R.towers.push(t); sfx('build'); P.built++; { const e = $('stSub'); if (e) e.textContent = e.textContent.replace(/탑 \d+(\/\d+)?/, `탑 ${R.towers.length}/${P.n}`); }
+  const t = makeTower(type, pick.s[0], pick.s[1], R.st); t.slot = pick; t.cd = 1.2; t.fresh = 2; t.rise = 0; R.towers.push(t); sfx('build'); P.built++; 
   R.rings.push({ x: t.x, y: t.y - 20, r: 6, R: 70, t: 0.6, color: '#ff5040' });
   if (TOWERS[type].specific && !R.single && !B3) { t.spec = specTarget(R, type); t.specV = (R.variant || {})[t.spec] || 0; }
   float(clamp(t.x, 80, W - 80), t.y - 60, t.spec ? `${type === 'bcell' ? '항체' : 'T세포'} · ${STRAINS[t.spec].name} 전용` : `${TOWERS[type].name}${top && Object.keys(COUNTER[top] || {}).includes(type) ? ` · ${ROLE_KO[top]} 대응` : ''}`, t.spec ? SCOLOR[t.spec] || '#7fc0ff' : '#ff9c8a', 12);
@@ -4425,7 +4427,7 @@ function introLoop(now) {
   requestAnimationFrame(introLoop);
 }
 const STORY = [
-  { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.png')}" alt="">`, txt: '나는 막 깨어난 <b>아기 바이러스</b>.<br>카드 3장을 <b>조합</b>해서 진화해요.' },
+  { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.png')}" alt="">`, txt: '나는 막 깨어난 <b>아기 바이러스</b>.<br>바이러스 카드를 모아 <b>강해져요</b>.' },
   { pic: () => `<img src="assets/${has('story_2') ? 'story_2.jpg' : bodyOf() ? bodyOf().img + '_skin.jpg' : 'bodymap_skin.jpg'}" alt="">`, txt: '목표는 <b>사람의 몸</b>.<br>코에서 <b>뇌</b>까지 8곳을 감염시켜요.' },
   { pic: () => has('story_3') ? '<img src="assets/story_3.jpg" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '<b>면역 세포</b>가 막아요.<br>숨어들었다가 <b>빈틈</b>에 출발!' },
 ];
@@ -5307,7 +5309,7 @@ const ui = {
   showRun() {
     $('bottom').classList.toggle('ta', !!run.ta); $('outChooser').classList.toggle('taOut', !!run.ta);
     $('hub').hidden = true; $('result').hidden = true; $('hubTip').hidden = true; ['top', 'info2', 'bottom'].forEach(id => $(id).hidden = false);
-    const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 지도 ${MAP_VARIANT + 1}/${MAP_N}${run.mapTimeK > 1.02 ? ` (+${Math.round((run.mapTimeK - 1) * 100)}%⏱)` : ''} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
+    const st = run.st; $('stName').textContent = st.organ.name; $('stSub').textContent = `${st.host.name} · ${DIFF_TXT(st.organ.diff * st.host.mul)}`;
     $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [출발]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길은 자동으로 지름길부터' : '부대를 눌러 출격 순서를 정하세요';
     $('timerTag').hidden = !run.ta || !!run.wk; ui.renderDeploy(); ui.renderSkills(); ui.tick();
     $('goalLbl').textContent = st.qm < 1 ? `감염 (목표 −${Math.round((1 - st.qm) * 100)}%)` : '감염';
@@ -5319,7 +5321,7 @@ const ui = {
     const hg = run.hero.gene;
     if (stealthOn()) { const T = run.sth;
       $('deploy').innerHTML = (run.single ? [] : run.groups).concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && (B3 ? g.strain === coreStrain() : activeSkills().includes(g.strain))).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
-        + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
+        + (B3 ? `<button class="dp atk big" id="dpAtk"><b>⚔ 공격 시작</b><small>숨어들기를 끝내고 싸워요</small></button>` : `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`);
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
       $('deploy').innerHTML = (lead ? `<button class="dp v sk2 coreSk" data-sk="${lead.strain}" aria-label="본체 스킬"><span class="skLb">👑 본체 스킬</span>${pimg(lead)}<div><b style="font-size:12px">${geneSkill(lead).name}</b><small></small></div><i></i></button>` : '')
@@ -6105,7 +6107,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0030</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0040</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
