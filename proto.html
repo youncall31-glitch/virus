@@ -1147,7 +1147,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.045, lung: 0.095, gut: 0.55, liver: 0.42, blood: 0.55, skin: 0.25, lymph: 0.42, brain: 1.8 },
+const CAL = { 0: { nose: 0.04, lung: 0.095, gut: 0.55, liver: 0.55, blood: 0.55, skin: 0.25, lymph: 0.5, brain: 1.8 },
   1: { nose: 0.65, lung: 0.6, gut: 0.42, liver: 1.28, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
@@ -3067,6 +3067,8 @@ function mutate(k) { const R = run, g = R.groups.find(x => x.strain === k); if (
   for (const u of R.units) if (u.alive && u.strain === k) { u.mark = 0; n++; R.fx.push({ x: u.x, y: u.y - 6, t: 0.5, s: 34, img: has('mutate_fx') ? 'mutate_fx' : null }); R.rings.push({ x: u.x, y: u.y - 6, r: 4, R: 26, t: 0.4, color: '#9fff6a' }); }
   banner(`항원 변이! ${STRAINS[k].name} ${R.variant[k]}차 — 전용 면역이 놓친다`); }
 // ★ 바이러스도 탑을 갉아먹는다: 탑 옆을 지나가는 바이러스가 조금씩 깎고, 무너지면 그 자리는 10초간 감염 세포 → 면역은 다른 자리에 다시 짓는다
+// ★ 물기 피해도 '탑 체력 비율'로 (침과 같은 방식): 카드가 얼마나 컸든 탑이 버티는 시간이 크게 흔들리지 않게
+const BITE = { r0: 0.8, p: 0.8 / 600 };
 const TOWER_HP = { base: 45, bite: 0.6, near: 48, block: 10, rebuild: 2.5 };
 // ★ 항체 줍기: 탑이 부서지면 그 탑의 항체가 떨어진다. 몸 세포가 흡수하기 전에(약 3초) 누르면 그 탑 종류 공격에 내성 +10% (최대 30%)
 const AB = { life: 4, step: 0.1, cap: 0.3 };
@@ -3395,7 +3397,7 @@ function biteTowers(dt) {
     let tg = null, bd = TOWER_HP.near * TOWER_HP.near; for (const t of R.towers) { if (t.converted > 0) continue; const dx = t.x - u.x, dy = t.y - 18 - u.y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; tg = t; } }
     if (!tg) continue;
     const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'tank' ? 1.7 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
-    tg.hp -= u.atk * TOWER_HP.bite * m * (u.rally > 0 ? HORN.buff : 1) * (R.med && R.med.guard && R.med.w <= 0 ? MED.counter : 1); tg.bitten = 0.2; tg.squash = 0.16; sfx('bite'); biteHit(R, tg); u.atkT = 0.28; u.atkTx = tg.x; u.atkTy = tg.y - 18; u.atkCd = 0.75 + Math.random() * 0.3; u.biting = 0.5;
+    tg.hp -= (B3 ? tg.maxHp * BITE.p * clamp(Math.sqrt((u.atk / (R.st.mul || 1)) / BITE.r0), 0.5, 2) : u.atk * TOWER_HP.bite) * m * (u.rally > 0 ? HORN.buff : 1) * (R.med && R.med.guard && R.med.w <= 0 ? MED.counter : 1); tg.bitten = 0.2; tg.squash = 0.16; sfx('bite'); biteHit(R, tg); u.atkT = 0.28; u.atkTx = tg.x; u.atkTy = tg.y - 18; u.atkCd = 0.75 + Math.random() * 0.3; u.biting = 0.5;
     if (Math.random() < 0.35) R.fx.push({ x: tg.x + rand(-10, 10), y: tg.y - 18 + rand(-10, 8), t: 0.22, s: 10, color: SCOLOR[u.strain] || '#e8a0ff' }); }
   for (const t of R.towers.filter(t => t.hp <= 0)) {
     R.koN = (R.koN || 0) + 1; sfx('collapse'); buzz(25); hitStop(0.07); (R.collapse = R.collapse || []).push({ type: t.type, x: t.x, y: t.y, t: 0.9, dir: Math.random() < 0.5 ? -1 : 1 }); shake(6); for (let i = 0; i < 10; i++) { const a = rand(-Math.PI, 0), sp = rand(60, 160); R.parts.push({ x: t.x, y: t.y - 20, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.6, c: i % 2 ? '#8a7a6a' : TOWERS[t.type].color, r: rand(2, 4) }); }
@@ -6042,5 +6044,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1900</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1945</div></body>
 </html>
