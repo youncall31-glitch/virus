@@ -961,6 +961,15 @@ const LEGENDS = {
               skill:{ id:'rash', ids:['rash', 'mosquito'], name:'황금 열병', cd:50, desc:'8초 감염력 2배 + 둥지 30%가 모기를 타고 날아가요' } },
   corona:   { name:'왕관 바이러스 (코X나)',        role:'무증상 물량', img:'corona',      parents:['rhino', 'flu'],    col:'#ff6fae', rolek:'swarm',   atk:0.32, hp:36,  spd:72, count:70, size:12,
               skill:{ id:'asympt',   name:'무증상 전파', cd:50, desc:'8초간 완전 은신 + 감염력 1.5배' } },
+  // ★ 전설 4종 추가 (역할마다 전설 2장씩) · 그림 오기 전엔 부모 그림을 물들여 임시로
+  h5n1:     { name:'불사조 독감 (조X 독감)',   role:'불사조 재생', img:'h5n1',  parents:['flu', 'hepb'],     col:'#ff7a3a', rolek:'heal',    atk:0.5,  hp:80,  spd:60, count:30, size:14,
+              skill:{ id:'genecarry', ids:['genecarry', 'wart'], name:'불사조 부활', cd:52, desc:'모든 내 바이러스 체력 40% 회복 + 8초간 매초 12% 회복' } },
+  mpox:     { name:'허물 황제 (엠X스)',        role:'허물 재생',   img:'mpox',  parents:['hpv', 'adeno'],     col:'#e8c890', rolek:'heal',    atk:0.48, hp:84,  spd:56, count:28, size:14,
+              skill:{ id:'vanish', ids:['vanish', 'swell'], name:'허물 벗기', cd:52, desc:'6초 투명 + 8초 동안 받는 피해 절반·체력 회복' } },
+  nipah:    { name:'그림자 박쥐 (니X)',        role:'그림자 급습', img:'nipah', parents:['rabies', 'herpes'], col:'#7050a0', rolek:'stealth', atk:0.5,  hp:50,  spd:84, count:40, size:13, stealth:true,
+              skill:{ id:'fakeout', ids:['fakeout', 'paralyze'], name:'박쥐 그림자', cd:52, desc:'7초 투명 + 앞쪽 탑 3개를 4초 동안 멈춰요' } },
+  marburg:  { name:'철혈 기사 (마X그)',        role:'철벽 출혈',   img:'marburg', parents:['adeno', 'retro'], col:'#c0c8d8', rolek:'tank',    atk:0.5,  hp:180, spd:54, count:16, size:17,
+              skill:{ id:'anemia', ids:['anemia', 'swell'], name:'철혈 방벽', cd:55, desc:'8초 동안 모든 탑 공격력 절반 + 받는 피해 절반' } },
 };
 for (const [id, L] of Object.entries(LEGENDS)) {
   STRAINS[id] = { name: L.name, role: L.role, rarity: RARITY.length - 1, genome: 'RNA', seg: false, fit: 1.2, atk: L.atk, hp: L.hp, spd: L.spd, count: L.count, size: L.size,
@@ -998,6 +1007,23 @@ const NEWV = {
   westnile:  { name:'웨스트나일',   role:'새 타고 비행', rarity:0, base:'dengue', tint:'#8ad070', rolek:'dps',     atk:0.3,  hp:24, spd:64, count:26, size:12, skill:{ id:'mosquito', name:'까마귀 타기', cd:45, desc:'둥지 바이러스 30%가 새를 타고 길 중간으로 날아가요' } },
   zika:      { name:'지카',         role:'모기 독침', rarity:1, base:'dengue',  tint:'#b0f070', rolek:'dps',     atk:0.38, hp:28, spd:66, count:22, size:12, skill:{ id:'rash', name:'모기 독침', cd:40, desc:'8초 동안 감염력 2배' } },
   hanta:     { name:'한타',         role:'들쥐 방패', rarity:2, base:'rabies',  tint:'#a0b080', rolek:'tank',    atk:0.3,  hp:70, spd:54, count:16, size:15, skill:{ id:'anemia', name:'한탄강 출혈열', cd:48, desc:'8초 동안 모든 탑 공격력 절반 · 1976년 이호왕 박사가 처음 찾은 바이러스' } },
+  // ★ 바이러스 20종 확장 (일반 6 · 희귀 4 · 영웅 6) · 그림 오기 전엔 비슷한 바이러스를 물들여 임시로
+  chikv:     { name:'치쿤구니야',   role:'관절 콕콕',   rarity:0, base:'dengue',  tint:'#ffa040', rolek:'dps',     atk:0.32, hp:26, spd:64, count:24, size:12, skill:{ id:'rash', name:'관절 콕콕', cd:40, desc:'8초 동안 감염력 2배' } },
+  hmpv:      { name:'메타뉴모',     role:'기침 연사',   rarity:0, base:'rsv',     tint:'#80d0ff', rolek:'dps',     atk:0.3,  hp:26, spd:62, count:26, size:12, skill:{ id:'outbreak', name:'기침 연사', cd:36, desc:'대기 중인 바이러스를 한꺼번에 내보내고 6초간 이동 +25%' } },
+  bkv:       { name:'BK 바이러스',  role:'콩팥 숨기',   rarity:0, base:'herpes',  tint:'#c0a0ff', rolek:'stealth', atk:0.22, hp:28, spd:62, count:26, size:12, stealth:true, skill:{ id:'fakeout', name:'콩팥 숨기', cd:42, desc:'7초 동안 탑이 못 보는 투명 상태' } },
+  mcv:       { name:'물사마귀',     role:'진주 껍질',   rarity:0, base:'hpv',     tint:'#f0b890', rolek:'stealth', atk:0.2,  hp:30, spd:60, count:28, size:12, stealth:true, skill:{ id:'vanish', name:'진주 껍질', cd:42, desc:'6초 투명 + 체력 20% 회복' } },
+  sapo:      { name:'사포',         role:'단단한 껍질', rarity:0, base:'noro',    tint:'#f0e060', rolek:'tank',    atk:0.15, hp:80, spd:50, count:16, size:14, skill:{ id:'swell', name:'단단한 껍질', cd:40, desc:'8초 동안 받는 피해 절반 + 계속 체력 회복' } },
+  boca:      { name:'보카',         role:'꼬마 방패',   rarity:0, base:'adeno',   tint:'#b0b0c0', rolek:'tank',    atk:0.15, hp:70, spd:52, count:18, size:13, skill:{ id:'soothe', name:'꼬마 방패', cd:42, desc:'6초 동안 모든 탑이 절반 속도로 쏴요' } },
+  hhv6:      { name:'6형 헤르페스', role:'장미 발진',   rarity:1, base:'herpes',  tint:'#ff9ac8', rolek:'heal',    atk:0.3,  hp:42, spd:56, count:22, size:13, skill:{ id:'wart', name:'장미 발진 재생', cd:38, desc:'8초간 매초 최대 체력의 12% 회복' } },
+  hev:       { name:'E형 간염',     role:'새싹 재생',   rarity:1, base:'hepb',    tint:'#a0e070', rolek:'heal',    atk:0.3,  hp:44, spd:56, count:20, size:13, skill:{ id:'genecarry', name:'새싹 재생', cd:40, desc:'모든 내 바이러스 체력 40% 회복 + 4초 피해 −30%' } },
+  piv:       { name:'파라인플루엔자', role:'크루프 떼', rarity:1, base:'flu',     tint:'#80c0ff', rolek:'swarm',   atk:0.24, hp:30, spd:60, count:36, size:12, skill:{ id:'blister', name:'크루프 떼', cd:38, desc:'살아 있는 바이러스 절반이 하나씩 더 생겨요' } },
+  tbev:      { name:'진드기뇌염',   role:'진드기 갑옷', rarity:1, base:'rabies',  tint:'#b08860', rolek:'tank',    atk:0.3,  hp:66, spd:52, count:16, size:14, skill:{ id:'swell', name:'진드기 갑옷', cd:40, desc:'8초 동안 받는 피해 절반 + 계속 체력 회복' } },
+  jcv:       { name:'JC 바이러스',  role:'뇌 잠입',     rarity:2, base:'herpes',  tint:'#6070d0', rolek:'stealth', atk:0.38, hp:40, spd:66, count:22, size:13, stealth:true, skill:{ id:'fakeout', name:'뇌 잠입', cd:42, desc:'7초 동안 탑이 못 보는 투명 상태' } },
+  mers:      { name:'메르스',       role:'낙타 잠복',   rarity:2, base:'corona',  tint:'#e0c080', rolek:'stealth', atk:0.4,  hp:40, spd:64, count:22, size:14, stealth:true, extinct:'2012년 중동에서 처음 찾았고, 2015년 한국에서도 유행했어요', skill:{ id:'asympt', name:'낙타 잠복', cd:50, desc:'8초간 완전 은신 + 감염력 1.5배' } },
+  htlv:      { name:'HTLV',         role:'수십 년 잠복', rarity:2, base:'retro',  tint:'#8050c0', rolek:'stealth', atk:0.36, hp:42, spd:64, count:22, size:14, stealth:true, skill:{ id:'vanish', name:'수십 년 잠복', cd:42, desc:'6초 투명 + 체력 20% 회복' } },
+  cchf:      { name:'크림콩고',     role:'진드기 떼',   rarity:2, base:'noro',    tint:'#ff5050', rolek:'swarm',   atk:0.26, hp:42, spd:56, count:48, size:14, skill:{ id:'giant', name:'진드기 떼', cd:50, desc:'둥지 바이러스가 즉시 1.6배 (둥지가 비면 길 위 개체 +40%)' } },
+  ev71:      { name:'엔테로71',     role:'손발입 대유행', rarity:2, base:'rota',  tint:'#60d080', rolek:'swarm',   atk:0.26, hp:40, spd:60, count:46, size:13, skill:{ id:'blister', name:'수포 대유행', cd:38, desc:'살아 있는 바이러스 절반이 하나씩 더 생겨요' } },
+  lassa:     { name:'라사',         role:'쥐 독침',     rarity:2, base:'rabies',  tint:'#c0a080', rolek:'dps',     atk:0.46, hp:40, spd:60, count:22, size:14, skill:{ id:'paralyze', name:'쥐 독침', cd:45, desc:'앞쪽 탑 3개를 4초 동안 멈춰요' } },
 };
 for (const [id, V] of Object.entries(NEWV)) {
   STRAINS[id] = { name: V.name, role: V.role, rarity: V.rarity, genome: 'RNA', seg: false, fit: 1.1, atk: V.atk, hp: V.hp, spd: V.spd, count: V.count, size: V.size, stealth: !!V.stealth, parents: [V.base], newv: true, skill: V.skill, extinct: V.extinct };
@@ -1017,6 +1043,10 @@ const GRADE_COL = { S: '#ffd24a', A: '#ff9ee0', B: '#9fd8ff', C: '#b8a890', D: '
 function bestStat(strain) { const d = STRAINS[strain]; let best = null, bv = -1; for (const st in GRADE_KEYS) { const g = gradeOf(st, d[st]), v = 'DCBAS'.indexOf(g); if (v > bv) { bv = v; best = [st, g]; } } return best; }
 const ORG_SHORT = { nose:'코', lung:'폐', gut:'위장', liver:'간', blood:'혈관', skin:'피부', lymph:'림프', brain:'뇌' };
 const TROP = {
+  chikv: [['skin', 'blood'], []], hmpv: [['lung', 'nose'], []], bkv: [['blood', 'lymph'], []], mcv: [['skin'], []], sapo: [['gut'], []], boca: [['lung', 'nose'], []],
+  hhv6: [['skin', 'lymph'], []], hev: [['liver', 'gut'], []], piv: [['nose', 'lung'], []], tbev: [['brain', 'skin'], []],
+  jcv: [['brain', 'lymph'], []], mers: [['lung', 'nose'], []], htlv: [['blood', 'lymph'], []], cchf: [['blood', 'skin'], []], ev71: [['gut', 'brain'], []], lassa: [['blood', 'liver'], []],
+  h5n1: [['lung', 'liver'], []], mpox: [['skin', 'lymph'], []], nipah: [['brain', 'lung'], []], marburg: [['blood', 'liver'], []],
   astro: [['gut'], []], hepa: [['liver', 'gut'], []], hepc: [['liver', 'blood'], []], westnile: [['brain', 'blood'], []], zika: [['blood', 'brain'], []], hanta: [['lung', 'blood'], []], norosyd: [['gut', 'nose'], []], yellowf: [['liver', 'blood'], []],
   rhino: [['nose', 'lung'], ['gut', 'liver']], noro: [['gut'], ['nose', 'lung', 'brain']], rota: [['gut'], ['lung', 'skin']], hpv: [['skin'], ['blood', 'brain']],
   adeno: [['lung', 'nose', 'lymph'], ['brain']], herpes: [['skin', 'brain'], ['gut']], flu: [['lung', 'nose'], ['gut', 'skin']], rsv: [['lung'], ['gut', 'liver']],
@@ -1108,7 +1138,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.15, lung: 0.14, gut: 0.8, liver: 0.85, blood: 0.66, skin: 0.42, lymph: 1.41, brain: 5.69 },
+const CAL = { 0: { nose: 0.27, lung: 0.18, gut: 0.8, liver: 1.15, blood: 0.98, skin: 0.42, lymph: 1.41, brain: 5.69 },
   1: { nose: 1.56, lung: 1.24, gut: 0.74, liver: 1.74, blood: 0.88, skin: 0.48, lymph: 0.8, brain: 1.32 },
   2: { nose: 0.9, lung: 1.11, gut: 1.65, liver: 1.43, blood: 0.78, skin: 0.58, lymph: 0.75, brain: 1.41 },
   3: { nose: 1.82, lung: 1.09, gut: 0.91, liver: 2.15, blood: 1.06, skin: 0.8, lymph: 0.79, brain: 1.51 } };
@@ -1153,7 +1183,7 @@ const NAMES = [...[0, 1, 2, 3, 4, 5].flatMap(i => ['vp_core_' + i, 'vp_spike_' +
   ...['zero','mimi','phage'].flatMap(h => ['hero_' + h, 'hero_' + h + '10', 'hero_' + h + '15']), 'aura','forge','forge_ok','forge_fail','enzyme',
   ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'boss_' + o), 'boss_wk_capsule', 'boss_wk_tablet', 'boss_wk_twin', 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
   'gacha_bg','bodymap_skin','bodymap_h0_skin','bodymap_h1_skin','bodymap_h2_skin','bodymap_h3_skin','ring_common','ring_rare','ring_hero','ring_new','fx_sneeze','jar','jar_sealed','jar_broken','glove','bodymap',
-  ...Object.keys({ inf:1, hp:1, cnt:1, cd:1, dna:1, forge:1, capsule:1, combo:1 }).map(k => 'perk_' + k), 'tab_body','tab_lab','tab_hero','codex','deploy_all','combo','legacy','lock','ebola','corona','hero_smallpox','flu1918','norosyd','yellowf', ...Object.keys(NEWV),'intro_bg','story_2','story_3', ...[0, 1, 2, 3].map(i => 'vp_core_L' + i)];
+  ...Object.keys({ inf:1, hp:1, cnt:1, cd:1, dna:1, forge:1, capsule:1, combo:1 }).map(k => 'perk_' + k), 'tab_body','tab_lab','tab_hero','codex','deploy_all','combo','legacy','lock','ebola','corona','hero_smallpox','flu1918','norosyd','yellowf', ...Object.keys(LEGENDS), ...Object.keys(NEWV),'intro_bg','story_2','story_3', ...[0, 1, 2, 3].map(i => 'vp_core_L' + i)];
 const JPG = new Set(['story_2', 'story_3', 'intro_bg', 'ground', 'dirt', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h2_skin', 'bodymap_h3_skin']);
 const has = n => IMG[n] && IMG[n].naturalWidth > 0;
 function loadAssets() {
@@ -1498,7 +1528,7 @@ const coreStrain = () => { const g = coreGene(); return g ? g.strain : null; };
 const isCoreG = g => !!(g && g.core);
 // 본체 그림: 본체 레벨에 따라 성장 단계 그림으로 (예: 리노 → 리노 A → 리노 A2)
 const CORE_STAGE = { rhino: ['rhino', 'rhino_A', 'rhino_A2'], rota: ['rota', 'rota_A', 'rota3'], herpes: ['herpes', 'herpes_A', 'herpes3'] };
-const coreImg = () => { const st = coreStrain(); if (!st || st === 'smallpox') return null; const L = CORE_STAGE[st] || [st], t = coreTier(); return `assets/${L[Math.min(L.length - 1, t >= 3 ? 2 : t >= 2 ? 1 : 0)]}.png`; };
+const coreImg = () => { const st = coreStrain(); if (!st || st === 'smallpox') return null; if (!CORE_STAGE[st] && !has(st)) return IMG[st] ? imgSrc(IMG[st], null) : null; const L = CORE_STAGE[st] || [st], t = coreTier(); return `assets/${L[Math.min(L.length - 1, t >= 3 ? 2 : t >= 2 ? 1 : 0)]}.png`; };
 // ★ 적응: 그 기관에서 싸울 때마다 점수 (본체 +1, 동료 +0.5) → 3점이면 그 기관을 노리는 바이러스가 된다
 const ADAPT = { need: 10, core: 1, mate: 0 };   // 본체만 적응 (기관당 10판)
 const adaptOf = (g, org) => Math.min(ADAPT.need, ((g && g.adapt) || {})[org] || 0);
@@ -2871,7 +2901,7 @@ const stageIx = (org = save.sel) => (save.host || 0) * 8 + Math.max(0, ORGANS.fi
 const twMax = (org = save.sel) => Math.min(8, 3 + Math.floor(stageIx(org) / 3));   // 어린이 코 3개 … 운동선수 8개   // ★ 시제품: 탑이 더 아프게 (막기·숨기가 의미 있도록)
 // ★ 본체 스킬: 처음엔 가득·30초 자연충전·도착하면 더 빨리 참. 짝 버튼(👑)과 3초 안에 같이 쓰면 콤보 ×1.3
 // ★ 본체 스킬 4종류 (효과대로): 🛑막기=탑 무력화 · 🛡버티기=안 맞기·덜 맞기·회복 · 🦠불리기=수 늘리기 · ⚔강하게=빠르고 세게 감염
-const SKTYPE = { retro:'stop', hepb:'stop', ebola:'stop', polio:'stop', parvo:'stop', ttv:'stop', gbvc:'stop', cowpox:'stop', hanta:'stop', h2n2:'stop', flu1918:'stop', adeno:'hide', herpes:'hide', flu:'hide', rsv:'hide', hpv:'hide', ebv:'hide', mumps:'hide', aav:'hide', hepa:'hide', hepc:'hide', yamagata:'hide', corona:'hide', rhino:'grow', smallpox:'grow', norosyd:'grow', varicella:'grow', cmv:'grow', noro:'boost', rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', zika:'boost', yellowf:'boost', astro:'boost', dengue:'boost', westnile:'boost', rinderpest:'boost', sars:'boost' };
+const SKTYPE = { chikv:'boost', hmpv:'boost', lassa:'stop', boca:'stop', marburg:'stop', nipah:'hide', bkv:'hide', mcv:'hide', sapo:'hide', hhv6:'hide', hev:'hide', tbev:'hide', jcv:'hide', mers:'hide', htlv:'hide', h5n1:'hide', mpox:'hide', piv:'grow', cchf:'grow', ev71:'grow', retro:'stop', hepb:'stop', ebola:'stop', polio:'stop', parvo:'stop', ttv:'stop', gbvc:'stop', cowpox:'stop', hanta:'stop', h2n2:'stop', flu1918:'stop', adeno:'hide', herpes:'hide', flu:'hide', rsv:'hide', hpv:'hide', ebv:'hide', mumps:'hide', aav:'hide', hepa:'hide', hepc:'hide', yamagata:'hide', corona:'hide', rhino:'grow', smallpox:'grow', norosyd:'grow', varicella:'grow', cmv:'grow', noro:'boost', rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', zika:'boost', yellowf:'boost', astro:'boost', dengue:'boost', westnile:'boost', rinderpest:'boost', sars:'boost' };
 const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '돌격', hide: '잠복', spr: '증식' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🦠' };
 const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 버티기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
 // ★ 본체 스킬 세기 = 종류 × 등급(일반·희귀·영웅·전설·전설+). 강하게·불리기는 원래 너무 세서 낮추고, 막기·숨기는 올림
