@@ -702,6 +702,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .dp.pair { position: relative; border: 2px dashed #ffd24a !important; overflow: visible !important; } .dp.pair::after { content: "콤보"; position: absolute; top: -9px; z-index: 3; right: 3px; font-size: 9.5px; line-height: 1; background: #ffd24a; color: #2a1608; padding: 2px 5px; border-radius: 6px; font-weight: 900; }
   .dp.coreSk { flex: 1.45 !important; position: relative; border: 2px solid #ffd24a !important; background: linear-gradient(#5a4210,#2a1e08) !important; box-shadow: 0 0 12px rgba(255,210,74,.35); overflow: visible !important; } .dp.coreSk .skLb { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #ffd24a; color: #2a1608; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 6px; white-space: nowrap; z-index: 2; } .dp.coreSk small { color: #ffe2a8 !important; font-weight: 700; font-size: 10px !important; }
   .dp.brb { position: relative; overflow: visible !important; border-width: 2px !important; touch-action: none; user-select: none; -webkit-user-select: none; } .dp.brb .hf { position: absolute; left: 0; bottom: 0; top: 0; width: 0; background: rgba(255,255,255,.22); border-radius: 9px; pointer-events: none; } .dp.brb div { position: relative; } .dp.brb .cnt { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); background: #fff; color: #1a0e12; font-weight: 900; font-size: 13px; padding: 2px 9px; border-radius: 999px; white-space: nowrap; z-index: 5; } .dp.brb.hold { box-shadow: 0 0 0 3px rgba(255,255,255,.35), 0 0 16px rgba(255,255,255,.4); } .dp.brb.lock { opacity: .45; border-style: dashed !important; }
+  .dp.bypB { border-color: #c67aff !important; background: linear-gradient(#4a1e66,#22102e) !important; } .dp.bypB.full { box-shadow: 0 0 0 3px rgba(198,122,255,.35), 0 0 16px rgba(198,122,255,.7); } .dp.bypB.go { box-shadow: 0 0 0 3px #c67aff; }
   #cmbTip { position: absolute; left: 50%; bottom: 118px; transform: translateX(-50%); background: #ffd24a; color: #2a1608; font-weight: 900; font-size: 13px; padding: 5px 12px; border-radius: 999px; white-space: nowrap; box-shadow: 0 0 16px rgba(255,210,74,.7); z-index: 30; pointer-events: none; }
   #deploy { overflow: visible !important; padding-top: 9px !important; } .dp.combo { border-color: #ffd24a !important; box-shadow: 0 0 0 2px #ffd24a, 0 0 18px #ffb02a; animation: cmb .5s ease-in-out infinite alternate; } @keyframes cmb { to { transform: scale(1.06); } } .stPick { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; } .stOpt { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px; border-radius: 12px; background: #2a1a20; border: 2px solid #5a3a40; color: #eadcc2; } .stOpt img { width: 64px; height: 64px; object-fit: contain; flex: none; } .stOpt b { font-size: 15px; display: block; } .stOpt small { display: block; font-size: 12px; color: #c8b8a0; margin: 2px 0; } .stOpt em { font-style: normal; font-size: 12.5px; color: #9fd8ff; display: block; } .stOpt i { font-style: normal; font-size: 12px; color: #ffd27a; } .cvAd { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 2px; } .cvAd u { text-decoration: none; font-size: 12px; padding: 2px 6px; border-radius: 8px; background: #2a1a20; color: #8a7a6a; } .cvAd u.nat { background: #2e4a1e; color: #b9ff8a; } .cvAd u.ad { background: #3e2450; color: #e8b0ff; } .cvAd u small { margin-left: 2px; font-size: 10px; } .cfoot .og u.ad { color: #e8b0ff !important; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
   /* 카드 테두리: 등급 색 선만 (그림 테두리는 뺌) */
@@ -1075,7 +1076,7 @@ const routeOf = st => ROUTE_OF[st] || ROUTE_OF[((STRAINS[st] || {}).parents || [
 const SET_B = [0, 0, 0, 0, 0, 0];   // 색깔 세트 없앰
 const LEAD_SET = 0;   // 색깔 세트·리더 색 보너스는 없앰 (역할 전략으로 대체)
 // ★ 역할 팀 효과: 팀(본체 포함)에 있는 역할마다 전투 버튼 하나가 세진다 (역할당 2장까지)
-const ROLE_FX = { tank: { n: '체력', t: '숨기+1초' }, swarm: { n: '마릿수', t: '증식+10%' }, dps: { n: '공격', t: '공격+10%' }, stealth: { n: '속도', t: '충전+10%' }, heal: { n: '회복', t: '약−15%' } };
+const ROLE_FX = { tank: { n: '체력', t: '숨기+1초' }, swarm: { n: '마릿수', t: '융합+1초' }, dps: { n: '공격', t: '공격+10%' }, stealth: { n: '속도', t: '충전+10%' }, heal: { n: '회복', t: '약−15%' } };
 const roleCnt = cards => { const n = {}; for (const g of new Set(cards.filter(Boolean))) { const r = ROLE_OF[g.strain]; if (ROLE_FX[r]) n[r] = Math.min(2, (n[r] || 0) + 1); } return n; };
 // ★ 기관 보스 약점: 그 역할 카드 장당 +15% (최대 2장 +30%)
 const ORG_WEAK = { nose: 'dps', lung: 'tank', gut: 'dps', liver: 'heal', blood: 'stealth', skin: 'tank', lymph: 'swarm', brain: 'stealth' };
@@ -1146,7 +1147,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.045, lung: 0.13, gut: 0.23, liver: 0.36, blood: 0.5, skin: 0.3, lymph: 0.8, brain: 3.5 },
+const CAL = { 0: { nose: 0.045, lung: 0.13, gut: 0.23, liver: 0.32, blood: 0.5, skin: 0.27, lymph: 0.72, brain: 3.15 },
   1: { nose: 0.99, lung: 0.78, gut: 0.47, liver: 1.1, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
@@ -1933,7 +1934,7 @@ function buildMap(organ, hostIdx, variant = 0) {
   const len = cum.at(-1);
   const corners = raw.slice(2, -1).map(c => nearestD(pts, cum, c[0], c[1])).sort((a, b) => a - b);
   const goal = pts.at(-1);
-  const forks = unlocked('fork') ? findForks({ pts, cum, len }, rnd, ptype === 's') : [];
+  const forks = unlocked('fork') && !B3 ? findForks({ pts, cum, len }, rnd, ptype === 's') : [];   // 시제품: 옛 지름길 스위치 대신 세포 융합
   // 받침: 길에서 30~48 떨어진 곳, 서로 46 이상 (갈림길 위는 제외)
   const cand = [];
   for (let y = box.y0 - 10; y <= box.y1 + 10; y += 8) for (let x = 30; x <= W - 30; x += 8) {
@@ -3076,7 +3077,7 @@ const twMax = (org = save.sel) => Math.min(8, 3 + Math.floor(stageIx(org) / 3));
 // ★ 본체 스킬: 처음엔 가득·30초 자연충전·도착하면 더 빨리 참. 짝 버튼(👑)과 3초 안에 같이 쓰면 콤보 ×1.3
 // ★ 본체 스킬 4종류 (효과대로): 🛑막기=탑 무력화 · 🛡버티기=안 맞기·덜 맞기·회복 · 🦠불리기=수 늘리기 · ⚔강하게=빠르고 세게 감염
 const SKTYPE = { chikv:'stop', hmpv:'boost', lassa:'stop', boca:'stop', marburg:'stop', nipah:'hide', bkv:'hide', mcv:'hide', sapo:'hide', hhv6:'hide', hev:'hide', tbev:'stop', jcv:'hide', mers:'hide', htlv:'stop', h5n1:'boost', mpox:'hide', piv:'grow', cchf:'grow', ev71:'grow', retro:'stop', hepb:'stop', ebola:'stop', polio:'stop', parvo:'stop', ttv:'stop', gbvc:'stop', cowpox:'stop', hanta:'stop', h2n2:'stop', flu1918:'stop', adeno:'hide', herpes:'hide', flu:'hide', rsv:'hide', hpv:'hide', ebv:'hide', mumps:'hide', aav:'hide', hepa:'hide', hepc:'hide', yamagata:'hide', corona:'hide', rhino:'grow', smallpox:'grow', norosyd:'grow', varicella:'grow', cmv:'grow', noro:'boost', rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', zika:'boost', yellowf:'boost', astro:'boost', dengue:'boost', westnile:'boost', rinderpest:'boost', sars:'boost' };
-const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '출발', hide: '숨기', spr: '증식' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🦠' };
+const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '출발', hide: '숨기', spr: '세포 융합' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🧬' };
 const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 버티기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
 // ★ 본체 스킬 세기 = 종류 × 등급(일반·희귀·영웅·전설·전설+). 강하게·불리기는 원래 너무 세서 낮추고, 막기·숨기는 올림
 const CORE_K = { boost: [0.2, 0.22, 0.3, 0.45, 0.6], grow: [0.5, 0.6, 0.7, 0.85, 1], stop: [1, 1.1, 1.2, 1.35, 1.5], hide: [1, 1.1, 1.2, 1.35, 1.5] };
@@ -3085,7 +3086,7 @@ const SK_TUNE = {};
 const coreK = () => { const st = STRAINS[coreStrain()] || {}, t = SKTYPE[coreStrain()] || 'boost'; return CORE_K[t][Math.min(4, st.legend ? Math.max(3, st.rarity || 0) : (st.rarity || 0))] * ((window.__skTune || SK_TUNE)[coreStrain()] || 1); };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
 const corePair = () => SKPAIR[SKTYPE[coreStrain()] || 'boost'];
 function comboOpen(by) { const R = run; if (!B3 || !R || by !== corePair()) return; if (R.cmbBack && R.cmbBack.t > 0) { const f = R.cmbBack.go; R.cmbBack = null; f(); } else R.cmb = { by, t: CHG.win }; }   // 순서 상관없이 3초 안에 둘 다 쓰면 콤보
-const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35, land: false }, SPR = { first: 25, cd: 45, cost: 0, tiles: 0, capUp: 0, atkUp: 0, slow: 1, slowT: 0, fast: 1, fastT: 0 };
+const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35, land: false }, SPR = { first: 20, cd: 40, cost: 0, tiles: 0, capUp: 0, atkUp: 0, slow: 1, slowT: 0, fast: 1, fastT: 0 };
 function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
   if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max + (teamRole().tank || 0); H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 숨기! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
   else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
@@ -3098,13 +3099,42 @@ function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H =
   if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
   else if (H.st === 'up') { for (const u of R.units) u.hid = false; H.st = 'cd'; H.t = HIDE.cd; banner('튀어나왔다!'); sfx('breakout'); }
   else if (H.st === 'cd') { H.st = 'ready'; } }
-// ★ 증식: 둥지 최대치만큼 즉시 추가 (최대치를 넘겨서 가질 수 있음). 처음 준비 + 긴 대기라 한 판에 1~2번
-function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if (R.sprCd == null) R.sprCd = SPR.first; if (R.sprCd > 0) return toast(`증식 준비 중 ${Math.ceil(R.sprCd)}초`);
-  const caps = R.groups.filter(g => !g.reawake).map(g => [g, g.max * NEST.capMul]), ct = caps.reduce((a, x) => a + x[1], 0) || 1, add = nestCap() * (1 + 0.1 * (teamRole().swarm || 0));
-  if (!R.nest) R.nest = {}; for (const [g, c] of caps) R.nest[g.strain] = (R.nest[g.strain] || 0) + add * c / ct;
-  R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1; comboOpen('spr');
-  const [x, y] = pathAt(Math.max(map.d0 || 0, (R.frontD || 0) - 40)); R.rings.push({ x, y, r: 10, R: 110, t: 0.8, color: '#9fff6a' }); sfx('wall'); buzz(25); shake(3);
-  float(x, y - 52, `🦠 증식! 둥지 +${Math.round(add)}마리`, '#9fff6a', 16); }
+// ★ 세포 융합 (바이패스): 누르면 맨 앞 무리 앞쪽 굽이를 가로지르는 터널이 몇 초 열린다. 들어간 무리는 굽이·탑을 건너뛰고, 터널 안에선 공격받지 않는다
+const BYP = { open: 6, look: 420, minSave: 200, eMin: 70, eMax: 240 };
+function bypFind() { const R = run, M = map, f0 = Math.max(R.frontD || 0, ...R.units.filter(u => u.alive && u.d > 0 && !(u.fk >= 0)).map(u => u.d).slice(0, 400)), out = [];
+  const towD = R.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).map(t => nearestOnPath(t.x, t.y).d);
+  for (let d1 = Math.max(M.d0 || 0, f0 - 40); d1 < Math.min(M.len - 300, f0 + BYP.look); d1 += 12) { const [x1, y1] = pathAt(d1);
+    for (let d2 = d1 + BYP.minSave + BYP.eMin; d2 < Math.min(M.len - 40, d1 + 1400); d2 += 12) { const [x2, y2] = pathAt(d2), e = Math.hypot(x2 - x1, y2 - y1);
+      if (e < BYP.eMin || e > BYP.eMax || (d2 - d1) - e < BYP.minSave) continue; let ok = true;
+      for (let t = 0.12; t <= 0.88; t += 0.06) { const lim = Math.min(40, e * Math.min(t, 1 - t) * 0.9); if (distTo(M.pts, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t) < lim) { ok = false; break; } }
+      if (!ok) continue; const skip = towD.filter(d => d > d1 + 20 && d < d2 - 20).length; out.push({ d1, d2, x1, y1, x2, y2, e, save: (d2 - d1) - e, skip, sc: (d2 - d1) - e + skip * 160 - Math.max(0, d1 - f0) * 0.4 }); } }
+  return out.sort((a, b) => b.sc - a.sc)[0] || null; }
+function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if (R.sprCd == null) R.sprCd = SPR.first; if (R.sprCd > 0) return toast(`세포 융합 준비 중 ${Math.ceil(R.sprCd)}초`);
+  const c = bypFind(); if (!c) return toast('지름길을 낼 굽이가 없어요');
+  map.forks = map.forks.filter(f => !f.byp || R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f));
+  const pts = []; for (let k = 0; k <= 12; k++) pts.push([c.x1 + (c.x2 - c.x1) * k / 12, c.y1 + (c.y2 - c.y1) * k / 12]);
+  const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const f = { d1: c.d1, d2: c.d2, pts, cum, len: cum.at(-1), sw: 'B', byp: true, until: R.time + BYP.open + (teamRole().swarm || 0), skip: c.skip, told: false, pass: 0, adapt: 0, sx: -999, sy: -999 };
+  // 이미 그 굽이 안쪽(d1~d2)에 있는 무리는 그대로, 앞(d1 전)에 있는 무리부터 터널로
+  map.forks.push(f); R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1; R.bypOn = f; comboOpen('spr');
+  R.rings.push({ x: c.x1, y: c.y1, r: 8, R: 70, t: 0.6, color: '#c67aff' }); R.rings.push({ x: c.x2, y: c.y2, r: 8, R: 70, t: 0.6, color: '#c67aff' }); sfx('wall'); buzz(25); shake(3);
+  banner(`🧬 세포 융합! ${BYP.open}초 동안 지름길${c.skip ? ` · 탑 ${c.skip}개 건너뛰기` : ''}`); }
+function stepBypass() { const R = run; for (const f of map.forks) if (f.byp && f.sw === 'B' && R.time >= f.until) f.sw = 'A'; if (R.bypOn && R.bypOn.sw !== 'B') R.bypOn = null; }
+function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return;
+  for (const f of map.forks) { if (!f.byp) continue; const open = f.sw === 'B', inside = R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f); if (!open && !inside) continue;
+    const [a, b] = [f.pts[0], f.pts.at(-1)]; ctx.save(); ctx.lineCap = 'round';
+    ctx.globalAlpha = open ? 0.5 : 0.25; ctx.shadowColor = '#c67aff'; ctx.shadowBlur = 22; ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 46; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.globalAlpha = open ? 1 : 0.5; ctx.strokeStyle = '#6a2296'; ctx.lineWidth = 34; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
+    ctx.strokeStyle = '#e8b8ff'; ctx.lineWidth = 3; ctx.setLineDash([3, 10]); ctx.lineDashOffset = -time * 40; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); ctx.setLineDash([]);
+    for (const p of [a, b]) { ctx.strokeStyle = '#f3dcff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p[0], p[1], 20 + 2 * Math.sin(time * 6), 0, TAU); ctx.stroke(); }
+    if (open) { const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1, ox = -dy / l * 34, oy = dx / l * 34;
+      ctx.fillStyle = '#2a1030'; ctx.beginPath(); ctx.arc(m[0] + ox, m[1] + oy, 16, 0, TAU); ctx.fill(); ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = "900 13px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(f.until - R.time) + 's', m[0] + ox, m[1] + oy + 4.5); }
+    ctx.restore(); }
+  // 준비됐을 때: 열릴 자리 점선 미리보기 (1초마다 다시 찾음)
+  if ((R.sprCd ?? SPR.first) <= 0 && !R.bypOn) { if (!R.bypPv || time - R.bypPv.t > 1) R.bypPv = { t: time, c: bypFind() }; const c = R.bypPv.c;
+    if (c) { ctx.save(); ctx.globalAlpha = 0.55 + 0.2 * Math.sin(time * 5); ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 26; ctx.setLineDash([8, 8]); ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(c.x1, c.y1); ctx.lineTo(c.x2, c.y2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = 1; ctx.fillStyle = '#e8b8ff'; ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const mx = (c.x1 + c.x2) / 2, my = (c.y1 + c.y2) / 2 - 22, tx = c.skip ? `🧬 여기 열려요 · 탑 ${c.skip}개 건너뜀` : '🧬 여기 열려요'; ctx.strokeText(tx, mx, my); ctx.fillText(tx, mx, my); ctx.restore(); } } }
 function stepSpread(dt) { const R = run; if (!R) return; if (R.sprCd == null && R.ta && !stealthOn()) R.sprCd = SPR.first; if (R.sprCd > 0) R.sprCd -= dt;
   if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + (1 + 0.1 * (teamRole().stealth || 0)) * (dt / CHG.idle) + (1 + 0.1 * (teamRole().stealth || 0)) * (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; if (R.growT > 0) R.growT -= dt; }
   if (R.sprSlow > 0) { R.sprSlow -= dt; if (R.sprSlow <= 0) { R.sprFast = SPR.fastT; banner('증식 완료! 둥지가 빠르게 다시 찬다'); } }
@@ -3129,9 +3159,9 @@ function b3Help() { const R = run; R.mutPause = true; paused = true;
     <b style="color:#ffd24a">👑 본체 스킬 (금색)</b> 본체마다 다른 스킬이에요. 버튼 아래에 효과가 적혀 있어요. 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요.<br>
     <b style="color:#ff8a7a">⚔ 출발</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
     <b style="color:#9fd8ff">🫥 숨기</b> 길 위 바이러스가 세포 속으로 숨어요. <b>느리게(35%) 나아가면서 약·탑 침·방해물을 다 피해요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 나와요.<br>
-    <b style="color:#9fff6a">🦠 증식</b> 둥지 <b>최대치만큼 바이러스가 한꺼번에 더 생겨요</b> (최대치를 넘겨도 돼요). 처음엔 ${SPR.first}초 뒤에 준비되고, 쓰고 나면 ${SPR.cd}초를 기다려요. 한 판에 1~2번이라 <b>대량 물량을 보낼 때</b> 아껴 써요. 잠입 때 땅을 많이 오염시킬수록 둥지가 커서 더 많이 생겨요.<br>
+    <b style="color:#e8b8ff">🧬 세포 융합</b> 맨 앞 무리 앞쪽 굽이를 가로지르는 <b>터널이 ${BYP.open}초 동안 열려요</b>. 들어간 무리는 굽이와 탑을 건너뛰고, 터널 안에선 공격받지 않아요. 준비되면 열릴 자리가 점선으로 보여요. 처음 ${SPR.first}초 뒤 준비, 쓰고 나면 ${SPR.cd}초 (한 판에 1~2번).<br>
     <b style="color:#ffd27a">🔥 콤보</b> <b>금색 점선</b> 버튼이 본체 스킬의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 스킬 ×${CHG.mul}!<br>
-    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 숨기! · 큰 한 방 → 증식 다음 출발</div></div>
+    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 숨기! · 큰 한 방 → 출발하고 바로 세포 융합</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
 const AL = { gain: 0.045, decay: 14, quiet: 8, warn: 2, dur: 2.5, dmg: 1.2, after: 20, gapDur: 4.5, gapBonus: 1.0, w: { stealth: 0.5, dps: 1.5 },
@@ -3234,7 +3264,7 @@ function biteTowers(dt) {
   const R = run, P = R.plan; if (!R.towers.length) return;
   // 탑 옆을 지나는 바이러스는 걸음을 늦추고 탑에 달려들어 문다(공격 모션). 한 번 물 때마다 피해
   for (const u of R.units) { if (!u.alive) continue; u.atkT = Math.max(0, (u.atkT || 0) - dt); u.atkCd = Math.max(0, (u.atkCd || 0) - dt); u.biting = Math.max(0, (u.biting || 0) - dt);
-    if (u.atkCd > 0 || u.hid || R.sb[u.strain].stealth > 0 || R.sb[u.strain].dive || u.decoy) continue;
+    if (u.atkCd > 0 || u.hid || R.sb[u.strain].stealth > 0 || R.sb[u.strain].dive || u.decoy || (u.fk >= 0 && map.forks[u.fk] && map.forks[u.fk].byp)) continue;
     let tg = null, bd = TOWER_HP.near * TOWER_HP.near; for (const t of R.towers) { if (t.converted > 0) continue; const dx = t.x - u.x, dy = t.y - 18 - u.y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; tg = t; } }
     if (!tg) continue;
     const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'tank' ? 1.7 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
@@ -3819,7 +3849,7 @@ function update(dt) {
       if (R.blk) for (const b of R.blk) if (b.hp > 0 && !u.hero && !u.hid && u.d < b.d && nd >= b.d - 4 - u.stack) nd = Math.max(u.d, b.d - 4 - u.stack);
       { const z = R.hz; if (z && z.type === 'gate' && z.closedNow && !B.dive && !u.hid && !u.hero && u.d < z.d && nd >= z.d - 4 - u.stack) nd = Math.max(u.d, z.d - 4 - u.stack); }
       const fi = R.br ? (u.brDone ? -1 : map.forks.findIndex(f => f.br === (u.tb ?? brDefault()) && nd >= f.d1)) : map.forks.findIndex(f => f.sw === 'B' && u.d < f.d1 && nd >= f.d1);
-      if (fi >= 0) { const f = map.forks[fi]; u.fk = fi; if (u.tb == null) u.tb = f.br; u.fd = R.br && u.d > f.d1 ? (u.d - f.d1) / Math.max(1, f.d2 - f.d1) * f.len : nd - f.d1; u.d = R.br ? f.d1 + (f.d2 - f.d1) * u.fd / f.len : f.d1; pos = pathAt(u.fd, f); if (!R.br) forkPass(f); }
+      if (fi >= 0) { const f = map.forks[fi]; u.fk = fi; if (u.tb == null) u.tb = f.br; u.fd = R.br && u.d > f.d1 ? (u.d - f.d1) / Math.max(1, f.d2 - f.d1) * f.len : nd - f.d1; u.d = R.br ? f.d1 + (f.d2 - f.d1) * u.fd / f.len : f.d1; pos = pathAt(u.fd, f); if (f.byp) { if (!f.told) { f.told = true; if (f.skip) float((f.pts[0][0] + f.pts.at(-1)[0]) / 2, (f.pts[0][1] + f.pts.at(-1)[1]) / 2 - 40, `🧬 탑 ${f.skip}개 건너뜀!`, '#e8b8ff', 16); } } else if (!R.br) forkPass(f); }
       else { u.d = nd; if (u.d >= map.len) { infect(u); continue; } pos = pathAt(Math.max(0, u.d)); }
     }
     const [x, y, nx, ny] = pos, ln = u.fk >= 0 ? u.lane * 0.7 : u.lane;
@@ -3831,7 +3861,7 @@ function update(dt) {
   }
 
   // 탑
-  stepHazard(dt); stepBlocks(dt); stepPeri(dt); stepMove(dt); stepAbHorn(dt); stepMed(dt); stepHide(dt); stepSpread(dt); stepBranches(dt); biteTowers(dt); stepBoss(dt); bossFloor(dt); if (R.calmT > 0) R.calmT -= dt;
+  stepHazard(dt); stepBlocks(dt); stepPeri(dt); stepMove(dt); stepAbHorn(dt); stepMed(dt); stepHide(dt); stepSpread(dt); stepBranches(dt); stepBypass(); biteTowers(dt); stepBoss(dt); bossFloor(dt); if (R.calmT > 0) R.calmT -= dt;
   const sP = Math.min(1.3, 1 + 0.01 * R.alert), sS = Math.min(1.3, 1 + 0.006 * R.alert);
   if ((R.crowdT = (R.crowdT || 0) - dt) <= 0) { R.crowdT = 0.5; const n = R.units.filter(u => u.alive && u.d > 0).length; R.crowd = n > 100 ? Math.min(2, 1 + (n - 100) / 150) : 1; }   // ★ 물량 대응: 무리가 클수록 범위 공격이 더 많이 맞힘
   const conv = R.towers.filter(t => t.converted > 0), slime = R.outposts.filter(o => o.type === 'out_slime'), decoys = R.outposts.filter(o => o.type === 'out_decoy' && o.hp > 0);
@@ -3899,7 +3929,7 @@ function update(dt) {
 }
 const marked = u => u.mark > 0 || (u.vax && !((run.variant || {})[u.strain]));
 function damage(u, dmg, src) {
-  if (!u.alive || u.hid) return;
+  if (!u.alive || u.hid) return; if (u.fk >= 0 && map.forks[u.fk] && map.forks[u.fk].byp) return;   // 세포 융합 터널 안은 안전
   const SB = run.sb[u.strain]; if (SB.dive) return;
   let m = SB.shieldMul * (u.br === 'hpvA' ? 0.8 : 1) * (u.gene.passives.includes('hbsag') ? 0.92 : 1);
   if (u.gene.passives.includes('capsidP')) m *= 0.85;
@@ -4061,7 +4091,7 @@ function render(time) {
     if (v.closed || warn) { ctx.save(); ctx.font = "700 11px 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const tx = v.closed ? '판막 닫힘' : '판막 곧 닫힘'; ctx.strokeText(tx, x, y - 26); ctx.fillStyle = v.closed ? '#ff8d8a' : '#ffd27a'; ctx.fillText(tx, x, y - 26); ctx.restore(); }
   }
   drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time); drawBoss(time); drawAbHorn(time); drawMed(time); drawAlarm(time);
-  if (run.br) { drawBranchTint(time); drawBridges(time); drawSprBub(time); } else for (const f of map.forks) drawSwitch(f, time);
+  if (run.br) { drawBranchTint(time); drawBridges(time); drawSprBub(time); } else { drawBypass(time); for (const f of map.forks) if (!f.byp) drawSwitch(f, time); }
   for (const t of R.towers) {
     const a = TOWERS[t.type].aura;
     if (a && !t.converted) { ctx.save(); ctx.globalAlpha = 0.1; ctx.fillStyle = TOWERS[t.type].color; ctx.beginPath(); ctx.arc(t.x, t.y - 20, t.range, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.45; ctx.setLineDash([5, 6]); ctx.strokeStyle = TOWERS[t.type].color; ctx.lineWidth = 1.2; ctx.stroke(); ctx.restore(); }
@@ -5106,7 +5136,7 @@ const ui = {
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
       $('deploy').innerHTML = (lead ? `<button class="dp v sk2 coreSk" data-sk="${lead.strain}" aria-label="본체 스킬"><span class="skLb">👑 본체 스킬</span>${pimg(lead)}<div><b style="font-size:12px">${geneSkill(lead).name}</b><small></small></div><i></i></button>` : '')
-        + (run.br ? '' : `<button class="dp v" id="dpSpr" aria-label="증식"><div class="b3ic">🦠</div><div><b>증식</b><small></small></div><i></i></button>`)
+        + (run.br ? '' : `<button class="dp v bypB" id="dpSpr" aria-label="세포 융합"><div class="b3ic">🧬</div><div><b>세포 융합</b><small></small></div><i></i></button>`)
         + `<button class="dp v" id="dpHide" aria-label="숨기"><div class="b3ic">🫥</div><div><b>숨기</b><small></small></div><i></i></button>`
         + (run.br ? '' : `<button class="dp v atk" id="dpAll" aria-label="출발"><div><b style="font-size:13px">출발</b><small style="color:#ffd8c8">둥지 0</small></div><i></i></button>`);
       if (run.br) $('deploy').insertAdjacentHTML('afterbegin', [0, 1, 2].map(k => `<button class="dp v brb${k >= run.br.n ? ' lock' : ''}" data-b="${k}" style="border-color:${BR.col[k]};background:linear-gradient(color-mix(in srgb,${BR.col[k]} 35%,#2a1418),#1a0e12)"><span class="hf"></span><span class="cnt" hidden></span><div><b style="font-size:12px">⚔ 출발 ${k + 1}</b><small></small></div></button>`).join(''));
@@ -5185,8 +5215,8 @@ const ui = {
       if (B3) { const hb2 = $('dpHide'); if (hb2) { const H = run.hd || { st: 'ready', t: 0 }; hb2.className = 'dp v' + (H.st === 'ready' ? (run.med && run.med.w > 0 ? ' gapOn' : ' full') : H.st === 'hid' ? ' go' : ' done');
           hb2.querySelector('small').textContent = H.st === 'ready' ? (run.med && run.med.w > 0 ? '💊 지금!' : '약·침 피하기') : H.st === 'hid' ? `숨음 ${H.t.toFixed(1)}s · 탭: 나오기` : H.st === 'up' ? '나오는 중' : `다시 ${Math.ceil(H.t)}s`;
           hb2.querySelector('i').style.width = (H.st === 'hid' ? H.t / (HIDE.max + (teamRole().tank || 0)) : H.st === 'cd' ? 1 - H.t / HIDE.cd : H.st === 'ready' ? 1 : 0) * 100 + '%'; }
-        const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd == null ? SPR.first : run.sprCd, ok = cd <= 0, tot = SPR.first > 0 && (run.sprN || 0) === 0 ? SPR.first : SPR.cd;
-          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = ok ? `둥지 +${Math.round(nestCap() * (1 + 0.1 * (teamRole().swarm || 0)))}` : `준비 ${Math.ceil(cd)}s`; sb2.querySelector('i').style.width = (ok ? 100 : (1 - cd / tot) * 100) + '%'; }
+        const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd == null ? SPR.first : run.sprCd, open = run.bypOn && run.bypOn.sw === 'B', ok = cd <= 0, tot = (run.sprN || 0) ? SPR.cd : SPR.first;
+          sb2.className = 'dp v bypB' + (open ? ' go' : ok ? ' full' : ''); sb2.querySelector('small').textContent = open ? `열림 ${Math.ceil(run.bypOn.until - run.time)}s` : ok ? `${BYP.open}초 지름길` : `다시 ${Math.ceil(cd)}s`; sb2.querySelector('i').style.width = (open || ok ? 100 : (1 - cd / tot) * 100) + '%'; }
         { const h = $('hint'); if (h && run.algInit) { const al = run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).length; h.textContent = `🧪 면역 경보 ${Math.floor((run.alg || 0) * 100)}% · 탑 ${al}/${twMax(run.st.organ.id)}${run.hd && run.hd.st === 'hid' ? ' · 숨는 중엔 안 참' : ''} · ❓`; } }
         if (run.br) $('deploy').querySelectorAll('.brb').forEach(b => { const k = +b.dataset.b, sm = b.querySelector('small'); if (k >= run.br.n) { sm.textContent = (run.sthSeg || 0) >= BR.n3 ? '이 지도는 2갈래' : `🔒 잠입 ${BR.n3}칸↑`; return; } const up = run.br.upT[k] && run.time - run.br.upT[k] < 5;
           sm.innerHTML = `탑 ${brTowers(k)}${up ? ' <b style="color:#ff9a7a">▲</b>' : ''}`; b.classList.toggle('pair', corePair() === 'brk'); });
@@ -5876,5 +5906,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1534</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1545</div></body>
 </html>
