@@ -3160,9 +3160,17 @@ function drawRoadSeg(g, a, b, k, time, ghost) { const dx = b[0] - a[0], dy = b[1
   g.strokeStyle = 'rgba(255,240,255,.55)'; g.lineWidth = 2.5; g.setLineDash([2, 12]); g.lineDashOffset = -time * 40; g.beginPath(); g.moveTo(0, 0); g.lineTo(l, 0); g.stroke(); g.setLineDash([]); g.restore();
   seg(5, 'rgba(255,235,250,.22)', -9);
   g.restore();
-  // 양 끝은 길 바닥을 다시 덮어서 길에서 갈라져 나온 것처럼 · 입구는 보랏빛으로 살짝
-  const ga = g.globalAlpha; for (const p of k >= 1 ? [a, b] : [a]) { g.save(); g.globalAlpha = 1; g.beginPath(); g.arc(p[0], p[1], 26.5, 0, TAU); g.clip(); drawWob(mapCv);
-    const rg = g.createRadialGradient(p[0], p[1], 2, p[0], p[1], 24); rg.addColorStop(0, `rgba(190,110,240,${0.45 * ga})`); rg.addColorStop(1, 'rgba(190,110,240,0)'); g.fillStyle = rg; g.fillRect(p[0] - 26, p[1] - 26, 52, 52); g.restore(); } }
+  // 양 끝: 길 바닥(길 모양 그대로)을 다시 덮고, 입구 쪽 길 테두리는 터널 속살로 터서 이어 붙임
+  const paths = [map.pts, ...map.forks.filter(f => !f.byp).map(f => f.pts)], ux = dx / L, uy = dy / L, ga = g.globalAlpha;
+  const onRoad = (x, y, r) => paths.some(Q => distTo(Q, x, y) < r);
+  const T0 = g.getTransform(); for (const [p, sg] of ghost ? [] : k >= 1 ? [[a, 1], [b, -1]] : [[a, 1]]) { g.save(); g.globalAlpha = 1;
+    for (const Q of paths) for (let i = 1; i < Q.length; i++) { const [x0, y0] = Q[i - 1], [x1, y1] = Q[i], sl = Math.hypot(x1 - x0, y1 - y0); if (sl < 0.5 || distTo([Q[i - 1], Q[i]], p[0], p[1]) > 70) continue;
+      g.save(); g.beginPath(); g.arc(p[0], p[1], 70, 0, TAU); g.clip(); g.translate(x0, y0); g.rotate(Math.atan2(y1 - y0, x1 - x0)); g.beginPath(); g.rect(-28, -28.5, sl + 56, 57); g.clip(); g.setTransform(T0); drawWob(mapCv); g.restore(); }
+    let e = 0; while (e < 90 && onRoad(p[0] + ux * sg * e, p[1] + uy * sg * e, 29)) e += 2;
+    g.translate(p[0], p[1]); g.rotate(ang + (sg < 0 ? Math.PI : 0)); g.globalAlpha = ga;
+    g.beginPath(); g.rect(Math.max(4, e - 16), -22, 22, 44); g.clip(); for (let o = -tw; o < e + 30; o += tw) g.drawImage(tx, o, -th / 2, tw, th);
+    const lg = g.createLinearGradient(e - 16, 0, e + 4, 0); lg.addColorStop(0, 'rgba(170,90,230,0)'); lg.addColorStop(1, 'rgba(170,90,230,.26)'); g.fillStyle = lg; g.fillRect(e - 16, -22, 22, 44);
+    g.restore(); } }
 function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return;
   for (const f of map.forks) { if (!f.byp) continue; const open = f.sw === 'B', inside = R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f); if (!open && !inside) continue;
     const [a, b] = [f.pts[0], f.pts.at(-1)]; ctx.save(); ctx.lineCap = 'round';
@@ -5954,5 +5962,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1640</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1655</div></body>
 </html>
