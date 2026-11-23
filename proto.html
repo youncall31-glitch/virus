@@ -1184,7 +1184,7 @@ const BRAIN_UNLOCK = 5;
 /* ---------- [core/assets.js] ---------- */
 const IMG = {};
 const NAMES = [...[0, 1, 2, 3, 4, 5].flatMap(i => ['vp_core_' + i, 'vp_spike_' + i]), 'vp_coat_env', 'vp_coat_hex', 'bcell','ab_mark','mutate','mutate_fx','rhino','adeno','noro','herpes','flu','rota','retro','rabies','rhino3','adeno3','noro3','herpes3','flu3','rota3','retro3','rabies3','rsv','measles','hepb','hpv','rsv3','measles3','hepb3','hpv3',
-  'brain','dna','neutro','macro','tcell','dendri','nk','cilia','complement','pad','hit','shield','ground','dirt','ground2','road2','pad2','byp',
+  'brain','dna','neutro','macro','tcell','dendri','nk','cilia','complement','pad','hit','shield','ground','dirt','ground2','road2','pad2','byp','mem',
   'out_slime','out_cauldron','out_decoy','hostify','defective','split',
   // v4.7 에셋
   'phage_mini','decoy_shell','gutstorm','shadowdoc','ironcarrier','frenzyrash','pneumostorm','undying',
@@ -1193,7 +1193,7 @@ const NAMES = [...[0, 1, 2, 3, 4, 5].flatMap(i => ['vp_core_' + i, 'vp_spike_' +
   ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'goal_' + o), ...['nose','lung','gut','liver','blood','skin','lymph','brain'].map(o => 'boss_' + o), 'boss_wk_capsule', 'boss_wk_tablet', 'boss_wk_twin', 'switch_a','switch_b','barricade','valve_open','valve_closed','pill','alarm','escort',
   'gacha_bg','bodymap_skin','bodymap_h0_skin','bodymap_h1_skin','bodymap_h2_skin','bodymap_h3_skin','ring_common','ring_rare','ring_hero','ring_new','fx_sneeze','jar','jar_sealed','jar_broken','glove','bodymap',
   ...Object.keys({ inf:1, hp:1, cnt:1, cd:1, dna:1, forge:1, capsule:1, combo:1 }).map(k => 'perk_' + k), 'tab_body','tab_lab','tab_hero','codex','deploy_all','combo','legacy','lock','ebola','corona','hero_smallpox','flu1918','norosyd','yellowf', ...Object.keys(LEGENDS), ...Object.keys(NEWV),'intro_bg','story_2','story_3', ...[0, 1, 2, 3].map(i => 'vp_core_L' + i)];
-const JPG = new Set(['story_2', 'story_3', 'intro_bg', 'ground', 'dirt', 'ground2', 'road2', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h2_skin', 'bodymap_h3_skin']);
+const JPG = new Set(['story_2', 'story_3', 'intro_bg', 'ground', 'dirt', 'ground2', 'road2', 'mem', 'gacha_bg', 'bodymap', 'bodymap_skin', 'bodymap_h0_skin', 'bodymap_h1_skin', 'bodymap_h2_skin', 'bodymap_h3_skin']);
 const has = n => IMG[n] && IMG[n].naturalWidth > 0;
 function loadAssets() {
   return Promise.all(NAMES.map(n => new Promise(res => {
@@ -3177,11 +3177,13 @@ function drawFuse(g, a, b, k, time, left, ghost) { const st = window.__fz || 'me
   if (st === 'mem') { const hw = 19 * (0.5 + 0.5 * fade);
     const blob = (x, r) => { g.beginPath(); for (let i = 0; i <= 24; i++) { const t = i / 24 * TAU, rr = r * (1 + 0.12 * Math.sin(t * 5 + time * 3 + x)); i ? g.lineTo(x + Math.cos(t) * rr, Math.sin(t) * rr) : g.moveTo(x + Math.cos(t) * rr, Math.sin(t) * rr); } g.closePath(); };
     const body = () => { g.beginPath(); for (let x = 0; x <= l; x += 6) g.lineTo(x, -hw - 2.5 * Math.sin(x * 0.09 + time * 4)); for (let x = l; x >= 0; x -= 6) g.lineTo(x, hw + 2.5 * Math.sin(x * 0.09 + time * 4 + 1.5)); g.closePath(); };
-    g.globalAlpha *= 0.35 + 0.5 * fade;
+    g.globalAlpha *= 0.4 + 0.55 * fade;
     g.fillStyle = 'rgba(30,0,20,.35)'; g.save(); g.translate(0, 6); body(); g.fill(); g.restore();
     const gr = g.createLinearGradient(0, -hw, 0, hw); gr.addColorStop(0, 'rgba(255,200,250,.85)'); gr.addColorStop(0.5, 'rgba(210,130,235,.6)'); gr.addColorStop(1, 'rgba(150,70,190,.8)');
     g.fillStyle = gr; body(); g.fill(); blob(0, hw + 7); g.fill(); if (k >= 1) { blob(l, hw + 7); g.fill(); }
-    g.strokeStyle = 'rgba(255,225,255,.85)'; g.lineWidth = 2; body(); g.stroke();
+    if (has('mem')) { const tx = IMG.mem, th = hw * 2 + 8, tw = tx.width * th / tx.height, sh = (time * 18) % tw; for (const sh2 of k >= 1 ? [() => body(), () => blob(0, hw + 7), () => blob(l, hw + 7)] : [() => body(), () => blob(0, hw + 7)]) { g.save(); sh2(); g.clip(); g.globalAlpha *= 0.9;
+      for (let o = -tw - sh - 30; o < l + 40; o += tw) g.drawImage(tx, o, -th / 2, tw, th); g.restore(); } }
+    g.strokeStyle = 'rgba(255,225,255,.85)'; g.lineWidth = 2; for (const sg of [-1, 1]) { g.beginPath(); for (let x = 0; x <= l; x += 6) g.lineTo(x, sg * hw + sg * 2.5 * Math.sin(x * 0.09 + time * 4 + (sg > 0 ? 1.5 : 0))); g.stroke(); }
     g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1.5; for (let i = 0; i < Math.floor(l / 16); i++) { const x = (i * 37 + time * 34) % l, y = Math.sin(i * 2.3) * hw * 0.55, r = 2 + (i % 3); g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke(); } }
   else if (st === 'str') { const n = 4, w0 = 6 * (0.35 + 0.65 * fade);
     for (let i = 0; i < n; i++) { const oy = (i - (n - 1) / 2) * 11, sag = 6 * Math.sin(time * 2.5 + i * 1.7) * (1.6 - fade);
@@ -5986,5 +5988,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1705</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1720</div></body>
 </html>
