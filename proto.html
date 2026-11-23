@@ -3197,6 +3197,19 @@ function drawFuse(g, a, b, k, time, left, ghost) { const st = window.__fz || 'me
       g.fillStyle = cg; g.beginPath(); g.arc(x, 0, r, 0, TAU); g.fill(); g.strokeStyle = 'rgba(255,230,255,.7)'; g.lineWidth = 1.5; g.stroke();
       g.fillStyle = 'rgba(120,40,150,.55)'; g.beginPath(); g.arc(x + r * 0.15, r * 0.1, r * 0.3, 0, TAU); g.fill(); } }
   g.restore(); }
+// 탑 지을 자리: 빈 받침은 흐리게, 다음에 지을 곳은 빨간 고리 + 남은 초
+function nextBuildSlot() { const R = run, P = R.plan; if (!P || P.built >= P.n) return null;
+  const front = Math.max(R.frontD || 0, ...R.units.filter(u => u.alive).map(u => u.d)), open = P.slots.filter(c => c.d > (R.frontD || 0) + 20 && !(c.block > R.time)); if (!open.length) return null;
+  const ahead = open.filter(c => c.d > front + 60); return (ahead.length ? ahead : open).slice().sort((a, b) => Math.abs(a.d - (front + 260)) - Math.abs(b.d - (front + 260)))[0]; }
+function drawBuildSites(time) { const R = run, P = R.plan; if (!ART2 || !B3 || !P || P.built >= P.n || !has('pad2')) return;
+  const nx = R.ta && !stealthOn() ? nextBuildSlot() : null, used = new Set(R.towers.map(t => t.slot));
+  for (const c of P.slots) { if (used.has(c) || c.d <= (R.frontD || 0) + 20 || c.block > R.time) continue; const [x, y] = c.s, hot = c === nx;
+    ctx.save(); if (hot) { const rg = ctx.createRadialGradient(x, y + 8, 4, x, y + 8, 38); rg.addColorStop(0, 'rgba(255,60,80,.55)'); rg.addColorStop(1, 'rgba(255,60,80,0)'); ctx.fillStyle = rg; ctx.beginPath(); ctx.ellipse(x, y + 8, 40, 22, 0, 0, TAU); ctx.fill(); }
+    ctx.globalAlpha = hot ? 0.95 : 0.4; if (!hot) ctx.filter = 'brightness(.65) saturate(.6)'; drawSprite(ctx, IMG.pad2, x, y + 10, 40); ctx.filter = 'none';
+    if (hot) { const left = P.next != null ? Math.max(0, P.next - R.time) : null, pul = 0.5 + 0.5 * Math.sin(time * (left != null && left < 2 ? 14 : 6));
+      ctx.globalAlpha = 0.55 + 0.45 * pul; ctx.strokeStyle = '#ff4a5a'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.lineDashOffset = -time * 20; ctx.beginPath(); ctx.ellipse(x, y + 12, 32, 13, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = 1; const tx = left != null && left >= 1 && left < 30 ? `⚠ ${Math.ceil(left)}초 뒤 탑` : '⚠ 곧 탑 생김'; ctx.font = "800 12px Jua, 'Noto Sans KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0408'; ctx.strokeText(tx, x, y - 16); ctx.fillStyle = '#ff8a94'; ctx.fillText(tx, x, y - 16); }
+    ctx.restore(); } }
 function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return;
   for (const f of map.forks) { if (!f.byp) continue; const open = f.sw === 'B', inside = R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f); if (!open && !inside) continue;
     const [a, b] = [f.pts[0], f.pts.at(-1)]; ctx.save(); ctx.lineCap = 'round';
@@ -4173,6 +4186,7 @@ function render(time) {
     if (v.closed || warn) { ctx.save(); ctx.font = "700 11px 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const tx = v.closed ? '판막 닫힘' : '판막 곧 닫힘'; ctx.strokeText(tx, x, y - 26); ctx.fillStyle = v.closed ? '#ff8d8a' : '#ffd27a'; ctx.fillText(tx, x, y - 26); ctx.restore(); }
   }
   drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time); drawBoss(time); drawAbHorn(time); drawMed(time); drawAlarm(time);
+  drawBuildSites(time);
   if (run.br) { drawBranchTint(time); drawBridges(time); drawSprBub(time); } else { drawBypass(time); for (const f of map.forks) if (!f.byp) drawSwitch(f, time); }
   for (const t of R.towers) {
     const a = TOWERS[t.type].aura;
@@ -5988,5 +6002,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1720</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1745</div></body>
 </html>
