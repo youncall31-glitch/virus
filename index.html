@@ -750,6 +750,15 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmTop { padding: 4px 2px 4px !important; } .fmH > small:empty { display: none; } .fmRow { margin-top: 2px !important; padding-top: 8px !important; gap: 5px !important; }
   .fmS { min-height: 76px !important; padding: 2px 2px 3px !important; } .fmS img { width: 40px !important; height: 40px !important; margin-top: 0 !important; } .fmE { height: 40px !important; font-size: 18px !important; } .fmS .fmL { font-size: 10px !important; } .fmS b { font-size: 10px !important; } .fmS .fmRl { display: none !important; }
   .fmH2 { font-size: 14px; margin-top: 4px; display: flex; align-items: baseline; gap: 5px; } .fmH2 span { font-size: 11.5px; color: #b59f86; }
+  /* ★ 주간 보스 위쪽 판: 한 줄로 얇게 (보스·길을 가리지 않게) */
+  #wkHud .wkTop { height: 38px; grid-template-columns: 1.5fr 1fr; gap: 4px; top: 4px; }
+  #wkHud .wkT { padding: 2px 9px; display: flex; flex-direction: column; justify-content: center; } #wkHud .wkT > small:first-child { display: none; } #wkHud .wkT b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } #wkHud .wkT #wkWeak { font-size: 9.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #wkHud .wkR { grid-template-rows: none; grid-template-columns: 1fr 1fr; gap: 4px; } #wkHud .wkR > div { padding: 0 6px; flex-direction: column; justify-content: center; line-height: 1.05; } #wkHud .wkR b { font-size: 14px !important; } #wkHud .wkR small { font-size: 9.5px !important; }
+  #wkHud .wkGauge { top: 46px; padding: 2px 8px 3px; background: rgba(26,18,34,.72); } #wkHud .wkGt b { font-size: 10px; } #wkHud .wkGt span { font-size: 9px; } #wkHud .wkCells { margin-top: 2px; gap: 2px; } #wkHud .wkCells i { height: 5px; }
+  body.wkOn #timerTag { display: none !important; }
+  body.wkOn #goalBox, body.wkOn #info2 { visibility: hidden !important; } body.wkOn #wkHud .wkTop { right: 96px; } body.wkOn #wkHud .wkGauge { right: 96px; }
+  .cvSSw2 { width: 100%; height: 46px; margin-top: 8px; border-radius: 14px; background: rgba(255,210,74,.1); border: 1.5px solid #ffd24a; color: #ffd24a; font: 17px Jua, sans-serif; }
+  .cpOrg { color: #a8998a; } .cpOrg b { color: #9fff6a; font-size: 11px !important; }
 </style>
 </head>
 <body>
@@ -4556,7 +4565,7 @@ const ui = {
     if (save.econRefund) { const r = save.econRefund; delete save.econRefund; persist(); setTimeout(() => toast(`본체가 '그릇'으로 바뀌어 진화에 썼던 🧬${r} DNA를 돌려드렸어요`), 600); }
     if (save.tutDone && coreCheck()) setTimeout(() => { if ($('modal').hidden && !run) ui.coreUpShow(() => ui.showHub()); }, 450);
     updTix();
-    run = null; aiming = null; placing = null; hornAim = false; $('hornBtn').hidden = true; $('rcChip').hidden = true; $('wkHud').hidden = true; if (tab) hubTab = tab; playBgm('lab');
+    run = null; aiming = null; placing = null; hornAim = false; $('hornBtn').hidden = true; $('rcChip').hidden = true; $('wkHud').hidden = true; document.body.classList.remove('wkOn'); if (tab) hubTab = tab; playBgm('lab');
     ['top', 'info2', 'bottom', 'legRow'].forEach(id => $(id).hidden = true); $('outChooser').hidden = true;
     $('result').hidden = true; $('hub').hidden = false;
     const h = HOSTS[save.host];
@@ -4648,7 +4657,7 @@ const ui = {
     r.pp = r.pf ? Math.round((r.pt / r.pf - 1) * 100) : 0; return r; },
   corePickList() { const cur = coreGene(), list = pickSort(save.genes.filter(g => canBeCore(g) && g !== cur).map(g => ({ g, r: ui.corePrev(g) })), x => x.r.pt);
     ui.modal(`<h3 style="margin:2px 0 2px">👑 본체 바꾸기 ${pickSortBtn()}</h3><div class="sub" style="font-size:11px;margin:0 0 2px">오른쪽 숫자 = 바꾸면 전투력 변화</div>
-      <div class="cpList cpS">${list.map(({ g, r }) => `<button class="cpOpt" data-u="${g.uid}">${pimg(g)}<div style="flex:1;min-width:0"><b>${sname(g.strain)} <span style="font-size:10.5px">${stars(g.star)}</span></b><small>${RAR_NAME[coreRarOf(g)]} Lv${g.lv || 1} · ✨${(STRAINS[g.strain].skill || {}).name || ''}${fitOrgans(g).includes(save.sel) ? ' · <span style="color:#9fff6a">✓기관</span>' : ''}</small></div><b class="cpP" style="color:${r.pp > 0 ? '#3ae0c0' : r.pp < 0 ? '#ff8a7a' : '#b59f86'}">${r.pp > 0 ? '+' : ''}${r.pp}%</b></button>`).join('') || '<div class="sub">바꿀 수 있는 바이러스가 없어요</div>'}</div>`);
+      <div class="cpList cpS">${list.map(({ g, r }) => `<button class="cpOpt" data-u="${g.uid}">${pimg(g)}<div style="flex:1;min-width:0"><b>${sname(g.strain)} <span style="font-size:10.5px">${stars(g.star)}</span></b><small>${RAR_NAME[coreRarOf(g)]} Lv${g.lv || 1} · ✨${(STRAINS[g.strain].skill || {}).name || ''}</small><small class="cpOrg">👍 ${fitOrgans(g).map(o => o === save.sel ? `<b>${ORG_SHORT[o]}</b>` : ORG_SHORT[o]).join('·') || '-'}</small></div><b class="cpP" style="color:${r.pp > 0 ? '#3ae0c0' : r.pp < 0 ? '#ff8a7a' : '#b59f86'}">${r.pp > 0 ? '+' : ''}${r.pp}%</b></button>`).join('') || '<div class="sub">바꿀 수 있는 바이러스가 없어요</div>'}</div>`);
     $('modalBox').querySelectorAll('.cpOpt').forEach(b => b.onclick = () => ui.coreSwap(geneById(+b.dataset.u))); pickSortBind(() => ui.corePickList()); },
   coreSwap(g) { const cur = coreGene(), r1 = coreRarOf(g), r = ui.corePrev(g), out = cur ? slotGenes().filter((x, i) => x && i < 4 && !coreFreeOf(g) && (x.lv || 1) > (g.lv || 1) && x !== g) : [], up = x => `<span style="color:${x >= 0 ? '#3ae0c0' : '#ff8a7a'}">`;
     const ln = (a, b, c) => `<div class="ln"><span>${a}</span><b>${b}</b></div>`;
@@ -4675,7 +4684,7 @@ const ui = {
         <div class="cvSBn"><span>모든 바이러스 체력·공격</span><b>+${Math.round(coreBonus(L) * 100)}%</b></div>
         ${max ? '<div class="cvSNx">최고 레벨</div>' : `<div class="cvSNx">다음 Lv ${L + 1} · +${(nb * 100).toFixed(1)}%p${nm ? ' · ' + nm.t : ''}</div>`}
         ${max ? '' : `<button class="cvSGo${save.dna >= c ? '' : ' off'}" id="bEvo">강화 <span>🧬 ${c}</span></button>`}
-        ${coreGene() ? `<button class="cvSSw" id="bSwap">본체 바꾸기</button>` : ''}
+        ${coreGene() ? `<button class="cvSSw2" id="bSwap">👑 본체 바꾸기</button>` : ''}
       </div>`;
     if ($('bSwap')) $('bSwap').onclick = () => ui.corePickList();
     if ($('bEvo')) $('bEvo').onclick = () => { if (coreGene() && L >= lvCap(coreGene())) { sfx('fail'); return toast(`★${coreGene().star} 본체는 Lv${lvCap(coreGene())}까지 · 카드를 눌러 ★을 올려요`); } if (save.dna < c) { sfx('fail'); return toast(`DNA가 부족해요 (${save.dna}/${c})`); }
@@ -5298,7 +5307,7 @@ const ui = {
     $('hub').hidden = true; $('result').hidden = true; $('hubTip').hidden = true; ['top', 'info2', 'bottom'].forEach(id => $(id).hidden = false);
     const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 지도 ${MAP_VARIANT + 1}/${MAP_N}${run.mapTimeK > 1.02 ? ` (+${Math.round((run.mapTimeK - 1) * 100)}%⏱)` : ''} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
     $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [출발]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길은 자동으로 지름길부터' : '부대를 눌러 출격 순서를 정하세요';
-    $('timerTag').hidden = !run.ta; ui.renderDeploy(); ui.renderSkills(); ui.tick();
+    $('timerTag').hidden = !run.ta || !!run.wk; ui.renderDeploy(); ui.renderSkills(); ui.tick();
     $('goalLbl').textContent = st.qm < 1 ? `감염 (목표 −${Math.round((1 - st.qm) * 100)}%)` : '감염';
     $('legRow').hidden = !st.legs.length; $('legRow').innerHTML = st.legs.map(l => `<span class="chip">✅ ${l.text}</span>`).join('');
   },
@@ -5360,7 +5369,7 @@ const ui = {
   },
   tickHorn() { const b = $('hornBtn'); if (!b) return; b.hidden = true; return; const show = !!(run && run.ta && !stealthOn() && !run.over && !run.endAt && doneCount() >= 3); b.hidden = !show; if (!show) return;
     $('hornN').textContent = run.hornN ?? 1; b.classList.toggle('off', !(run.hornN ?? 1) && !hornAim); },
-  wkHud() { const R = run, K = R && R.wk, el = $('wkHud'); if (!el) return; el.hidden = !K; if (!K) return; const w = wkSave(); el.style.setProperty('--bot', BOTTOM + 'px'); el.querySelector('.wkTop').hidden = stealthOn(); el.querySelector('.wkGauge').hidden = stealthOn();
+  wkHud() { const R = run, K = R && R.wk, el = $('wkHud'); if (!el) return; el.hidden = !K; document.body.classList.toggle('wkOn', !!K); if (!K) return; const w = wkSave(); el.style.setProperty('--bot', BOTTOM + 'px'); el.querySelector('.wkTop').hidden = stealthOn(); el.querySelector('.wkGauge').hidden = stealthOn();
     $('wkName').textContent = K.def.name; $('wkWeak').innerHTML = `약점 ${K.def.weak.map(x => ROLES[x].name).join('·')} · 강함 ${K.def.strong.map(x => ROLES[x].name).join('·')}`;
     $('wkDmg').textContent = Math.round(K.dmg).toLocaleString(); $('wkBest').textContent = `🏆 ${w.best.toLocaleString()}`;
     const left = Math.max(0, Math.ceil((R.T || 0) - R.time)); $('wkTime').textContent = stealthOn() ? '🤫 잠입 중' : `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
@@ -5555,15 +5564,16 @@ const DEX_REWARD = [[25, 100], [50, 200], [75, 300], [100, 500]];
 const markSeen = st => { if (STRAINS[st] && !STRAINS[st].hero && st !== 'mine') (save.seen = save.seen || {})[st] = true; };
 const dexList = () => { const all = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero); return [0, 1, 2, LEG_TIER(), 3].map(t => ({ t, list: all.filter(k => STRAINS[k].rarity === t) })).filter(x => x.list.length); };
 function dexView() {
-  const seen = save.seen || {}, sm = save.seenMut || {}, groups = dexList(), all = groups.flatMap(x => x.list), got = all.filter(k => seen[k]).length + all.filter(k => sm[k]).length, pct = Math.floor(got / (all.length * 2) * 100);
+  // ★ 신종(교배)은 지금 규칙에서 못 얻어서 숨김 · 변성은 % 계산에서 빼고, 하나라도 얻으면 '보너스 모음'으로만 보여줌
+  const seen = save.seen || {}, sm = save.seenMut || {}, groups = dexList().filter(x => !(B3 && x.t === 3)), all = groups.flatMap(x => x.list), got = all.filter(k => seen[k]).length, pct = Math.floor(got / all.length * 100), mutN = all.filter(k => sm[k]).length;
   const mcell = k => `<div class="dx${sm[k] ? '' : ' off'}" ${sm[k] ? `data-k="${k}" data-mut="1"` : ''}>${pimg({ strain: k, star: 1, passives: [], mut: true }, sm[k] ? '' : 'sil')}<b>${sm[k] ? '변성 ' + sname(k) : '???'}</b></div>`;
   save.dexClaim = save.dexClaim || {}; const claim = DEX_REWARD.find(([p]) => pct >= p && !save.dexClaim[p]);
   const cell = k => { const d = STRAINS[k], on = seen[k], rc = RECIPES.find(r => r.id === k);
     return `<div class="dx${on ? '' : ' off'}" ${on ? `data-k="${k}"` : ''}>${pimg({ strain: k, star: 1, passives: [] }, on ? '' : 'sil')}<b>${on ? sname(k) : '???'}</b>${!on && rc ? `<small>${sname(rc.a)}+?</small>` : ''}</div>`; };
-  ui.modal(`<h3 style="margin:0 0 2px">바이러스 도감 <span style="color:#ffd27a">${got}/${all.length * 2} (${pct}%)</span></h3>
+  ui.modal(`<h3 style="margin:0 0 2px">바이러스 도감 <span style="color:#ffd27a">${got}/${all.length} (${pct}%)</span></h3>
     <div class="dxBar"><i style="width:${pct}%"></i>${DEX_REWARD.map(([p, r]) => `<em style="left:${p}%" class="${save.dexClaim[p] ? 'ok' : pct >= p ? 'ready' : ''}">${p}%<br>🧬${r}</em>`).join('')}</div>
     <div class="dxAll">${groups.map(({ t, list }) => `<div class="dxT" style="color:${RARITY[t].color}">${t === LEG_TIER() ? '전설' : t === 3 ? '신종 (교배로만 탄생)' : RARITY[t].name} · ${list.filter(k => seen[k]).length}/${list.length}</div><div class="dxG">${list.map(cell).join('')}</div>`).join('')}
-      <div class="dxT" style="color:#ffd24a">👑 변성 (돌파를 쌓거나 아주 가끔 뽑기로) · ${all.filter(k => sm[k]).length}/${all.length}</div><div class="dxG">${all.map(mcell).join('')}</div></div>
+      ${mutN ? `<div class="dxT" style="color:#ffd24a">✨ 보너스 · 변성 ${mutN}마리</div><div class="dxG">${all.filter(k => sm[k]).map(mcell).join('')}</div>` : ''}</div>
     <div class="row">${claim ? `<button class="btn red" id="dxClaim">🎁 ${claim[0]}% 보상 받기 · 🧬${claim[1]}</button>` : ''}<button class="btn" id="dxOk">닫기</button></div>`);
   $('dxOk').onclick = () => ui.closeModal();
   if (claim) $('dxClaim').onclick = () => { save.dexClaim[claim[0]] = true; save.dna += claim[1]; persist(); sfx('clear'); buzz(40); ui.showHub(); dexView(); toast(`도감 ${claim[0]}% 보상 · DNA +${claim[1]}`); };
@@ -6093,5 +6103,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2330</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2350</div></body>
 </html>
