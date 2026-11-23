@@ -1076,7 +1076,7 @@ const routeOf = st => ROUTE_OF[st] || ROUTE_OF[((STRAINS[st] || {}).parents || [
 const SET_B = [0, 0, 0, 0, 0, 0];   // 색깔 세트 없앰
 const LEAD_SET = 0;   // 색깔 세트·리더 색 보너스는 없앰 (역할 전략으로 대체)
 // ★ 역할 팀 효과: 팀(본체 포함)에 있는 역할마다 전투 버튼 하나가 세진다 (역할당 2장까지)
-const ROLE_FX = { tank: { n: '체력', t: '숨기+1초' }, swarm: { n: '마릿수', t: '융합+1초' }, dps: { n: '공격', t: '공격+10%' }, stealth: { n: '속도', t: '충전+10%' }, heal: { n: '회복', t: '약−15%' } };
+const ROLE_FX = { tank: { n: '체력', t: '숨기+1초' }, swarm: { n: '마릿수', t: '마비+1초' }, dps: { n: '공격', t: '공격+10%' }, stealth: { n: '속도', t: '충전+10%' }, heal: { n: '회복', t: '약−15%' } };
 const roleCnt = cards => { const n = {}; for (const g of new Set(cards.filter(Boolean))) { const r = ROLE_OF[g.strain]; if (ROLE_FX[r]) n[r] = Math.min(2, (n[r] || 0) + 1); } return n; };
 // ★ 기관 보스 약점: 그 역할 카드 장당 +15% (최대 2장 +30%)
 const ORG_WEAK = { nose: 'dps', lung: 'tank', gut: 'dps', liver: 'heal', blood: 'stealth', skin: 'tank', lymph: 'swarm', brain: 'stealth' };
@@ -1147,8 +1147,8 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.045, lung: 0.13, gut: 0.23, liver: 0.32, blood: 0.5, skin: 0.27, lymph: 0.72, brain: 3.15 },
-  1: { nose: 0.99, lung: 0.78, gut: 0.47, liver: 1.1, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
+const CAL = { 0: { nose: 0.045, lung: 0.095, gut: 0.55, liver: 0.42, blood: 0.55, skin: 0.25, lymph: 0.42, brain: 1.8 },
+  1: { nose: 0.65, lung: 0.6, gut: 0.42, liver: 1.28, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
 const calK = (h, o) => (CAL[h] || {})[o] || 1;
@@ -3049,7 +3049,7 @@ function immuneBuild(near) {
   if (w.tcell) w.tcell *= uncovered ? 1.4 : 0.25;
   if (unlocked('mutate')) { const ub = specTarget(R, 'bcell'); if (ub && (P.seenS[ub] || 0) >= 12) w.bcell = 2.2; }
   if (hasLegacy('retro')) { if (w.tcell) w.tcell *= 0.5; if (w.nk) w.nk *= 0.5; }
-  const type = weightedPick(w);
+  const type = B3 ? (() => { const ty = tw2Peek(); P.bi = (P.bi || 0) + 1; return ty; })() : weightedPick(w);
   // 어디에 지을까: 선두 무리가 곧 지나갈 길목
   const front = near ?? Math.max(R.frontD || 0, ...R.units.filter(u => u.alive).map(u => u.d));
   const open = P.slots.filter(c => c.d > (R.frontD || 0) + 20 && !(c.block > R.time)); if (!open.length) return;   // 감염된 길 옆엔 못 짓는다
@@ -3058,7 +3058,7 @@ function immuneBuild(near) {
   P.slots = P.slots.filter(c => c !== pick);
   const t = makeTower(type, pick.s[0], pick.s[1], R.st); t.slot = pick; t.cd = 1.2; t.fresh = 2; t.rise = 0; R.towers.push(t); sfx('build'); P.built++; { const e = $('stSub'); if (e) e.textContent = e.textContent.replace(/탑 \d+(\/\d+)?/, `탑 ${R.towers.length}/${P.n}`); }
   R.rings.push({ x: t.x, y: t.y - 20, r: 6, R: 70, t: 0.6, color: '#ff5040' });
-  if (TOWERS[type].specific && !R.single) { t.spec = specTarget(R, type); t.specV = (R.variant || {})[t.spec] || 0; }
+  if (TOWERS[type].specific && !R.single && !B3) { t.spec = specTarget(R, type); t.specV = (R.variant || {})[t.spec] || 0; }
   float(clamp(t.x, 80, W - 80), t.y - 60, t.spec ? `${type === 'bcell' ? '항체' : 'T세포'} · ${STRAINS[t.spec].name} 전용` : `${TOWERS[type].name}${top && Object.keys(COUNTER[top] || {}).includes(type) ? ` · ${ROLE_KO[top]} 대응` : ''}`, t.spec ? SCOLOR[t.spec] || '#7fc0ff' : '#ff9c8a', 12);
   if (P.built === 1) banner('면역계가 반응한다! 대응 탑을 짓기 시작');
 }
@@ -3094,8 +3094,18 @@ const RAR_POW = [1, 1.15, 1.4], LEG_POW = 1.9;
 if (B3) { const P = d => d.atk * d.count * Math.sqrt(d.hp * d.spd), pool = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && !STRAINS[k].hybrid && !STRAINS[k].comp && STRAINS[k].atk && STRAINS[k].count);
   const base = pool.filter(k => !STRAINS[k].legend && STRAINS[k].rarity === 0).map(k => Math.log(P(STRAINS[k]))), P0 = Math.exp(base.reduce((a, b) => a + b, 0) / base.length);
   for (const k of pool) { const d = STRAINS[k], f = Math.pow(P0 * (d.legend ? LEG_POW : RAR_POW[d.rarity] || 1) / P(d), 2 / 3); d.atk *= f; d.hp *= f; } }
-const B3TW = 1.6, B3HP = 4;   // 탑 체력: 금방 물어뜯기지 않게
+const B3TW = 1.6, B3HP = 4 * 2;   // 탑 체력: 금방 물어뜯기지 않게
 // ★ 시제품: 탑은 '침 뱉기' 광역기 (가운데 100% → 가장자리 30%). 처음 2개 → 감염이 늘수록 🧪 면역 경보가 차서 탑이 늘거나 강해진다
+// ★ 탑 개편: 공격 방식 6종 · 가격 순서대로 지음 · 처치 1등 👑 탑이 커짐 · 💫 면역 마비로 끔
+const TW2 = { order: ['neutro', 'cilia', 'macro', 'nk', 'tcell', 'complement'], cost: { neutro: 100, cilia: 150, macro: 200, nk: 250, tcell: 300, complement: 400 },
+  nm: { neutro: '호중구', cilia: '섬모', macro: '대식세포', nk: 'NK', tcell: 'T세포', complement: '보체', dendri: '수지상', bcell: 'B세포' },
+  k: { neutro: 0.9, nk: 1.2, tcell: 3.0, complement: 0.9 }, chain: { n: 4, r: 60, decay: 0.75 }, hideSee: 0.5 };
+const TWK = () => window.__twk ?? 2.5;
+const CROWN = { min: 8, s1: 20, s2: 50, dmg: 0.2, size: 0.25 }, MUTE = { t: 5 };
+const tw2Off = () => Math.min(3, Math.floor(stageIx(run.st.organ.id) / 2));
+const tw2Peek = () => { const P = run.plan; return TW2.order[(((P && P.bi) || 0) + tw2Off()) % 6]; };
+const crownOf = () => run.crown && run.crown.hp > 0 && run.towers.includes(run.crown) ? run.crown : null;
+const crownSt = t => t && t === crownOf() ? ((t.kills || 0) >= CROWN.s2 ? 2 : (t.kills || 0) >= CROWN.s1 ? 1 : 0) : -1;
 const SPIT = { r: 46, edge: 0.3, k: 0.45, fly: 0.5, pct: 0.3, ref: 300 };
 // 침 피해는 '체력 비율'로: 기준 체력(스테이지마다)보다 튼튼하면 덜 아프다 → 키운 보람은 남고, 탑이 무의미해지진 않음
 const spitK = u => { const ref = SPIT.ref * ((run && run.st && run.st.mul) || 1), want = u.maxHp * (window.__spitPct ?? SPIT.pct) * clamp(Math.sqrt(ref / Math.max(1, u.maxHp)), 0.35, 2); return want; };
@@ -3105,7 +3115,7 @@ const twMax = (org = save.sel) => Math.min(8, 3 + Math.floor(stageIx(org) / 3));
 // ★ 본체 스킬: 처음엔 가득·30초 자연충전·도착하면 더 빨리 참. 짝 버튼(👑)과 3초 안에 같이 쓰면 콤보 ×1.3
 // ★ 본체 스킬 4종류 (효과대로): 🛑막기=탑 무력화 · 🛡버티기=안 맞기·덜 맞기·회복 · 🦠불리기=수 늘리기 · ⚔강하게=빠르고 세게 감염
 const SKTYPE = { chikv:'stop', hmpv:'boost', lassa:'stop', boca:'stop', marburg:'stop', nipah:'hide', bkv:'hide', mcv:'hide', sapo:'hide', hhv6:'hide', hev:'hide', tbev:'stop', jcv:'hide', mers:'hide', htlv:'stop', h5n1:'boost', mpox:'hide', piv:'grow', cchf:'grow', ev71:'grow', retro:'stop', hepb:'stop', ebola:'stop', polio:'stop', parvo:'stop', ttv:'stop', gbvc:'stop', cowpox:'stop', hanta:'stop', h2n2:'stop', flu1918:'stop', adeno:'hide', herpes:'hide', flu:'hide', rsv:'hide', hpv:'hide', ebv:'hide', mumps:'hide', aav:'hide', hepa:'hide', hepc:'hide', yamagata:'hide', corona:'hide', rhino:'grow', smallpox:'grow', norosyd:'grow', varicella:'grow', cmv:'grow', noro:'boost', rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', zika:'boost', yellowf:'boost', astro:'boost', dengue:'boost', westnile:'boost', rinderpest:'boost', sars:'boost' };
-const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '출발', hide: '숨기', spr: '세포 융합' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🧬' };
+const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '출발', hide: '숨기', spr: '면역 마비' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '💫' };
 const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 버티기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
 // ★ 본체 스킬 세기 = 종류 × 등급(일반·희귀·영웅·전설·전설+). 강하게·불리기는 원래 너무 세서 낮추고, 막기·숨기는 올림
 const CORE_K = { boost: [0.2, 0.22, 0.3, 0.45, 0.6], grow: [0.5, 0.6, 0.7, 0.85, 1], stop: [1, 1.1, 1.2, 1.35, 1.5], hide: [1, 1.1, 1.2, 1.35, 1.5] };
@@ -3114,7 +3124,7 @@ const SK_TUNE = {};
 const coreK = () => { const st = STRAINS[coreStrain()] || {}, t = SKTYPE[coreStrain()] || 'boost'; return CORE_K[t][Math.min(4, st.legend ? Math.max(3, st.rarity || 0) : (st.rarity || 0))] * ((window.__skTune || SK_TUNE)[coreStrain()] || 1); };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
 const corePair = () => SKPAIR[SKTYPE[coreStrain()] || 'boost'];
 function comboOpen(by) { const R = run; if (!B3 || !R || by !== corePair()) return; if (R.cmbBack && R.cmbBack.t > 0) { const f = R.cmbBack.go; R.cmbBack = null; f(); } else R.cmb = { by, t: CHG.win }; }   // 순서 상관없이 3초 안에 둘 다 쓰면 콤보
-const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35, land: false }, SPR = { first: 20, cd: 40, cost: 0, tiles: 0, capUp: 0, atkUp: 0, slow: 1, slowT: 0, fast: 1, fastT: 0 };
+const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35, land: false }, SPR = { first: 15, cd: 30, cost: 0, tiles: 0, capUp: 0, atkUp: 0, slow: 1, slowT: 0, fast: 1, fastT: 0 };
 function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
   if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max + (teamRole().tank || 0); H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 숨기! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
   else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
@@ -3137,7 +3147,13 @@ function bypFind() { const R = run, M = map, f0 = Math.max(R.frontD || 0, ...R.u
       for (let t = 0.12; t <= 0.88; t += 0.06) { const lim = Math.min(40, e * Math.min(t, 1 - t) * 0.9); if (distTo(M.pts, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t) < lim) { ok = false; break; } }
       if (!ok) continue; const skip = towD.filter(d => d > d1 + 20 && d < d2 - 20).length; out.push({ d1, d2, x1, y1, x2, y2, e, save: (d2 - d1) - e, skip, sc: (d2 - d1) - e + skip * 160 - Math.max(0, d1 - f0) * 0.4 }); } }
   return out.sort((a, b) => b.sc - a.sc)[0] || null; }
-function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if (R.sprCd == null) R.sprCd = SPR.first; if (R.sprCd > 0) return toast(`세포 융합 준비 중 ${Math.ceil(R.sprCd)}초`);
+function muteTarget() { const R = run, c = crownOf(); if (c && !(c.stunT > 0)) return c; const al = R.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura && !(t.stunT > 0) && !(t.converted > 0)); if (!al.length) return null;
+  const f = Math.max(R.frontD || 0, ...R.units.filter(u => u.alive && u.d > 0).map(u => u.d).slice(0, 300)); return al.sort((a, b) => ((b.kills || 0) - (a.kills || 0)) || (TW2.cost[b.type] - TW2.cost[a.type]) || (Math.abs(nearestOnPath(a.x, a.y).d - f) - Math.abs(nearestOnPath(b.x, b.y).d - f)))[0]; }
+function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if (R.sprCd == null) R.sprCd = SPR.first;
+  if (B3) { if (R.sprCd > 0) return toast(`면역 마비 준비 중 ${Math.ceil(R.sprCd)}초`); const t = muteTarget(); if (!t) return toast('멈출 탑이 없어요');
+    t.stunT = MUTE.t + (teamRole().swarm || 0); t.muteT = t.stunT; R.muteTw = t; R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1; comboOpen('spr');
+    R.rings.push({ x: t.x, y: t.y - 20, r: 8, R: 70, t: 0.6, color: '#c67aff' }); sfx('wall'); buzz(25); shake(3); banner(`💫 면역 마비! ${TW2.nm[t.type]} ${Math.round(t.stunT)}초 멈춤`); return; }
+  if (R.sprCd > 0) return toast(`세포 융합 준비 중 ${Math.ceil(R.sprCd)}초`);
   const c = bypFind(); if (!c) return toast('지름길을 낼 굽이가 없어요');
   map.forks = map.forks.filter(f => !f.byp || R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f));
   const pts = []; for (let k = 0; k <= 12; k++) pts.push([c.x1 + (c.x2 - c.x1) * k / 12, c.y1 + (c.y2 - c.y1) * k / 12]);
@@ -3210,7 +3226,18 @@ function drawBuildSites(time) { const R = run, P = R.plan; if (!ART2 || !B3 || !
       ctx.globalAlpha = 0.55 + 0.45 * pul; ctx.strokeStyle = '#ff4a5a'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.lineDashOffset = -time * 20; ctx.beginPath(); ctx.ellipse(x, y + 12, 32, 13, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
       ctx.globalAlpha = 1; const tx = left != null && left >= 1 && left < 30 ? `⚠ ${Math.ceil(left)}초 뒤 탑` : '⚠ 곧 탑 생김'; ctx.font = "800 12px Jua, 'Noto Sans KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0408'; ctx.strokeText(tx, x, y - 16); ctx.fillStyle = '#ff8a94'; ctx.fillText(tx, x, y - 16); }
     ctx.restore(); } }
-function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return;
+function drawMuteAim(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return; const cd = R.sprCd ?? SPR.first; if (cd > 0) return; const t = muteTarget(); if (!t) return;
+  ctx.save(); ctx.globalAlpha = 0.55 + 0.35 * Math.sin(time * 6); ctx.strokeStyle = '#d8a8ff'; ctx.lineWidth = 2.5; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -time * 20; const sc = 1 + CROWN.size * Math.max(0, crownSt(t));
+  ctx.beginPath(); ctx.ellipse(t.x, t.y - 18 * sc, 30 * sc, 36 * sc, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0418'; ctx.fillStyle = '#e8c8ff'; const ty = t.y - 66 * sc, tx = clamp(t.x, 48, W - 48); ctx.strokeText('💫 마비 가능', tx, ty); ctx.fillText('💫 마비 가능', tx, ty); ctx.restore(); }
+function drawTw2Badge(t, time) { const st = crownSt(t), cs = 1 + CROWN.size * Math.max(0, st);
+  if (st >= 0) { ctx.save(); ctx.font = `${18 + 4 * st}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('👑', t.x, t.y - TW_H * cs - 4 + Math.sin(time * 3) * 2); ctx.font = "800 10px Jua, sans-serif"; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0408'; ctx.fillStyle = '#ffd24a'; ctx.strokeText(`처치 ${t.kills || 0}`, t.x, t.y + 22); ctx.fillText(`처치 ${t.kills || 0}`, t.x, t.y + 22); ctx.restore(); }
+  if (t.stunT > 0) { ctx.save(); const y = t.y - TW_H * cs * 0.55; ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.save(); ctx.translate(t.x, y - 16); ctx.rotate(time * 3); ctx.fillText('💫', 0, 7); ctx.restore();
+    ctx.fillStyle = '#2a1040'; ctx.strokeStyle = '#c79cff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(t.x - 15, y + 2, 30, 17, 8) : ctx.rect(t.x - 15, y + 2, 30, 17); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = "900 12px Jua, sans-serif"; ctx.fillText(Math.ceil(t.stunT) + 's', t.x, y + 15); ctx.restore(); } }
+function drawBolts() { const R = run; if (!R.bolts) return; ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; for (const b of R.bolts) { ctx.globalAlpha = Math.min(1, b.t / 0.12);
+    for (const [w, c] of [[5, b.color], [1.8, '#fff']]) { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); b.pts.forEach(([x, y], i) => { const jx = i && i < b.pts.length ? (Math.random() - 0.5) * 6 : 0; i ? ctx.lineTo(x + jx, y + jx) : ctx.moveTo(x, y); }); ctx.stroke(); } } ctx.restore(); }
+function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return; if (MUTE) return drawMuteAim(time);
   for (const f of map.forks) { if (!f.byp) continue; const open = f.sw === 'B', inside = R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f); if (!open && !inside) continue;
     const [a, b] = [f.pts[0], f.pts.at(-1)]; ctx.save(); ctx.lineCap = 'round';
     if (ART2 && has('road2')) { const age = R.time - (f.t0 ?? (f.t0 = R.time)), left = f.until - R.time;
@@ -3258,9 +3285,10 @@ function b3Help() { const R = run; R.mutPause = true; paused = true;
     <b style="color:#ffd24a">👑 본체 스킬 (금색)</b> 본체마다 다른 스킬이에요. 버튼 아래에 효과가 적혀 있어요. 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요.<br>
     <b style="color:#ff8a7a">⚔ 출발</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
     <b style="color:#9fd8ff">🫥 숨기</b> 길 위 바이러스가 세포 속으로 숨어요. <b>느리게(35%) 나아가면서 약·탑 침·방해물을 다 피해요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 나와요.<br>
-    <b style="color:#e8b8ff">🧬 세포 융합</b> 맨 앞 무리 앞쪽 굽이를 가로지르는 <b>터널이 ${BYP.open}초 동안 열려요</b>. 들어간 무리는 굽이와 탑을 건너뛰고, 터널 안에선 공격받지 않아요. 준비되면 열릴 자리가 점선으로 보여요. 처음 ${SPR.first}초 뒤 준비, 쓰고 나면 ${SPR.cd}초 (한 판에 1~2번).<br>
+    <b style="color:#e8b8ff">💫 면역 마비</b> <b>👑 왕관 탑</b>(가장 많이 죽인 탑)을 <b>${MUTE.t}초 동안 멈춰요</b>. 왕관 탑이 없으면 가장 센 탑. 준비되면 멈출 탑에 보라 점선이 떠요. 처음 ${SPR.first}초 뒤 준비, 쓰고 나면 ${SPR.cd}초.<br>
+    <b style="color:#ff8a94">👑 왕관 탑</b> 탑은 싼 것부터 순서대로 지어져요(호중구→섬모→대식세포→NK→T세포→보체). 가장 많이 죽인 탑은 ${CROWN.s1}·${CROWN.s2}마리마다 커지고 세져요.<br>
     <b style="color:#ffd27a">🔥 콤보</b> <b>금색 점선</b> 버튼이 본체 스킬의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 스킬 ×${CHG.mul}!<br>
-    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 숨기! · 큰 한 방 → 출발하고 바로 세포 융합</div></div>
+    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 숨기! · 👑 탑 앞에 무리가 닿을 때 → 면역 마비</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
 const AL = { gain: 0.045, decay: 14, quiet: 8, warn: 2, dur: 2.5, dmg: 1.2, after: 20, gapDur: 4.5, gapBonus: 1.0, w: { stealth: 0.5, dps: 1.5 },
@@ -3592,7 +3620,7 @@ function startRun() {
   run.variant = {}; run.mutCd = {}; if (save.host > 0) setTimeout(() => toast(`${hostRule().icon} ${hostRule().title}`), 300);
   if (save.host >= 2) for (const sx of (save.mem || [])) { if (!strains.includes(sx) || !plan.slots.length) continue;
     const mid = map.len * 0.45, sl = plan.slots.sort((a, b) => Math.abs(a.d - mid) - Math.abs(b.d - mid))[0]; plan.slots = plan.slots.filter(c => c !== sl);
-    const t = makeTower('tcell', sl.s[0], sl.s[1], st); t.spec = sx; t.specV = 0; t.memory = true; towers.push(t); plan.built++; }
+    const t = makeTower('tcell', sl.s[0], sl.s[1], st); if (!B3) { t.spec = sx; t.specV = 0; } t.memory = true; towers.push(t); plan.built++; }
   if (TA()) { run.ta = true; run.T = Math.round(timeLimit(organ) * mapTimeK * (B3 ? 1.4 : 1.3)); run.mapTimeK = mapTimeK; run.antiviral = save.host === 1 ? [0.35, 0.7] : []; run.gapT = 8; run.gap = 0; run.released = 0; for (const g of groups) { g.list = []; } }
   if (wk) { run.wk = { def: wk, dmg: 0, cells: 0, sh: 0 }; run.T = WK.time; st.quota = 1e9; }
   aiming = null; placing = null; paused = false;
@@ -3898,7 +3926,7 @@ function update(dt) {
   else { const P = R.plan; if (P && P.built < P.n) {
       const fast = save.host === 3 ? 0.67 : 1;
       if (P.next == null && P.seenN > 0) P.next = R.time + 1.5 * fast;
-      if (P.next != null && R.time >= P.next) { immuneBuild(); P.next = R.time + clamp(((R.T || 70) * 0.5) / P.n, 3, 8) * fast; } } }
+      if (P.next != null && R.time >= P.next) { immuneBuild(); P.next = R.time + clamp(((R.T || 70) * 0.5) / P.n, 3, 8) * fast * (B3 ? TW2.cost[tw2Peek()] / 200 : 1); } } }
   if (save.host === 3) { R.feverT = (R.feverT ?? 12) - dt; if (R.feverT <= 0) { R.feverT = 18; R.fever = 5; banner('발열! 은신 계통 외 받는 피해 +40%'); } R.fever = Math.max(0, (R.fever || 0) - dt); }
   for (const k in (R.mutCd || {})) R.mutCd[k] = Math.max(0, R.mutCd[k] - dt);
   for (const gr of R.groups) {
@@ -3964,6 +3992,9 @@ function update(dt) {
   const sP = Math.min(1.3, 1 + 0.01 * R.alert), sS = Math.min(1.3, 1 + 0.006 * R.alert);
   if ((R.crowdT = (R.crowdT || 0) - dt) <= 0) { R.crowdT = 0.5; const n = R.units.filter(u => u.alive && u.d > 0).length; R.crowd = n > 100 ? Math.min(2, 1 + (n - 100) / 150) : 1; }   // ★ 물량 대응: 무리가 클수록 범위 공격이 더 많이 맞힘
   const conv = R.towers.filter(t => t.converted > 0), slime = R.outposts.filter(o => o.type === 'out_slime'), decoys = R.outposts.filter(o => o.type === 'out_decoy' && o.hp > 0);
+  if (B3 && (R.crownT = (R.crownT || 0) - dt) <= 0) { R.crownT = 0.5; const best = R.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).sort((a, b) => (b.kills || 0) - (a.kills || 0))[0];
+    if (best && (best.kills || 0) >= CROWN.min && best !== R.crown && (!crownOf() || (best.kills || 0) > (R.crown.kills || 0))) { R.crown = best; float(best.x, best.y - 70, `👑 ${TW2.nm[best.type]} · 처치 ${best.kills}`, '#ffd24a', 13); }
+    const c = crownOf(); if (c) { const st2 = crownSt(c); if (st2 > (c.cst || 0)) { c.cst = st2; c.rise = 0.5; R.rings.push({ x: c.x, y: c.y - 20, r: 8, R: 80, t: 0.6, color: '#ff4060' }); float(c.x, c.y - 76, `👑 ${TW2.nm[c.type]} 커졌다! ${st2}단계`, '#ff8a94', 14); } } }
   for (const t of R.towers) {
     const d = TOWERS[t.type];
     t.flash = Math.max(0, t.flash - dt); t.recoil = Math.max(0, t.recoil - dt * 4);
@@ -3987,17 +4018,21 @@ function update(dt) {
     if (d.pulse) {                                       // 보체: 주변 광역 폭발
       const hits = R.units.filter(u => u.alive && u.d > 0 && !R.sb[u.strain].dive && Math.hypot(u.x - ox, u.y - oy) < t.range).slice(0, Math.round(d.maxHit * (R.crowd || 1)));
       if (!hits.length) continue;
-      hits.forEach(h => damage(h, dmg, t)); R.rings.push({ x: ox, y: oy, r: 10, R: t.range, t: 0.4, color: d.color }); t.cd = rate * jam; t.recoil = 1; continue;
+      const tk = B3 ? Math.pow(ALG.lvDmg, (t.lv || 1) - 1) * (1 + CROWN.dmg * Math.max(0, crownSt(t))) * (R.stormT > 0 ? 0.5 : 1) : 1; hits.forEach(h => damage(h, B3 ? spitK(h) * TW2.k.complement * tk * TWK() : dmg, t)); R.rings.push({ x: ox, y: oy, r: 10, R: t.range, t: 0.4, color: d.color }); t.cd = rate * jam; t.recoil = 1; continue;
     }
     const cand = [];
-    if (d.specific && t.spec && t.specV !== ((R.variant || {})[t.spec] || 0)) { if (!t.relearn) { t.relearn = 6; float(t.x, t.y - 50, '항원 놓침!', '#9fff6a', 12); } t.relearn -= dt; if (t.relearn > 0) continue; t.relearn = 0; t.specV = (R.variant || {})[t.spec] || 0; float(t.x, t.y - 50, '변이 재인식', '#ff9c8a', 12); }
-    for (const u of R.units) if (u.alive && u.revealed && u.d > 0 && Math.hypot(u.x - ox, u.y - oy) < t.range && (!d.specific || !t.spec || u.strain === t.spec)) cand.push(u);
+    if (d.specific && t.spec && !B3 && t.specV !== ((R.variant || {})[t.spec] || 0)) { if (!t.relearn) { t.relearn = 6; float(t.x, t.y - 50, '항원 놓침!', '#9fff6a', 12); } t.relearn -= dt; if (t.relearn > 0) continue; t.relearn = 0; t.specV = (R.variant || {})[t.spec] || 0; float(t.x, t.y - 50, '변이 재인식', '#ff9c8a', 12); }
+    for (const u of R.units) if (u.alive && u.d > 0 && (u.revealed || (B3 && !R.sb[u.strain].dive && !R.sb[u.strain].ghost && Math.hypot(u.x - ox, u.y - oy) < t.range * TW2.hideSee)) && Math.hypot(u.x - ox, u.y - oy) < t.range && (!d.specific || !t.spec || u.strain === t.spec)) cand.push(u);
     if (!cand.length) continue;
-    if (d.specific && !t.spec && !R.single) { const f0 = cand.find(u => !HEROES[u.strain]); if (!f0) continue; t.spec = f0.strain; t.specV = (R.variant || {})[t.spec] || 0; float(t.x, t.y - 60, `항원 인식 · ${STRAINS[t.spec].name} 전용`, SCOLOR[t.spec] || '#7fc0ff', 12); continue; }
+    if (d.specific && !t.spec && !R.single && !B3) { const f0 = cand.find(u => !HEROES[u.strain]); if (!f0) continue; t.spec = f0.strain; t.specV = (R.variant || {})[t.spec] || 0; float(t.x, t.y - 60, `항원 인식 · ${STRAINS[t.spec].name} 전용`, SCOLOR[t.spec] || '#7fc0ff', 12); continue; }
     cand.sort(d.sniper ? (a, b) => b.hp - a.hp : (a, b) => b.d - a.d);
-    if (B3 && !d.sniper && !window.__noSpit) { const rr = SPIT.r * Math.pow(ALG.lvR, (t.lv || 1) - 1), pool = cand.slice(0, 30); let best = pool[0], bn = -1;
+    if (B3 && (t.type === 'neutro' || t.type === 'nk' || t.type === 'tcell')) { const tk = Math.pow(ALG.lvDmg, (t.lv || 1) - 1) * (1 + CROWN.dmg * Math.max(0, crownSt(t))) * (R.stormT > 0 ? 0.5 : 1), K = TW2.k[t.type] * TWK();
+      if (t.type === 'nk') { const hit = [cand[0]]; while (hit.length < TW2.chain.n) { const l = hit.at(-1), nx = R.units.find(o => o.alive && o.d > 0 && !hit.includes(o) && !R.sb[o.strain].dive && Math.hypot(o.x - l.x, o.y - l.y) < TW2.chain.r); if (!nx) break; hit.push(nx); }
+        R.bolts = R.bolts || []; R.bolts.push({ pts: [[ox, oy], ...hit.map(h => [h.x, h.y - 7])], t: 0.22, color: d.color }); hit.forEach((h, i) => damage(h, spitK(h) * K * tk * Math.pow(TW2.chain.decay, i), t)); sfx('shot'); t.cd = rate * jam; t.recoil = 1; continue; }
+      const tg = cand[0]; sfx('shot'); R.shots.push({ x: ox, y: oy, tg, tw: t, dmg: spitK(tg) * K * tk, splash: 0, color: d.color, sp: t.type === 'tcell' ? 900 : 620 }); t.cd = rate * jam; t.recoil = 1; continue; }
+    if (B3 && !d.sniper && !window.__noSpit) { const rr = SPIT.r * Math.pow(ALG.lvR, (t.lv || 1) - 1), pool = cand.slice(0, 30); let best = pool[0], bn = -1; const crK = (1 + CROWN.dmg * Math.max(0, crownSt(t))) * TWK();
       for (const c of pool) { let n = 0; for (const o of pool) if (Math.hypot(o.x - c.x, o.y - c.y) < rr) n++; if (n > bn) { bn = n; best = c; } }
-      sfx('shot'); R.shots.push({ spit: true, x: ox, y: oy, sx: ox, sy: oy, tx: best.x, ty: best.y, t: 0, T: SPIT.fly, r: rr, lvK: Math.pow(ALG.lvDmg, (t.lv || 1) - 1), storm: R.stormT > 0, tw: t, color: d.color }); t.cd = rate * jam * (d.multi ? 1.6 : 1); t.recoil = 1; continue; }
+      sfx('shot'); R.shots.push({ spit: true, x: ox, y: oy, sx: ox, sy: oy, tx: best.x, ty: best.y, t: 0, T: SPIT.fly, r: rr, lvK: Math.pow(ALG.lvDmg, (t.lv || 1) - 1) * crK, storm: R.stormT > 0, tw: t, color: d.color }); t.cd = rate * jam * (d.multi ? 1.6 : 1); t.recoil = 1; continue; }
     sfx('shot'); for (const tg of cand.slice(0, d.multi || 1)) R.shots.push({ x: ox, y: oy, tg, tw: t, dmg: t.spec ? dmg * 1.6 : dmg, splash: d.splash ? d.splash * Math.sqrt(R.crowd || 1) : 0, maxHit: d.maxHit ? Math.round(d.maxHit * (R.crowd || 1)) : d.maxHit, anti: d.anti || 0, color: t.spec ? SCOLOR[t.spec] || d.color : d.color, sp: d.sniper ? 900 : 520, big: !!d.splash });
     t.cd = rate * jam; t.recoil = 1;
   }
@@ -4017,7 +4052,7 @@ function update(dt) {
       R.fx.push({ x: u.x, y: u.y - 7, t: 0.25, s: p.splash ? 34 : 14 });
     } else { p.x += dx / dd * s; p.y += dy / dd * s; }
   }
-  R.shots = R.shots.filter(p => !p.dead);
+  R.shots = R.shots.filter(p => !p.dead); if (R.bolts) { for (const b of R.bolts) b.t -= dt; R.bolts = R.bolts.filter(b => b.t > 0); }
   R.outposts = R.outposts.filter(o => o.type !== 'out_decoy' || o.hp > 0);
   for (const f of R.fx) f.t -= dt; R.fx = R.fx.filter(f => f.t > 0);
   for (const f of R.rings) { f.t -= dt; f.r += (f.R - f.r) * dt * 10; } R.rings = R.rings.filter(f => f.t > 0);
@@ -4210,8 +4245,9 @@ function render(time) {
       if (t.bitten > 0) { t.bitten -= 1 / 60; ctx.save(); ctx.translate(rand(-1.5, 1.5), 0); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#e8a0ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(t.x, t.y - 18, 24 + Math.random() * 3, 0, TAU); ctx.stroke(); ctx.restore(); }
       t.fresh = Math.max(0, (t.fresh || 0) - 1 / 60); ctx.save(); if (t.fresh > 0) { ctx.shadowColor = '#ff3040'; ctx.shadowBlur = 20; } else if (t.converted > 0) { ctx.shadowColor = '#6fd35a'; ctx.shadowBlur = 14; } else if (t.flash > 0) { ctx.shadowColor = '#ff5040'; ctx.shadowBlur = 12; }
       t.squash = Math.max(0, (t.squash || 0) - 1 / 60); const sq = Math.sin((t.squash / 0.16) * Math.PI) * 0.14;   // 물리면 찌그러졌다 튀어 오름
-      const k = (1 - t.recoil * 0.05) * (1 - sq), rise = t.rise == null ? 1 : (t.rise = Math.min(1, t.rise + 1 / 40)); ctx.translate(t.x, t.y + 4); ctx.scale((2 - k) * (0.4 + 0.6 * rise), k * rise);
-      if (IMG[t.type] && (t.type !== 'bcell' || has('bcell'))) drawSprite(ctx, IMG[t.type], 0, 0, TW_H, 1, true); else { ctx.filter = 'hue-rotate(150deg) saturate(1.4)'; drawSprite(ctx, IMG.nk, 0, 0, TW_H, 1, true); ctx.filter = 'none'; ctx.strokeStyle = '#5fe0d0'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(0, -38); ctx.moveTo(0, -38); ctx.lineTo(-5, -44); ctx.moveTo(0, -38); ctx.lineTo(5, -44); ctx.stroke(); } drawCracks(t); ctx.restore();
+      const k = (1 - t.recoil * 0.05) * (1 - sq), rise = t.rise == null ? 1 : (t.rise = Math.min(1, t.rise + 1 / 40)), cs = B3 ? 1 + CROWN.size * Math.max(0, crownSt(t)) : 1, mut = B3 && t.stunT > 0; ctx.translate(t.x, t.y + 4); ctx.scale((2 - k) * (0.4 + 0.6 * rise) * cs, k * rise * cs); if (mut) ctx.filter = 'grayscale(1) brightness(.6)'; else if (B3 && crownSt(t) > 0) { ctx.shadowColor = '#ff2040'; ctx.shadowBlur = 10 + 8 * crownSt(t); }
+      if (IMG[t.type] && (t.type !== 'bcell' || has('bcell'))) drawSprite(ctx, IMG[t.type], 0, 0, TW_H, 1, true); else { ctx.filter = 'hue-rotate(150deg) saturate(1.4)'; drawSprite(ctx, IMG.nk, 0, 0, TW_H, 1, true); ctx.filter = 'none'; ctx.strokeStyle = '#5fe0d0'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(0, -38); ctx.moveTo(0, -38); ctx.lineTo(-5, -44); ctx.moveTo(0, -38); ctx.lineTo(5, -44); ctx.stroke(); } drawCracks(t); ctx.filter = 'none'; ctx.restore();
+      if (B3) drawTw2Badge(t, time);
       if (t.relearn > 0) { ctx.save(); ctx.font = "800 14px sans-serif"; ctx.textAlign = 'center'; ctx.fillStyle = '#9fff6a'; ctx.fillText('?', t.x - 15, t.y - 32); ctx.restore(); }
       if (t.memory) { ctx.save(); ctx.font = "800 9px sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText('기억', t.x, t.y + 16); ctx.fillStyle = '#9fd8ff'; ctx.fillText('기억', t.x, t.y + 16); ctx.restore(); }
       if (t.spec) { const bx = t.x + 15, by = t.y - 36, c = SCOLOR[t.spec] || '#7fc0ff'; ctx.save(); ctx.fillStyle = 'rgba(10,6,8,.85)'; ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fill(); ctx.stroke();
@@ -4252,6 +4288,7 @@ function render(time) {
   if (R.ta && !stealthOn()) { if (R.gap > 0) { ctx.save(); ctx.globalAlpha = 0.25 + 0.15 * Math.sin(time * 10); ctx.strokeStyle = '#9fff6a'; ctx.lineWidth = 14; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
     const left = R.T - R.time; if (left <= 10 && !R.cleared) { const k = (10 - left) / 10, gr = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.75); gr.addColorStop(0, 'rgba(160,0,0,0)'); gr.addColorStop(1, `rgba(160,0,0,${0.15 + 0.3 * k * (0.6 + 0.4 * Math.sin(time * 8))})`); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H); } }
   for (const p of R.shots) if (p.spit) { const k = Math.min(1, p.t / p.T); ctx.save(); ctx.globalAlpha = 0.25 + 0.35 * k; ctx.strokeStyle = '#ff5040'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.ellipse(p.tx, p.ty, p.r, p.r * 0.6, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 0.18 * k; ctx.fillStyle = '#ff5040'; ctx.fill(); ctx.globalAlpha = 1; ctx.fillStyle = '#d8f070'; ctx.strokeStyle = '#3a4a10'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, TAU); ctx.fill(); ctx.stroke(); ctx.restore(); }
+  drawBolts();
   for (const p of R.shots) { if (p.spit) continue; const r = p.big ? 4 : 2.5; ctx.fillStyle = p.color; ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(p.x, p.y, r * 2.2, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill(); }
   for (const f of R.rings) { ctx.save(); ctx.globalAlpha = Math.min(1, f.t * 2.5) * (f.wide ? 0.8 : 0.6); ctx.strokeStyle = f.color; ctx.lineWidth = f.wide ? 10 : 3; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const f of R.fx) { if (f.color) { ctx.globalAlpha = f.t * 3; ctx.fillStyle = f.color; ctx.beginPath(); ctx.arc(f.x, f.y, 3, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
@@ -5235,7 +5272,7 @@ const ui = {
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
       $('deploy').innerHTML = (lead ? `<button class="dp v sk2 coreSk" data-sk="${lead.strain}" aria-label="본체 스킬"><span class="skLb">👑 본체 스킬</span>${pimg(lead)}<div><b style="font-size:12px">${geneSkill(lead).name}</b><small></small></div><i></i></button>` : '')
-        + (run.br ? '' : `<button class="dp v bypB" id="dpSpr" aria-label="세포 융합"><div class="b3ic">🧬</div><div><b>세포 융합</b><small></small></div><i></i></button>`)
+        + (run.br ? '' : `<button class="dp v bypB" id="dpSpr" aria-label="면역 마비"><div class="b3ic">💫</div><div><b>면역 마비</b><small></small></div><i></i></button>`)
         + `<button class="dp v" id="dpHide" aria-label="숨기"><div class="b3ic">🫥</div><div><b>숨기</b><small></small></div><i></i></button>`
         + (run.br ? '' : `<button class="dp v atk" id="dpAll" aria-label="출발"><div><b style="font-size:13px">출발</b><small style="color:#ffd8c8">둥지 0</small></div><i></i></button>`);
       if (run.br) $('deploy').insertAdjacentHTML('afterbegin', [0, 1, 2].map(k => `<button class="dp v brb${k >= run.br.n ? ' lock' : ''}" data-b="${k}" style="border-color:${BR.col[k]};background:linear-gradient(color-mix(in srgb,${BR.col[k]} 35%,#2a1418),#1a0e12)"><span class="hf"></span><span class="cnt" hidden></span><div><b style="font-size:12px">⚔ 출발 ${k + 1}</b><small></small></div></button>`).join(''));
@@ -5314,9 +5351,9 @@ const ui = {
       if (B3) { const hb2 = $('dpHide'); if (hb2) { const H = run.hd || { st: 'ready', t: 0 }; hb2.className = 'dp v' + (H.st === 'ready' ? (run.med && run.med.w > 0 ? ' gapOn' : ' full') : H.st === 'hid' ? ' go' : ' done');
           hb2.querySelector('small').textContent = H.st === 'ready' ? (run.med && run.med.w > 0 ? '💊 지금!' : '약·침 피하기') : H.st === 'hid' ? `숨음 ${H.t.toFixed(1)}s · 탭: 나오기` : H.st === 'up' ? '나오는 중' : `다시 ${Math.ceil(H.t)}s`;
           hb2.querySelector('i').style.width = (H.st === 'hid' ? H.t / (HIDE.max + (teamRole().tank || 0)) : H.st === 'cd' ? 1 - H.t / HIDE.cd : H.st === 'ready' ? 1 : 0) * 100 + '%'; }
-        const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd == null ? SPR.first : run.sprCd, open = run.bypOn && run.bypOn.sw === 'B', ok = cd <= 0, tot = (run.sprN || 0) ? SPR.cd : SPR.first;
-          sb2.className = 'dp v bypB' + (open ? ' go' : ok ? ' full' : ''); sb2.querySelector('small').textContent = open ? `열림 ${Math.ceil(run.bypOn.until - run.time)}s` : ok ? `${BYP.open}초 지름길` : `다시 ${Math.ceil(cd)}s`; sb2.querySelector('i').style.width = (open || ok ? 100 : (1 - cd / tot) * 100) + '%'; }
-        { const h = $('hint'); if (h && run.algInit) { const al = run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).length; h.textContent = `🧪 면역 경보 ${Math.floor((run.alg || 0) * 100)}% · 탑 ${al}/${twMax(run.st.organ.id)}${run.hd && run.hd.st === 'hid' ? ' · 숨는 중엔 안 참' : ''} · ❓`; } }
+        const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd == null ? SPR.first : run.sprCd, mt = run.muteTw && run.muteTw.stunT > 0 ? run.muteTw : null, open = B3 ? !!mt : run.bypOn && run.bypOn.sw === 'B', ok = cd <= 0, tot = (run.sprN || 0) ? SPR.cd : SPR.first;
+          sb2.className = 'dp v bypB' + (open ? ' go' : ok ? ' full' : ''); sb2.querySelector('small').textContent = B3 ? (open ? `마비 ${Math.ceil(mt.stunT)}s` : ok ? `👑 탑 ${MUTE.t}초 멈춤` : `다시 ${Math.ceil(cd)}s`) : open ? `열림 ${Math.ceil(run.bypOn.until - run.time)}s` : ok ? `${BYP.open}초 지름길` : `다시 ${Math.ceil(cd)}s`; sb2.querySelector('i').style.width = (open || ok ? 100 : (1 - cd / tot) * 100) + '%'; }
+        { const h = $('hint'); if (h && run.algInit) { const al = run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).length; h.textContent = `🧪 면역 경보 ${Math.floor((run.alg || 0) * 100)}% · 탑 ${al}/${twMax(run.st.organ.id)}${B3 && run.plan && run.plan.built < run.plan.n ? ` · 다음 ${TW2.nm[tw2Peek()]}` : ''}${run.hd && run.hd.st === 'hid' ? ' · 숨는 중엔 안 참' : ''} · ❓`; } }
         if (run.br) $('deploy').querySelectorAll('.brb').forEach(b => { const k = +b.dataset.b, sm = b.querySelector('small'); if (k >= run.br.n) { sm.textContent = (run.sthSeg || 0) >= BR.n3 ? '이 지도는 2갈래' : `🔒 잠입 ${BR.n3}칸↑`; return; } const up = run.br.upT[k] && run.time - run.br.upT[k] < 5;
           sm.innerHTML = `탑 ${brTowers(k)}${up ? ' <b style="color:#ff9a7a">▲</b>' : ''}`; b.classList.toggle('pair', corePair() === 'brk'); });
         const pb = $({ brk: 'dpAll', hide: 'dpHide', spr: 'dpSpr' }[corePair()]); if (pb) { pb.classList.add('pair'); const bk = run.cmbBack && run.cmbBack.t > 0; pb.classList.toggle('combo', bk); if (bk) pb.querySelector('small').textContent = `🔥 지금! ${run.cmbBack.t.toFixed(1)}s`; } }
@@ -6005,5 +6042,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1800</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1900</div></body>
 </html>
