@@ -540,6 +540,18 @@
   .cvSGo { width: 100%; height: 48px; border: 0; border-radius: 14px; background: #3ae0c0; color: #06302a; font: 19px Jua, sans-serif; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .cvSGo span { font-size: 13px; opacity: .75; } .cvSGo.off { background: #3a3430; color: #8a7d70; }
   .cvSSw { margin-top: 8px; background: none; border: 0; color: #ffd27a; font: 14.5px Jua, sans-serif; padding: 8px 14px; }
+  .dvPic img { width: 100px !important; height: 100px !important; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); }
+  .dvTag { font-style: normal; font-size: 11px; vertical-align: 4px; margin-left: 6px; padding: 1px 7px; border-radius: 9px; background: rgba(58,224,192,.16); color: #3ae0c0; } .dvTag.gold { background: rgba(255,210,74,.16); color: #ffd24a; }
+  .dvSt { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); margin: 14px 0 4px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .dvSt div + div { border-left: 1px solid rgba(255,255,255,.06); } .dvSt small { display: block; font-size: 11px; color: #8a7d70; } .dvSt b { font-size: 18px; color: #fff; }
+  .dvLn { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: left; } .dvLn span { font-size: 13px; color: #e8dccb; white-space: nowrap; } .dvLn small { font-size: 12px; color: #a8998a; text-align: right; }
+  .dv .cvSGo { margin-top: 14px; }
+  .dvStar { width: 100%; height: 42px; margin-top: 8px; border-radius: 14px; background: none; border: 1.5px solid #ffcf4a; color: #ffcf4a; font: 16px Jua, sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; } .dvStar span { font-size: 12px; opacity: .8; }
+  .dvLinks { display: flex; justify-content: center; gap: 6px; min-height: 8px; }
+  .modal .box h3 { font-size: 19px; color: #fff; letter-spacing: -.3px; }
+  .modal .box > .sub { color: #a8998a; }
+  .fcOne { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; margin: 6px 0; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+  .fcOne span { font-size: 14px; color: #f0e4d2; } .fcOne span small { display: block; font-size: 11px; color: #8a7d70; margin-top: 2px; } .fcOne b { font-size: 22px; text-align: right; } .fcOne b small { display: block; font-size: 10.5px; color: #8a7d70; }
   .sqCard { --g: #a8a8a8; --gs: 10px; position: relative; width: min(62vw, 230px); aspect-ratio: 3 / 4.2; border-radius: 18px; overflow: hidden; box-shadow: 0 0 var(--gs) var(--g), 0 0 0 3px var(--g); transition: box-shadow .25s; animation: sqBob 1.6s ease-in-out infinite; }
   .sqCard.hold { animation: sqShake .09s linear infinite; } .sqCard.up { animation: sqUp .35s ease; } .sqCard.opened { animation: sqOpen .5s ease forwards; }
   @keyframes sqBob { 50% { transform: translateY(-6px) rotate(-1deg); } } @keyframes sqShake { 25% { transform: translate(-1px, 1px); } 75% { transform: translate(1px, -1px); } }
@@ -4909,17 +4921,12 @@ const ui = {
     const D = STRAINS[g.strain], rk = ROLE_OF[g.strain], fit = (ROLE_SLOT[rk] || []).map(i => SLOT_NAME[i]).join('·'), sk = geneSkill(g), cb = coreL() >= RC.lvComp ? ui.compBest(g, sq) : null;
     const gr = [0, 1, 2, 3].map(i => { const v = slotGrade(g, i); return `<span>${SLOT_ICON[i]} ${SLOT_STAT[i]} <b style="color:${GRADE_COL[v]}">${v}</b></span>`; }).join('');
     return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} ${stars(g.star)} <small>Lv${g.lv || 1}</small></b>
-      <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · ${D.legend ? '전설' : RAR_NAME[Math.min(2, D.rarity || 0)]} · 맞는 칸 <b style="color:#3ae0c0">${(ROLE_SLOT[rk] || [0]).map(i => SLOT_ICON[i] + SLOT_STAT[i]).join('·')}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
+      <div>${ROLES[rk] ? ROLES[rk].name : ''} · ${D.legend ? '전설' : RAR_NAME[Math.min(2, D.rarity || 0)]}</div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
       ${(() => { const b = ui.slotBest(g, sq); if (!b) return `<div class="fcGr">${gr}</div>`; const p = ui.slotPrev(g, b.i), d = b.d, up = x => `<span style="color:${x >= 0 ? '#3ae0c0' : '#ff8a7a'}">`;
-        return `<div class="fcCmp"><div class="fcH">➡ <b style="color:#3ae0c0">${SLOT_ICON[b.i]} ${SLOT_STAT[b.i]} 칸</b>에 넣으면 <small>(제일 좋은 칸)</small></div>
-          ${p ? `<div class="ln"><span>칸 보너스 (${SLOT_STAT[b.i]})</span><b>+${p.ob}% → ${up(p.nb - p.ob)}+${p.nb}% ${p.nb >= p.ob ? '▲' : '▼'}</span>${p.match ? '' : ' <small style="color:#ff9a7a">절반</small>'}</b></div>` : ''}
-          <div class="ln"><span>${SLOT_STAT[b.i]}</span><b>${d.from} → ${up(d.d)}${d.to} ${d.d >= 0 ? '▲' : '▼'}</span></b></div>
-          <div class="ln"><span>🎯 전투력</span><b>${d.pf} → ${up(d.pp)}${d.pt} (${d.pp > 0 ? '+' : ''}${d.pp}%) ${d.pp >= 0 ? '▲' : '▼'}</span></b></div></div>`; })()}
-      ${(() => { const go = fitOrgans(g), bo = []; return `<div class="fcSk">🏠 맞는 기관 <b style="color:#9fff6a">${go.map(o => ORG_SHORT[o]).join('·') || '-'}</b> <small style="color:#b59f86">(본체일 때 +${Math.round(FIT_B * 100)}%)</small> · <span style="color:${ROUTE[routeOf(g.strain)].c}">${ROUTE[routeOf(g.strain)].ic} ${ROUTE[routeOf(g.strain)].n}</span></div>`; })()}
-      <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small style="color:#ffd27a">👑 스킬은 본체로 쓸 때만 발동해요 · 칸에선 능력치만</small></div>
+        return `<div class="fcOne"><span>${SLOT_ICON[b.i]} ${SLOT_STAT[b.i]} 칸에 넣으면<small>칸 보너스 ${p ? `+${p.ob}% → +${p.nb}%${p.match ? '' : ' (절반)'}` : ''}</small></span><b style="color:${d.pp >= 0 ? '#3ae0c0' : '#ff8a7a'}">${d.pp > 0 ? '+' : ''}${d.pp}%<small>전투력</small></b></div>`; })()}
       ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
       ${slotGenes().includes(g) ? `<div class="fcUp"><button class="btn" id="fcSwap">🔄 이 칸에 다른 카드 넣기</button></div>` : ''}
-      <div class="fcHint">⬆ 위 칸을 누르면 꽂혀요 · ★ 추천 = 전투력이 제일 오르는 칸</div></div>`; },
+      </div>`; },
   fmUpBind(g) { if (!g) return; if ($('fcSwap')) $('fcSwap').onclick = () => { ui.fmSel = slotGenes().indexOf(g); ui.fmPick = null; ui.renderRails(); }; if ($('fcComp')) $('fcComp').onclick = () => { ui.fmPick = null; ui.renderRails(); ui.compSheet(g); };
     if ($('fcLv')) $('fcLv').onclick = () => { const b = ui.growBtn(g); if (b.cap) { sfx('fail'); return toast(`★${g.star}은 Lv${lvCap(g)}까지예요 · ★을 올리면 상한이 올라가요`); } if (!b.ok) { sfx('fail'); return toast('DNA가 부족해요'); }
       const P = () => { const f = slotFill(), ms = f.length && mineStats(f); return ms ? powerOf(ms.s, matchTotal(f, save.sel || 'nose')) : 0; }, p0 = P();
@@ -5163,15 +5170,18 @@ const ui = {
     const d = STRAINS[g.strain], inSquad = squadGenes().includes(g), sc = RULES.starCost[g.star], gc = (g.grow || 0) < RULES.growMax ? RULES.growCost(g.grow || 0) : null;
     const R0 = ROUTE[routeOf(g.strain)], sk = geneSkill(g), st = geneStats(g), rl = ROLES[ROLE_OF[g.strain]], real = fitReal(g), fo = fitOrgans(g), skt = SKTYPE[g.strain] || 'boost';
     const mx = { atk: 1.5, hp: 1500, count: 60, spd: 80 }, bar = (t, k, v, col) => `<div class="dSt"><span>${t}</span><i><b style="width:${Math.min(100, v / mx[k] * 100)}%;background:${col}"></b></i><em>${k === 'atk' ? v.toFixed(2) : Math.round(v)}</em></div>`;
-    ui.modal(`<div class="dTop"><div class="dImg" style="background:color-mix(in srgb,${R0.c} 30%,#1a120e)">${pimg(g)}</div><div class="dHd">
-        <h3>${gname(g)} ${stars(g.star)}</h3>
-        <div class="sub"><span style="color:${RARITY[d.rarity].color}">${d.legend ? '전설' : RARITY[d.rarity].name}</span> · ${rl ? `<span style="color:${rl.col}">${rl.name}</span>` : ''} · <span style="color:${R0.c}">${R0.ic} ${R0.n}</span></div>
-        <div class="sub">👍 ${fo.map(o => real.includes(o) ? ORG_SHORT[o] : `<b style="color:#ffd27a">${ORG_SHORT[o]}🧬</b>`).join('·')}${fo.length > real.length ? ` <button class="mini" id="mRoll">🎲 🧫${REROLL(g)}</button>` : ''}</div></div></div>
-      <div class="dGrid">${bar('공격', 'atk', st.atk, '#ff7a5a')}${bar('체력', 'hp', st.hp, '#5aa8ff')}${bar('마릿수', 'count', st.count, '#7ad070')}${bar('속도', 'spd', st.spd, '#ffd24a')}</div>
-      <div class="dSk"><b>👑 본체 스킬 · ${sk.name}</b><span>${sk.desc}</span><small>${SKT_NAME[skt]} · 짝 버튼 ${PAIR_IC[SKPAIR[skt]]}${PAIR_NAME[SKPAIR[skt]]}${(g.lead || Object.keys(g.mast || {}).length) ? ` · 리더 ${g.lead || 0}판${Object.keys(g.mast || {}).map(o => ` · ${ORG_SHORT[o]} 숙련 ${g.mast[o]}`).join('')}` : ''}</small></div>
-      <div class="sub" style="margin:6px 0 2px">Lv <b style="color:#ffe2a8">${g.lv || 1}/${lvCap(g)}</b> <small>(★을 올리면 상한 ↑)</small>${isCoreG(g) ? ' · <b style="color:#ffd24a">👑 지금 본체</b>' : inSquad ? ' · <b style="color:#b8f28a">팀에 있음</b>' : ''}</div>
-      <div class="row"><button class="btn blue" id="mLv" style="flex:1 1 55%">${(g.lv || 1) >= MAXLV ? '최고 레벨' : (g.lv || 1) >= lvCap(g) ? `★을 올려야 해요` : `강화 Lv${(g.lv || 1) + 1} · 🧬${lvCost(g)}`}</button>${g.star < MAXSTAR ? `<button class="btn red" id="mStar" style="flex:1 1 40%">★${g.star + 1} · 🧫${starCost(g)}<small style="display:block;font-weight:400">가진 흔적 ${save.shards || 0}</small></button>` : ''}</div>
-      <div class="row" style="margin-top:4px">${canBeCore(g) && !isCoreG(g) && save.starter ? `<button class="btn" id="mCore" style="border-color:#ffd24a;color:#ffd24a">👑 본체로</button>` : ''}${inSquad && !isCoreG(g) ? '<button class="btn" id="mOut">팀에서 빼기</button>' : ''}<button class="btn" id="mClose">닫기</button></div>`);
+    const tag = isCoreG(g) ? '<em class="dvTag gold">본체</em>' : inSquad ? '<em class="dvTag">팀</em>' : '', lvMax = (g.lv || 1) >= MAXLV, lvCapd = (g.lv || 1) >= lvCap(g);
+    ui.modal(`<div class="cvS dv">
+        <div class="cvSPic"><div class="dvPic">${pimg(g)}</div></div>
+        <h2>${gname(g)}${tag}</h2>
+        <div class="cvSLv">${d.legend ? '전설' : RARITY[d.rarity].name}${rl ? ` · ${rl.name}` : ''} · Lv ${g.lv || 1}/${lvCap(g)} · ${stars(g.star)}</div>
+        <div class="dvSt">${[['공격', st.atk.toFixed(2)], ['체력', Math.round(st.hp)], ['마릿수', Math.round(st.count)], ['속도', Math.round(st.spd)]].map(([a, b]) => `<div><small>${a}</small><b>${b}</b></div>`).join('')}</div>
+        <div class="dvLn"><span>✨ ${sk.name}</span><small>${skMini(g)}</small></div>
+        <div class="dvLn"><span>👍 잘 맞는 기관</span><small>${fo.map(o => real.includes(o) ? ORG_SHORT[o] : `<b style="color:#ffd27a">${ORG_SHORT[o]}🧬</b>`).join('·')}${fo.length > real.length ? ` <button class="mini" id="mRoll">🎲 🧫${REROLL(g)}</button>` : ''}</small></div>
+        <button class="cvSGo${lvMax || lvCapd || save.dna < lvCost(g) ? ' off' : ''}" id="mLv">${lvMax ? '최고 레벨' : lvCapd ? `★${g.star + 1}이 있어야 강화` : `강화 <span>🧬 ${lvCost(g)}</span>`}</button>
+        ${g.star < MAXSTAR ? `<button class="dvStar" id="mStar">★${g.star + 1}로 올리기 <span>🧫 ${starCost(g)} · 가진 ${save.shards || 0}</span></button>` : ''}
+        <div class="dvLinks">${canBeCore(g) && !isCoreG(g) && save.starter ? '<button class="cvSSw" id="mCore">본체로</button>' : ''}${inSquad && !isCoreG(g) ? '<button class="cvSSw" id="mOut" style="color:#c9b9a2">팀에서 빼기</button>' : ''}</div>
+      </div>`);
     if ($('mCore')) $('mCore').onclick = () => ui.coreSwap(g);
     if ($('mClone')) $('mClone').onchange = e => { ui.cloneOn = e.target.checked; };
     if ($('mStar')) $('mStar').onclick = () => { if ((save.shards || 0) < starCost(g)) { sfx('fail'); return toast(`🧫 흔적이 부족해요 (${save.shards || 0}/${starCost(g)}) · 같은 바이러스가 또 나오면 모여요`); }
@@ -5185,7 +5195,7 @@ const ui = {
       if (ui.coreUpQ && ui.coreUpQ.length) return ui.coreUpShow(); ui.detail(g); };
     document.querySelectorAll('#modal [data-slot]').forEach(b => b.onclick = () => { if (assignSlot(g, +b.dataset.slot)) { ui.closeModal(); ui.showHub(); } });
     if ($('mOut')) $('mOut').onclick = () => { unSquad(g.uid); persist(); ui.closeModal(); ui.showHub(); };
-    $('mClose').onclick = ui.closeModal;
+    if ($('mClose')) $('mClose').onclick = ui.closeModal;
     if ($('mAbs')) $('mAbs').onclick = () => { const r = absorb(g); if (!r) return; persist(); ui.showHub(); ui.detail(g); ui.fx(`배양율 ▲ ×${g.grow} → ×${1 + g.grow}`, '#d7ffb0'); };
   },
   // 위험 승급 연출: 화로 위에서 카드가 떨리다가 → 성공(빛 폭발) / 실패(연기) / 파괴(산산조각) / 클론 복구
@@ -5269,6 +5279,7 @@ const ui = {
       <div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`);
   },
   modal(html) { skPopHide(); if ($('hubTip')) $('hubTip').hidden = true; if (HUBSPOT) hubSpot(null); $('modalBox').innerHTML = `<button class="mX" aria-label="닫기">✕</button>` + html; $('modal').hidden = false;
+    $('modalBox').querySelectorAll('button:not(.mX)').forEach(b => { if (b.textContent.trim() === '닫기') { b.hidden = true; const r = b.parentElement; if (r && r.classList.contains('row') && ![...r.children].some(c => !c.hidden)) r.hidden = true; } });
     $('modalBox').querySelector('.mX').onclick = () => ui.closeX(); },
   // ✕: 닫고, 비교 시트에서 왔으면 그 시트로 돌아감
   closeX() { ui.closeModal(); const f = ui.backTo; ui.backTo = null; if (f) f(); },
@@ -5753,8 +5764,7 @@ function pullMenu() {
   ui.modal(`<h3 style="margin:0 0 4px">감염 뽑기</h3><div class="sub">가진 DNA ${d} · 전설 1% · 천장까지 ${PITY - (save.pity || 0)}번</div>
     ${save.t1 || save.t10 ? `<div class="row">${save.t1 ? `<button class="btn green" id="tk1" style="flex:1 1 45%">🎟 무료 뽑기 (${save.t1}장)</button>` : ''}${save.t10 ? `<button class="btn green" id="tk10" style="flex:1 1 45%">🎟 10번 뽑기권 (${save.t10}장)</button>` : ''}</div>` : ''}
     <div class="row">${b(1, RULES.gacha, '한 장씩 두근두근', '')}${b(5, MULTI[5].cost, MULTI[5].perk, 'blue')}${b(10, MULTI[10].cost, MULTI[10].perk, 'red')}</div>
-    <div class="sub" style="margin-top:6px">같은 바이러스가 또 나오면 🧫 <b>흔적</b>이 남아요 (지금 ${save.shards || 0}) → 연구소에서 카드를 눌러 ★ 별 올리기</div>
-    <div class="row"><button class="btn" id="pmOdds">📋 확률 보기</button><button class="btn" id="pmNo">닫기</button></div>`);
+    <div class="row" style="justify-content:center"><button class="cvSSw" id="pmOdds" style="color:#a8998a;font-size:13px">확률 보기</button><button class="btn" id="pmNo">닫기</button></div>`);
   document.querySelectorAll('#modal [data-st]').forEach(x => x.onclick = () => { const t = +x.dataset.st, c = SHARD_PULL().find(y => y[0] === t)[1]; if ((save.shards || 0) < c) return toast('흔적이 부족해요');
     save.shards -= c; ui.closeModal(); const g = gacha({ fixTier: t }); addCard(g); quest('pull'); persist(); playCatch(g); });
   $('pmNo').onclick = () => ui.closeModal(); $('pmOdds').onclick = () => oddsView();
@@ -6083,5 +6093,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2310</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2330</div></body>
 </html>
