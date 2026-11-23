@@ -1504,7 +1504,7 @@ const ADAPT = { need: 10, core: 1, mate: 0 };   // 본체만 적응 (기관당 1
 const adaptOf = (g, org) => Math.min(ADAPT.need, ((g && g.adapt) || {})[org] || 0);
 const canSlot = (g, i) => !!g && !isComp(g) && (i === 4 ? isCoreG(g) : i < 4 && !isCoreG(g) && (!coreGene() || (g.lv || 1) <= coreL()));   // ★ 칸 역할 제한 없음 · 본체 레벨 이하만
 // 전설 수: 본체 Lv1~7 1장 · Lv8~15 2장 · Lv16~ 3장 (동반 포함)
-const legCap = () => 2;   // ★ 팀(본체 포함)에 전설은 2장까지
+const legCap = () => 3;   // ★ 팀(본체 포함)에 전설은 3장까지 (칸에는 2장)
 const slotRule = i => `${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(r => ROLES[r].name).join('·')}만 (전설은 어디든)`;
 const roleK = (g, i) => 1;   // 전설 자리 보너스는 없앰
 function updTix() { const n = (save.t1 || 0) + (save.t10 || 0) * 10, np = $('navPull'); if (!np) return; let bd = np.querySelector('.tixB'); if (!bd) { bd = document.createElement('i'); bd.className = 'tixB'; np.appendChild(bd); } bd.textContent = n > 99 ? '99+' : n; bd.hidden = !n; }
@@ -2484,15 +2484,30 @@ const mineRaw = cards => [...new Set(cards)].reduce((a, x) => a + (isCoreG(x) ? 
 // ★ 능력치: 바이러스마다 주 능력(탱커=체력 · 공격=공격 · 은신=속도 · 회복=체력)은 100%, 나머지는 30%만 섞인다. 마릿수는 모두 더함
 const MAINST = { tank: 'hp', heal: 'hp', dps: 'atk', stealth: 'spd', swarm: 'count' }, TEAM_REF = { hp: 1.55, atk: 1.35 }, TEAM_DIM = 0.8;
 // ★ 체력·공격 = 더하기 (주 능력 100% · 나머지 30%, 센 카드부터 1 · 0.8 · 0.64 … 로 조금씩 줄여서) → 카드를 채우면 무조건 세진다. 속도만 평균
+// ★ 칸 방식: 본체는 모든 능력 100% · 칸 카드는 그 칸 능력만 보탬 (등급이 높을수록 많이 · 맞는 역할이면 100%, 아니면 60%)
+const SLOT_R = [0.25, 0.40, 0.60, 0.90], SLOT_MIS = 0.5, SLOT_SPD = 0.4, SLOT_SC = { hp: 1.30, atk: 1.28, spd: 0.98, count: 6.05 };
+const rarIx = g => STRAINS[g.strain].legend ? 3 : Math.min(2, STRAINS[g.strain].rarity || 0);
+const lvStar = g => lvMul(g) * STAR[g.star].hp;
+// 칸 하나의 보너스(%) = 등급 비율 × (카드 레벨·별 ÷ 본체 레벨·별) × (역할 맞으면 1, 아니면 0.5)
+const slotBonus = (g, slot, core) => !g || slot < 0 || slot > 3 ? 0 : SLOT_R[rarIx(g)] * Math.min(1.2, lvStar(g) / lvStar(core)) * (MAINST[ROLE_OF[g.strain]] === SLOT_KEY[slot] || (SLOT_KEY[slot] === 'hp' && ROLE_OF[g.strain] === 'heal') ? 1 : SLOT_MIS);
+function slotTeam(E, coreCnt) {   // E: [{g, st, m, slot}] · slot 4 = 본체
+  const C = E.find(e => e.slot === 4) || E[0], o = {};
+  for (const k of ['hp', 'atk', 'spd', 'count']) { let bn = 0;
+    for (const e of E) if (e !== C && e.slot >= 0 && e.slot < 4 && SLOT_KEY[e.slot] === k) bn += slotBonus(e.g, e.slot, C.g);
+    o[k] = (k === 'count' ? coreCnt(C) : C.st[k]) * (1 + bn * (k === 'spd' ? SLOT_SPD : 1)) * (window.__slotSC || SLOT_SC)[k]; }
+  return o; }
+const SLOT_MODE = () => B3 && !window.__oldTeam;
 function teamStat(SS, k) { if (k === 'spd') { let v = 0, w = 0; for (const [st, m] of SS) { const q = m === k ? 1 : 0.3; v += st[k] * q; w += q; } return w ? v / w : 0; }
   const c = SS.map(([st, m]) => st[k] * (m === k ? 1 : 0.3)).sort((a, b) => b - a); let v = 0; c.forEach((x, i) => v += x * Math.pow(TEAM_DIM, i)); return v / TEAM_REF[k]; }
 function buildMine(cards) {
   const U = [...new Set(cards.filter(Boolean))], b = U.find(isCoreG) || U[0], B = STRAINS[b.strain], S = U.map(g => [g, geneStats(g), MAINST[ROLE_OF[g.strain]]]);
-  const avg = k => teamStat(S.map(([, st, m]) => [st, m]), k);
+  const SLS = cards.slots || [], slotOfG = g => { if (isCoreG(g) || g === b) return 4; const j = cards.findIndex((x, i) => x === g && SLS[i] >= 0); return j >= 0 ? SLS[j] : -1; };
+  const TT = SLOT_MODE() ? slotTeam(S.map(([g, st, m]) => ({ g, st, m, slot: slotOfG(g) })), C => isCoreG(C.g) ? coreCount() : C.st.count) : null;
+  const avg = k => TT ? TT[k] : teamStat(S.map(([, st, m]) => [st, m]), k);
   const pick = k => (S.find(x => x[2] === k && x[0] !== b) || S.find(x => x[0] !== b) || S[0])[0], c = pick('spd'), k = pick('atk');
   STRAINS.mine = { ...B, name: '내 바이러스', hybrid: false, hero: false, rarity: 0, parents: null,
     hp: avg('hp'), atk: avg('atk'), spd: avg('spd') / RULES.spdScale,
-    count: Math.round(Math.min(MINE_CAP, mineRaw(cards) * (1 + 0.1 * S.filter(x => x[2] === 'count').length))), size: 7.5, stealth: !!(B.stealth || STRAINS[c.strain].stealth), split: !!(B.split || STRAINS[k.strain].split) };
+    count: Math.round(Math.min(MINE_CAP, (TT ? TT.count : mineRaw(cards)) * (1 + 0.1 * S.filter(x => x[2] === 'count').length))), size: 7.5, stealth: !!(B.stealth || STRAINS[c.strain].stealth), split: !!(B.split || STRAINS[k.strain].split) };
   { const ob = overBonus(mineRaw(cards)), set = setInfo(U).b; STRAINS.mine.over = ob; STRAINS.mine.set = set; STRAINS.mine.atk *= (1 + ob) * (1 + set) * (1 + (B3 && !window.__noRole ? 0.1 * (roleCnt(U).dps || 0) : 0)) * (1 + weakB(U)); STRAINS.mine.hp *= 1 + set; STRAINS.mine.hp *= 1 + coreBonus(); STRAINS.mine.atk *= 1 + coreBonus(); STRAINS.mine.size = 7.5 * (coreTier() >= 2 ? 1.15 : 1); }   // 색깔 세트 보너스 · 넘침 보너스(공격)
   ROLE_OF.mine = ROLE_OF[b.strain]; SCOLOR.mine = SCOLOR[b.strain] || '#e8a0ff';
   const vb = VSHAPE[b.strain] || {}, vk = VSHAPE[k.strain] || {}, vc = VSHAPE[c.strain] || {};
@@ -4295,7 +4310,7 @@ const ui = {
     let sel = ui.fmSel; if (sel != null && !slotOpen(sel)) sel = ui.fmSel = null;
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
     const sock = i => { const open = slotOpen(i), g = sq[i], no = pick && open && !canSlot(pick, i), pd = pick && open && !no && g !== pick ? ui.slotDelta(pick, i).pp : null;
-      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? rarBg(g) + ',#1a120e' : '#241a16'};border-color:${!pick && sel === i ? '#3ae0c0' : g ? 'rgba(255,255,255,.15)' : '#5a4430'}"><span class="fmL">칸 ${[0, 3, 1, 2].indexOf(i) + 1}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? rarBg(g) + ',#1a120e' : '#241a16'};border-color:${!pick && sel === i ? '#3ae0c0' : g ? 'rgba(255,255,255,.15)' : '#5a4430'}"><span class="fmL">${i < 4 ? SLOT_STAT[i] + (g && coreGene() && SLOT_MODE() ? ` <b style="color:${MAINST[ROLE_OF[g.strain]] === SLOT_KEY[i] || (i === 0 && ROLE_OF[g.strain] === 'heal') ? '#3ae0c0' : '#ff9a7a'}">+${Math.round(slotBonus(g, i, coreGene()) * (SLOT_KEY[i] === 'spd' ? SLOT_SPD : 1) * 100)}%</b>` : '') : '본체'}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
     const cgv = null;
     const comp = RC.lvComp > 100 ? '' : `<button class="fmComp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1" aria-label="동반">${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}<span class="fcRing" style="--g:${compOn && cg ? Math.min(100, (gv % 1) * 100 || (gv >= 1 ? 100 : 0)).toFixed(0) : 0}%">${!compOn ? '🔒' : cg ? pimg(cg) : '+'}</span><small>🤝 동반${!compOn ? ` Lv${RC.lvComp}` : gv >= 1 ? ' 🧬' : ''}</small></button>`;
     const list = sortGenes(save.genes);
@@ -5403,7 +5418,7 @@ function autoSquad() {
     const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap() - (coreGene() && STRAINS[coreGene().strain].legend ? 1 : 0)) continue;
     const f = 0, tr = 0, z = cs.map(g => g ? S.get(g) : null), x = z[0] || z.find(Boolean);
     if (!x) continue; const cg0 = coreGene(), UU = cg0 ? [...u, cg0] : u, SS = UU.map(g => [S.get(g) || geneStats(g), MAINST[ROLE_OF[g.strain]]]), av = k => teamStat(SS, k);
-    const sb = setInfo(UU).b, rc0 = roleCnt(UU), rk = (B3 ? 1 + 0.1 * (rc0.dps || 0) : 1) * (1 + weakB(UU, org)) * (B3 ? 1 + 0.03 * Object.keys(rc0).length : 1), cnt = Math.min(260, SS.reduce((t, [st, m]) => t + st.count, 0) * (1 + 0.1 * SS.filter(q => q[1] === 'count').length)), pw = av('atk') * (1 + sb) * rk * cnt * Math.sqrt(av('hp') * (1 + sb)) * Math.sqrt(av('spd')), key = [f, tr, pw];   // ★ 실제 능력치 계산과 같은 방식 (주 능력 100% · 나머지 30% · 같은 색 보너스)   // ★ 같은 색 세트 보너스(체력·공격)까지 따져서
+    const sb = setInfo(UU).b, rc0 = roleCnt(UU), rk = (B3 ? 1 + 0.1 * (rc0.dps || 0) : 1) * (1 + weakB(UU, org)) * (B3 ? 1 + 0.03 * Object.keys(rc0).length : 1), TT = SLOT_MODE() ? slotTeam(UU.map(g => ({ g, st: S.get(g) || geneStats(g), m: MAINST[ROLE_OF[g.strain]], slot: g === cg0 ? 4 : cs.indexOf(g) })), C => C.g === cg0 ? coreCount() : C.st.count) : null, cnt = Math.min(260, (TT ? TT.count : SS.reduce((t, [st, m]) => t + st.count, 0)) * (1 + 0.1 * SS.filter(q => q[1] === 'count').length)), pw = (TT ? TT.atk : av('atk')) * (1 + sb) * rk * cnt * Math.sqrt((TT ? TT.hp : av('hp')) * (1 + sb)) * Math.sqrt(TT ? TT.spd : av('spd')), key = [f, tr, pw];   // ★ 실제 능력치 계산과 같은 방식 (주 능력 100% · 나머지 30% · 같은 색 보너스)   // ★ 같은 색 세트 보너스(체력·공격)까지 따져서
     if (!bk || key[0] > bk[0] || (key[0] === bk[0] && (key[1] > bk[1] || (key[1] === bk[1] && key[2] > bk[2])))) { bk = key; best = cs; } }
   if (!best) return;
   save.squad = SL.map(i => i < 4 && best[i] && slotOpen(i) ? best[i].uid : null); normSquad();
