@@ -1201,8 +1201,8 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.035, lung: 0.095, gut: 0.55, liver: 0.55, blood: 0.55, skin: 0.25, lymph: 0.5, brain: 1.8 },
-  1: { nose: 0.65, lung: 0.6, gut: 0.42, liver: 1.28, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
+const CAL = { 0: { nose: 0.035, lung: 0.095, gut: 0.55, liver: 0.63, blood: 0.6, skin: 0.25, lymph: 0.6, brain: 2.0 },
+  1: { nose: 0.65, lung: 0.65, gut: 0.61, liver: 1.28, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
 const calK = (h, o) => (CAL[h] || {})[o] || 1;
@@ -2155,14 +2155,14 @@ function drawSprite(g, im, x, y, h, alpha = 1, bottom = false) {
 const ART2 = true, TW_H = ART2 ? 56 : 42;
 // ★ 기관마다 다른 모습: 바탕 색감 + 길 색감 + 기관 무늬 (코 털·폐 꽈리·위장 융모·간 소엽·혈관 적혈구·피부 세포층·림프 마디·뇌 신경)
 const ORG_LOOK = {
-  nose:  { bg: 'hue-rotate(0deg) saturate(1) brightness(1)',          rd: 'none',                                        dk: 0.46, deco: 'hair', dk2: 0.45 },
-  lung:  { bg: 'hue-rotate(-12deg) saturate(.8) brightness(1.15)',    rd: 'hue-rotate(-10deg) brightness(1.08)',          dk: 0.38, deco: 'alv', dk2: 0.56 },
-  gut:   { bg: 'hue-rotate(22deg) saturate(1.15) brightness(.95)',    rd: 'hue-rotate(18deg) saturate(1.1)',              dk: 0.46, deco: 'villi', dk2: 0.5 },
-  liver: { bg: 'hue-rotate(-18deg) saturate(.75) brightness(.72)',    rd: 'hue-rotate(-14deg) saturate(.85) brightness(.9)', dk: 0.42, deco: 'hex', dk2: 0.36 },
-  blood: { bg: 'hue-rotate(-6deg) saturate(1.5) brightness(.8)',      rd: 'saturate(1.3) brightness(.95)',                 dk: 0.4, deco: 'rbc', dk2: 0.42 },
-  skin:  { bg: 'hue-rotate(28deg) saturate(.55) brightness(1.1)',     rd: 'hue-rotate(20deg) saturate(.7) brightness(1.05)', dk: 0.5, deco: 'brick', dk2: 0.6 },
-  lymph: { bg: 'hue-rotate(55deg) saturate(.6) brightness(.95)',      rd: 'hue-rotate(30deg) saturate(.75)',              dk: 0.46, deco: 'node', dk2: 0.6 },
-  brain: { bg: 'hue-rotate(-48deg) saturate(.55) brightness(.9)',     rd: 'hue-rotate(-30deg) saturate(.7)',              dk: 0.44, deco: 'neuron', dk2: 0.56 },
+  nose:  { bg: 'hue-rotate(0deg) saturate(1) brightness(1)',          rd: 'none',                                        dk: 0.46, deco: 'hair', dk2: 0.45, rim: ['#4a0e18', '#8a2a32', '#b4464c'] },
+  lung:  { bg: 'hue-rotate(-12deg) saturate(.8) brightness(1.15)',    rd: 'hue-rotate(-10deg) brightness(1.12)',          dk: 0.38, deco: 'alv', dk2: 0.56, rim: ['#5a1a28', '#a04a58', '#d07a86'] },
+  gut:   { bg: 'hue-rotate(22deg) saturate(1.15) brightness(.95)',    rd: 'hue-rotate(22deg) saturate(1.2)',              dk: 0.46, deco: 'villi', dk2: 0.5, rim: ['#4a1a08', '#9a4a20', '#c8703a'] },
+  liver: { bg: 'hue-rotate(-18deg) saturate(.75) brightness(.72)',    rd: 'saturate(.8) brightness(.8)', dk: 0.42, deco: 'hex', dk2: 0.36, rim: ['#2a0a0a', '#5a1a1a', '#7a2a28'] },
+  blood: { bg: 'hue-rotate(-6deg) saturate(1.5) brightness(.8)',      rd: 'hue-rotate(-8deg) saturate(1.5) brightness(.85)',                 dk: 0.4, deco: 'rbc', dk2: 0.42, rim: ['#3a0006', '#8a0a14', '#b01822'] },
+  skin:  { bg: 'hue-rotate(28deg) saturate(.55) brightness(1.1)',     rd: 'hue-rotate(28deg) saturate(.6) brightness(1.1)', dk: 0.5, deco: 'brick', dk2: 0.6, rim: ['#4a3020', '#9a7050', '#c89a70'] },
+  lymph: { bg: 'hue-rotate(55deg) saturate(.6) brightness(.95)',      rd: 'hue-rotate(70deg) saturate(.7) brightness(1.05)',              dk: 0.46, deco: 'node', dk2: 0.6, rim: ['#2a3a10', '#6a8a30', '#9ab850'] },
+  brain: { bg: 'hue-rotate(-48deg) saturate(.55) brightness(.9)',     rd: 'hue-rotate(-55deg) saturate(.6) brightness(1.05)',              dk: 0.44, deco: 'neuron', dk2: 0.56, rim: ['#2a1a3a', '#6a4a8a', '#9a7ab8'] },
 };
 function drawOrganDeco(g, kind, paths) { const rnd = mulberry(ORGANS.indexOf(map.organ) * 131 + 17), far = (x, y, r) => paths.every(Q => distTo(Q, x, y) > r);
   g.save(); g.lineCap = 'round';
@@ -2186,9 +2186,10 @@ function renderMapArt(g) {
   if (!own) drawOrganDeco(g, LK.deco, paths);
   g.lineCap = 'round'; g.lineJoin = 'round';
   for (const [w, a, dy] of [[70, 0.18, 8], [62, 0.3, 6]]) { line(g, dy); g.lineWidth = w; g.strokeStyle = `rgba(20,0,8,${a})`; g.stroke(); }
-  line(g, 2); g.lineWidth = 56; g.strokeStyle = '#4a0e18'; g.stroke();
-  line(g); g.lineWidth = 54; g.strokeStyle = '#8a2a32'; g.stroke();
-  line(g, -1); g.lineWidth = 50; g.strokeStyle = '#b4464c'; g.stroke();
+  const RM = LK.rim || ['#4a0e18', '#8a2a32', '#b4464c'];
+  line(g, 2); g.lineWidth = 56; g.strokeStyle = RM[0]; g.stroke();
+  line(g); g.lineWidth = 54; g.strokeStyle = RM[1]; g.stroke();
+  line(g, -1); g.lineWidth = 50; g.strokeStyle = RM[2]; g.stroke();
   // 속살: 구간마다 결 방향대로 그림을 깔고, 길 모양으로 오려냄
   const L = document.createElement('canvas'); L.width = W * DPR; L.height = H * DPR; const c = L.getContext('2d'); c.setTransform(DPR, 0, 0, DPR, 0, 0);
   const tx = IMG.road2, th = 44, tw = tx.width * th / tx.height;
@@ -3180,7 +3181,7 @@ const tw2Off = () => Math.min(3, Math.floor(stageIx(run.st.organ.id) / 2));
 const tw2Peek = () => { const P = run.plan; return TW2.order[(((P && P.bi) || 0) + tw2Off()) % 6]; };
 const crownOf = () => run.crown && run.crown.hp > 0 && run.towers.includes(run.crown) ? run.crown : null;
 const crownSt = t => t && t === crownOf() ? ((t.kills || 0) >= CROWN.s2 ? 2 : (t.kills || 0) >= CROWN.s1 ? 1 : 0) : -1;
-const SPIT = { r: 46, edge: 0.3, k: 0.45, fly: 0.5, pct: 0.3, ref: 300 };
+const SPIT = { r: 46, edge: 0.3, k: 0.45, fly: 0.5, pct: 0.3, ref: 300, cap: 0.4 };   // cap: 포탄 한 방은 최대 체력의 40%까지 (초반 한 방에 몰살 방지)
 // 침 피해는 '체력 비율'로: 기준 체력(스테이지마다)보다 튼튼하면 덜 아프다 → 키운 보람은 남고, 탑이 무의미해지진 않음
 const spitK = u => { const ref = SPIT.ref * ((run && run.st && run.st.mul) || 1), want = u.maxHp * (window.__spitPct ?? SPIT.pct) * clamp(Math.sqrt(ref / Math.max(1, u.maxHp)), 0.35, 2); return want; };
 const ALG = { per: 0.12, lvDmg: 1.35, lvR: 1.15, maxLv: 3, start: 2 };
@@ -3291,15 +3292,10 @@ function drawFuse(g, a, b, k, time, left, ghost) { const st = window.__fz || 'me
 function nextBuildSlot() { const R = run, P = R.plan; if (!P || P.built >= P.n) return null;
   const front = Math.max(R.frontD || 0, ...R.units.filter(u => u.alive).map(u => u.d)), open = P.slots.filter(c => c.d > (R.frontD || 0) + 20 && !(c.block > R.time)); if (!open.length) return null;
   const ahead = open.filter(c => c.d > front + 60); return (ahead.length ? ahead : open).slice().sort((a, b) => Math.abs(a.d - (front + 260)) - Math.abs(b.d - (front + 260)))[0]; }
-function drawBuildSites(time) { const R = run, P = R.plan; if (!ART2 || !B3 || !P || P.built >= P.n || !has('pad2')) return;
-  const nx = R.ta && !stealthOn() ? nextBuildSlot() : null, used = new Set(R.towers.map(t => t.slot));
-  for (const c of P.slots) { if (used.has(c) || c.d <= (R.frontD || 0) + 20 || c.block > R.time) continue; const [x, y] = c.s, hot = c === nx;
-    ctx.save(); if (hot) { const rg = ctx.createRadialGradient(x, y + 8, 4, x, y + 8, 38); rg.addColorStop(0, 'rgba(255,60,80,.55)'); rg.addColorStop(1, 'rgba(255,60,80,0)'); ctx.fillStyle = rg; ctx.beginPath(); ctx.ellipse(x, y + 8, 40, 22, 0, 0, TAU); ctx.fill(); }
-    ctx.globalAlpha = hot ? 0.95 : 0.4; if (!hot) ctx.filter = 'brightness(.65) saturate(.6)'; drawSprite(ctx, IMG.pad2, x, y + 10, 40); ctx.filter = 'none';
-    if (hot) { const left = P.next != null ? Math.max(0, P.next - R.time) : null, pul = 0.5 + 0.5 * Math.sin(time * (left != null && left < 2 ? 14 : 6));
-      ctx.globalAlpha = 0.55 + 0.45 * pul; ctx.strokeStyle = '#ff4a5a'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.lineDashOffset = -time * 20; ctx.beginPath(); ctx.ellipse(x, y + 12, 32, 13, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
-      ctx.globalAlpha = 1; const tx = left != null && left >= 1 && left < 30 ? `⚠ ${Math.ceil(left)}초 뒤 탑` : '⚠ 곧 탑 생김'; ctx.font = "800 12px Jua, 'Noto Sans KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#1a0408'; ctx.strokeText(tx, x, y - 16); ctx.fillStyle = '#ff8a94'; ctx.fillText(tx, x, y - 16); }
-    ctx.restore(); } }
+function drawBuildSites(time) { const R = run, P = R.plan; if (!ART2 || !B3 || !P || P.built >= P.n || !R.ta || stealthOn() || P.next == null) return; const left = P.next - R.time; if (left > 3 || left < 0) return;
+  const c = nextBuildSlot(), ty = tw2Peek(); if (!c || !has(ty)) return; const [x, y] = c.s, k = 1 - left / 3;
+  ctx.save(); ctx.globalAlpha = (0.18 + 0.32 * k) * (0.75 + 0.25 * Math.sin(time * 8)); if (has('pad2')) drawSprite(ctx, IMG.pad2, x, y + 10, 40); ctx.filter = 'brightness(1.6) saturate(.3)'; drawSprite(ctx, IMG[ty], x, y + 4, TW_H, 1, true); ctx.filter = 'none';
+  ctx.globalAlpha = 0.5 * k; ctx.strokeStyle = '#ff6a7a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 12, 30 * (1.4 - 0.4 * k), 12 * (1.4 - 0.4 * k), 0, 0, TAU); ctx.stroke(); ctx.restore(); }
 function drawMuteAim(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return; const cd = R.sprCd ?? SPR.first; if (cd > 0) return; const t = muteTarget(); if (!t) return;
   ctx.save(); ctx.globalAlpha = 0.55 + 0.35 * Math.sin(time * 6); ctx.strokeStyle = '#d8a8ff'; ctx.lineWidth = 2.5; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -time * 20; const sc = 1 + CROWN.size * Math.max(0, crownSt(t));
   ctx.beginPath(); ctx.ellipse(t.x, t.y - 18 * sc, 30 * sc, 36 * sc, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
@@ -4108,7 +4104,7 @@ function update(dt) {
   }
   for (const p of R.shots) {
     if (p.spit) { p.t += dt; const k = Math.min(1, p.t / p.T); p.x = p.sx + (p.tx - p.sx) * k; p.y = p.sy + (p.ty - p.sy) * k - Math.sin(k * Math.PI) * 50;
-      if (k >= 1) { p.dead = true; for (const o of R.units) { if (!o.alive || o.hero) continue; const dd = Math.hypot(o.x - p.tx, o.y - p.ty); if (dd < p.r) damage(o, (1 - (1 - SPIT.edge) * dd / p.r) * spitK(o) * p.lvK * (p.storm ? 0.5 : 1), p.tw); }
+      if (k >= 1) { p.dead = true; for (const o of R.units) { if (!o.alive || o.hero) continue; const dd = Math.hypot(o.x - p.tx, o.y - p.ty); if (dd < p.r) damage(o, Math.min(o.maxHp * SPIT.cap, (1 - (1 - SPIT.edge) * dd / p.r) * spitK(o) * p.lvK * (p.storm ? 0.5 : 1)), p.tw); }
         R.rings.push({ x: p.tx, y: p.ty, r: 6, R: p.r, t: 0.35, color: p.color }); } continue; }
     if (p.decoy) { const o = p.decoy, dx = o.x - p.x, dy = o.y - 10 - p.y, dd = Math.hypot(dx, dy), s = p.sp * dt;
       if (dd <= s + 4) { p.dead = true; o.hp -= p.dmg; R.fx.push({ x: o.x, y: o.y - 10, t: 0.2, s: 14 }); } else { p.x += dx / dd * s; p.y += dy / dd * s; } continue; }
@@ -4295,6 +4291,7 @@ function render(time) {
     if (v.closed || warn) { ctx.save(); ctx.font = "700 11px 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const tx = v.closed ? '판막 닫힘' : '판막 곧 닫힘'; ctx.strokeText(tx, x, y - 26); ctx.fillStyle = v.closed ? '#ff8d8a' : '#ffd27a'; ctx.fillText(tx, x, y - 26); ctx.restore(); }
   }
   drawGoal(ctx, map.organ, map.goal[0], map.goal[1] - 12, R.infAmt / R.st.quota, time); drawBoss(time); drawAbHorn(time); drawMed(time); drawAlarm(time);
+  drawBuildSites(time);
   if (run.br) { drawBranchTint(time); drawBridges(time); drawSprBub(time); } else { drawBypass(time); for (const f of map.forks) if (!f.byp) drawSwitch(f, time); }
   for (const t of R.towers) {
     const a = TOWERS[t.type].aura;
@@ -6125,7 +6122,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0630</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0730</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
