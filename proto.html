@@ -1145,7 +1145,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.2, lung: 0.12, gut: 0.33, liver: 0.6, blood: 0.73, skin: 0.32, lymph: 1.06, brain: 3.96 },
+const CAL = { 0: { nose: 0.2, lung: 0.16, gut: 0.38, liver: 0.6, blood: 0.73, skin: 0.32, lymph: 1.06, brain: 3.96 },
   1: { nose: 1.17, lung: 0.92, gut: 0.55, liver: 1.3, blood: 0.66, skin: 0.36, lymph: 0.6, brain: 0.99 },
   2: { nose: 0.68, lung: 0.83, gut: 1.23, liver: 1.07, blood: 0.58, skin: 0.43, lymph: 0.56, brain: 1.06 },
   3: { nose: 1.36, lung: 0.82, gut: 0.68, liver: 1.61, blood: 0.79, skin: 0.6, lymph: 0.59, brain: 1.13 } };
@@ -2636,8 +2636,8 @@ function hubSpot(tg) { const sp = $('tutSpot'), sr = $('stage').getBoundingClien
    · 잠복기가 끝나거나 경보 100%·발각이면 침투 시작. 감염 구역 밖에 있으면 선발이 붙잡힌다.
    · 감염 구역 끝이 출발점, 감염한 조직만큼 모든 바이러스가 강해지고, 감염된 길 옆엔 면역 탑이 못 선다. */
 const SEG = 44, HALF = 21;
-// ★ 오염할수록 다음 칸이 오래 걸린다 (야금야금): 이미 오염한 칸 1개마다 +grow
-const STEALTH_GROW = 0.06, stealthNeed = (o, done, gain, role) => STEALTH.infT(o) * (1 + 0.14 * (gain - 1)) * (1 + STEALTH_GROW * Math.max(0, done - 2)) / (role === 'swarm' ? 1.3 : 1);
+// ★ 오염된 땅에서 멀리 떨어진 곳일수록 한 번에 오염할 면적이 커져서 오래 걸린다 (칸 수에 비례 + 멀수록 조금 더)
+const STEALTH_FAR = 1.15, stealthNeed = (o, done, gain, role) => STEALTH.infT(o) * Math.pow(Math.max(1, gain), STEALTH_FAR) / (role === 'swarm' ? 1.3 : 1);
 const STEALTH = { L: o => Math.round(40 + 10 * clamp(o.diff - 0.5, 0, 1.3)), infT: o => 2.3 + 0.4 * o.diff, alarmPer: o => 3.2 + 0.8 * o.diff, sent: o => Math.min(5, 2 + Math.round(o.diff * 1.4)), spd: o => 48 + 10 * o.diff };
 const LEAD_ROLE = { swarm: '감염 30% 빠름', tank: '한 번 들켜도 버팀', stealth: '시야 안 0.6초까지 안 들킴', dps: '이동 1.5배', heal: '경보 20% 덜 오름' };
 function nearestOnPath(x, y) {
