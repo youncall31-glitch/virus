@@ -761,6 +761,10 @@ img.legend { animation: legGlow 3s linear infinite; }
   .cpOrg { color: #a8998a; } .cpOrg b { color: #9fff6a; font-size: 11px !important; }
   .navGo, .navGo span, .navGo small { color: #04342c !important; text-shadow: 0 1px 0 rgba(255,255,255,.45) !important; }
   #verTag { color: rgba(255,255,255,.5) !important; }
+  .hG { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .hT { border: 1.5px solid var(--c); border-radius: 16px; padding: 12px 6px 10px; background: color-mix(in srgb, var(--c) 10%, #1a1014); text-align: center; }
+  .hT i { display: block; font-style: normal; font-size: 30px; line-height: 1.1; } .hT b { display: block; font-size: 16px; color: var(--c); margin-top: 4px; } .hT small { display: block; font-size: 12.5px; color: #e8dccb; margin-top: 2px; }
+  .hTip { margin-top: 12px; font-size: 13px; color: #d8cbb8; } .hTip b { color: #ffd24a; } .hDash { display: inline-block; border: 1.5px dashed #ffd24a; color: #ffd24a; border-radius: 8px; padding: 0 6px; font-size: 11.5px; margin-right: 4px; }
 </style>
 </head>
 <body>
@@ -3331,15 +3335,11 @@ function starterPick() { if (save.starter || !$('modal').hidden) return;
     $('stBack').onclick = () => { ui.closeModal(); starterPick(); };
     $('stGo').onclick = () => { setStarter(o.id); ui.closeModal(); banner(`👑 ${sname(o.id)}가 내 본체가 됐어요!`); ui.showHub('lab'); }; }); }
 function b3Help() { const R = run; R.mutPause = true; paused = true;
-  ui.modal(`<h3 style="margin:2px 0 8px">버튼 4개로 싸워요</h3><div style="text-align:left;font-size:14px;line-height:1.6">
-    <b style="color:#ffd24a">👑 본체 스킬 (금색)</b> 본체마다 다른 스킬이에요. 버튼 아래에 효과가 적혀 있어요. 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요.<br>
-    <b style="color:#ff8a7a">⚔ 출발</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
-    <b style="color:#9fd8ff">🫥 숨기</b> 길 위 바이러스가 세포 속으로 숨어요. <b>느리게(35%) 나아가면서 약·탑 침·방해물을 다 피해요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 나와요.<br>
-    <b style="color:#e8b8ff">💫 면역 마비</b> <b>👑 왕관 탑</b>(가장 많이 죽인 탑)을 <b>${MUTE.t}초 동안 멈춰요</b>. 왕관 탑이 없으면 가장 센 탑. 준비되면 멈출 탑에 보라 점선이 떠요. 처음 ${SPR.first}초 뒤 준비, 쓰고 나면 ${SPR.cd}초.<br>
-    <b style="color:#ff8a94">👑 왕관 탑</b> 탑은 싼 것부터 순서대로 지어져요(호중구→섬모→대식세포→NK→T세포→보체). 가장 많이 죽인 탑은 ${CROWN.s1}·${CROWN.s2}마리마다 커지고 세져요.<br>
-    <b style="color:#ffd27a">🔥 콤보</b> <b>금색 점선</b> 버튼이 본체 스킬의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 스킬 ×${CHG.mul}!<br>
-    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 숨기! · 👑 탑 앞에 무리가 닿을 때 → 면역 마비</div></div>
-    <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
+  const t = (ic, nm, d, c) => `<div class="hT" style="--c:${c}"><i>${ic}</i><b>${nm}</b><small>${d}</small></div>`;
+  ui.modal(`<h3 style="margin:2px 0 12px">버튼 4개로 싸워요</h3>
+    <div class="hG">${t('👑', '본체 스킬', '차면 누르기', '#ffd24a')}${t('⚔', '출발', '둥지 → 길로', '#ff8a7a')}${t('🫥', '숨기', '약이 오면 숨기', '#9fd8ff')}${t('💫', '면역 마비', '👑 탑 멈추기', '#d8a8ff')}</div>
+    <div class="hTip"><span class="hDash">콤보</span> 점선 버튼 + 본체 스킬 같이 → <b>×${CHG.mul}</b></div>
+    <button class="cvSGo" id="b3Ok" style="margin-top:14px">시작!</button>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
 const AL = { gain: 0.045, decay: 14, quiet: 8, warn: 2, dur: 2.5, dmg: 1.2, after: 20, gapDur: 4.5, gapBonus: 1.0, w: { stealth: 0.5, dps: 1.5 },
   org: { nose: 0.8, lung: 0.9, gut: 1, liver: 1, blood: 1.1, skin: 0.85, lymph: 1.2, brain: 1.3 } };
@@ -6105,7 +6105,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0025</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0030</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
