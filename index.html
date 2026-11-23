@@ -6105,7 +6105,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0020</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0025</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6115,7 +6115,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   const el = document.createElement('div'); el.id = 'sbDark';
   el.innerHTML = '<div class="sbB"><b>🌙 색이 이상하게 보이나요?</b><p>삼성 인터넷의 <u>다크 모드</u>가 게임 색을 바꿔요.<br>크롬으로 열면 원래 색으로 보여요.</p>'
     + '<button id="sbChrome">크롬으로 열기</button><button id="sbHow" class="g">삼성 인터넷에서 고치는 법</button>'
-    + '<div id="sbSteps" hidden>메뉴(≡) → 설정 → <b>Labs</b> → <b>웹사이트 다크 테마 사용</b> 켜기<br>또는 메뉴(≡) → <b>다크 모드</b> 끄기</div>'
+    + '<div id="sbSteps" hidden>오른쪽 아래 <b>≡</b> 메뉴에서<br>• <b>어두운 웹페이지</b>를 끄거나<br>• <b>설정 → 실험실 → 웹사이트 다크 테마 사용</b>을 켜요<br><small style="color:#a89a8a">(버전마다 이름이 조금 달라요)</small></div>'
     + '<button id="sbOk" class="t">괜찮아요</button><button id="sbNever" class="t">다시 보지 않기</button></div>';
   const st = document.createElement('style'); st.textContent = '#sbDark{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.75);display:grid;place-items:center;padding:20px;font-family:Jua,sans-serif}#sbDark .sbB{max-width:320px;width:100%;background:#1e1418;border:1px solid #5a3a40;border-radius:20px;padding:20px 18px;color:#fff;text-align:center}#sbDark .sbB>b{font-size:19px}#sbSteps b{color:#fff}#sbDark p{font-size:14px;line-height:1.6;color:#e8dccb;margin:10px 0 14px}#sbDark button{display:block;width:100%;height:46px;border-radius:14px;border:0;margin-top:8px;font:16px Jua,sans-serif;background:#3ae0c0;color:#04342c}#sbDark button.g{background:none;border:1.5px solid #ffd24a;color:#ffd24a}#sbDark button.t{background:none;color:#c9b9a2;height:36px;font-size:14px}#sbSteps{margin-top:10px;font-size:13.5px;line-height:1.7;color:#e8dccb;background:#2a1d22;border-radius:12px;padding:10px}';
   document.head.appendChild(st); const go = () => document.body.appendChild(el); document.body ? go() : addEventListener('DOMContentLoaded', go);
