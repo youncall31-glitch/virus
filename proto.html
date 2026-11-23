@@ -1146,7 +1146,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.045, lung: 0.13, gut: 0.27, liver: 0.42, blood: 0.6, skin: 0.24, lymph: 0.8, brain: 3.5 },
+const CAL = { 0: { nose: 0.045, lung: 0.13, gut: 0.23, liver: 0.36, blood: 0.5, skin: 0.3, lymph: 0.8, brain: 3.5 },
   1: { nose: 0.99, lung: 0.78, gut: 0.47, liver: 1.1, blood: 0.56, skin: 0.31, lymph: 0.51, brain: 0.84 },
   2: { nose: 0.58, lung: 0.71, gut: 1.05, liver: 0.91, blood: 0.49, skin: 0.37, lymph: 0.48, brain: 0.9 },
   3: { nose: 1.16, lung: 0.7, gut: 0.58, liver: 1.37, blood: 0.67, skin: 0.51, lymph: 0.5, brain: 0.96 } };
@@ -2843,7 +2843,8 @@ function drawStealth(time) {
    잠입이 끝나면 오염된 땅 끝에서 길이 2~3갈래로 갈라져 장기로 간다.
    출발 1·2·3을 꾹 눌러 갈래마다 얼마나 보낼지 정한다. 면역은 자원을 모아 갈래마다 탑을 짓는다(한 번 지은 탑은 그대로).
    면역 성격: 성실형(바로 지음) · 속임형(아껴 뒀다가 대량 물량이 오는 갈래에 몰아 지음) */
-const BR = { on: o => B3 && (window.__br != null ? !!window.__br : !!(o && BR_ORG[o.id])), n3: 12, col: ['#ff6a5a', '#5aa8ff', '#5ad86a'], big: 0.45, holdT: 1.0, tapF: 0.15, extra: 2 };
+const BR_OFF = true;   // ★ 갈래길은 껐다 (스위치만 남김: window.__br = 1 로 켜 볼 수 있음)
+const BR = { on: o => B3 && (window.__br != null ? !!window.__br : !BR_OFF && !!(o && BR_ORG[o.id])), n3: 12, col: ['#ff6a5a', '#5aa8ff', '#5ad86a'], big: 0.45, holdT: 1.0, tapF: 0.15, extra: 2 };
 // 면역 성격: honest = 성실형(자원 생기면 바로, 위협 큰 길에) · bluff = 속임형(아껴 뒀다가 대량 물량 오는 길에 몰아서)
 const BR_ORG = { nose: 'honest', lung: 'honest', gut: 'bluff', liver: 'honest', blood: 'bluff', skin: 'honest', lymph: 'bluff', brain: 'bluff' };
 const brOn = () => !!(run && run.br);
@@ -5875,5 +5876,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1524</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1534</div></body>
 </html>
