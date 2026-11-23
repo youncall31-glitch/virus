@@ -767,6 +767,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .hTip { margin-top: 12px; font-size: 13px; color: #d8cbb8; } .hTip b { color: #ffd24a; } .hDash { display: inline-block; border: 1.5px dashed #ffd24a; color: #ffd24a; border-radius: 8px; padding: 0 6px; font-size: 11.5px; margin-right: 4px; }
   .dp.atk.big { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; } .dp.atk.big b { font-size: 18px; } .dp.atk.big small { font-size: 11px; opacity: .8; }
   #top .stage b { font-size: 14px; }
+  .ph #hint { font-size: 12px !important; color: #e0d2bf !important; } #info2 .plate { font-size: 12.5px; } #liveBox b { font-size: 14px; }
 </style>
 </head>
 <body>
@@ -3341,8 +3342,8 @@ function setStarter(id) { if (save.starter) return; save.starter = id; let g = s
   if (!g) { g = newGene(id, 1); const sq = slotGenes().filter(Boolean); g.lv = Math.max(1, Math.min(lvCap(), sq.length ? Math.floor(sq.reduce((a, x) => a + (x.lv || 1), 0) / sq.length) : 1)); save.genes.push(g); markSeen(id); }
   g.core = true; normSquad(); autoSquad(); normSquad(); persist(); }
 function starterPick() { if (save.starter || !$('modal').hidden) return;
-  ui.modal(`<h3 style="margin:2px 0 4px">내 본체를 고르세요</h3><div class="sub">이 아이 몸에 처음 어떻게 들어갈까요? <b style="color:#ffd27a">나중에 다른 바이러스로 언제든 바꿀 수 있어요.</b></div>
-    <div class="stPick">${STARTERS.map(o => `<button class="stOpt" data-id="${o.id}"><img src="assets/${o.id}.png" alt=""><div><b>${o.route} · ${sname(o.id)}</b><small>${o.how}<br>${o.real}</small><em>${o.play}</em><i>${o.when}</i></div></button>`).join('')}</div>`);
+  ui.modal(`<h3 style="margin:2px 0 4px">내 본체를 고르세요</h3><div class="sub">나중에 언제든 바꿀 수 있어요</div>
+    <div class="stPick">${STARTERS.map(o => `<button class="stOpt" data-id="${o.id}"><img src="assets/${o.id}.png" alt=""><div><b>${o.route} · ${sname(o.id)}</b><em>${o.play}</em><i>${o.when}</i></div></button>`).join('')}</div>`);
   $('modalBox').querySelector('.mX').hidden = true;
   $('modalBox').querySelectorAll('.stOpt').forEach(b => b.onclick = () => { const o = STARTERS.find(x => x.id === b.dataset.id);
     ui.modal(`<h3 style="margin:2px 0 6px">${sname(o.id)}로 시작할까요?</h3><img src="assets/${o.id}.png" alt="" style="width:110px;display:block;margin:4px auto">
@@ -4249,7 +4250,7 @@ function endRun() {
   }
   { const cg = compGene(); if (cg) { const before = save.rcG || 0; R.rcGain = rcGainOf(R); save.rcG = Math.min(3, before + R.rcGain); R.rcFrom = before; R.rcComp = cg; } }
   quest('play'); if (win) quest('win'); if (R.bossKO) quest('boss');
-  R.newUnlocks = Object.entries(UNLOCK).filter(([k, v]) => before < v[0] && progN() >= v[0]).map(([k, v]) => v[1]);
+  R.newUnlocks = B3 ? [] : Object.entries(UNLOCK).filter(([k, v]) => before < v[0] && progN() >= v[0]).map(([k, v]) => v[1]);   // 시제품: 꺼 둔 기능(갈림길·신종 등)을 '새 기능'으로 알리지 않음
   persist();
   setTimeout(() => { if (run === R) ui.showResult({ win, credits, ending, hostDone }); }, 500);
 }
@@ -4317,7 +4318,7 @@ function render(time) {
       if (IMG[t.type] && (t.type !== 'bcell' || has('bcell'))) drawSprite(ctx, IMG[t.type], 0, 0, TW_H, 1, true); else { ctx.filter = 'hue-rotate(150deg) saturate(1.4)'; drawSprite(ctx, IMG.nk, 0, 0, TW_H, 1, true); ctx.filter = 'none'; ctx.strokeStyle = '#5fe0d0'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(0, -38); ctx.moveTo(0, -38); ctx.lineTo(-5, -44); ctx.moveTo(0, -38); ctx.lineTo(5, -44); ctx.stroke(); } drawCracks(t); ctx.filter = 'none'; ctx.restore();
       if (B3) drawTw2Badge(t, time);
       if (t.relearn > 0) { ctx.save(); ctx.font = "800 14px sans-serif"; ctx.textAlign = 'center'; ctx.fillStyle = '#9fff6a'; ctx.fillText('?', t.x - 15, t.y - 32); ctx.restore(); }
-      if (t.memory) { ctx.save(); ctx.font = "800 9px sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText('기억', t.x, t.y + 16); ctx.fillStyle = '#9fd8ff'; ctx.fillText('기억', t.x, t.y + 16); ctx.restore(); }
+      if (t.memory) { ctx.save(); ctx.font = "800 11px sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText('기억', t.x, t.y + 16); ctx.fillStyle = '#9fd8ff'; ctx.fillText('기억', t.x, t.y + 16); ctx.restore(); }
       if (t.spec) { const bx = t.x + 15, by = t.y - 36, c = SCOLOR[t.spec] || '#7fc0ff'; ctx.save(); ctx.fillStyle = 'rgba(10,6,8,.85)'; ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fill(); ctx.stroke();
         ctx.beginPath(); ctx.arc(bx, by, 9, 0, TAU); ctx.clip(); drawSprite(ctx, unitImg(t.spec, 1), bx, by + 7, 18, 1, true); ctx.restore();
         ctx.save(); ctx.globalAlpha = 0.35; ctx.strokeStyle = c; ctx.setLineDash([3, 4]); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(t.x, t.y - 4, 22, 0, TAU); ctx.stroke(); ctx.restore(); }
@@ -4600,7 +4601,7 @@ const ui = {
     $('bGo').disabled = !sq.length || !organOpen(o);
     // 연구소에서는 아래 출격 줄을 없애고 버튼 줄 안에 작은 출격 버튼 (카드 칸을 넓히려고)
     $('hub').classList.toggle('labOn', hubTab === 'lab'); $('bGo2').disabled = $('bGo').disabled; $('bGo2').innerHTML = `▶ 출격<small>${ORG_SHORT[o.id]} · ${TA() ? Math.min(MINE_CAP, mineRaw(slotFill())) : sq.length}마리</small>`;
-    hubBadge(); if (save.tutDone && attReady() && !window.__attShown) setTimeout(() => { if (!window.__attShown && $('intro').hidden && $('modal').hidden && !$('hub').hidden && attReady()) { window.__attShown = true; questView(); } }, 900);   // 그날 첫 방문: 출석·임무 창
+    hubBadge(); if (save.tutDone && Object.keys(save.done || {}).length >= 2 && attReady() && !window.__attShown) setTimeout(() => { if (!window.__attShown && $('intro').hidden && $('modal').hidden && !$('hub').hidden && attReady()) { window.__attShown = true; questView(); } }, 900);   // 그날 첫 방문: 출석·임무 창
   },
   // 정복한 기관마다 숙주에게 증상이 생긴다 (최근 3개만 말풍선)
   symptoms(BM, pos) { const SYM = { nose: '🤧 에취!', lung: '😷 콜록콜록', lymph: '🤒 37.8℃', gut: '🤢 속 더부룩', liver: '😩 너무 피곤해', blood: '🥶 으슬으슬', skin: '🔴 오돌토돌', brain: '😵 어질어질' };
@@ -5452,8 +5453,8 @@ const ui = {
     if (stealthOn()) { const T = R.sth, a = Math.min(100, T.alarm), L = Math.max(0, T.latent), cs = Math.ceil(L), safe = scoutSafe();
       $('goalLbl').textContent = '들킬 위험'; $('goalTxt').textContent = Math.round(a) + '%'; $('goalBar').classList.add('alarm'); $('goalBar').classList.remove('done'); $('goalBar').querySelector('i').style.width = a + '%';
       $('timerTag').hidden = false; $('timerTag').querySelector('span').textContent = '숨어들 시간'; $('timerTxt').textContent = `${Math.floor(cs / 60)}:${String(cs % 60).padStart(2, '0')}`; $('timerTag').querySelector('i').style.width = (L / T.L * 100) + '%'; $('timerTag').classList.toggle('hurry', L <= 8);
-      $('liveTxt').parentElement.innerHTML = `🟣 <b id="liveTxt" style="color:#e8a0ff">${absorbedN()}</b>칸 · <span style="color:#ffd27a">힘 +${Math.round((tPow() - 1) * 100)}%</span>`;
-      const at = $('alertTag'); at.hidden = false; at.textContent = safe ? '숨음' : '보임'; at.style.color = safe ? '#b9f27a' : '#ffb4a8'; at.style.borderColor = safe ? '#4f7a2a' : '#c23a3f';
+      $('liveTxt').parentElement.innerHTML = `감염 <b id="liveTxt" style="color:#e8a0ff">${absorbedN()}</b>칸`;
+      const at = $('alertTag'); at.hidden = safe; if (!safe) { at.textContent = '👀 보여요!'; at.style.color = '#ffb4a8'; at.style.borderColor = '#c23a3f'; }   // 숨어 있을 땐 표시 없음, 들킬 때만 경고
       $('domTag').hidden = true; $('queueTxt').textContent = ''; return; }
     if (R.sth && !R.sth.restored) { R.sth.restored = true; $('timerTag').querySelector('span').textContent = '약 들어오기까지'; $('liveTxt').parentElement.innerHTML = `바이러스 <b id="liveTxt" style="color:#ffd27a">0</b>${R.tpow > 1 ? ` · <span style="color:#ffd27a">힘 +${Math.round((R.tpow - 1) * 100)}%</span>` : ''}`; $('alertTag').style.color = ''; $('alertTag').style.borderColor = ''; }
     $('liveTxt').textContent = R.units.filter(u => u.alive).length + leftN();
@@ -6123,7 +6124,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0745</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0800</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
