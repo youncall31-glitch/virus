@@ -2,12 +2,14 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="dark">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>우쭈쭈 바이러스 — 몸속 정복 대작전</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root { color-scheme: dark; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0607; color: #eadcc2;
     font-family: 'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-user-select: none; user-select: none; }
   #stage { position: absolute; inset: 0; margin: auto; width: min(100vw, 100dvh * 9 / 16); height: 100dvh; overflow: hidden; background: #120a0c; }
@@ -483,7 +485,7 @@
   .ending { border: 1px solid #c79a45; border-radius: 8px; padding: 10px; background: #1d1510; font-size: 13px; line-height: 1.6; }
   .modal { position: absolute; inset: 0; background: rgba(0,0,0,.72); display: grid; place-items: center; padding: 14px; z-index: 6; }
   .modal[hidden] { display: none; }
-  .modal .box { width: 100%; max-width: 350px; padding: 14px; text-align: center; max-height: 96%; overflow: hidden; }
+  .modal .box { width: 100%; max-width: 350px; padding: 14px; text-align: center; max-height: calc(100% - 8px); overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
   .modal .box img.hero { height: 78px; }
   .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; } .row .btn { flex: 1 1 40%; }
   .stats { margin: 8px 0 4px; text-align: left; }
@@ -666,7 +668,8 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmS.no { filter: grayscale(.9) brightness(.5); } .fmS.no::after { content: '🚫'; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 26px; }
   .rcRow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #3a2a2e; font-size: 13px; text-align: left; } .rcRow > b { width: 56px; font-size: 12px; } .rcRow img { width: 38px; height: 38px; object-fit: contain; } .rcRow small { font-size: 11px; }
   .sortRow button.on { background: #3ae0c0 !important; color: #06302a !important; border-color: #3ae0c0 !important; }
-  .sortRow .srtT { margin-left: auto; border-color: #6a5030 !important; color: #ffd27a; } .sortRow button small { font-size: 10px; opacity: .7; }
+  .sortRow .srtT { margin-right: 2px; border-color: #b08030 !important; color: #ffd27a; background: #3a2610 !important; font-weight: 900; }
+  .pkSrt { float: right; margin-top: -2px; font: 12px Jua, sans-serif; color: #ffd27a; background: #3a2610; border: 1px solid #b08030; border-radius: 12px; padding: 3px 9px; } .sortRow button small { font-size: 10px; opacity: .7; }
   #sortRail { flex-wrap: nowrap; overflow-x: auto; margin: 3px 0 4px; gap: 4px; } #sortRail button { padding: 3px 6px; font-size: 11.5px; white-space: nowrap; flex: 0 0 auto; }
   .fmStrip { display: flex; justify-content: space-between; align-items: center; margin: -1px -1px 3px; padding: 1px 5px; border-radius: 9px 9px 0 0; font-size: 10.5px; font-weight: 800; color: #1a0f0c; line-height: 15px; white-space: nowrap; }
   .fmStrip em { font-style: normal; border-radius: 6px; padding: 0 4px; background: rgba(0,0,0,.55); color: #fff; } .fmStrip em.eq { color: #b8f28a; } .fmStrip em.cr { background: rgba(0,0,0,.6); } .fmStrip em.up { color: #9fff6a; } .fmStrip em.dn { color: #ff9c8a; }
@@ -693,12 +696,13 @@ img.legend { animation: legGlow 3s linear infinite; }
   .rbw, .rbwT { background: linear-gradient(90deg,#ff6a6a,#ffd24a,#7ad070,#5ad0ff,#b07aff); -webkit-background-clip: text; background-clip: text; color: transparent !important; } .fmC small.rbw .lv { -webkit-text-fill-color: #b59f86; }
   .fmLegend { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #c9b9a2; margin: 2px 0 6px; } .fmLegend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; border: 1px solid rgba(255,255,255,.15); margin-left: 6px; } .fmLegend i:first-child { margin-left: 0; }
   .fmPanel { display: block; background: rgba(20,12,16,.8); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 5px 9px; font-size: 12px; line-height: 1.6; color: #eadcc2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .fmPanel em { font-style: normal; color: #b59f86; margin-right: 4px; } .fmPanel i { font-style: normal; color: #6a5a4a; margin: 0 6px; } .fmPanel b { color: #3ae0c0; } .fmPanel small { color: #b59f86; }
-  .fmC { background-clip: padding-box; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; padding: 6px 2px 5px !important; box-shadow: none; }
+  .fmC { background-clip: padding-box; border: 1.5px solid var(--rb, rgba(255,255,255,.12)) !important; border-radius: 14px !important; padding: 6px 2px 5px !important; box-shadow: none; }
   .fmC.in { box-shadow: inset 0 0 0 1.5px #3ae0c0 !important; }
   .fmC .fmPic { display: block; height: 56px; } .fmC .fmPic img { width: 56px !important; height: 56px !important; object-fit: contain; }
   .fmC b { font-size: 12px; height: 16px; line-height: 16px; margin-top: 2px; }
-  .fmC .fmSt { display: block; font-size: 9.5px !important; letter-spacing: -.5px; height: 13px; line-height: 13px; } .fmC .fmSt i { font-style: normal; color: #4a3a30; }
-  .fmC .fmLv { display: block; font-size: 10.5px !important; color: #b59f86; letter-spacing: 0 !important; height: 14px; line-height: 14px; white-space: nowrap; }
+  .fmC .fmSt { display: block; font-size: 9.5px !important; letter-spacing: -.5px; height: 13px; line-height: 13px; } .fmC .fmSt i { font-style: normal; color: #8a7050; opacity: .75; }
+  .stz { color: #ffcf4a !important; -webkit-text-fill-color: #ffcf4a; text-shadow: 0 1px 0 #4a2a00, 0 0 3px rgba(0,0,0,.7); letter-spacing: -.5px; }
+  .fmC .fmLv { display: block; font-size: 10.5px !important; color: #e0cdb4; letter-spacing: 0 !important; height: 14px; line-height: 14px; white-space: nowrap; }
   .fmMk { position: absolute; right: 4px; top: 4px; z-index: 3; font-style: normal; font-size: 10px; font-weight: 900; border-radius: 9px; min-width: 18px; height: 18px; line-height: 18px; padding: 0 3px; }
   .fmMk.eq { background: #3ae0c0; color: #06302a; } .fmMk.cr { background: rgba(0,0,0,.5); } .fmMk.up { background: rgba(0,0,0,.6); color: #3ae0c0; } .fmMk.dn { background: rgba(0,0,0,.6); color: #ff9c8a; }
   .fmC.foil { overflow: hidden; } .fmC.foil::before { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg,transparent 30%,rgba(255,255,255,.22) 45%,rgba(255,220,255,.1) 55%,transparent 70%); pointer-events: none; }
@@ -1517,9 +1521,9 @@ const roleSlotOf = g => { const r = ROLE_OF[g.strain]; return r && ROLE_SLOT[r] 
 // ★ 카드 테두리 = 등급 (클래시 로얄·하스스톤식): 일반 회갈색 · 희귀 파랑 · 영웅 보라 · 전설 금빛. 바탕은 어두운 무채색에 역할 색을 아주 살짝
 const RAR_FRAME = ['#6e6862', '#cfd6e2', '#e8b830'];
 // ★ 카드 바탕 = 등급 (옅은 파스텔 반투명) · 전설은 무지개빛 + 반짝임
-const RAR_BG = ['linear-gradient(160deg,rgba(190,184,176,.26),rgba(120,114,108,.16))', 'linear-gradient(160deg,rgba(170,205,255,.32),rgba(110,140,200,.16))', 'linear-gradient(160deg,rgba(255,214,120,.36),rgba(200,140,40,.18))'], LEG_BG = 'linear-gradient(160deg,rgba(255,150,150,.32),rgba(255,220,120,.3),rgba(150,230,170,.28),rgba(140,200,255,.3),rgba(200,160,255,.32))';
+const RAR_BG = ['linear-gradient(160deg,rgba(200,194,186,.34),rgba(120,114,108,.2))', 'linear-gradient(160deg,rgba(150,200,255,.5),rgba(90,130,210,.26))', 'linear-gradient(160deg,rgba(255,206,90,.56),rgba(210,140,30,.3))'], LEG_BG = 'linear-gradient(160deg,rgba(255,130,130,.5),rgba(255,215,100,.46),rgba(130,230,160,.44),rgba(120,190,255,.46),rgba(190,140,255,.5))';
 const rarBg = g => { const D = STRAINS[g.strain]; return D.legend ? LEG_BG : RAR_BG[D.rarity] || RAR_BG[0]; };
-const cardBg = g => `background:${rarBg(g)};border-color:rgba(255,255,255,.08)`;
+const RAR_LINE = ['rgba(200,194,186,.45)', '#8fc4ff', '#ffc83a'], cardBg = g => { const D = STRAINS[g.strain]; return `background:${rarBg(g)};border-color:rgba(255,255,255,.08);--rb:${D.legend ? '#ff8ad8' : RAR_LINE[D.rarity] || RAR_LINE[0]}`; };
 const roleFit = (g, i) => { const r = ROLE_OF[g.strain]; return !!(r && (ROLE_SLOT[r] || []).includes(i)); };
 // ★ 칸 규칙 (오버워치 역할 고정처럼): 🛡내성 = 아무 역할(무리의 타입을 정함) · 나머지 칸 = 그 역할만 · 전설은 어디든
 // ★ 동반 전용 '사라진 바이러스': 능력치는 아주 약하지만 판 내내 도는 강한 스킬
@@ -2518,7 +2522,7 @@ function winBurst() { const R = run; if (R.winFx) return; R.winFx = { t: 0 }; sh
 
 /* ---------- [systems/mine.js] ★ 내 바이러스: 연구소의 카드 3장(대장·속도·공격)을 합성한 단 하나의 계통으로 싸운다 ----------
    대장 → 방어(체력)·정체성(역할), 속도 → 속도·은신, 공격 → 감염력. 배양력은 셋의 합. 스킬은 꽂은 카드에서 하나씩 추출. */
-const SLOT_NAME = ['체력', '속도', '공격', '마릿수', '-'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력', '마릿수·스킬', '마릿수·스킬'], SLOT_ICON = ['🛡', '💨', '☣', '🦠', '·'], SLOT_STAT = ['체력', '속도', '공격', '마릿수', '마릿수'], SLOT_KEY = ['hp', 'spd', 'atk', 'count', 'count'];
+const SLOT_NAME = ['체력·회복', '속도', '공격', '마릿수', '-'], SLOT_DESC = ['체력·타입', '빠르기·숨기', '공격력', '마릿수·스킬', '마릿수·스킬'], SLOT_ICON = ['🛡', '💨', '☣', '🦠', '·'], SLOT_STAT = ['체력', '속도', '공격', '마릿수', '마릿수'], SLOT_KEY = ['hp', 'spd', 'atk', 'count', 'count'];
 // 부품 그림(대장 6 · 속도 2 · 공격 6)을 겹쳐 내 바이러스 모습을 만든다
 const VP_CORE = { adeno: 0, measles: 0, herpes: 1, rsv: 1, retro: 1, noro: 2, hepb: 2, rota: 3, flu: 3, rabies: 4, rhino: 5, hpv: 5 };
 const VP_COAT = { herpes: 'env', flu: 'env', rsv: 'env', measles: 'env', retro: 'env', hepb: 'env', rabies: 'env', adeno: 'hex', hpv: 'hex', rota: 'hex', noro: '', rhino: '' };
@@ -4505,7 +4509,7 @@ const joyEnd = e => { if (run && run.sth && run.sth.joy && run.sth.joy.id === e.
 canvas.addEventListener('pointerup', joyEnd); canvas.addEventListener('pointercancel', joyEnd);
 /* ---------- [ui/*.js] 허브(인체 지도 · 연구소) · HUD · 결과 ---------- */
 let toastT; function toast(m) { const e = $('toast'); e.textContent = m; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 1800); }
-const stars = n => '★'.repeat(n);
+const stars = n => `<span class="stz">${'★'.repeat(n)}</span>`;   // ★ 별은 언제나 금색 하나 (등급은 카드 바탕·테두리로)
 function fit() {
   const r = $('stage').getBoundingClientRect(), k = W / r.width;
   H = Math.round(r.height * k); TOP = 92 * k; KS = k; BOTTOM = (TA() ? 124 : 206) * k;
@@ -4619,10 +4623,10 @@ const ui = {
     window.toast = () => {}; try { setCore(g); const f = slotFill(), ms = f.length ? mineStats(f) : null, m = f.length ? matchTotal(f, org) : 0; r = { pf, pt: ms ? powerOf(ms.s, m) : 0, s0, s1: slotsOpenN(), m0, m1: m }; }
     finally { window.toast = t0; for (const x of save.genes) delete x.core; for (const x of snap.cf) x.core = true; save.squad = snap.sq; save.starter = snap.st; save.coreL = snap.cl; persist(); if (slotFill().length) mineStats(slotFill()); }
     r.pp = r.pf ? Math.round((r.pt / r.pf - 1) * 100) : 0; return r; },
-  corePickList() { const cur = coreGene(), list = save.genes.filter(g => canBeCore(g) && g !== cur).map(g => ({ g, r: ui.corePrev(g) })).sort((a, b) => b.r.pt - a.r.pt);
-    ui.modal(`<h3 style="margin:2px 0 4px">👑 본체로 할 바이러스 <small style="font-size:12px;color:#b59f86">이득 순</small></h3><div class="sub">지금 편성 그대로 본체만 바꿨을 때 · 등급이 높을수록 스킬이 세요</div>
-      <div class="cpList">${list.map(({ g, r }) => `<button class="cpOpt" data-u="${g.uid}">${pimg(g)}<div style="flex:1"><b>${sname(g.strain)} <span style="color:${RARITY[STRAINS[g.strain].rarity].color};font-size:11px">${'★'.repeat(g.star)}</span></b><small>${RAR_NAME[coreRarOf(g)]} · Lv${g.lv || 1} · 칸 ${r.s1}개${fitOrgans(g).includes(save.sel) ? ' · <span style="color:#9fff6a">✓ 지금 기관</span>' : ''}<br>✨ ${(STRAINS[g.strain].skill || {}).name || ''} · ${skMini(g)}</small></div><div class="slR"><b style="color:${r.pp > 0 ? '#3ae0c0' : r.pp < 0 ? '#ff8a7a' : '#b59f86'}">${r.pp > 0 ? '+' : ''}${r.pp}%</b><small>전투력</small></div></button>`).join('') || '<div class="sub">바꿀 수 있는 바이러스가 없어요</div>'}</div>`, [{ label: '닫기' }]);
-    $('modalBox').querySelectorAll('.cpOpt').forEach(b => b.onclick = () => ui.coreSwap(geneById(+b.dataset.u))); },
+  corePickList() { const cur = coreGene(), list = pickSort(save.genes.filter(g => canBeCore(g) && g !== cur).map(g => ({ g, r: ui.corePrev(g) })), x => x.r.pt);
+    ui.modal(`<h3 style="margin:2px 0 4px">👑 본체로 할 바이러스 ${pickSortBtn()}</h3><div class="sub">지금 편성 그대로 본체만 바꿨을 때 · 등급이 높을수록 스킬이 세요</div>
+      <div class="cpList">${list.map(({ g, r }) => `<button class="cpOpt" data-u="${g.uid}">${pimg(g)}<div style="flex:1"><b>${sname(g.strain)} <span style="font-size:11px">${stars(g.star)}</span></b><small>${RAR_NAME[coreRarOf(g)]} · Lv${g.lv || 1} · 칸 ${r.s1}개${fitOrgans(g).includes(save.sel) ? ' · <span style="color:#9fff6a">✓ 지금 기관</span>' : ''}<br>✨ ${(STRAINS[g.strain].skill || {}).name || ''} · ${skMini(g)}</small></div><div class="slR"><b style="color:${r.pp > 0 ? '#3ae0c0' : r.pp < 0 ? '#ff8a7a' : '#b59f86'}">${r.pp > 0 ? '+' : ''}${r.pp}%</b><small>전투력</small></div></button>`).join('') || '<div class="sub">바꿀 수 있는 바이러스가 없어요</div>'}</div>`, [{ label: '닫기' }]);
+    $('modalBox').querySelectorAll('.cpOpt').forEach(b => b.onclick = () => ui.coreSwap(geneById(+b.dataset.u))); pickSortBind(() => ui.corePickList()); },
   coreSwap(g) { const cur = coreGene(), r1 = coreRarOf(g), r = ui.corePrev(g), out = cur ? slotGenes().filter((x, i) => x && i < 4 && !coreFreeOf(g) && (x.lv || 1) > (g.lv || 1) && x !== g) : [], up = x => `<span style="color:${x >= 0 ? '#3ae0c0' : '#ff8a7a'}">`;
     const ln = (a, b, c) => `<div class="ln"><span>${a}</span><b>${b}</b></div>`;
     ui.modal(`<h3 style="margin:2px 0 6px">👑 ${cur ? sname(cur.strain) + ' → ' : ''}${sname(g.strain)}</h3><div class="csBig">${pimg(g)}</div>
@@ -4803,14 +4807,14 @@ const ui = {
   //   칸 먼저: 칸을 누르면 카드 위에 그 칸 기준 전투력 변화 → 카드를 누르면 바로 꽂힘
   //   카드 먼저: 카드를 누르면 위 칸들이 흔들리며 칸마다 변화 숫자 → 칸을 누르면 꽂힘
   // ★ 칸 먼저 (AFK 아레나·원신식): 칸을 누르면 그 칸에 넣을 카드가 이득 순서로
-  slotPickList(i) { const sq = slotGenes(), cur = sq[i], cands = save.genes.filter(g => g !== cur && canSlot(g, i)).map(g => ({ g, d: ui.slotDelta(g, i), p: ui.slotPrev(g, i) })).sort((a, b) => b.d.pt - a.d.pt);
-    const row = ({ g, d, p }) => `<button class="cpOpt slRow${p && p.match ? ' ok' : ''}" data-u="${g.uid}">${pimg(g)}<div style="flex:1"><b>${sname(g.strain)} <span style="color:${RARITY[STRAINS[g.strain].rarity].color};font-size:11px">${'★'.repeat(g.star)}</span></b><small>${(ROLES[ROLE_OF[g.strain]] || {}).name || ''} · ${STRAINS[g.strain].legend ? '전설' : RAR_NAME[Math.min(2, STRAINS[g.strain].rarity || 0)]} · Lv${g.lv || 1}${p ? (p.match ? ' · <span style="color:#3ae0c0">✓ 역할 맞음</span>' : ' · <span style="color:#ff9a7a">절반</span>') : ''}${sq.includes(g) ? ' · 다른 칸에서 옮김' : ''}</small></div><div class="slR"><b style="color:${p && p.match ? '#3ae0c0' : '#ff9a7a'}">${SLOT_STAT[i]} +${p ? p.nb : 0}%</b><small style="color:${d.pp > 0 ? '#3ae0c0' : d.pp < 0 ? '#ff8a7a' : '#b59f86'}">전투력 ${d.pp > 0 ? '+' : ''}${d.pp}%</small></div></button>`;
-    ui.modal(`<h3 style="margin:2px 0 4px">${SLOT_ICON[i]} ${SLOT_STAT[i]} 칸에 넣을 카드 <small style="font-size:12px;color:#b59f86">이득 순</small></h3>
+  slotPickList(i) { const sq = slotGenes(), cur = sq[i], cands = pickSort(save.genes.filter(g => g !== cur && canSlot(g, i)).map(g => ({ g, d: ui.slotDelta(g, i), p: ui.slotPrev(g, i) })), x => x.d.pt);
+    const row = ({ g, d, p }) => `<button class="cpOpt slRow${p && p.match ? ' ok' : ''}" data-u="${g.uid}">${pimg(g)}<div style="flex:1"><b>${sname(g.strain)} <span style="font-size:11px">${stars(g.star)}</span></b><small>${(ROLES[ROLE_OF[g.strain]] || {}).name || ''} · ${STRAINS[g.strain].legend ? '전설' : RAR_NAME[Math.min(2, STRAINS[g.strain].rarity || 0)]} · Lv${g.lv || 1}${p ? (p.match ? ' · <span style="color:#3ae0c0">✓ 역할 맞음</span>' : ' · <span style="color:#ff9a7a">절반</span>') : ''}${sq.includes(g) ? ' · 다른 칸에서 옮김' : ''}</small></div><div class="slR"><b style="color:${p && p.match ? '#3ae0c0' : '#ff9a7a'}">${SLOT_STAT[i]} +${p ? p.nb : 0}%</b><small style="color:${d.pp > 0 ? '#3ae0c0' : d.pp < 0 ? '#ff8a7a' : '#b59f86'}">전투력 ${d.pp > 0 ? '+' : ''}${d.pp}%</small></div></button>`;
+    ui.modal(`<h3 style="margin:2px 0 4px">${SLOT_ICON[i]} ${SLOT_STAT[i]} 칸에 넣을 카드 ${pickSortBtn()}</h3>
       ${cur ? `<div class="slCur">${pimg(cur)}<div style="flex:1"><b>지금: ${sname(cur.strain)}</b><small>${SLOT_STAT[i]} +${(ui.slotPrev(cur, i) || {}).nb || 0}%</small></div><button class="btn" id="slInfo">ⓘ</button><button class="btn" id="slOut">빼기</button></div>` : ''}
-      <div class="cpList">${cands.map(row).join('') || '<div class="sub">넣을 수 있는 카드가 없어요</div>'}</div><div class="sub" style="font-size:11.5px">민트 = 역할 맞음 (100%) · 주황 = 절반 · 누르면 바로 넣어요</div>`, [{ label: '닫기' }]);
+      <div class="cpList">${cands.map(row).join('') || '<div class="sub">넣을 수 있는 카드가 없어요</div>'}</div><div class="sub" style="font-size:11.5px">민트 = 역할 맞음 (100%) · 주황 = 절반${i === 0 ? ' · 회복형도 체력 칸에 딱 맞아요' : ''} · 누르면 바로 넣어요</div>`, [{ label: '닫기' }]);
     $('modalBox').querySelectorAll('.slRow').forEach(b => b.onclick = () => { const g = geneById(+b.dataset.u); if (g && assignSlot(g, i)) { sfx('build'); buzz(15); ui.closeModal(); ui.fmPick = null; ui.fmSel = null; ui.showHub('lab'); } });
     if ($('slOut')) $('slOut').onclick = () => { save.squad[i] = null; normSquad(); persist(); ui.closeModal(); ui.showHub('lab'); };
-    if ($('slInfo')) $('slInfo').onclick = () => { ui.closeModal(); ui.detail(cur); }; },
+    if ($('slInfo')) $('slInfo').onclick = () => { ui.closeModal(); ui.detail(cur); }; pickSortBind(() => ui.slotPickList(i)); },
   renderRails() {
     const sq = slotGenes(), inSq = new Map(); SL.forEach(i => { if (sq[i]) inSq.set(sq[i], i); });
     let pick = ui.fmPick != null ? geneById(ui.fmPick) : null; if (!pick) ui.fmPick = null;
@@ -4825,7 +4829,7 @@ const ui = {
     const ds = !pick && sel != null ? new Map(list.filter(g => !inSq.has(g) && canSlot(g, sel)).map(g => [g, ui.slotDelta(g, sel).pp])) : null;
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
-      return `<button class="fmC${STRAINS[g.strain].legend ? ' foil' : ''}${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<em class="fmMk ${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="fmMk ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}<span class="fmPic">${pimg(g)}</span><b>${sname(g.strain)}</b><small class="fmSt" style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<i>${'★'.repeat(Math.max(0, 5 - g.star))}</i></small><small class="fmLv">Lv${g.lv || 1} · <span style="color:${(ROLES[ROLE_OF[g.strain]] || {}).col || '#ccc'}">${((ROLES[ROLE_OF[g.strain]] || {}).name || '').replace('형', '')}</span></small></button>`; }).join('');
+      return `<button class="fmC${STRAINS[g.strain].legend ? ' foil' : ''}${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<em class="fmMk ${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="fmMk ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}<span class="fmPic">${pimg(g)}</span><b>${sname(g.strain)}</b><small class="fmSt">${stars(g.star)}<i>${'☆'.repeat(Math.max(0, 5 - g.star))}</i></small><small class="fmLv">Lv${g.lv || 1} · <span style="color:${(ROLES[ROLE_OF[g.strain]] || {}).col || '#ccc'}">${((ROLES[ROLE_OF[g.strain]] || {}).name || '').replace('형', '')}</span></small></button>`; }).join('');
     const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · <span style="color:#3ae0c0">민트 ✓ = 역할 맞음</span> · <span style="color:#ff9a7a">주황 = 절반</span>` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const rc = roleCnt(sq.filter(Boolean)), wk = ORG_WEAK[save.sel], wn = rc[wk] || 0, R = r => (ROLES[r] || {}).name.replace('형', '');
   return `<span class="fmPanel"><em>팀 보너스</em>${Object.keys(rc).length ? Object.entries(rc).map(([r, n]) => `<b>${ROLE_FX[r].t.replace(/\d+/, m => +m * n)}</b>`).join(' ') : '카드를 넣으면 생겨요'}<i>·</i><em>보스 약점</em><b style="color:#ff9c8a">${R(wk)}</b>${wn ? ` <b>+${wn * 15}%</b>` : ''}</span>`; })()}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">자동 편성</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 3, 1, 2].map(sock).join('')}</div></div>
@@ -4887,12 +4891,12 @@ const ui = {
   compBest(g, sq) { let best = null; for (const t of (sq || slotGenes()).filter(Boolean)) { if (t === g) continue; for (const o of rcOptions(g, t)) if (!o.lock && !o.none && (!best || (o.pp || 0) > (best.pp || 0))) best = { ...o, tg: t }; } return best; },
   // 카드를 고르면 위에 뜨는 설명: 역할·맞는 칸·능력치 등급·스킬·동반 효과
   fmCard(g, sq) { if (isComp(g)) { const fx = COMP_FX[g.strain], D0 = STRAINS[g.strain];
-      return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} <span style="color:${RARITY[D0.rarity].color}">${stars(g.star)}</span></b><div>🤝 <b style="color:#e9c8ff">동반 전용</b> · 사라진 바이러스 (능력치는 아주 약해요)</div></div><button class="btn" id="fmX">✕</button></div>
+      return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} ${stars(g.star)}</b><div>🤝 <b style="color:#e9c8ff">동반 전용</b> · 사라진 바이러스 (능력치는 아주 약해요)</div></div><button class="btn" id="fmX">✕</button></div>
       <div class="fcSk">✨ <b>${fx.name}</b> ${fx.desc}${fx.risk ? ` <span style="color:#ff9a8a">${fx.risk}</span>` : ''}<small style="display:block">동반으로 데려가면 판 내내 저절로</small></div>${D0.extinct ? `<div class="fcSk">📜 ${D0.extinct}</div>` : ''}
       <div class="fcUp"><button class="btn red" id="fcComp">🤝 동반으로 데려가기</button></div></div>`; }
     const D = STRAINS[g.strain], rk = ROLE_OF[g.strain], fit = (ROLE_SLOT[rk] || []).map(i => SLOT_NAME[i]).join('·'), sk = geneSkill(g), cb = coreL() >= RC.lvComp ? ui.compBest(g, sq) : null;
     const gr = [0, 1, 2, 3].map(i => { const v = slotGrade(g, i); return `<span>${SLOT_ICON[i]} ${SLOT_STAT[i]} <b style="color:${GRADE_COL[v]}">${v}</b></span>`; }).join('');
-    return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} <span style="color:${RARITY[D.rarity].color}">${stars(g.star)}</span> <small>Lv${g.lv || 1}</small></b>
+    return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} ${stars(g.star)} <small>Lv${g.lv || 1}</small></b>
       <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · ${D.legend ? '전설' : RAR_NAME[Math.min(2, D.rarity || 0)]} · 맞는 칸 <b style="color:#3ae0c0">${(ROLE_SLOT[rk] || [0]).map(i => SLOT_ICON[i] + SLOT_STAT[i]).join('·')}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
       ${(() => { const b = ui.slotBest(g, sq); if (!b) return `<div class="fcGr">${gr}</div>`; const p = ui.slotPrev(g, b.i), d = b.d, up = x => `<span style="color:${x >= 0 ? '#3ae0c0' : '#ff8a7a'}">`;
         return `<div class="fcCmp"><div class="fcH">➡ <b style="color:#3ae0c0">${SLOT_ICON[b.i]} ${SLOT_STAT[b.i]} 칸</b>에 넣으면 <small>(제일 좋은 칸)</small></div>
@@ -4955,7 +4959,7 @@ const ui = {
     const tip = g => { const k = donorStat(g); return `${RC_STAT[k].split(' ')[0]}+${Math.round(RC.base * (1 + 0.15 * (g.star - 1)))}`; };
     const cur = cg ? `<button class="rc cur" data-comp="${cg.uid}">${pimg(cg)}<div class="nm">${sname(cg.strain)}</div><div class="dl up">${tip(cg)}</div></button>` : `<button class="rc empty" style="pointer-events:none">비어 있음<br>옆에서 골라요</button>`;
     return `<div class="rail rComp"><div class="rHead"><b>🤝 동반 <small>재조합 게이지 ${gv >= 1 ? `<b style="color:#ffd24a">준비 ${Math.floor(gv)}번</b>` : Math.round(gv * 100) + '%'} · 전투력엔 안 들어가요</small></b>${gv >= 1 ? '<button class="more" id="bRcGo" style="color:#ffd24a;font-weight:800">🧬 재조합 ›</button>' : ''}</div>
-      <div class="rRow">${cur}${pool.map(g => `<button class="rc" data-comp="${g.uid}">${pimg(g)}<div class="nm">${sname(g.strain)} ${'★'.repeat(g.star)}</div><div class="dl eq">${tip(g)}</div></button>`).join('')}</div></div>`;
+      <div class="rRow">${cur}${pool.map(g => `<button class="rc" data-comp="${g.uid}">${pimg(g)}<div class="nm">${sname(g.strain)} ${stars(g.star)}</div><div class="dl eq">${tip(g)}</div></button>`).join('')}</div></div>`;
   },
   // 🧬 재조합: 어느 카드에 → 무엇을 (최대 3개, 전투력 변화와 추천 표시)
   recombine(tUid) {
@@ -4963,7 +4967,7 @@ const ui = {
     const tg = slotGenes().filter(Boolean); if (!tg.length) return toast('주전 카드가 없어요');
     const opsOf = g => rcOptions(donor, g), bestOf = g => Math.max(0, ...opsOf(g).map(o => o.pp || 0));
     const target = (tUid != null && geneById(tUid)) || tg.slice().sort((a, b) => bestOf(b) - bestOf(a))[0], ops = opsOf(target);
-    ui.modal(`<h3 style="margin:0 0 4px">🧬 DNA 재조합</h3><div class="sub">🤝 ${sname(donor.strain)} ${'★'.repeat(donor.star)} 의 능력을 주전 카드 하나에 옮겨요 · 동반 카드는 그대로 남아요</div>
+    ui.modal(`<h3 style="margin:0 0 4px">🧬 DNA 재조합</h3><div class="sub">🤝 ${sname(donor.strain)} ${stars(donor.star)} 의 능력을 주전 카드 하나에 옮겨요 · 동반 카드는 그대로 남아요</div>
       <div style="margin-top:8px;font-weight:800">1. 어느 카드에?</div><div class="rcTg">${tg.map(g => `<button data-t="${g.uid}" class="${g === target ? 'on' : ''}">${pimg(g)}${sname(g.strain)}${rcBadges(g)}</button>`).join('')}</div>
       <div style="font-weight:800">2. 무엇을? <small style="font-weight:400;color:#b59f86">${organById(save.sel || 'nose').name} 전투력 기준</small></div>
       ${ops.map((o, i) => `<button class="btn rcOpt${o.best ? ' best' : ''}" data-o="${i}" ${o.lock || o.none ? 'disabled' : ''}><b>${o.lock ? '🔒 ' : ''}${o.t}</b>${o.best ? '<span class="rec">★추천</span>' : ''}<small>${o.d}</small>${o.pp != null ? `<em>${o.pp > 0 ? '+' : ''}${o.pp}%</em>` : ''}</button>`).join('')}
@@ -5041,10 +5045,10 @@ const ui = {
     ui.modal(`<h3 style="margin:0 0 6px">✨ 이번 판 스킬</h3>${gs.map(g => `<div class="sub" style="text-align:left;margin:4px 0"><b>${skCat(g)}</b> · ${sname(g.strain)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](STRAINS[g.strain].name, g) : '').join(' · ')}</div>`).join('')}`, [{ label: '닫기' }]); },
   // 보관함: 전체 카드 (강화·교배는 여기서)
   // ★ 내 바이러스 정렬 (보관함·성장 공통)
-  sortChips(id, onPick) { const el = $(id); if (!el) return; if (!SORTS[save.sortBy]) save.sortBy = 'star'; const f = save.gfilt || 'all', cnt = k => save.genes.filter(g => { const o = save.gfilt; save.gfilt = k; const r = gFilt(g); save.gfilt = o; return r; }).length;
-    el.innerHTML = GFILT.map(([k, t]) => `<button data-f="${k}" class="${f === k ? 'on' : ''}">${t}<small> ${cnt(k)}</small></button>`).join('') + `<button class="srtT" data-s="1">${SORTS[save.sortBy].t} ⇅</button>`;
+  sortChips(id, onPick) { const el = $(id); if (!el) return; if (!SORTS[save.sortBy]) save.sortBy = 'pow'; const f = save.gfilt || 'all', cnt = k => save.genes.filter(g => { const o = save.gfilt; save.gfilt = k; const r = gFilt(g); save.gfilt = o; return r; }).length;
+    el.innerHTML = `<button class="srtT" data-s="1">⇅ ${SORTS[save.sortBy].t}</button>` + GFILT.map(([k, t]) => `<button data-f="${k}" class="${(f === 'heal' ? 'tank' : f) === k ? 'on' : ''}">${t}<small> ${cnt(k)}</small></button>`).join('');
     el.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { save.gfilt = b.dataset.f; persist(); sfx('tap'); onPick(); });
-    el.querySelector('[data-s]').onclick = () => { save.sortBy = save.sortBy === 'star' ? 'new' : 'star'; persist(); sfx('tap'); onPick(); }; },
+    el.querySelector('[data-s]').onclick = () => { save.sortBy = nextSort(save.sortBy); persist(); sfx('tap'); onPick(); toast(`정렬: ${SORTS[save.sortBy].t}`); }; },
   // 📈 성장 탭: 줄마다 바로 강화/별 올리기
   growBtn(g) {
     const lv = g.lv || 1;
@@ -5148,7 +5152,7 @@ const ui = {
     const R0 = ROUTE[routeOf(g.strain)], sk = geneSkill(g), st = geneStats(g), rl = ROLES[ROLE_OF[g.strain]], real = fitReal(g), fo = fitOrgans(g), skt = SKTYPE[g.strain] || 'boost';
     const mx = { atk: 1.5, hp: 1500, count: 60, spd: 80 }, bar = (t, k, v, col) => `<div class="dSt"><span>${t}</span><i><b style="width:${Math.min(100, v / mx[k] * 100)}%;background:${col}"></b></i><em>${k === 'atk' ? v.toFixed(2) : Math.round(v)}</em></div>`;
     ui.modal(`<div class="dTop"><div class="dImg" style="background:color-mix(in srgb,${R0.c} 30%,#1a120e)">${pimg(g)}</div><div class="dHd">
-        <h3>${gname(g)} <span style="color:${RARITY[d.rarity].color}"${d.legend ? ' class="rbwT"' : ''}>${stars(g.star)}</span></h3>
+        <h3>${gname(g)} ${stars(g.star)}</h3>
         <div class="sub"><span style="color:${RARITY[d.rarity].color}">${d.legend ? '전설' : RARITY[d.rarity].name}</span> · ${rl ? `<span style="color:${rl.col}">${rl.name}</span>` : ''} · <span style="color:${R0.c}">${R0.ic} ${R0.n}</span></div>
         <div class="sub">👍 ${fo.map(o => real.includes(o) ? ORG_SHORT[o] : `<b style="color:#ffd27a">${ORG_SHORT[o]}🧬</b>`).join('·')}${fo.length > real.length ? ` <button class="mini" id="mRoll">🎲 🧫${REROLL(g)}</button>` : ''}</div></div></div>
       <div class="dGrid">${bar('공격', 'atk', st.atk, '#ff7a5a')}${bar('체력', 'hp', st.hp, '#5aa8ff')}${bar('마릿수', 'count', st.count, '#7ad070')}${bar('속도', 'spd', st.spd, '#ffd24a')}</div>
@@ -5635,14 +5639,20 @@ function rcApply(donor, target, op, dry, repIx) {
 }
 const rcBadges = g => { const r = g.rc; if (!r) return ''; const a = []; for (const k in r.st || {}) if (r.st[k]) a.push(`${RC_STAT[k].split(' ')[0]}+${r.st[k]}`); for (const o of r.tr || []) a.push(`🎯${ORG_SHORT[o]}`); if (r.sk) a.push(`✨${STRAINS[r.sk].skill.name}`); return a.length ? `<span class="rcB">${a.join(' ')}</span>` : ''; };
 // ★ 정렬·분류 (클래시 로얄식: 위치 탭 + 정렬 버튼 하나). '강한 순' = 전설 > 별 > 등급 > 레벨
-const SORTS = { star: { t: '강한 순' }, new: { t: '최근 순' } };
-const GFILT = [['all', '전체'], ['dps', '공격'], ['tank', '체력'], ['swarm', '마릿수'], ['stealth', '속도'], ['heal', '회복']];   // ★ 역할 필터
-const gFilt = g => { const f = save.gfilt || 'all'; if (f === 'all' || !ROLE_FX[f]) return true; return ROLE_OF[g.strain] === f; };
+const SORTS = { pow: { t: '강한 순' }, rar: { t: '등급 순' }, star: { t: '별 순' }, lv: { t: 'Lv 순' } }, SORT_KEYS = Object.keys(SORTS);
+const nextSort = k => SORT_KEYS[(SORT_KEYS.indexOf(k) + 1) % SORT_KEYS.length];
+const GFILT = [['all', '전체'], ['tank', '체력·회복'], ['swarm', '마릿수'], ['stealth', '속도'], ['dps', '공격']];   // ★ 역할 필터 = 칸 순서 (회복형은 체력 칸 카드)
+const gFilt = g => { const f = save.gfilt === 'heal' ? 'tank' : save.gfilt || 'all'; if (f === 'all' || !ROLE_FX[f]) return true; return ROLE_OF[g.strain] === f || (f === 'tank' && ROLE_OF[g.strain] === 'heal'); };
 function sortGenes(arr) { const k = save.sortBy || 'star', R = g => STRAINS[g.strain].legend ? 9 : STRAINS[g.strain].rarity, P = g => power(g);
   const can = g => { const b = ui.growBtn(g); return b.ok ? 1 : 0; };
-  const f = { star: (a, b) => b.star - a.star || R(b) - R(a) || (b.lv || 1) - (a.lv || 1), rar: (a, b) => R(b) - R(a) || b.star - a.star || (b.lv || 1) - (a.lv || 1), lv: (a, b) => (b.star * 10 + (b.lv || 1)) - (a.star * 10 + (a.lv || 1)) || R(b) - R(a),
+  const f = { star: (a, b) => b.star - a.star || R(b) - R(a) || (b.lv || 1) - (a.lv || 1), rar: (a, b) => R(b) - R(a) || b.star - a.star || (b.lv || 1) - (a.lv || 1), lv: (a, b) => (b.lv || 1) - (a.lv || 1) || b.star - a.star || R(b) - R(a),
     pow: (a, b) => P(b) - P(a), can: (a, b) => can(b) - can(a) || b.star - a.star || R(b) - R(a), new: (a, b) => b.uid - a.uid }[k] || ((a, b) => b.star - a.star);
-  return [...arr].filter(gFilt).sort((a, b) => (STRAINS[b.strain].legend ? 1 : 0) - (STRAINS[a.strain].legend ? 1 : 0) || f(a, b) || P(b) - P(a)); }
+  return [...arr].filter(gFilt).sort((a, b) => f(a, b) || P(b) - P(a)); }
+// 같은 기준으로 목록 정렬 (본체 바꾸기·칸 고르기에서도): gain = 이득 순(미리보기 숫자)
+const PICK_SORTS = { gain: '이득 순', ...Object.fromEntries(SORT_KEYS.map(k => [k, SORTS[k].t])) };
+function pickSort(list, gainOf) { const k = PICK_SORTS[save.pickSort] ? save.pickSort : 'gain'; if (k === 'gain') return list.sort((a, b) => gainOf(b) - gainOf(a)); const o = save.sortBy, gf = save.gfilt; save.sortBy = k; save.gfilt = 'all'; const order = sortGenes(list.map(x => x.g)); save.sortBy = o; save.gfilt = gf; return order.map(g => list.find(x => x.g === g)); }
+const pickSortBtn = () => `<button class="pkSrt" id="pkSrt">⇅ ${PICK_SORTS[save.pickSort] || '이득 순'}</button>`;
+const pickSortBind = re => { const b = $('pkSrt'); if (b) b.onclick = () => { const ks = Object.keys(PICK_SORTS); save.pickSort = ks[(ks.indexOf(save.pickSort || 'gain') + 1) % ks.length]; persist(); sfx('tap'); re(); }; };
 const CORE_MILE = [{ l: 3, t: '💨 속도 칸 열림', slot: 1 }, { l: 4, t: '✨ 빛나는 테두리' }, { l: 5, t: '🤝 동반 칸 열림' }, { l: 8, t: '☣ 공격 칸', slot: 2 }, { l: 10, t: '💪 몸집 커짐' }, { l: 20, t: '👑 왕관' }, { l: 30, t: '🌟 최고 본체' }];
 // 칸 위치 (무대 안 %): 대장 왼쪽 위 · 공격 오른쪽 위 · 속도 왼쪽 아래 · 번식 오른쪽 아래 · 지원 위 가운데
 // ★ 전투력: 고른 기관 기준 실제 세기 (공격 × 마릿수 × √(체력×속도) × 궁합). 칸을 바꿀 때 이 숫자로 비교
@@ -6061,5 +6071,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2030</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2245</div></body>
 </html>
