@@ -695,8 +695,14 @@ img.legend { animation: legGlow 3s linear infinite; }
   .navGo { background: linear-gradient(#9ffcea,#3ae0c0 45%,#14a088) !important; border: 0 !important; box-shadow: 0 6px 0 #0a6a5a, 0 10px 16px rgba(0,0,0,.45) !important; text-shadow: 0 2px 0 rgba(0,0,0,.45); position: relative; overflow: hidden; }
   .navGo::before { content: ''; position: absolute; left: 10px; right: 10px; top: 4px; height: 11px; border-radius: 10px; background: linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0)); }
   .navGo:active { transform: translateY(5px); box-shadow: 0 1px 0 #0a6a5a, 0 3px 6px rgba(0,0,0,.45) !important; } .navGo small { color: #e8fffa !important; }
+  .fmS.pv img { opacity: .35; } .fmS .fmPv { display: block; font-size: 9.5px; font-weight: 900; line-height: 1.2; } .fmPv.g { color: #3ae0c0; } .fmPv.o { color: #ff9a7a; } .fmS.bestS { box-shadow: 0 0 0 2px #3ae0c0, 0 0 12px rgba(58,224,192,.5) !important; } .fmBest { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: #3ae0c0; color: #0b2a24; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 6px; white-space: nowrap; z-index: 4; }
+  .fcCmp { background: rgba(58,224,192,.07); border: 1px solid rgba(58,224,192,.35); border-radius: 10px; padding: 5px 9px; margin: 6px 0; font-size: 12px; } .fcCmp .fcH { margin-bottom: 2px; } .fcCmp .fcH small { color: #b59f86; } .fcCmp .ln { display: flex; justify-content: space-between; padding: 2px 0; border-top: 1px solid rgba(255,255,255,.06); } .fcCmp .ln span:first-child { color: #c9b9a2; }
+  .slR { text-align: right; white-space: nowrap; } .slR b { display: block; font-size: 13px; } .slR small { font-size: 10.5px; } .cpOpt.ok { border-color: #3ae0c0; } .slCur { display: flex; gap: 8px; align-items: center; background: #1e1218; border: 1px dashed #5a4430; border-radius: 10px; padding: 5px 8px; margin-top: 6px; text-align: left; } .slCur img { width: 36px; height: 36px; object-fit: contain; } .slCur small { display: block; color: #b59f86; font-size: 11px; }
   .cpList { display: flex; flex-direction: column; gap: 6px; max-height: 52vh; overflow: auto; margin-top: 8px; } .cpOpt { display: flex; gap: 10px; align-items: center; text-align: left; background: #2a1d14; border: 1px solid #5a4430; border-radius: 10px; padding: 6px 8px; color: #f3e6d3; } .cpOpt img { width: 40px; height: 40px; object-fit: contain; } .cpOpt small { display: block; color: #c9b9a2; font-size: 12px; }
-  .dp.pair { position: relative; } .dp.pair::after { content: '👑'; position: absolute; top: -7px; right: -4px; font-size: 13px; line-height: 1; } .dp.combo { border-color: #ffd24a !important; box-shadow: 0 0 0 2px #ffd24a, 0 0 18px #ffb02a; animation: cmb .5s ease-in-out infinite alternate; } @keyframes cmb { to { transform: scale(1.06); } } .stPick { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; } .stOpt { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px; border-radius: 12px; background: #2a1a20; border: 2px solid #5a3a40; color: #eadcc2; } .stOpt img { width: 64px; height: 64px; object-fit: contain; flex: none; } .stOpt b { font-size: 15px; display: block; } .stOpt small { display: block; font-size: 12px; color: #c8b8a0; margin: 2px 0; } .stOpt em { font-style: normal; font-size: 12.5px; color: #9fd8ff; display: block; } .stOpt i { font-style: normal; font-size: 12px; color: #ffd27a; } .cvAd { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 2px; } .cvAd u { text-decoration: none; font-size: 12px; padding: 2px 6px; border-radius: 8px; background: #2a1a20; color: #8a7a6a; } .cvAd u.nat { background: #2e4a1e; color: #b9ff8a; } .cvAd u.ad { background: #3e2450; color: #e8b0ff; } .cvAd u small { margin-left: 2px; font-size: 10px; } .cfoot .og u.ad { color: #e8b0ff !important; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
+  .dp.pair { position: relative; border: 2px dashed #ffd24a !important; overflow: visible !important; } .dp.pair::after { content: "콤보"; position: absolute; top: -9px; z-index: 3; right: 3px; font-size: 9.5px; line-height: 1; background: #ffd24a; color: #2a1608; padding: 2px 5px; border-radius: 6px; font-weight: 900; }
+  .dp.coreSk { flex: 1.45 !important; position: relative; border: 2px solid #ffd24a !important; background: linear-gradient(#5a4210,#2a1e08) !important; box-shadow: 0 0 12px rgba(255,210,74,.35); overflow: visible !important; } .dp.coreSk .skLb { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #ffd24a; color: #2a1608; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 6px; white-space: nowrap; z-index: 2; } .dp.coreSk small { color: #ffe2a8 !important; font-weight: 700; font-size: 10px !important; }
+  #cmbTip { position: absolute; left: 50%; bottom: 118px; transform: translateX(-50%); background: #ffd24a; color: #2a1608; font-weight: 900; font-size: 13px; padding: 5px 12px; border-radius: 999px; white-space: nowrap; box-shadow: 0 0 16px rgba(255,210,74,.7); z-index: 30; pointer-events: none; }
+  #deploy { overflow: visible !important; padding-top: 9px !important; } .dp.combo { border-color: #ffd24a !important; box-shadow: 0 0 0 2px #ffd24a, 0 0 18px #ffb02a; animation: cmb .5s ease-in-out infinite alternate; } @keyframes cmb { to { transform: scale(1.06); } } .stPick { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; } .stOpt { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px; border-radius: 12px; background: #2a1a20; border: 2px solid #5a3a40; color: #eadcc2; } .stOpt img { width: 64px; height: 64px; object-fit: contain; flex: none; } .stOpt b { font-size: 15px; display: block; } .stOpt small { display: block; font-size: 12px; color: #c8b8a0; margin: 2px 0; } .stOpt em { font-style: normal; font-size: 12.5px; color: #9fd8ff; display: block; } .stOpt i { font-style: normal; font-size: 12px; color: #ffd27a; } .cvAd { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 2px; } .cvAd u { text-decoration: none; font-size: 12px; padding: 2px 6px; border-radius: 8px; background: #2a1a20; color: #8a7a6a; } .cvAd u.nat { background: #2e4a1e; color: #b9ff8a; } .cvAd u.ad { background: #3e2450; color: #e8b0ff; } .cvAd u small { margin-left: 2px; font-size: 10px; } .cfoot .og u.ad { color: #e8b0ff !important; } .fmC { border-width: 2px !important; } .fmC.best { box-shadow: 0 0 0 2px #ffd24a, 0 0 10px rgba(255,210,74,.5) !important; }
   /* 카드 테두리: 등급 색 선만 (그림 테두리는 뺌) */
   .fmC { border-width: 2px !important; border-style: solid; margin: 2px; padding-top: 0 !important; } .fmC img { width: 54px !important; height: 54px !important; } .fmGrid { gap: 6px !important; }
   .fmC .fmTag, .fmC .fmD { top: 3px !important; left: 3px !important; right: 3px !important; }
@@ -1068,7 +1074,7 @@ const routeOf = st => ROUTE_OF[st] || ROUTE_OF[((STRAINS[st] || {}).parents || [
 const SET_B = [0, 0, 0, 0, 0, 0];   // 색깔 세트 없앰
 const LEAD_SET = 0;   // 색깔 세트·리더 색 보너스는 없앰 (역할 전략으로 대체)
 // ★ 역할 팀 효과: 팀(본체 포함)에 있는 역할마다 전투 버튼 하나가 세진다 (역할당 2장까지)
-const ROLE_FX = { tank: { n: '체력', t: '잠복+1초' }, swarm: { n: '마릿수', t: '증식+1칸' }, dps: { n: '공격', t: '공격+10%' }, stealth: { n: '속도', t: '충전+10%' }, heal: { n: '회복', t: '약−15%' } };
+const ROLE_FX = { tank: { n: '체력', t: '숨기+1초' }, swarm: { n: '마릿수', t: '땅+1칸' }, dps: { n: '공격', t: '공격+10%' }, stealth: { n: '속도', t: '충전+10%' }, heal: { n: '회복', t: '약−15%' } };
 const roleCnt = cards => { const n = {}; for (const g of new Set(cards.filter(Boolean))) { const r = ROLE_OF[g.strain]; if (ROLE_FX[r]) n[r] = Math.min(2, (n[r] || 0) + 1); } return n; };
 // ★ 기관 보스 약점: 그 역할 카드 장당 +15% (최대 2장 +30%)
 const ORG_WEAK = { nose: 'dps', lung: 'tank', gut: 'dps', liver: 'heal', blood: 'stealth', skin: 'tank', lymph: 'swarm', brain: 'stealth' };
@@ -2558,7 +2564,7 @@ const TUT = [
   { t: '공격 시작', txt: '준비됐으면 <b>오른쪽 아래 [공격 개시]</b>!', hi: '#dpAtk', done: R => !stealthOn() },
   { t: '바이러스 모으기', txt: '바이러스가 <b>저절로 둥지</b>(부푼 길)에 모여요. 잠입 때 감염시킨 길이 길수록 둥지가 커요!<br><b>[다음 ▶]</b>', hi: '#dpAll', next: true },
   { t: '면역의 반격', txt: '면역은 <b>탑</b>을 짓고 둥지를 덮쳐요. 너무 오래 모으면 손해!<br><b>[다음 ▶]</b>', next: true },
-  { t: '돌격!', txt: '테두리가 <b>초록</b>일 때 <b>[돌격]</b>! 강화 하나를 골라요.', hi: '#dpAll', on: R => { R.gapT = 0.3; }, done: R => (R.released || 0) > 0 },
+  { t: '출발!', txt: '테두리가 <b>초록</b>일 때 <b>[출발]</b>! 강화 하나를 골라요.', hi: '#dpAll', on: R => { R.gapT = 0.3; }, done: R => (R.released || 0) > 0 },
   { t: '탑 부수기 · 스킬', txt: '바이러스가 지나가며 <b>탑을 물어뜯어요</b>. 가운데 카드는 스킬!<br><b>[다음 ▶]</b>', hi: '.sk2', next: true },
   { t: '이기는 법', txt: '<b>위쪽 감염 막대</b>를 채우면 승리! 시간이 끝나면 패배.<br><b>[시작!]</b>', hi: '#goalBar', next: true, last: true },
 ];
@@ -2750,7 +2756,7 @@ function stealthEnd(why, voluntary) {
     const d = nearestOnPath(S.x, S.y).d; immuneBuild(d - 60); immuneBuild(d - 60); R.plan.next = 1; }
   if (safe) { const n = nearestOnPath(T.scout.x, T.scout.y), u = spawnUnit(T.lead, { d: n.d, lane: clamp(n.off, -14, 14) }); }
   $('goalLbl').textContent = R.st.qm < 1 ? `감염 (목표 −${Math.round((1 - R.st.qm) * 100)}%)` : '감염'; $('goalBar').classList.remove('alarm');
-  $('hint').textContent = ALARM ? `❓ 규칙 보기 · 많이 내보낼수록 들켜요 · 총공격 뒤 초록 틈에 돌격 ×${1 + AL.gapBonus}` : `스킬 카드를 길게 누르면 설명 · 초록 테두리 때 돌격 +30%`; if (ALARM) $('hint').onclick = () => { if (run && !run.over) alarmHelp(); };
+  $('hint').textContent = ALARM ? `❓ 규칙 보기 · 많이 내보낼수록 들켜요 · 총공격 뒤 초록 틈에 출발 ×${1 + AL.gapBonus}` : `스킬 카드를 길게 누르면 설명 · 초록 테두리 때 출발 +30%`; if (ALARM) $('hint').onclick = () => { if (run && !run.over) alarmHelp(); };
   ui.renderDeploy(); ui.tick();
 }
 function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
@@ -2798,7 +2804,7 @@ function drawInfection(time) {   // 바닥 · 벽돌 · 바이러스 무리
   if (nestOn()) { const t = Math.floor(nestTotal()), R = run, [x, y] = pathAt(Math.max(map.d0, R.frontD - 30));
     ctx.save(); ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.7)';
     const say = (tx, col) => { ctx.font = "12px Jua, sans-serif"; ctx.strokeText(tx, x, y - 34); ctx.fillStyle = col; ctx.fillText(tx, x, y - 34); };
-    if (R.gap > 0 && t) say(`지금 돌격! ${t}`, '#9fff6a'); else if (!t && !R.released && R.groups.some(g => g.charge > 0)) say('카드를 눌러 길에 모으기', '#e8a0ff');
+    if (R.gap > 0 && t) say(`지금 출발! ${t}`, '#9fff6a'); else if (!t && !R.released && R.groups.some(g => g.charge > 0)) say('카드를 눌러 길에 모으기', '#e8a0ff');
     ctx.restore(); }
 }
 function drawStealth(time) {
@@ -2903,7 +2909,7 @@ const twMax = (org = save.sel) => Math.min(8, 3 + Math.floor(stageIx(org) / 3));
 // ★ 본체 스킬: 처음엔 가득·30초 자연충전·도착하면 더 빨리 참. 짝 버튼(👑)과 3초 안에 같이 쓰면 콤보 ×1.3
 // ★ 본체 스킬 4종류 (효과대로): 🛑막기=탑 무력화 · 🛡버티기=안 맞기·덜 맞기·회복 · 🦠불리기=수 늘리기 · ⚔강하게=빠르고 세게 감염
 const SKTYPE = { chikv:'stop', hmpv:'boost', lassa:'stop', boca:'stop', marburg:'stop', nipah:'hide', bkv:'hide', mcv:'hide', sapo:'hide', hhv6:'hide', hev:'hide', tbev:'stop', jcv:'hide', mers:'hide', htlv:'stop', h5n1:'boost', mpox:'hide', piv:'grow', cchf:'grow', ev71:'grow', retro:'stop', hepb:'stop', ebola:'stop', polio:'stop', parvo:'stop', ttv:'stop', gbvc:'stop', cowpox:'stop', hanta:'stop', h2n2:'stop', flu1918:'stop', adeno:'hide', herpes:'hide', flu:'hide', rsv:'hide', hpv:'hide', ebv:'hide', mumps:'hide', aav:'hide', hepa:'hide', hepc:'hide', yamagata:'hide', corona:'hide', rhino:'grow', smallpox:'grow', norosyd:'grow', varicella:'grow', cmv:'grow', noro:'boost', rota:'boost', rabies:'boost', measles:'boost', coxsackie:'boost', zika:'boost', yellowf:'boost', astro:'boost', dengue:'boost', westnile:'boost', rinderpest:'boost', sars:'boost' };
-const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '돌격', hide: '잠복', spr: '증식' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🦠' };
+const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NAME = { brk: '출발', hide: '숨기', spr: '땅 넓히기' }, PAIR_IC = { brk: '⚔', hide: '🫥', spr: '🧫' };
 const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 버티기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
 // ★ 본체 스킬 세기 = 종류 × 등급(일반·희귀·영웅·전설·전설+). 강하게·불리기는 원래 너무 세서 낮추고, 막기·숨기는 올림
 const CORE_K = { boost: [0.2, 0.22, 0.3, 0.45, 0.6], grow: [0.5, 0.6, 0.7, 0.85, 1], stop: [1, 1.1, 1.2, 1.35, 1.5], hide: [1, 1.1, 1.2, 1.35, 1.5] };
@@ -2914,7 +2920,7 @@ const corePair = () => SKPAIR[SKTYPE[coreStrain()] || 'boost'];
 function comboOpen(by) { const R = run; if (!B3 || !R || by !== corePair()) return; if (R.cmbBack && R.cmbBack.t > 0) { const f = R.cmbBack.go; R.cmbBack = null; f(); } else R.cmb = { by, t: CHG.win }; }   // 순서 상관없이 3초 안에 둘 다 쓰면 콤보
 const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35, land: false }, SPR = { cost: 0.25, tiles: 2, capUp: 0.3, atkUp: 0.12, slow: 0.4, slowT: 6, fast: 1.7, fastT: 6, cd: 8 };
 function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
-  if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max + (teamRole().tank || 0); H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
+  if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max + (teamRole().tank || 0); H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 숨기! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
   else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
   else if (H.st === 'cd') toast(`다시 숨으려면 ${Math.ceil(H.t)}초`); }
 function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (H.st === 'ready') return; H.t -= dt;
@@ -2925,15 +2931,15 @@ function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H =
   if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
   else if (H.st === 'up') { for (const u of R.units) u.hid = false; H.st = 'cd'; H.t = HIDE.cd; banner('튀어나왔다!'); sfx('breakout'); }
   else if (H.st === 'cd') { H.st = 'ready'; } }
-function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R.sprCd || 0) > 0) return toast(`증식 준비 중 ${Math.ceil(R.sprCd)}초`);
+function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if ((R.sprCd || 0) > 0) return toast(`땅 넓히기 준비 중 ${Math.ceil(R.sprCd)}초`);
   const done = segDone(); if (done >= map.seg.length - 2) return toast('더 넓힐 땅이 없어요');
-  const tot = nestTotal(), cost = Math.max(3, Math.round(nestCap() * SPR.cost)); if (tot < cost) return toast(`둥지에 ${cost}마리가 있어야 증식할 수 있어요`);
+  const tot = nestTotal(), cost = Math.max(3, Math.round(nestCap() * SPR.cost)); if (tot < cost) return toast(`둥지에 ${cost}마리가 있어야 땅을 넓힐 수 있어요`);
   for (const k in R.nest) R.nest[k] *= 1 - cost / tot;
   let n = 0; for (let i = 0; i < SPR.tiles + (teamRole().swarm || 0); i++) { const d = segDone(); if (d < map.seg.length - 2) { map.seg[d].on = true; n++; } }
   purgeContaminated(); R.frontD = Math.max(R.frontD || 0, infFront());
   R.capB = (R.capB || 0) + SPR.capUp; R.sprAtk = (R.sprAtk || 0) + SPR.atkUp; R.sprSlow = SPR.slowT; R.sprFast = 0; R.sprCd = SPR.cd; R.sprN = (R.sprN || 0) + 1; comboOpen('spr');
   const [x, y] = pathAt(R.frontD); R.rings.push({ x, y, r: 10, R: 100, t: 0.7, color: '#c06ad0' }); sfx('wall'); buzz(25);
-  float(x, y - 52, `🦠 증식! 땅 +${n}칸 · 최대치 +${Math.round(SPR.capUp * 100)}% · 공격 +${Math.round(SPR.atkUp * 100)}%`, '#e8a0ff', 14);
+  float(x, y - 52, `🧫 땅 넓히기 +${n}칸 · 둥지 +${Math.round(SPR.capUp * 100)}% · 공격 +${Math.round(SPR.atkUp * 100)}%`, '#e8a0ff', 14);
   float(x, y - 32, `−${cost}마리 · ${SPR.slowT}초 동안 모이는 속도 ${Math.round(SPR.slow * 100)}% → 그 뒤 빠르게`, '#c9b0e0', 12); }
 function stepSpread(dt) { const R = run; if (!R) return; if (R.sprCd > 0) R.sprCd -= dt;
   if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + (1 + 0.1 * (teamRole().stealth || 0)) * (dt / CHG.idle) + (1 + 0.1 * (teamRole().stealth || 0)) * (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; if (R.growT > 0) R.growT -= dt; }
@@ -2956,11 +2962,12 @@ function starterPick() { if (save.starter || !$('modal').hidden) return;
     $('stGo').onclick = () => { setStarter(o.id); ui.closeModal(); banner(`👑 ${sname(o.id)}가 내 본체가 됐어요!`); ui.showHub('lab'); }; }); }
 function b3Help() { const R = run; R.mutPause = true; paused = true;
   ui.modal(`<h3 style="margin:2px 0 8px">버튼 4개로 싸워요</h3><div style="text-align:left;font-size:14px;line-height:1.6">
-    <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
-    <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 세포 속으로 흡수돼요. <b>느리게(35%) 계속 나아가고, 약·탑 침·방해물을 다 무시해요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
-    <b style="color:#e8a0ff">🦠 증식</b> 둥지 최대치의 ${Math.round(SPR.cost * 100)}%를 써서 오염된 땅을 <b>목표 쪽으로 ${SPR.tiles}칸</b> 넓혀요. 최대치 +${Math.round(SPR.capUp * 100)}%, 공격 +${Math.round(SPR.atkUp * 100)}% (계속 쌓임). 대신 ${SPR.slowT}초 동안 모이는 속도가 ${Math.round(SPR.slow * 100)}%로 줄고, 그 뒤 ${SPR.fastT}초는 빠르게 차요. 그 땅의 탑은 무너져요.<br>
-    <b style="color:#ffd27a">✨ 본체 스킬</b> 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요. <b>👑 왕관 붙은 버튼</b>이 본체의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 🔥콤보 ×${CHG.mul}!<br><span style="font-size:12px;color:#bbb">막기형: 탑 멈춤 + 둥지 커짐 · 버티기형: 약 면역 + 둥지 번식 ×2 · 불리기형: 바이러스 늘리기 · 강하게형: 감염력 올리기</span><br>
-    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
+    <b style="color:#ffd24a">👑 본체 스킬 (금색)</b> 본체마다 다른 스킬이에요. 버튼 아래에 효과가 적혀 있어요. 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요.<br>
+    <b style="color:#ff8a7a">⚔ 출발</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
+    <b style="color:#9fd8ff">🫥 숨기</b> 길 위 바이러스가 세포 속으로 숨어요. <b>느리게(35%) 나아가면서 약·탑 침·방해물을 다 피해요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 나와요.<br>
+    <b style="color:#e8a0ff">🧫 땅 넓히기</b> 둥지의 ${Math.round(SPR.cost * 100)}%를 써서 오염된 땅을 <b>목표 쪽으로 ${SPR.tiles}칸</b> 넓혀요. 둥지 최대치 +${Math.round(SPR.capUp * 100)}%, 공격 +${Math.round(SPR.atkUp * 100)}% (판 끝까지 쌓임). 대신 ${SPR.slowT}초 동안 둥지가 천천히 차요. 그 땅의 탑은 무너져요.<br>
+    <b style="color:#ffd27a">🔥 콤보</b> <b>금색 점선</b> 버튼이 본체 스킬의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 스킬 ×${CHG.mul}!<br>
+    <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 숨기! · 둥지가 가득 차면 → 출발 또는 땅 넓히기</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="b3Ok">시작!</button></div>`);
   $('b3Ok').onclick = () => { save.tips = save.tips || {}; save.tips.b3 = true; persist(); ui.closeModal(); }; }
 const AL = { gain: 0.045, decay: 14, quiet: 8, warn: 2, dur: 2.5, dmg: 1.2, after: 20, gapDur: 4.5, gapBonus: 1.0, w: { stealth: 0.5, dps: 1.5 },
@@ -2976,20 +2983,20 @@ function stepAlarm(dt) {
       if (M.w <= 0) { M.d = AL.dur; R.medN = (R.medN || 0) + 1; if (M.guard) R.medG = (R.medG || 0) + 1; banner(M.guard ? '🛡 총공격을 버텼다! 역습 — 공격 ×1.25' : '🔥 면역 총공격! 길 위 바이러스가 쓰러진다'); if (!M.guard) { shake(6); R.flashT = 0.3; R.flashC = '255,90,70'; } } return; }
     M.d -= dt; const k = AL.dmg / AL.dur * dt * (M.guard ? MED.guard : 1);
     for (const u of R.units) if (u.alive && !u.hero && u.d > 0) damage(u, u.maxHp * k, null);
-    if (M.d <= 0) { R.med = null; R.alarm = AL.after; R.gap = AL.gapDur; banner(`면역이 지쳤다! 지금 돌격하면 ×${1 + AL.gapBonus}`); sfx('alarm'); buzz([30, 40, 30]); R.flashT = 0.25; R.flashC = '160,255,120'; }
+    if (M.d <= 0) { R.med = null; R.alarm = AL.after; R.gap = AL.gapDur; banner(`면역이 지쳤다! 지금 출발하면 ×${1 + AL.gapBonus}`); sfx('alarm'); buzz([30, 40, 30]); R.flashT = 0.25; R.flashC = '160,255,120'; }
     return; }
   let load = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) load += AL.w[alRole(u.strain)] || 1;
   R.alLoad = load;
   R.alarm = clamp(R.alarm + (load * AL.gain * (AL.org[map.organ] || 1) - (load < AL.quiet ? AL.decay : 0)) * dt, 0, 100);
-  if (R.alarm >= 100) { R.med = { w: AL.warn, d: 0, guard: false, last: 3, al: true }; sfx('alarm'); buzz(30); banner('🔥 들켰다! 2초 뒤 면역 총공격 — 돌격 멈추고 스킬로 버텨!'); }
+  if (R.alarm >= 100) { R.med = { w: AL.warn, d: 0, guard: false, last: 3, al: true }; sfx('alarm'); buzz(30); banner('🔥 들켰다! 2초 뒤 면역 총공격 — 출발 멈추고 스킬로 버텨!'); }
 }
 function alarmHelp() { const R = run; R.mutPause = true; paused = true;
   const bar = (p, c, t) => `<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><div style="flex:1;height:14px;border-radius:7px;background:#2a1a20;overflow:hidden"><div style="width:${p}%;height:100%;background:${c}"></div></div><span style="font-size:12px;color:#d8c8b0;min-width:64px">${t}</span></div>`;
   ui.modal(`<h3 style="margin:2px 0 8px">이번 전투 규칙: 들키지 마!</h3>
     <div style="text-align:left;font-size:14px;line-height:1.55">
-    <b style="color:#ffd27a">① 돌격하면 감염, 대신 들켜요</b><br>오른쪽 아래 <b>돌격</b>을 누르면 둥지 무리가 길로 나가요. 길 위에 많을수록 위쪽 게이지가 차요.${bar(45, '#ffd24a', '들킴 45%')}
+    <b style="color:#ffd27a">① 출발하면 감염, 대신 들켜요</b><br>오른쪽 아래 <b>출발</b>을 누르면 둥지 무리가 길로 나가요. 길 위에 많을수록 위쪽 게이지가 차요.${bar(45, '#ffd24a', '들킴 45%')}
     <b style="color:#ff8a7a">② 꽉 차면 면역 총공격</b><br>"2초 뒤 총공격" 경고가 뜨면 <b>스킬 카드</b>를 눌러 버티세요. 못 버티면 길 위 무리가 쓰러져요.${bar(100, '#ff3b30', '총공격!')}
-    <b style="color:#9fff6a">③ 끝나면 초록 틈 = 기회</b><br>총공격 직후 몇 초 동안 돌격하면 감염 <b>×${1 + AL.gapBonus}</b>! 둥지에 모아 뒀다가 이때 한 번에!${bar(80, '#7dff6a', '틈! ×' + (1 + AL.gapBonus))}
+    <b style="color:#9fff6a">③ 끝나면 초록 틈 = 기회</b><br>총공격 직후 몇 초 동안 출발하면 감염 <b>×${1 + AL.gapBonus}</b>! 둥지에 모아 뒀다가 이때 한 번에!${bar(80, '#7dff6a', '틈! ×' + (1 + AL.gapBonus))}
     <div style="margin-top:8px;color:#b59f86;font-size:12.5px">요령: 계속 누르지 말고 → 모았다가 → 틈에 한 방</div></div>
     <div class="row" style="margin-top:10px"><button class="btn red" id="alOk">알겠어, 시작!</button></div>`);
   $('alOk').onclick = () => { save.tips = save.tips || {}; save.tips.alarm = true; persist(); ui.closeModal(); };
@@ -3000,7 +3007,7 @@ function drawAlarm(time) { const R = run; if (!ALARM || !R || !R.ta || stealthOn
   const col = gap ? '#7dff6a' : R.med ? '#ff3b30' : v >= 85 ? `rgba(255,${60 + 40 * Math.sin(time * 12)},50,1)` : v >= 60 ? '#ff9a3c' : '#ffd24a';
   ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x, y, w, h); ctx.fillStyle = col; ctx.fillRect(x, y, w * (gap ? R.gap / AL.gapDur : v / 100), h);
   ctx.font = `${Math.round(13 * KS)}px Jua, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineWidth = 3; ctx.strokeStyle = '#000';
-  const t = gap ? `틈! 지금 돌격 ×${1 + AL.gapBonus}` : R.med ? '면역 총공격!' : `들킴 ${Math.round(v)}%  ·  길 위 ${Math.round(R.alLoad || 0)}`;
+  const t = gap ? `틈! 지금 출발 ×${1 + AL.gapBonus}` : R.med ? '면역 총공격!' : `들킴 ${Math.round(v)}%  ·  길 위 ${Math.round(R.alLoad || 0)}`;
   ctx.strokeText(t, x + 6, y + h / 2 + 1); ctx.fillStyle = '#fff'; ctx.fillText(t, x + 6, y + h / 2 + 1); ctx.restore(); }
 function medGuard() { const R = run, M = R && R.med; if (B3 || !M || M.guard) return; M.guard = true; float(W / 2, H * 0.32, M.w > 0 ? '🛡 대비 성공! 쿨타임 절반 회복' : '🛡 변이로 버티는 중!', '#9fff6a', 18); buzz(15); }
 function drawMed(time) { const R = run, M = R && R.med; if (!M) return; ctx.save(); ctx.textAlign = 'center';
@@ -3008,7 +3015,7 @@ function drawMed(time) { const R = run, M = R && R.med; if (!M) return; ctx.save
     ctx.globalAlpha = 0.85; ctx.fillStyle = 'rgba(20,60,30,.55)'; ctx.fillRect(W / 2 - 130, H * 0.22, 260, 92);
     ctx.globalAlpha = 1; ctx.fillStyle = '#b9ffb0'; ctx.font = 'bold 15px sans-serif'; ctx.fillText(M.al ? '🔥 면역 총공격까지' : '💊 약효 도달까지', W / 2, H * 0.22 + 22);
     ctx.save(); ctx.translate(W / 2, H * 0.22 + 62); ctx.scale(sc, sc); ctx.fillStyle = M.guard ? '#9fff6a' : '#fff'; ctx.font = 'bold 40px sans-serif'; ctx.fillText(n, 0, 0); ctx.restore();
-    ctx.fillStyle = M.guard ? '#9fff6a' : '#ffe2a8'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(B3 ? '지금 잠복하면 피해 0!' : M.guard ? '🛡 대비 완료!' : '지금 스킬 쓰면 버팀 + 쿨타임 절반!', W / 2, H * 0.22 + 86); }
+    ctx.fillStyle = M.guard ? '#9fff6a' : '#ffe2a8'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(B3 ? '지금 숨으면 피해 0!' : M.guard ? '🛡 대비 완료!' : '지금 스킬 쓰면 버팀 + 쿨타임 절반!', W / 2, H * 0.22 + 86); }
   else if (!M.guard) { ctx.globalAlpha = 0.12 + 0.05 * Math.sin(time * 6); ctx.fillStyle = '#5aff7a'; ctx.fillRect(0, 0, W, H); }
   ctx.restore(); }
 // ★ 결전 나팔: 길 위 한 곳을 찍으면 3초간 뒤처진 무리는 빨리(멀수록 더), 앞선 무리는 기다려서 한 덩어리로. 모인 무리는 5초간 공격·감염 ×1.2
@@ -3110,7 +3117,7 @@ const MUTS = {
 };
 function breakout() {
   const R = run, tot = Math.floor(nestTotal()); if (tot < 1) return toast('둥지가 비었어요');
-  // 돌격 보상은 '초록 틈에 돌격하면 +30%' 하나로 단순하게 (예전의 자동 함성·보호막은 뺌)
+  // 돌격 보상은 '초록 틈에 출발하면 +30%' 하나로 단순하게 (예전의 자동 함성·보호막은 뺌)
   return doBreakout(null);
   // 내 카드 3장이 하나씩 힘을 빌려준다: 대장 → 버티기 쪽, 속도 → 움직임 쪽, 공격 → 공격 쪽
   const POOL = [['armor', 'regen', 'bloom'], ['sprint', 'cloak'], ['toxic', 'hijack']], cards = slotFill();
@@ -3119,7 +3126,7 @@ function breakout() {
     <div class="row">${keys.map((k, i) => `<button class="btn mutBtn" data-m="${k}">${cards[i] ? pimg(cards[i], 'mutPic') : ''}<span class="mt"><small>${SLOT_NAME[i]} 카드의 힘</small><b>${MUTS[k].icon} ${MUTS[k].name}</b><em>${MUTS[k].desc}</em></span></button>`).join('')}</div>`);
   document.querySelectorAll('#modal [data-m], .modal [data-m]').forEach(b => b.onclick = () => { ui.closeModal(); paused = false; doBreakout(b.dataset.m); });
 }
-// ★ 붓기: 둥지에 모일수록 감염된 길이 퉁퉁 부풀고(두근두근 물집), 돌격하면 한꺼번에 뿜어내며 꺼진다
+// ★ 붓기: 둥지에 모일수록 감염된 길이 퉁퉁 부풀고(두근두근 물집), 출발하면 한꺼번에 뿜어내며 꺼진다
 function drawSwell(time, nd) {
   const R = run; if (!nd || !nestOn()) return; const dt = Math.min(0.05, Math.max(0, time - (R.swT ?? time))); R.swT = time;
   const cap = R.groups.reduce((a, g) => a + g.max * NEST.capMul, 0) || 1, want = Math.min(1, Math.sqrt(nestTotal() / cap) * 1.15);
@@ -3158,7 +3165,7 @@ function doBreakout(mut) {   // 돌격: 탱커가 먼저, 나머지가 뒤따른
   R.nestOrder = []; R.charge = 1; for (const t of R.towers) t.hitFirst = false;
   const [x, y] = pathAt(R.frontD || 0); R.rings.push({ x, y, r: 10, R: 110, t: 0.7, color: R.gap > 0 ? '#9fff6a' : '#e8a0ff' });
   shake(5); R.flashT = 0.2; R.flashC = R.gap > 0 ? '160,255,120' : '232,160,255';
-  banner(`돌격! ${tot}마리${M ? ` · ${M.icon} ${M.name}` : ''}${R.gap > 0 ? ' · 면역 공백 기습' : ''}`);
+  banner(`출발! ${tot}마리${M ? ` · ${M.icon} ${M.name}` : ''}${R.gap > 0 ? ' · 면역 공백 기습' : ''}`);
 }
 // ★ 둥지 크기 = 잠입 성과: 잠입 때 감염시킨 길이 길수록 둥지가 커진다 (감염 0% ×1 · 30% ×1.9 · 50% ×2.5)
 const nestZone = () => 1 + 3 * Math.min(0.6, run.sthFrac != null ? run.sthFrac : segDone() / Math.max(1, map.seg.length));
@@ -3471,6 +3478,19 @@ const SK_TXT = (() => { const V = SV, P = x => Math.round(x * 100) + '%', F = x 
     migrate: g => `둥지의 ${P(V(g, 'amt', true))}만큼 길 70% 지점에 새 무리 + 체력 ${P(V(g, 'amt', true))} 회복`, scab: g => `${V(g, 'buff')}초 동안 받는 피해 −${P(V(g, 'amt', true))} + 쓰러지면 ${P(M(V(g, 'amt'), 0.8))} 확률로 부활`,
     batwing: g => `${V(g, 'hide', true)}초 투명 + 앞장선 ${Math.round(V(g, 'amt', true) * 60)}마리가 굽이를 날아 넘어요`, labescape: g => `앞쪽 탑 4개 ${V(g, 'stun', true)}초 마비 + ${V(g, 'buff', true)}초 받는 피해 −${P(V(g, 'amt', true))}`,
   }; })();
+// ★ 전투 버튼용 아주 짧은 효과 (8자 안팎)
+const SK_MINI = (() => { const V = SV, P = x => Math.round(Math.min(x, 0.95) * 100) + '%', F = x => +(+x).toFixed(1);
+  return { replicate: g => `분신 ${P(V(g, 'amt') * 2)}`, capsid: g => `피해 −${P(V(g, 'amt'))}`, outbreak: () => '한꺼번에 출발', latency: g => `${V(g, 'hide')}초 은신`, shift: g => `${F(V(g, 'hide') * 0.5)}초 무적`,
+    spread: g => `${V(g, 'buff')}초 빠르게`, neuro: g => `${Math.round(V(g, 'amt') * 60)}마리 순간이동`, hostify: () => '탑 1개 뺏기', dive: g => `${V(g, 'buff')}초 잠수`, rash: g => `${V(g, 'buff')}초 감염×2`,
+    decoy: g => `미끼 ${Math.round(V(g, 'amt') * 64)}개`, wart: g => `${V(g, 'buff')}초 회복`, hemo: g => `모든 탑 ${F(V(g, 'stun') * 0.85)}초 마비`, pandemic: g => `둥지 ×${F(1 + Math.min(1.5, V(g, 'amt') * 2))}`,
+    giant: g => `둥지 ×${F(1 + Math.min(1.5, V(g, 'amt') * 2))}`, cytokine: g => `${V(g, 'buff')}초 탑 약화`, asympt: g => `${V(g, 'hide', true)}초 은신+감염`, blister: g => `분신 ${P(V(g, 'amt') * 2)}`,
+    swell: g => `${V(g, 'buff')}초 방어`, mosquito: g => `둥지 ${P(V(g, 'amt'))} 날기`, fakeout: g => `${V(g, 'hide')}초 투명`, paralyze: g => `탑 3개 ${V(g, 'stun')}초 마비`, anemia: g => `${V(g, 'buff')}초 탑 약화`,
+    harmless: g => `경보 −${P(V(g, 'amt') * 2)}`, soothe: g => `${V(g, 'buff')}초 탑 느리게`, vaccinia: () => '탑 1개 내 편', genecarry: g => `체력 ${P(V(g, 'amt'))} 회복`, vanish: g => `${V(g, 'hide', true)}초 투명+회복`,
+    antigenic: g => `탑 ${V(g, 'stun')}초 멈춤`, stampede: g => `${V(g, 'buff')}초 질주`, superspread: g => `${V(g, 'buff')}초 감염×1.5`, joint: g => `탑 2개 ${V(g, 'stun')}초 느리게`, cough: g => `둥지 ${P(V(g, 'amt'))} 튀기`,
+    wakeup: g => `${V(g, 'hide')}초 투명`, mcblock: g => `${V(g, 'hide', true)}초 경보 멈춤`, nodisinfect: g => `${V(g, 'buff')}초 약 면역`, tiny: g => `${V(g, 'buff')}초 빗나감`, roseola: () => '버틴 뒤 회복',
+    selfheal: () => '체력 회복', croup: g => `새 무리 ${P(V(g, 'amt'))}`, tickbite: () => '탑 2개 물기', pml: () => '투명 → 마비', incub: () => '투명 → 감염×2', tcell: () => '탑 2개 뺏기',
+    tickswarm: g => `분신 ${P(V(g, 'amt'))}`, daycare: g => `분신 ${P(V(g, 'amt'))}`, interferon: () => '경보 정지·탑 약화', migrate: () => '철새 무리+회복', scab: () => '방어+부활', batwing: () => '투명+날기', labescape: () => '탑 4개 마비' }; })();
+const skMini = g => { const sk = geneSkill(g), ids = sk.ids || [sk.id], f = SK_MINI[ids[0]]; return f ? f(g) + (ids.length > 1 ? ' +' : '') : sk.name; };
 const keyByName = n => Object.keys(STRAINS).find(k => STRAINS[k].name === n);
 for (const id in SK_TXT) SHORT[id] = (n, g) => SK_TXT[id](g && g.strain ? g : { strain: keyByName(n) || 'rhino', star: 1 });
 for (const [k, d] of Object.entries(STRAINS)) { if (!d.skill || d.hero || k === 'mine') continue; const ids = d.skill.ids || [d.skill.id]; if (!ids.every(i => SK_TXT[i])) continue;
@@ -3573,7 +3593,7 @@ function update(dt) {
       else if (nestOn() && !gr.reawake && !(R.tutOn && R.tutStep < 4) && gr.charge * gr.max >= Math.max(RULES.ta.minRelease, gr.max * 0.25) && nestTotal() < nestCap()) toNest(gr, true); }
     stepNest(dt);
     R.gapT -= dt; R.gap = Math.max(0, R.gap - dt);
-    if (!ALARM && R.gapT <= 0) { R.gapT = RULES.ta.gapEvery; R.gap = RULES.ta.gapDur; banner('면역이 쉬는 틈! 지금 돌격하면 +30%'); sfx('alarm'); buzz([30, 40, 30]); R.flashT = 0.25; R.flashC = '160,255,120'; }
+    if (!ALARM && R.gapT <= 0) { R.gapT = RULES.ta.gapEvery; R.gap = RULES.ta.gapDur; banner('면역이 쉬는 틈! 지금 출발하면 +30%'); sfx('alarm'); buzz([30, 40, 30]); R.flashT = 0.25; R.flashC = '160,255,120'; }
     if ((R.acT = (R.acT || 0) + dt) > 0.5) { R.acT = 0; autoCast(); }
     if (!R.endAt && R.time >= R.T) { R.endAt = R.time + 1.6; R.medicated = true; banner('환자가 약을 복용했다!'); R.av = { t: 0, fired: false, x: W / 2, y: (TOP + H - BOTTOM) / 2, final: true }; }
     if (!R.endAt && R.cleared) { R.endAt = R.time + 2; R.left = Math.max(0, R.T - R.time); toast(`남은 ${Math.ceil(R.left)}초 보너스`); }
@@ -4024,7 +4044,7 @@ function introLoop(now) {
 const STORY = [
   { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.png')}" alt="">`, txt: '나는 막 깨어난 <b>아기 바이러스</b>.<br>카드 3장을 <b>조합</b>해서 진화해요.' },
   { pic: () => `<img src="assets/${has('story_2') ? 'story_2.jpg' : bodyOf() ? bodyOf().img + '_skin.jpg' : 'bodymap_skin.jpg'}" alt="">`, txt: '목표는 <b>사람의 몸</b>.<br>코에서 <b>뇌</b>까지 8곳을 감염시켜요.' },
-  { pic: () => has('story_3') ? '<img src="assets/story_3.jpg" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '<b>면역 세포</b>가 막아요.<br>숨어들었다가 <b>빈틈</b>에 돌격!' },
+  { pic: () => has('story_3') ? '<img src="assets/story_3.jpg" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '<b>면역 세포</b>가 막아요.<br>숨어들었다가 <b>빈틈</b>에 출발!' },
 ];
 function showStory(i) {
   const el = $('inStory'), S = STORY[i]; if (!S) return introDone(true); el.hidden = false; $('inTop').hidden = true; $('inBot').hidden = true;
@@ -4249,14 +4269,26 @@ const ui = {
   renderHero() { return ui.renderCore(); },
   // ★ 본체: DNA로 내 바이러스 자체를 키운다 (모든 카드 조합에 항상 적용). 합계 단계가 오르면 겉모습도 바뀐다
   // ★ 본체 화면 (전후 비교형): 지금 → 진화 후 모습과 숫자, 다음 큰 보상, 보상 줄(누르면 로드맵)
-  corePickList() { const cur = coreGene(), list = save.genes.filter(g => canBeCore(g) && g !== cur).sort((a, b) => coreRarOf(b) - coreRarOf(a) || (b.lv || 1) - (a.lv || 1));
-    ui.modal(`<h3 style="margin:2px 0 4px">👑 누구를 본체로 할까요?</h3><div class="sub">등급이 높을수록 <b>스킬이 세고 맞는 기관이 많아요</b> · 칸 수는 본체 레벨로 열려요</div>
-      <div class="cpList">${list.map(g => `<button class="cpOpt" data-u="${g.uid}">${pimg(g)}<div><b>${sname(g.strain)}</b><small>${ROUTE[routeOf(g.strain)].ic} ${RAR_NAME[coreRarOf(g)]} · Lv${g.lv || 1} · 칸 ${slotsAt(g.lv || 1)}개 · ${(STRAINS[g.strain].skill || {}).name || ''}<br>👍 ${fitOrgans(g).map(o => ORG_SHORT[o]).join('·')}${fitOrgans(g).includes(save.sel) ? ' <b style="color:#9fff6a">✓ 지금 기관</b>' : ''} · ${SKT_NAME[SKTYPE[g.strain] || 'boost']}</small></div></button>`).join('') || '<div class="sub">바꿀 수 있는 바이러스가 없어요</div>'}</div>`, [{ label: '닫기' }]);
+  // ★ 본체 바꾸기도 같은 방식: 이득 순 목록 → 누르면 지금 → 바꾸면 비교
+  corePrev(g) { const snap = { sq: [...save.squad], st: save.starter, cl: save.coreL, cf: save.genes.filter(x => x.core) }, t0 = window.toast, f0 = slotFill(), org = save.sel || 'nose', pf = f0.length ? powerOf(mineStats(f0).s, matchTotal(f0, org)) : 0, s0 = slotsOpenN(), m0 = f0.length ? matchTotal(f0, org) : 0; let r = null;
+    window.toast = () => {}; try { setCore(g); const f = slotFill(), ms = f.length ? mineStats(f) : null, m = f.length ? matchTotal(f, org) : 0; r = { pf, pt: ms ? powerOf(ms.s, m) : 0, s0, s1: slotsOpenN(), m0, m1: m }; }
+    finally { window.toast = t0; for (const x of save.genes) delete x.core; for (const x of snap.cf) x.core = true; save.squad = snap.sq; save.starter = snap.st; save.coreL = snap.cl; persist(); if (slotFill().length) mineStats(slotFill()); }
+    r.pp = r.pf ? Math.round((r.pt / r.pf - 1) * 100) : 0; return r; },
+  corePickList() { const cur = coreGene(), list = save.genes.filter(g => canBeCore(g) && g !== cur).map(g => ({ g, r: ui.corePrev(g) })).sort((a, b) => b.r.pt - a.r.pt);
+    ui.modal(`<h3 style="margin:2px 0 4px">👑 본체로 할 바이러스 <small style="font-size:12px;color:#b59f86">이득 순</small></h3><div class="sub">지금 편성 그대로 본체만 바꿨을 때 · 등급이 높을수록 스킬이 세요</div>
+      <div class="cpList">${list.map(({ g, r }) => `<button class="cpOpt" data-u="${g.uid}">${pimg(g)}<div style="flex:1"><b>${sname(g.strain)} <span style="color:${RARITY[STRAINS[g.strain].rarity].color};font-size:11px">${'★'.repeat(g.star)}</span></b><small>${RAR_NAME[coreRarOf(g)]} · Lv${g.lv || 1} · 칸 ${r.s1}개${fitOrgans(g).includes(save.sel) ? ' · <span style="color:#9fff6a">✓ 지금 기관</span>' : ''}<br>✨ ${(STRAINS[g.strain].skill || {}).name || ''} · ${skMini(g)}</small></div><div class="slR"><b style="color:${r.pp > 0 ? '#3ae0c0' : r.pp < 0 ? '#ff8a7a' : '#b59f86'}">${r.pp > 0 ? '+' : ''}${r.pp}%</b><small>전투력</small></div></button>`).join('') || '<div class="sub">바꿀 수 있는 바이러스가 없어요</div>'}</div>`, [{ label: '닫기' }]);
     $('modalBox').querySelectorAll('.cpOpt').forEach(b => b.onclick = () => ui.coreSwap(geneById(+b.dataset.u))); },
-  coreSwap(g) { const cur = coreGene(), r1 = coreRarOf(g), out = cur ? slotGenes().filter((x, i) => x && i < 4 && !coreFreeOf(g) && (x.lv || 1) > (g.lv || 1) && x !== g) : [];
-    ui.modal(`<h3 style="margin:2px 0 6px">👑 ${sname(g.strain)}을(를) 본체로?</h3><div class="csBig">${pimg(g)}</div>
-      <div class="sub" style="text-align:left;line-height:1.7">${cur ? `지금: ${sname(cur.strain)} · ${RAR_NAME[coreRar()]} · Lv${coreL()} · 칸 ${slotsAt(coreL())}개<br>` : ''}바꾸면: <b style="color:#ffd24a">${sname(g.strain)} · ${RAR_NAME[r1]} · Lv${g.lv || 1} · 칸 ${slotsAt(g.lv || 1)}개${coreFreeOf(g) ? ' · 레벨 제한 없음' : ''}</b><br>본체 스킬: <b>${(STRAINS[g.strain].skill || {}).name || '-'}</b>
-      ${out.length ? `<br><span style="color:#ff9a8a">⚠ 본체보다 레벨이 높아서 빠지는 바이러스: ${out.map(x => sname(x.strain) + ' Lv' + (x.lv || 1)).join(', ')}</span>` : ''}${cur && !coreFreeOf(g) && (cur.lv || 1) > (g.lv || 1) ? `<br><span style="color:#ffcf8a">지금 본체 ${sname(cur.strain)}(Lv${cur.lv || 1})는 레벨이 더 높아서 편성 밖으로 가요. 레벨은 그대로 남아요.</span>` : ''}<br><span style="color:#9fd8ff">💡 새 본체 레벨을 올리면 칸에 꽂을 수 있는 레벨도 같이 올라가요.</span></div>
+  coreSwap(g) { const cur = coreGene(), r1 = coreRarOf(g), r = ui.corePrev(g), out = cur ? slotGenes().filter((x, i) => x && i < 4 && !coreFreeOf(g) && (x.lv || 1) > (g.lv || 1) && x !== g) : [], up = x => `<span style="color:${x >= 0 ? '#3ae0c0' : '#ff8a7a'}">`;
+    const ln = (a, b, c) => `<div class="ln"><span>${a}</span><b>${b}</b></div>`;
+    ui.modal(`<h3 style="margin:2px 0 6px">👑 ${cur ? sname(cur.strain) + ' → ' : ''}${sname(g.strain)}</h3><div class="csBig">${pimg(g)}</div>
+      <div class="fcCmp" style="text-align:left">
+        ${ln('🎯 전투력', `${r.pf} → ${up(r.pp)}${r.pt} (${r.pp > 0 ? '+' : ''}${r.pp}%) ${r.pp >= 0 ? '▲' : '▼'}</span>`)}
+        ${ln('등급 · 레벨', `${cur ? RAR_NAME[coreRar()] + ' Lv' + coreL() + ' → ' : ''}${RAR_NAME[r1]} Lv${g.lv || 1}`)}
+        ${ln('칸 수', `${r.s0}개 → ${up(r.s1 - r.s0)}${r.s1}개</span>`)}
+        ${ln('👑 궁합', `${r.m0 >= 0 ? '+' : ''}${r.m0}% → ${up(r.m1 - r.m0)}${r.m1 >= 0 ? '+' : ''}${r.m1}%</span>`)}
+        ${ln('✨ 본체 스킬', `${cur ? (STRAINS[cur.strain].skill || {}).name + ' → ' : ''}<span style="color:#ffd27a">${(STRAINS[g.strain].skill || {}).name || '-'}</span>`)}
+        <div class="note" style="font-size:11.5px;color:#c9b9a2;margin-top:4px">${(STRAINS[g.strain].skill || {}).desc || ''}</div></div>
+      <div class="sub" style="text-align:left;line-height:1.6;font-size:12px">${out.length ? `<span style="color:#ff9a8a">⚠ 본체보다 레벨이 높아서 빠지는 바이러스: ${out.map(x => sname(x.strain) + ' Lv' + (x.lv || 1)).join(', ')}</span><br>` : ''}${cur && !coreFreeOf(g) && (cur.lv || 1) > (g.lv || 1) ? `<span style="color:#ffcf8a">지금 본체 ${sname(cur.strain)}(Lv${cur.lv || 1})는 레벨이 더 높아서 편성 밖으로 가요. 레벨은 그대로 남아요.</span><br>` : ''}<span style="color:#9fd8ff">💡 새 본체 레벨을 올리면 칸에 넣을 수 있는 레벨도 같이 올라가요.</span></div>
       <div class="row" style="margin-top:10px"><button class="btn" id="csNo">취소</button><button class="btn red" id="csGo">본체로 정하기</button></div>`);
     $('csNo').onclick = ui.closeModal; $('csGo').onclick = () => { setCore(g); if (slotGenes().slice(0, 4).filter(Boolean).length < slotsOpenN()) { autoSquad(); normSquad(); persist(); } sfx('clear'); ui.closeModal(); ui.fx(`👑 새 본체: ${sname(g.strain)}`, '#ffd24a'); ui.showHub('lab'); }; },
   coreModal() { ui.modal(`<div id="coreM" style="display:flex;flex-direction:column;gap:7px"></div><div class="row"><button class="btn" id="cmNo">닫기</button></div>`); ui.renderCore($('coreM')); $('cmNo').onclick = ui.closeModal; },
@@ -4403,6 +4435,11 @@ const ui = {
     ui.renderRails();
   },
   // 이 카드를 i번 칸에 꽂으면? (지금 → 바뀐 값). 계산 뒤 본체 모습은 원래대로 되돌림
+  // ★ 칸 미리보기: 그 칸에 넣으면 칸 보너스가 몇 %→몇 %, 역할이 맞는지
+  slotPrev(g, i) { const c = coreGene(); if (!c || !SLOT_MODE() || i > 3) return null; const k = SLOT_KEY[i] === 'spd' ? SLOT_SPD : 1, old = slotGenes()[i];
+    const ok = x => MAINST[ROLE_OF[x.strain]] === SLOT_KEY[i] || (i === 0 && ROLE_OF[x.strain] === 'heal');
+    return { nb: Math.round(slotBonus(g, i, c) * k * 100), ob: old && old !== g ? Math.round(slotBonus(old, i, c) * k * 100) : 0, match: ok(g) }; },
+  slotBest(g, sq) { let bi = null, bd = null; for (const i of [0, 3, 1, 2]) { if (!slotOpen(i) || !canSlot(g, i) || sq[i] === g) continue; const d = ui.slotDelta(g, i); if (!bd || d.pt > bd.pt) { bi = i; bd = d; } } return bi == null ? null : { i: bi, d: bd }; },
   slotDelta(g, i) {
     const sq = slotGenes(), cur = sq.indexOf(g); if (cur >= 0) sq[cur] = sq[i]; sq[i] = g;
     const base = slotFill(), bs = base.length ? mineStats(base) : null, bm = base.length ? matchTotal(base, save.sel || 'nose') : 0;
@@ -4420,13 +4457,23 @@ const ui = {
   // ★ 편성 화면 (클래시 로얄·AFK식): 위 = 고정 칸, 아래 = 순서가 안 바뀌는 내 바이러스 목록 하나
   //   칸 먼저: 칸을 누르면 카드 위에 그 칸 기준 전투력 변화 → 카드를 누르면 바로 꽂힘
   //   카드 먼저: 카드를 누르면 위 칸들이 흔들리며 칸마다 변화 숫자 → 칸을 누르면 꽂힘
+  // ★ 칸 먼저 (AFK 아레나·원신식): 칸을 누르면 그 칸에 넣을 카드가 이득 순서로
+  slotPickList(i) { const sq = slotGenes(), cur = sq[i], cands = save.genes.filter(g => g !== cur && canSlot(g, i)).map(g => ({ g, d: ui.slotDelta(g, i), p: ui.slotPrev(g, i) })).sort((a, b) => b.d.pt - a.d.pt);
+    const row = ({ g, d, p }) => `<button class="cpOpt slRow${p && p.match ? ' ok' : ''}" data-u="${g.uid}">${pimg(g)}<div style="flex:1"><b>${sname(g.strain)} <span style="color:${RARITY[STRAINS[g.strain].rarity].color};font-size:11px">${'★'.repeat(g.star)}</span></b><small>${(ROLES[ROLE_OF[g.strain]] || {}).name || ''} · ${STRAINS[g.strain].legend ? '전설' : RAR_NAME[Math.min(2, STRAINS[g.strain].rarity || 0)]} · Lv${g.lv || 1}${p ? (p.match ? ' · <span style="color:#3ae0c0">✓ 역할 맞음</span>' : ' · <span style="color:#ff9a7a">절반</span>') : ''}${sq.includes(g) ? ' · 다른 칸에서 옮김' : ''}</small></div><div class="slR"><b style="color:${p && p.match ? '#3ae0c0' : '#ff9a7a'}">${SLOT_STAT[i]} +${p ? p.nb : 0}%</b><small style="color:${d.pp > 0 ? '#3ae0c0' : d.pp < 0 ? '#ff8a7a' : '#b59f86'}">전투력 ${d.pp > 0 ? '+' : ''}${d.pp}%</small></div></button>`;
+    ui.modal(`<h3 style="margin:2px 0 4px">${SLOT_ICON[i]} ${SLOT_STAT[i]} 칸에 넣을 카드 <small style="font-size:12px;color:#b59f86">이득 순</small></h3>
+      ${cur ? `<div class="slCur">${pimg(cur)}<div style="flex:1"><b>지금: ${sname(cur.strain)}</b><small>${SLOT_STAT[i]} +${(ui.slotPrev(cur, i) || {}).nb || 0}%</small></div><button class="btn" id="slInfo">ⓘ</button><button class="btn" id="slOut">빼기</button></div>` : ''}
+      <div class="cpList">${cands.map(row).join('') || '<div class="sub">넣을 수 있는 카드가 없어요</div>'}</div><div class="sub" style="font-size:11.5px">민트 = 역할 맞음 (100%) · 주황 = 절반 · 누르면 바로 넣어요</div>`, [{ label: '닫기' }]);
+    $('modalBox').querySelectorAll('.slRow').forEach(b => b.onclick = () => { const g = geneById(+b.dataset.u); if (g && assignSlot(g, i)) { sfx('build'); buzz(15); ui.closeModal(); ui.fmPick = null; ui.fmSel = null; ui.showHub('lab'); } });
+    if ($('slOut')) $('slOut').onclick = () => { save.squad[i] = null; normSquad(); persist(); ui.closeModal(); ui.showHub('lab'); };
+    if ($('slInfo')) $('slInfo').onclick = () => { ui.closeModal(); ui.detail(cur); }; },
   renderRails() {
     const sq = slotGenes(), inSq = new Map(); SL.forEach(i => { if (sq[i]) inSq.set(sq[i], i); });
     let pick = ui.fmPick != null ? geneById(ui.fmPick) : null; if (!pick) ui.fmPick = null;
     let sel = ui.fmSel; if (sel != null && !slotOpen(sel)) sel = ui.fmSel = null;
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
-    const sock = i => { const open = slotOpen(i), g = sq[i], no = pick && open && !canSlot(pick, i), pd = pick && open && !no && g !== pick ? ui.slotDelta(pick, i).pp : null;
-      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? rarBg(g) + ',#1a120e' : '#241a16'};border-color:${!pick && sel === i ? '#3ae0c0' : g ? 'rgba(255,255,255,.15)' : '#5a4430'}"><span class="fmL">${i < 4 ? SLOT_STAT[i] + (g && coreGene() && SLOT_MODE() ? ` <b style="color:${MAINST[ROLE_OF[g.strain]] === SLOT_KEY[i] || (i === 0 && ROLE_OF[g.strain] === 'heal') ? '#3ae0c0' : '#ff9a7a'}">+${Math.round(slotBonus(g, i, coreGene()) * (SLOT_KEY[i] === 'spd' ? SLOT_SPD : 1) * 100)}%</b>` : '') : '본체'}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${g ? sname(g.strain) : open ? '비어 있음' : ''}</b></button>`; };
+    const pbest = pick ? ui.slotBest(pick, sq) : null;
+    const sock = i => { const open = slotOpen(i), g = sq[i], no = pick && open && !canSlot(pick, i), pd = null, pv = pick && open && !no && g !== pick ? ui.slotPrev(pick, i) : null, isB = pbest && pbest.i === i;
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${isB ? ' bestS' : ''}${pv ? ' pv' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? rarBg(g) + ',#1a120e' : '#241a16'};border-color:${!pick && sel === i ? '#3ae0c0' : g ? 'rgba(255,255,255,.15)' : '#5a4430'}">${isB ? '<span class="fmBest">★ 추천</span>' : ''}<span class="fmL">${i < 4 ? SLOT_STAT[i] + (g && !pv && coreGene() && SLOT_MODE() ? ` <b style="color:${MAINST[ROLE_OF[g.strain]] === SLOT_KEY[i] || (i === 0 && ROLE_OF[g.strain] === 'heal') ? '#3ae0c0' : '#ff9a7a'}">+${Math.round(slotBonus(g, i, coreGene()) * (SLOT_KEY[i] === 'spd' ? SLOT_SPD : 1) * 100)}%</b>` : '') : '본체'}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${pv ? '→ ' + sname(pick.strain) : g ? sname(g.strain) : open ? '비어 있음' : ''}</b>${pv ? `<span class="fmPv ${pv.match ? 'g' : 'o'}">+${pv.ob}→+${pv.nb}%${pv.match ? ' ✓' : ' 절반'}</span>` : ''}</button>`; };
     const cgv = null;
     const comp = RC.lvComp > 100 ? '' : `<button class="fmComp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1" aria-label="동반">${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}<span class="fcRing" style="--g:${compOn && cg ? Math.min(100, (gv % 1) * 100 || (gv >= 1 ? 100 : 0)).toFixed(0) : 0}%">${!compOn ? '🔒' : cg ? pimg(cg) : '+'}</span><small>🤝 동반${!compOn ? ` Lv${RC.lvComp}` : gv >= 1 ? ' 🧬' : ''}</small></button>`;
     const list = sortGenes(save.genes);
@@ -4434,7 +4481,7 @@ const ui = {
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
       return `<button class="fmC${STRAINS[g.strain].legend ? ' foil' : ''}${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<em class="fmMk ${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="fmMk ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}<span class="fmPic">${pimg(g)}</span><b>${sname(g.strain)}</b><small class="fmSt" style="color:${RARITY[D.rarity].color}">${'★'.repeat(g.star)}<i>${'★'.repeat(Math.max(0, 5 - g.star))}</i></small><small class="fmLv">Lv${g.lv || 1} · <span style="color:${(ROLES[ROLE_OF[g.strain]] || {}).col || '#ccc'}">${((ROLES[ROLE_OF[g.strain]] || {}).name || '').replace('형', '')}</span></small></button>`; }).join('');
-    const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · 칸 위 숫자 = 전투력 변화` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const rc = roleCnt(sq.filter(Boolean)), wk = ORG_WEAK[save.sel], wn = rc[wk] || 0, R = r => (ROLES[r] || {}).name.replace('형', '');
+    const head = `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · <span style="color:#3ae0c0">민트 ✓ = 역할 맞음</span> · <span style="color:#ff9a7a">주황 = 절반</span>` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const rc = roleCnt(sq.filter(Boolean)), wk = ORG_WEAK[save.sel], wn = rc[wk] || 0, R = r => (ROLES[r] || {}).name.replace('형', '');
   return `<span class="fmPanel"><em>팀 보너스</em>${Object.keys(rc).length ? Object.entries(rc).map(([r, n]) => `<b>${ROLE_FX[r].t.replace(/\d+/, m => +m * n)}</b>`).join(' ') : '카드를 넣으면 생겨요'}<i>·</i><em>보스 약점</em><b style="color:#ff9c8a">${R(wk)}</b>${wn ? ` <b>+${wn * 15}%</b>` : ''}</span>`; })()}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">자동 편성</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 3, 1, 2].map(sock).join('')}</div></div>
       <div class="fmH2">내 바이러스 <span>${save.genes.length}장</span></div><div class="sortRow" id="sortRail"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
@@ -4445,6 +4492,7 @@ const ui = {
     L.querySelectorAll('[data-fs]').forEach(b => b.onclick = () => { const i = +b.dataset.fs;
       if (!slotOpen(i)) { toast(`${slotNeedT(i)}에 열려요`); return ui.coreModal(); }
       if (pick) { if (sq[i] === pick) { ui.fmPick = null; return ui.renderRails(); } if (assignSlot(pick, i)) { sfx('build'); buzz(15); ui.fmPick = null; ui.fmSel = null; ui.showHub('lab'); } return; }
+      if (i < 4) { sfx('tap'); return ui.slotPickList(i); }
       if (sq[i] && sel !== i) { ui.fmPick = sq[i].uid; ui.fmSel = null; sfx('tap'); return ui.renderRails(); }
       ui.fmSel = sel === i ? null : i; sfx('tap'); ui.renderRails(); });
     if (L.querySelector('[data-fc]')) L.querySelector('[data-fc]').onclick = () => { if (!compOn) { toast(`본체 Lv${RC.lvComp}에 열려요`); return ui.coreModal(); }
@@ -4500,14 +4548,17 @@ const ui = {
     const D = STRAINS[g.strain], rk = ROLE_OF[g.strain], fit = (ROLE_SLOT[rk] || []).map(i => SLOT_NAME[i]).join('·'), sk = geneSkill(g), cb = coreL() >= RC.lvComp ? ui.compBest(g, sq) : null;
     const gr = [0, 1, 2, 3].map(i => { const v = slotGrade(g, i); return `<span>${SLOT_ICON[i]} ${SLOT_STAT[i]} <b style="color:${GRADE_COL[v]}">${v}</b></span>`; }).join('');
     return `<div class="fmCard"><div class="fcTop">${pimg(g)}<div class="fcT"><b>${sname(g.strain)} <span style="color:${RARITY[D.rarity].color}">${stars(g.star)}</span> <small>Lv${g.lv || 1}</small></b>
-      <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · 들어갈 칸 <b style="color:#9fd8ff">${D.legend ? '어느 칸이든' : `🛡체력${(ROLE_SLOT[rk] || []).filter(i => i > 0).map(i => ' · ' + SLOT_ICON[i] + SLOT_NAME[i]).join('')}`}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
-      <div class="fcGr">${gr}</div>
+      <div>${roleBadge(g.strain)} ${ROLES[rk] ? ROLES[rk].name : ''} · ${D.legend ? '전설' : RAR_NAME[Math.min(2, D.rarity || 0)]} · 맞는 칸 <b style="color:#3ae0c0">${(ROLE_SLOT[rk] || [0]).map(i => SLOT_ICON[i] + SLOT_STAT[i]).join('·')}</b></div></div><button class="btn" id="fmInfo">ⓘ</button><button class="btn" id="fmX">✕</button></div>
+      ${(() => { const b = ui.slotBest(g, sq); if (!b) return `<div class="fcGr">${gr}</div>`; const p = ui.slotPrev(g, b.i), d = b.d, up = x => `<span style="color:${x >= 0 ? '#3ae0c0' : '#ff8a7a'}">`;
+        return `<div class="fcCmp"><div class="fcH">➡ <b style="color:#3ae0c0">${SLOT_ICON[b.i]} ${SLOT_STAT[b.i]} 칸</b>에 넣으면 <small>(제일 좋은 칸)</small></div>
+          ${p ? `<div class="ln"><span>칸 보너스 (${SLOT_STAT[b.i]})</span><b>+${p.ob}% → ${up(p.nb - p.ob)}+${p.nb}% ${p.nb >= p.ob ? '▲' : '▼'}</span>${p.match ? '' : ' <small style="color:#ff9a7a">절반</small>'}</b></div>` : ''}
+          <div class="ln"><span>${SLOT_STAT[b.i]}</span><b>${d.from} → ${up(d.d)}${d.to} ${d.d >= 0 ? '▲' : '▼'}</span></b></div>
+          <div class="ln"><span>🎯 전투력</span><b>${d.pf} → ${up(d.pp)}${d.pt} (${d.pp > 0 ? '+' : ''}${d.pp}%) ${d.pp >= 0 ? '▲' : '▼'}</span></b></div></div>`; })()}
       ${(() => { const go = fitOrgans(g), bo = []; return `<div class="fcSk">🏠 맞는 기관 <b style="color:#9fff6a">${go.map(o => ORG_SHORT[o]).join('·') || '-'}</b> <small style="color:#b59f86">(본체일 때 +${Math.round(FIT_B * 100)}%)</small> · <span style="color:${ROUTE[routeOf(g.strain)].c}">${ROUTE[routeOf(g.strain)].ic} ${ROUTE[routeOf(g.strain)].n}</span></div>`; })()}
-      <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small>번식·지원 칸 = 직접 누르는 스킬 · 다른 칸 = 저절로 발동</small></div>
-      ${D.legend ? `<div class="fcSk" style="border-color:#8a5ac0">🤝 동반으로 데려가도 돼요: ✨ ${LEG_COMP.name} — ${LEG_COMP.desc} · 정위치 ${SLOT_NAME[(ROLE_SLOT[rk] || [0])[0]]} +${Math.round(ROLE_BONUS * 100)}% / 다른 칸 −${Math.round(LEG_OFF * 100)}%</div>` : ''}
+      <div class="fcSk">✨ <b>${sk.name}</b> ${sk.desc || D.skill.desc || ''}<small style="color:#ffd27a">👑 스킬은 본체로 쓸 때만 발동해요 · 칸에선 능력치만</small></div>
       ${(() => { const b = ui.growBtn(g), st = ui.starBtn(g); return `<div class="fcUp"><button class="btn ${b.cls || ''}${b.ok ? '' : ' off'}" id="fcLv">${b.t}<small>${b.c}</small></button>${st ? `<button class="btn red${st.ok ? '' : ' off'}" id="fcSt">${st.t} 별 올리기<small>${st.c} · 가진 🧫${save.shards || 0}</small></button>` : ''}</div>`; })()}
       ${slotGenes().includes(g) ? `<div class="fcUp"><button class="btn" id="fcSwap">🔄 이 칸에 다른 카드 넣기</button></div>` : ''}
-      <div class="fcHint">⬆ 위 칸을 누르면 꽂혀요 · 칸 위 숫자 = ${ORG_SHORT[save.sel || 'nose']} 전투력 변화</div></div>`; },
+      <div class="fcHint">⬆ 위 칸을 누르면 꽂혀요 · ★ 추천 = 전투력이 제일 오르는 칸</div></div>`; },
   fmUpBind(g) { if (!g) return; if ($('fcSwap')) $('fcSwap').onclick = () => { ui.fmSel = slotGenes().indexOf(g); ui.fmPick = null; ui.renderRails(); }; if ($('fcComp')) $('fcComp').onclick = () => { ui.fmPick = null; ui.renderRails(); ui.compSheet(g); };
     if ($('fcLv')) $('fcLv').onclick = () => { const b = ui.growBtn(g); if (b.cap) { sfx('fail'); return toast(`★${g.star}은 Lv${lvCap(g)}까지예요 · ★을 올리면 상한이 올라가요`); } if (!b.ok) { sfx('fail'); return toast('DNA가 부족해요'); }
       const P = () => { const f = slotFill(), ms = f.length && mineStats(f); return ms ? powerOf(ms.s, matchTotal(f, save.sel || 'nose')) : 0; }, p0 = P();
@@ -4874,11 +4925,12 @@ const ui = {
     $('bottom').classList.toggle('ta', !!run.ta); $('outChooser').classList.toggle('taOut', !!run.ta);
     $('hub').hidden = true; $('result').hidden = true; $('hubTip').hidden = true; ['top', 'info2', 'bottom'].forEach(id => $(id).hidden = false);
     const st = run.st; $('stName').textContent = `${st.host.name} › ${st.organ.name}`; $('stSub').textContent = `${DIFF_TXT(st.organ.diff * st.host.mul)} · 지도 ${MAP_VARIANT + 1}/${MAP_N}${run.mapTimeK > 1.02 ? ` (+${Math.round((run.mapTimeK - 1) * 100)}%⏱)` : ''} · 탑 ${run.towers.length}/${run.plan ? run.plan.n : run.towers.length}${map.valves.length ? ` · 판막 ${map.valves.length}` : ''}`;
-    $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [돌격]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길은 자동으로 지름길부터' : '부대를 눌러 출격 순서를 정하세요';
+    $('hint').textContent = stealthOn() ? '화면을 끌어 움직여요 · 벽에 붙어 멈추면 감염 · 보라색 길에선 안 들켜요' : run.ta ? '카드를 누르면 둥지에 모여요 · 테두리가 초록색일 때 [출발]을 누르면 +30%' : map.forks.length ? '부대를 눌러 출격 · 갈림길은 자동으로 지름길부터' : '부대를 눌러 출격 순서를 정하세요';
     $('timerTag').hidden = !run.ta; ui.renderDeploy(); ui.renderSkills(); ui.tick();
     $('goalLbl').textContent = st.qm < 1 ? `감염 (목표 −${Math.round((1 - st.qm) * 100)}%)` : '감염';
     $('legRow').hidden = !st.legs.length; $('legRow').innerHTML = st.legs.map(l => `<span class="chip">✅ ${l.text}</span>`).join('');
   },
+  cmbTip(t) { let el = $('cmbTip'); if (!el) { if (!t) return; el = Object.assign(document.createElement('div'), { id: 'cmbTip' }); $('stage').appendChild(el); } el.hidden = !t; if (t) el.textContent = t; },
   renderDeploy() {
     const hg = run.hero.gene;
     if (stealthOn()) { const T = run.sth;
@@ -4886,17 +4938,17 @@ const ui = {
         + `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`;
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
     if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
-      $('deploy').innerHTML = (lead ? `<button class="dp v sk2" data-sk="${lead.strain}" aria-label="본체 스킬">${pimg(lead)}<div><b style="font-size:12px">👑${geneSkill(lead).name}</b><small></small></div><i></i></button>` : '')
-        + `<button class="dp v" id="dpSpr" aria-label="증식"><div class="b3ic">🦠</div><div><b>증식</b><small></small></div><i></i></button>`
-        + `<button class="dp v" id="dpHide" aria-label="잠복"><div class="b3ic">🫥</div><div><b>잠복</b><small></small></div><i></i></button>`
-        + `<button class="dp v atk" id="dpAll" aria-label="돌격"><div><b style="font-size:13px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div><i></i></button>`;
+      $('deploy').innerHTML = (lead ? `<button class="dp v sk2 coreSk" data-sk="${lead.strain}" aria-label="본체 스킬"><span class="skLb">👑 본체 스킬</span>${pimg(lead)}<div><b style="font-size:12px">${geneSkill(lead).name}</b><small></small></div><i></i></button>` : '')
+        + `<button class="dp v" id="dpSpr" aria-label="땅 넓히기"><div class="b3ic">🧫</div><div><b>땅 넓히기</b><small></small></div><i></i></button>`
+        + `<button class="dp v" id="dpHide" aria-label="숨기"><div class="b3ic">🫥</div><div><b>숨기</b><small></small></div><i></i></button>`
+        + `<button class="dp v atk" id="dpAll" aria-label="출발"><div><b style="font-size:13px">출발</b><small style="color:#ffd8c8">둥지 0</small></div><i></i></button>`;
       $('dpAll').onclick = () => { if (run.endAt) return; breakout(); ui.tickDeploy(); };
       $('dpHide').onclick = () => { hideTap(); ui.tickDeploy(); };
       $('dpSpr').onclick = () => { spreadTap(); ui.tickDeploy(); };
       $('deploy').querySelectorAll('.sk2').forEach(b => { b.onclick = () => { if (b.lp) { b.lp = false; return; } if (!stealthOn()) castSkill(b.dataset.sk); ui.tickDeploy(); };
         b.onpointerdown = () => { clearTimeout(b.lt); b.lt = setTimeout(() => { b.lp = true; skillPop(run.skillGenes.find(x => x.strain === b.dataset.sk), b); buzz(15); }, 420); };
         b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(b.lt); b.oncontextmenu = e => e.preventDefault(); });
-      $('hint').textContent = '❓ 버튼 설명 · 💊 약 경고 → 잠복 · 둥지 가득 → 돌격 또는 증식'; $('hint').onclick = () => { if (run && !run.over) b3Help(); };
+      $('hint').textContent = '❓ 금색 = 본체 스킬 · 점선 = 콤보 짝 · 💊 약 경고 → 숨기'; $('hint').onclick = () => { if (run && !run.over) b3Help(); };
       if (!(save.tips || {}).b3 && !window.__botMut) setTimeout(() => run && !run.over && b3Help(), 400);
       return; }
     if (run.ta) {
@@ -4907,7 +4959,7 @@ const ui = {
         + (oOK && !nestOn() && !run.single ? `<button class="dp v" id="dpOut" aria-label="감염 거점"><img src="assets/out_cauldron.png" alt=""><div><b>거점</b><small></small></div></button>` : '')
         + (unlocked('mutate') ? `<button class="dp v" id="dpMut" aria-label="항원 변이">${has('mutate') ? '<img src="assets/mutate.png" alt="">' : '<div class="mutic">🧬</div>'}<div><b>변이</b><small></small></div></button>` : '')
         + (nestOn() ? `<button class="dp v atk" id="dpAll"><div><b style="font-size:12px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div></button>` : `<button class="dp v all" id="dpAll">${has('deploy_all') ? '<img src="assets/deploy_all.png" alt="">' : ''}<div><b>전부</b><small>방출</small></div></button>`);
-      $('deploy').querySelectorAll('.dp[data-i]').forEach(b => b.onclick = () => { if (run.endAt) return; if (nestOn()) return toast('바이러스는 저절로 둥지에 모여요 · [돌격]으로 출발!'); release(run.groups[+b.dataset.i]); ui.tickDeploy(); });
+      $('deploy').querySelectorAll('.dp[data-i]').forEach(b => b.onclick = () => { if (run.endAt) return; if (nestOn()) return toast('바이러스는 저절로 둥지에 모여요 · [출발]으로 출발!'); release(run.groups[+b.dataset.i]); ui.tickDeploy(); });
       $('dpAll').onclick = () => { if (run.endAt) return; if (nestOn()) breakout(); else { goAll(); toast('전부 방출!'); } ui.tickDeploy(); };
       if (hOK) $('dpHero').onclick = () => { if (!run.hero.out) spawnHero(); else castSkill(hg.strain); ui.tickDeploy(); };
       if ($('dpOut')) $('dpOut').onclick = () => ui.openOut();
@@ -4950,15 +5002,16 @@ const ui = {
         hb.querySelector('small').textContent = !run.hero.out ? '탭: 출격' : hu && hu.alive ? (hcd > 0 ? `캡슐 ${Math.ceil(hcd)}s` : '탭: 캡슐') : run.heroDone ? '침투 성공' : '쓰러짐'; }
       const mb = $('dpMut'); if (mb) { const tg = run.towers.filter(t => t.spec).length + (save.host >= 2 && save.vax && !run.variant[save.vax] ? 1 : 0); mb.hidden = !tg; mb.className = 'dp v' + (tg ? ' full' : ''); mb.querySelector('small').textContent = tg ? `노림 ${tg}` : '대기'; }
       $('deploy').querySelectorAll('.sk2').forEach(b => { if (B3 && b.dataset.sk === coreStrain()) { const c = run.chg || 0, cb = run.cmb && run.cmb.by === corePair(), rdy = c >= 1;
-          b.className = 'dp v sk2' + (rdy ? (cb ? ' combo' : ' full') : ''); b.querySelector('small').textContent = rdy ? (cb ? `🔥 콤보 ${run.cmb.t.toFixed(1)}s` : `👑+${PAIR_IC[corePair()]}${PAIR_NAME[corePair()]} = ×${CHG.mul}`) : `충전 ${Math.floor(c * 100)}%`;
+          b.className = 'dp v sk2 coreSk' + (rdy ? (cb ? ' combo' : ' full') : ''); b.querySelector('small').textContent = rdy ? (cb ? `🔥 지금! ×${CHG.mul}` : skMini(run.skillGenes.find(x => x.strain === b.dataset.sk) || coreGene())) : `${skMini(run.skillGenes.find(x => x.strain === b.dataset.sk) || coreGene())} · ${Math.floor(c * 100)}%`;
+          ui.cmbTip(cb ? `⚡ 콤보! ${run.cmb.t.toFixed(1)}초 안에 👑 스킬 → ×${CHG.mul}` : run.cmbBack && run.cmbBack.t > 0 ? `⚡ 콤보! ${run.cmbBack.t.toFixed(1)}초 안에 ${PAIR_IC[corePair()]} ${PAIR_NAME[corePair()]} → ×${CHG.mul}` : '');
           b.querySelector('i').style.width = Math.min(100, c * 100) + '%'; return; }
         const st = b.dataset.sk, g = run.skillGenes.find(x => x.strain === st), cd = run.cds[st] || 0, full = geneStats(g).cd; b.className = 'dp v sk2' + (cd <= 0 ? ' full' : '') + (cd <= 0 && run.med && !run.med.guard ? ' medGo' : ''); b.querySelector('small').textContent = cd > 0 ? `${Math.ceil(cd)}초` : '탭: 발동'; b.querySelector('i').style.width = ((1 - cd / full) * 100) + '%'; });
       const ab = $('dpAll'); if (ab && nestOn()) { const t = Math.floor(nestTotal()), cp = Math.round(nestCap()); ab.querySelector('small').textContent = `둥지 ${t}/${cp}`; ab.classList.toggle('gapOn', gap && t > 0); const ai = ab.querySelector('i'); if (ai) ai.style.width = Math.min(100, t / Math.max(1, cp) * 100) + '%'; ab.classList.toggle('full', t >= cp * 0.98); }
       if (B3) { const hb2 = $('dpHide'); if (hb2) { const H = run.hd || { st: 'ready', t: 0 }; hb2.className = 'dp v' + (H.st === 'ready' ? (run.med && run.med.w > 0 ? ' gapOn' : ' full') : H.st === 'hid' ? ' go' : ' done');
-          hb2.querySelector('small').textContent = H.st === 'ready' ? (run.med && run.med.w > 0 ? '지금!' : '탭: 숨기') : H.st === 'hid' ? `숨음 ${H.t.toFixed(1)}s · 탭: 나오기` : H.st === 'up' ? '나오는 중' : `다시 ${Math.ceil(H.t)}s`;
+          hb2.querySelector('small').textContent = H.st === 'ready' ? (run.med && run.med.w > 0 ? '💊 지금!' : '약·침 피하기') : H.st === 'hid' ? `숨음 ${H.t.toFixed(1)}s · 탭: 나오기` : H.st === 'up' ? '나오는 중' : `다시 ${Math.ceil(H.t)}s`;
           hb2.querySelector('i').style.width = (H.st === 'hid' ? H.t / (HIDE.max + (teamRole().tank || 0)) : H.st === 'cd' ? 1 - H.t / HIDE.cd : H.st === 'ready' ? 1 : 0) * 100 + '%'; }
         const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd || 0, cost = Math.max(3, Math.round(nestCap() * SPR.cost)), ok = cd <= 0 && nestTotal() >= cost;
-          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = run.sprSlow > 0 ? `불리는 중 ${Math.ceil(run.sprSlow)}s` : cd > 0 ? `${Math.ceil(cd)}s` : `−${cost} · +${SPR.tiles + (teamRole().swarm || 0)}칸`; sb2.querySelector('i').style.width = (1 - cd / SPR.cd) * 100 + '%'; }
+          sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = run.sprSlow > 0 ? `모이는 중 ${Math.ceil(run.sprSlow)}s` : cd > 0 ? `다시 ${Math.ceil(cd)}s` : nestTotal() < cost ? `둥지 ${cost} 필요` : `+${SPR.tiles + (teamRole().swarm || 0)}칸 · 공격↑`; sb2.querySelector('i').style.width = (1 - cd / SPR.cd) * 100 + '%'; }
         { const h = $('hint'); if (h && run.algInit) { const al = run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).length; h.textContent = `🧪 면역 경보 ${Math.floor((run.alg || 0) * 100)}% · 탑 ${al}/${twMax(run.st.organ.id)}${run.hd && run.hd.st === 'hid' ? ' · 숨는 중엔 안 참' : ''} · ❓`; } }
         const pb = $({ brk: 'dpAll', hide: 'dpHide', spr: 'dpSpr' }[corePair()]); if (pb) { pb.classList.add('pair'); const bk = run.cmbBack && run.cmbBack.t > 0; pb.classList.toggle('combo', bk); if (bk) pb.querySelector('small').textContent = `🔥 지금! ${run.cmbBack.t.toFixed(1)}s`; } }
       const ob = $('dpOut'); if (ob) { ob.className = 'dp v' + (placing ? ' gapOn' : run.outLeft ? '' : ' done'); ob.querySelector('small').textContent = `남은 ${run.outLeft}`; }
@@ -5020,7 +5073,7 @@ const ui = {
       : (R.trop || 1) < 1 ? `꽂은 카드 중에 <b>${ORG_SHORT[R.st.organ.id]}에 안 먹히는 바이러스</b>가 있어요. 지도에서 '잘 먹히는 바이러스'를 확인해 보세요.`
       : !R.fitTrue && fitRole ? `이 기관을 노리는 바이러스를 넣으면 1장당 +${Math.round(TROP_W.good * 100)}%예요.`
       : R.sth && R.sth.caught ? '숨어들 때 들켰어요. 노란 부채꼴(보초 시야) 안에서는 멈춰 있으세요.'
-      : pct < 50 ? '연구소에서 DNA로 카드를 강화하면 훨씬 세져요.' : '거의 다 왔어요! 화면 테두리가 초록색일 때 돌격하면 더 세요.';
+      : pct < 50 ? '연구소에서 DNA로 카드를 강화하면 훨씬 세져요.' : '거의 다 왔어요! 화면 테두리가 초록색일 때 출발하면 더 세요.';
     // ★ 결과 화면: 한 화면에. 제목 → 별 → 보상 한 칸 → 꼭 알아야 할 것 한두 줄 → 버튼
     const SL3 = ['성공', '안 들키고 숨어들기', '시간 30% 남기기'], miss = R.starCond ? SL3.find((t, i) => !R.starCond[i]) : null;
     const tixT = R.tix ? [R.tix.t10 ? `🎟 10연차 ×${R.tix.t10}` : '', R.tix.t1 ? `🎟 ×${R.tix.t1}` : ''].filter(Boolean).join(' ') : '', shT = (R.tix && R.tix.sh || 0) + (R.starShard || 0) + (R.pickSh || 0);
