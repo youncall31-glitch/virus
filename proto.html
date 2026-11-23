@@ -947,7 +947,7 @@ for (const r of RECIPES) {
     short: [fa.short, fb.short].filter(Boolean).join(', '), global: [fa.global, fb.global].filter(Boolean).join(', ') || undefined, noValve: fa.noValve || fb.noValve };
 }
 // ★ 전설 바이러스: 뽑기 1.5% (50회 천장). 능력치 영웅급 +30%, 전용 스킬 1개. parents는 그림·분류 fallback용
-RARITY.push({ name:'전설', w:1.0, color:'#ff9ee8' });
+RARITY.push({ name:'전설', w:0.6, color:'#ff9ee8' });   // ★ 전설 0.6%
 const LEGENDS = {
   ebola:    { name:'출혈 군주 (에X라)',        role:'출혈 돌격', img:'ebola',         parents:['rabies', 'retro'], col:'#ff3a3a', rolek:'dps',     atk:0.62, hp:72,  spd:62, count:22, size:15,
               skill:{ id:'hemo',     name:'출혈열',     cd:55, desc:'모든 탑이 5초간 마비 (공격 정지)' } },
@@ -1504,7 +1504,7 @@ const ADAPT = { need: 10, core: 1, mate: 0 };   // 본체만 적응 (기관당 1
 const adaptOf = (g, org) => Math.min(ADAPT.need, ((g && g.adapt) || {})[org] || 0);
 const canSlot = (g, i) => !!g && !isComp(g) && (i === 4 ? isCoreG(g) : i < 4 && !isCoreG(g) && (!coreGene() || (g.lv || 1) <= coreL()));   // ★ 칸 역할 제한 없음 · 본체 레벨 이하만
 // 전설 수: 본체 Lv1~7 1장 · Lv8~15 2장 · Lv16~ 3장 (동반 포함)
-const legCap = () => 99;   // 전설 장수 제한 없음
+const legCap = () => 2;   // ★ 팀(본체 포함)에 전설은 2장까지
 const slotRule = i => `${Object.keys(ROLE_SLOT).filter(r => ROLE_SLOT[r].includes(i)).map(r => ROLES[r].name).join('·')}만 (전설은 어디든)`;
 const roleK = (g, i) => 1;   // 전설 자리 보너스는 없앰
 function updTix() { const n = (save.t1 || 0) + (save.t10 || 0) * 10, np = $('navPull'); if (!np) return; let bd = np.querySelector('.tixB'); if (!bd) { bd = document.createElement('i'); bd.className = 'tixB'; np.appendChild(bd); } bd.textContent = n > 99 ? '99+' : n; bd.hidden = !n; }
@@ -1568,7 +1568,7 @@ const coreFree = () => false;
 const canBeCore = g => !!g && !isComp(g) && STRAINS[g.strain] && !STRAINS[g.strain].hero && !STRAINS[g.strain].hybrid;
 function setCore(g) { if (!canBeCore(g)) return false; const old = coreGene(); for (const x of save.genes) delete x.core; g.core = true; save.starter = g.strain;
   save.squad = SL.map(i => i === 4 ? g.uid : (save.squad[i] === g.uid ? null : save.squad[i] || null)); if (old && old !== g) { const k = SLOT_ORDER.find(i => i < 4 && slotOpen(i) && !save.squad[i] && canSlot(old, i)); if (k != null) save.squad[k] = old.uid; }
-  normSquad(); persist(); return true; }
+  normSquad(); for (let k = 3; k >= 0 && legCount() > legCap(); k--) { const x = geneById(save.squad[k]); if (x && STRAINS[x.strain].legend) save.squad[k] = null; } persist(); return true; }
 const slotsOpenN = (l = coreL()) => coreGene() ? slotsAt(l) : SLOT_LV.filter(x => l >= x).length;
 const slotOpen = i => i === 4 ? !!coreGene() : SLOT_ORDER.indexOf(i) < slotsOpenN();   // 4번 = 본체 자리 (편성 4칸과 별개로 항상 함께 싸움)
 const slotNeed = i => SLOT_LV[SLOT_ORDER.indexOf(i)];
@@ -1600,7 +1600,7 @@ const TA = () => true;   // 클래식 모드는 정리됨: 항상 타임어택(�
 let KS = 1;
 const timeLimit = organ => Math.round((save.host === 1 ? 0.8 : 1) * (RULES.ta.tMin + (RULES.ta.tMax - RULES.ta.tMin) * clamp((organ.diff - 0.5) / 1.3, 0, 1)));
 const GACHA_STAR = { 1: 0.25, 2: 0.05 };
-const LEG_TIER = () => STRAINS.ebola.rarity, PITY = 80, SOFT_PITY = 60;
+const LEG_TIER = () => STRAINS.ebola.rarity, PITY = 90, SOFT_PITY = 70;   // ★ 90번째 확정, 70번째부터 점점 오름
 function gacha(o = {}) {   // o.legMul: 전설 확률 배수 · o.minTier: 이 등급 이상 확정 (연속 뽑기 보너스)
   const soft = o.fixTier == null && (save.pity || 0) >= SOFT_PITY ? 1 + ((save.pity || 0) - SOFT_PITY + 1) * 2.5 : 1;   // 60번째부터 전설 확률이 점점 오름
   const w = RARITY.map((x, i) => x.w * (i === LEG_TIER() ? (o.legMul || 1) * soft : 1)), tot = w.reduce((a, x) => a + x, 0); let r = Math.random() * tot, tier = 0;
@@ -2841,6 +2841,11 @@ function stepMed(dt) {
 const ALARM = !!window.__ALARM;
 // ★ 시제품(proto.html): 버튼 4개 — 돌격 · 잠복 · 증식 · 대장 스킬
 const B3 = /proto/.test(location.pathname) || !!window.__B3;
+// ★ 등급별 능력 기준 맞추기 (같은 레벨·별일 때 일반 1 · 희귀 1.15 · 영웅 1.4 · 전설 1.9). 역할 특징(마릿수·속도)은 그대로, 공격·체력만 조정
+const RAR_POW = [1, 1.15, 1.4], LEG_POW = 1.9;
+if (B3) { const P = d => d.atk * d.count * Math.sqrt(d.hp * d.spd), pool = Object.keys(STRAINS).filter(k => k !== 'mine' && !STRAINS[k].hero && !STRAINS[k].hybrid && !STRAINS[k].comp && STRAINS[k].atk && STRAINS[k].count);
+  const base = pool.filter(k => !STRAINS[k].legend && STRAINS[k].rarity === 0).map(k => Math.log(P(STRAINS[k]))), P0 = Math.exp(base.reduce((a, b) => a + b, 0) / base.length);
+  for (const k of pool) { const d = STRAINS[k], f = Math.pow(P0 * (d.legend ? LEG_POW : RAR_POW[d.rarity] || 1) / P(d), 2 / 3); d.atk *= f; d.hp *= f; } }
 const B3TW = 1.6, B3HP = 4;   // 탑 체력: 금방 물어뜯기지 않게
 // ★ 시제품: 탑은 '침 뱉기' 광역기 (가운데 100% → 가장자리 30%). 처음 2개 → 감염이 늘수록 🧪 면역 경보가 차서 탑이 늘거나 강해진다
 const SPIT = { r: 46, edge: 0.3, k: 0.45, fly: 0.5, pct: 0.3, ref: 300 };
@@ -5115,7 +5120,7 @@ function assignSlot(g, i) {
   if (!g || !slotOpen(i)) return false; const cur = squadGenes().includes(g) ? save.squad.indexOf(g.uid) : -1, sq = SL.map(k => save.squad[k] || null);
   if (cur === i) return false;
   if (!canSlot(g, i)) { toast(`${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸엔 ${slotRule(i)}`); return false; }
-  if (STRAINS[g.strain].legend && cur < 0 && save.comp !== g.uid && legCount(sq[i]) >= legCap()) { toast(`전설은 지금 ${legCap()}장까지예요 (동반 포함) · 본체 Lv${legCap() < 2 ? 8 : 16}에 늘어나요`); return false; }
+  if (STRAINS[g.strain].legend && cur < 0 && save.comp !== g.uid && legCount(sq[i]) >= legCap()) { toast(`전설은 팀에 ${legCap()}장까지예요 (본체 포함)`); return false; }
   if (save.comp === g.uid) save.comp = null;
   if (cur >= 0) { const o = sq[i] && geneById(sq[i]); sq[cur] = o && canSlot(o, cur) ? sq[i] : null; sq[i] = g.uid; } else sq[i] = g.uid;
   save.squad = sq; normSquad(); persist(); return true;
@@ -5395,7 +5400,7 @@ function autoSquad() {
   const P0 = top(0, 8), P1 = top(1, 6), P2 = top(2, 6), P3 = top(3, 6), opt = P => [...P, null];   // 빈 칸도 후보 (후보가 겹칠 때 전부 막히지 않게)
   let best = null, bk = null;
   for (const a of opt(P0)) for (const c of opt(P1)) for (const k of opt(P2)) for (const d of opt(P3)) {
-    const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap()) continue;
+    const cs = [a, c, k, d], u = cs.filter(Boolean); if (new Set(u).size < u.length) continue; if (u.filter(g => STRAINS[g.strain].legend).length > legCap() - (coreGene() && STRAINS[coreGene().strain].legend ? 1 : 0)) continue;
     const f = 0, tr = 0, z = cs.map(g => g ? S.get(g) : null), x = z[0] || z.find(Boolean);
     if (!x) continue; const cg0 = coreGene(), UU = cg0 ? [...u, cg0] : u, SS = UU.map(g => [S.get(g) || geneStats(g), MAINST[ROLE_OF[g.strain]]]), av = k => teamStat(SS, k);
     const sb = setInfo(UU).b, rc0 = roleCnt(UU), rk = (B3 ? 1 + 0.1 * (rc0.dps || 0) : 1) * (1 + weakB(UU, org)) * (B3 ? 1 + 0.03 * Object.keys(rc0).length : 1), cnt = Math.min(260, SS.reduce((t, [st, m]) => t + st.count, 0) * (1 + 0.1 * SS.filter(q => q[1] === 'count').length)), pw = av('atk') * (1 + sb) * rk * cnt * Math.sqrt(av('hp') * (1 + sb)) * Math.sqrt(av('spd')), key = [f, tr, pw];   // ★ 실제 능력치 계산과 같은 방식 (주 능력 100% · 나머지 30% · 같은 색 보너스)   // ★ 같은 색 세트 보너스(체력·공격)까지 따져서
