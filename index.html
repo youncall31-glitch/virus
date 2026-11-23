@@ -3293,9 +3293,10 @@ function nextBuildSlot() { const R = run, P = R.plan; if (!P || P.built >= P.n) 
   const front = Math.max(R.frontD || 0, ...R.units.filter(u => u.alive).map(u => u.d)), open = P.slots.filter(c => c.d > (R.frontD || 0) + 20 && !(c.block > R.time)); if (!open.length) return null;
   const ahead = open.filter(c => c.d > front + 60); return (ahead.length ? ahead : open).slice().sort((a, b) => Math.abs(a.d - (front + 260)) - Math.abs(b.d - (front + 260)))[0]; }
 function drawBuildSites(time) { const R = run, P = R.plan; if (!ART2 || !B3 || !P || P.built >= P.n || !R.ta || stealthOn() || P.next == null) return; const left = P.next - R.time; if (left > 3 || left < 0) return;
-  const c = nextBuildSlot(), ty = tw2Peek(); if (!c || !has(ty)) return; const [x, y] = c.s, k = 1 - left / 3;
-  ctx.save(); ctx.globalAlpha = (0.18 + 0.32 * k) * (0.75 + 0.25 * Math.sin(time * 8)); if (has('pad2')) drawSprite(ctx, IMG.pad2, x, y + 10, 40); ctx.filter = 'brightness(1.6) saturate(.3)'; drawSprite(ctx, IMG[ty], x, y + 4, TW_H, 1, true); ctx.filter = 'none';
-  ctx.globalAlpha = 0.5 * k; ctx.strokeStyle = '#ff6a7a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 12, 30 * (1.4 - 0.4 * k), 12 * (1.4 - 0.4 * k), 0, 0, TAU); ctx.stroke(); ctx.restore(); }
+  // ★ 탑이 서기 3초 전: 그 자리에 받침이 먼저 솟아올라 '여기에 탑이 생겨요'를 알려준다 (글자 없음)
+  const c = nextBuildSlot(); if (!c || !has('pad2')) return; const [x, y] = c.s, k = 1 - left / 3, pop = Math.min(1, k * 4), sc = pop < 1 ? 0.5 + 0.6 * pop : 1 + 0.04 * Math.sin(time * 9);
+  ctx.save(); ctx.globalAlpha = 0.35 + 0.35 * k; ctx.strokeStyle = '#ff6a7a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 12, 32 * (1.3 - 0.3 * k), 13 * (1.3 - 0.3 * k), 0, 0, TAU); ctx.stroke();
+  ctx.globalAlpha = 0.6 + 0.4 * pop; ctx.translate(x, y + 10); ctx.scale(sc, sc); drawSprite(ctx, IMG.pad2, 0, 0, 40); ctx.restore(); }
 function drawMuteAim(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return; const cd = R.sprCd ?? SPR.first; if (cd > 0) return; const t = muteTarget(); if (!t) return;
   ctx.save(); ctx.globalAlpha = 0.55 + 0.35 * Math.sin(time * 6); ctx.strokeStyle = '#d8a8ff'; ctx.lineWidth = 2.5; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -time * 20; const sc = 1 + CROWN.size * Math.max(0, crownSt(t));
   ctx.beginPath(); ctx.ellipse(t.x, t.y - 18 * sc, 30 * sc, 36 * sc, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
@@ -6122,7 +6123,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0730</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0745</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
