@@ -1138,7 +1138,7 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.27, lung: 0.18, gut: 0.8, liver: 1.15, blood: 0.98, skin: 0.42, lymph: 1.41, brain: 5.69 },
+const CAL = { 0: { nose: 0.2, lung: 0.18, gut: 0.7, liver: 1.15, blood: 0.98, skin: 0.42, lymph: 1.41, brain: 5.69 },
   1: { nose: 1.56, lung: 1.24, gut: 0.74, liver: 1.74, blood: 0.88, skin: 0.48, lymph: 0.8, brain: 1.32 },
   2: { nose: 0.9, lung: 1.11, gut: 1.65, liver: 1.43, blood: 0.78, skin: 0.58, lymph: 0.75, brain: 1.41 },
   3: { nose: 1.82, lung: 1.09, gut: 0.91, liver: 2.15, blood: 1.06, skin: 0.8, lymph: 0.79, brain: 1.51 } };
@@ -2906,7 +2906,9 @@ const SKPAIR = { stop: 'brk', boost: 'brk', hide: 'hide', grow: 'spr' }, PAIR_NA
 const CHG = { per: 0.3, win: 3, mul: 1.3, start: 1, idle: 30, medImm: 6, growT: 4.5, gnaw: 0.04 };   // 버티기형: 약 면역+둥지 번식 ×2 · 막기형: 멈춘 탑을 갉아 둥지 최대치 +4%
 // ★ 본체 스킬 세기 = 종류 × 등급(일반·희귀·영웅·전설·전설+). 강하게·불리기는 원래 너무 세서 낮추고, 막기·숨기는 올림
 const CORE_K = { boost: [0.2, 0.22, 0.3, 0.45, 0.6], grow: [0.5, 0.6, 0.7, 0.85, 1], stop: [1, 1.1, 1.2, 1.35, 1.5], hide: [1, 1.1, 1.2, 1.35, 1.5] };
-const coreK = () => { const st = STRAINS[coreStrain()] || {}, t = SKTYPE[coreStrain()] || 'boost'; return CORE_K[t][Math.min(4, st.legend ? Math.max(3, st.rarity || 0) : (st.rarity || 0))]; };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
+// ★ 스킬 세기 보정: 등급별 목표(일반 +5~10% · 희귀 10~15% · 영웅 15~25% · 전설 25~35%)에 맞추려고 봇으로 잰 값
+const SK_TUNE = {};
+const coreK = () => { const st = STRAINS[coreStrain()] || {}, t = SKTYPE[coreStrain()] || 'boost'; return CORE_K[t][Math.min(4, st.legend ? Math.max(3, st.rarity || 0) : (st.rarity || 0))] * ((window.__skTune || SK_TUNE)[coreStrain()] || 1); };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
 const corePair = () => SKPAIR[SKTYPE[coreStrain()] || 'boost'];
 function comboOpen(by) { const R = run; if (!B3 || !R || by !== corePair()) return; if (R.cmbBack && R.cmbBack.t > 0) { const f = R.cmbBack.go; R.cmbBack = null; f(); } else R.cmb = { by, t: CHG.win }; }   // 순서 상관없이 3초 안에 둘 다 쓰면 콤보
 const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35 }, SPR = { cost: 0.25, tiles: 2, capUp: 0.3, atkUp: 0.12, slow: 0.4, slowT: 6, fast: 1.7, fastT: 6, cd: 8 };
@@ -3323,91 +3325,97 @@ const mine = st => run.units.filter(u => u.alive && u.strain === st && !u.decoy)
 // 모든 스킬은 '그 계통'에만 걸린다 (run.sb[계통])
 // ★ 별 하나마다 스킬 세기 +20% (★3 = 1.4배)
 const SK_STAR = [1, 1.15, 1.35, 1.65, 2.0], skK = g => SK_STAR[clamp((g.star || 1) - 1, 0, 4)], sp = (g, x) => x >= 10 ? Math.round(x * skK(g)) : +(x * skK(g)).toFixed(1), spm = (g, x) => +(1 + (x - 1) * skK(g)).toFixed(2);
+// ★ 스킬 숫자 = 등급표 (일반·희귀·영웅·전설) × 별. 효과가 2개인 스킬은 한 단계 낮은 숫자
+const SKT = { stun: [2, 3, 4, 6], hide: [4, 6, 8, 10], buff: [4, 5, 6, 8], amt: [0.15, 0.25, 0.35, 0.5] };
+const skStrain = g => g.strain === 'mine' ? coreStrain() : g.strain;
+const skRar = g => { const d = STRAINS[skStrain(g)] || {}; return d.legend ? 3 : Math.min(2, d.rarity || 0); };
+const skDual = g => { const d = STRAINS[skStrain(g)]; return !!(d && d.skill && d.skill.ids && d.skill.ids.length > 1); };
+const SV = (g, k, dual) => { const v = SKT[k][Math.max(0, skRar(g) - (dual || skDual(g) ? 1 : 0))] * skK(g); return k === 'amt' ? +v.toFixed(2) : +v.toFixed(1); };
 const SKILLS = {
   replicate(g) { const st3 = g.star >= 3, cap = (sp(g, 40)) + (g.branch === 'A' ? 20 : 0), alive = mine(g.strain); let n = 0;
-    for (const u of alive) if (n < cap && Math.random() < 0.5) { if (spawnUnit(u.gene, { d: u.d - rand(0, 8), copy: true, hpMul: (sp(g, 0.5)) * u.maxHp / geneStats(u.gene).hp, small: true })) { n++; run.fx.push({ x: u.x, y: u.y - 6, t: 0.4, s: 22, img: 'split' }); } }
+    for (const u of alive) if (n < cap && Math.random() < Math.min(0.95, SV(g, 'amt') * 2)) { if (spawnUnit(u.gene, { d: u.d - rand(0, 8), copy: true, hpMul: (sp(g, 0.5)) * u.maxHp / geneStats(u.gene).hp, small: true })) { n++; run.fx.push({ x: u.x, y: u.y - 6, t: 0.4, s: 22, img: 'split' }); } }
     float(...centerOf(alive), `${STRAINS[g.strain].name} +${n} 자가 증식!`, '#b9f27a', 18); return n > 0 || alive.length > 0; },
   capsule(g) { const u = run.hero.u; if (!u || !u.alive) { toast('슈퍼바이러스가 전장에 없어요'); return false; } u.cap = u.capMax; if (u.hs.lv >= 15) u.inv = 3; float(u.x, u.y - 70, '캡슐 재생성!', '#ffcf6a', 16); return true; },
-  capsid(g) { const b = run.sb[g.strain]; b.shield = sp(g, 6); b.shieldMul = g.star >= 3 ? 0.35 : 0.5; return true; },
+  capsid(g) { const b = run.sb[g.strain]; b.shield = SV(g, 'buff'); b.shieldMul = 1 - Math.min(0.8, SV(g, 'amt')); return true; },
   outbreak(g) { const gr = run.groups.find(x => x.strain === g.strain && !x.reawake); if (gr && run.ta) { gr.charge = 1; release(gr, true); } else if (gr) { gr.go = true; gr.rate = 45;
       if (g.star >= 3) { const extra = Math.max(4, Math.round(gr.list.length * 0.2)); for (let i = 0; i < extra; i++) gr.list.unshift(g); gr.total += extra; } }
-    const b = run.sb[g.strain]; b.spd = 6; b.spdMul = 1.25; return true; },
-  latency(g) { const b = run.sb[g.strain]; b.stealth = (sp(g, 8)) + (g.branch === 'A' ? 4 : 0); return true; },
-  shift(g) { run.alert = g.star >= 3 || g.branch === 'A' ? 0 : run.alert / 2; run.sb[g.strain].ghost = (g.branch === 'A' ? 5 : 3) + (g.star >= 3 ? 1 : 0); return true; },
-  spread(g) { const b = run.sb[g.strain]; b.spd = 4; b.spdMul = spm(g, 1.4); b.noSlow = 4; return true; },
-  neuro(g) { const n = (sp(g, 12)) + (g.branch === 'B' ? 8 : 0), lead = mine(g.strain).filter(u => u.d > 0).sort((a, b) => b.d - a.d).slice(0, n);
+    const b = run.sb[g.strain]; b.spd = SV(g, 'buff'); b.spdMul = 1.25; return true; },
+  latency(g) { const b = run.sb[g.strain]; b.stealth = SV(g, 'hide') + (g.branch === 'A' ? 4 : 0); return true; },
+  shift(g) { run.alert = g.star >= 3 || g.branch === 'A' ? 0 : run.alert / 2; run.sb[g.strain].ghost = SV(g, 'hide') * 0.5 + (g.branch === 'A' ? 2 : 0); return true; },
+  spread(g) { const b = run.sb[g.strain]; b.spd = SV(g, 'buff'); b.spdMul = 1.4; b.noSlow = b.spd; return true; },
+  neuro(g) { const n = Math.round(SV(g, 'amt') * 60) + (g.branch === 'B' ? 8 : 0), lead = mine(g.strain).filter(u => u.d > 0).sort((a, b) => b.d - a.d).slice(0, n);
     for (const u of lead) { const c = map.corners.find(c => c > u.d + 10); if (c) { burst(u.x, u.y, 3, '#ff7a8a'); u.d = c + rand(4, 16); u.fk = -1; if (g.branch === 'B') u.inv = 3; } } return lead.length > 0; },
   hostify(g, tower) { const cost = Math.ceil(10 * (g.passives.includes('rt') ? 0.7 : 1) * (g.branch === 'B' ? 0.5 : 1)), pool = mine(g.strain);
     if (pool.length < cost) { toast(`${STRAINS[g.strain].name} 개체가 부족해요 (${pool.length}/${cost})`); return false; }
     pool.sort((a, b) => Math.hypot(a.x - tower.x, a.y - tower.y) - Math.hypot(b.x - tower.x, b.y - tower.y)).slice(0, cost).forEach(u => { u.alive = false; burst(u.x, u.y, 2, '#6fd35a'); });
-    tower.converted = (sp(g, 10)) + (g.branch === 'A' ? 5 : 0); tower.conv3 = g.star >= 3; tower.psycho = g.branch === 'A'; float(tower.x, tower.y - 50, '숙주화!', '#b9f27a', 18); return true; },
-  dive(g) { run.sb[g.strain].dive = 5 + (g.branch === 'A' ? 2 : 0) + (g.star >= 3 ? 1 : 0); const a = mine(g.strain); if (a.length) float(...centerOf(a), `${STRAINS[g.strain].name} 점막 아래로!`, '#ff8fd0', 16); return true; },
-  rash(g) { run.sb[g.strain].rash = sp(g, 8); return true; },
+    tower.converted = SV(g, 'stun') * 2 + (g.branch === 'A' ? 5 : 0); tower.conv3 = g.star >= 3; tower.psycho = g.branch === 'A'; float(tower.x, tower.y - 50, '숙주화!', '#b9f27a', 18); return true; },
+  dive(g) { run.sb[g.strain].dive = SV(g, 'buff') + (g.branch === 'A' ? 2 : 0); const a = mine(g.strain); if (a.length) float(...centerOf(a), `${STRAINS[g.strain].name} 점막 아래로!`, '#ff8fd0', 16); return true; },
+  rash(g) { run.sb[g.strain].rash = SV(g, 'buff'); return true; },
   decoy(g) { const a = mine(g.strain).filter(u => u.d > 0).sort((x, y) => y.d - x.d); if (!a.length) { toast(`${STRAINS[g.strain].name}가 아직 길에 없어요`); return false; }
-    const n = (sp(g, 16)) + (g.branch === 'B' ? 12 : 0);
+    const n = Math.round(SV(g, 'amt') * 64) + (g.branch === 'B' ? 12 : 0);
     for (let i = 0; i < n; i++) { const u = a[i % Math.min(a.length, 5)]; spawnUnit(u.gene, { d: u.d + rand(8, 40), decoy: true, copy: true, hpMul: 0.5, small: true }); }
     float(...centerOf(a), `미끼 ${n}개`, '#ffe066', 16); return true; },
   // ── 새 바이러스 스킬 ──
-  blister(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length / 2))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.6 })) n++; float(...centerOf(al), `물집 폭발 +${n}`, '#ff8a6a', 18); return true; },
-  swell(g) { const b = run.sb[g.strain]; b.shield = 8; b.shieldMul = 0.5; b.regen = 8; const al = mine(g.strain); if (al.length) float(...centerOf(al), '퉁퉁 부풀기!', '#f0c070', 18); return true; },
-  mosquito(g) { const R = run, tot = nestTotal(); if (tot < 3) { toast('둥지에 바이러스를 더 모아 주세요'); return false; } const n = Math.floor(tot * 0.3), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.55;
-    for (const k in R.nest) R.nest[k] *= 0.7; let m = 0; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 60); i++) if (spawnUnit(gene, { d: d0 + rand(-20, 20), small: true })) m++; const [x, y] = pathAt(d0); burst(x, y, 14, '#7ad0ff'); float(x, y - 30, `모기 타고 ${m}마리!`, '#7ad0ff', 18); return true; },
-  fakeout(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, 7); const al = mine(g.strain); if (al.length) float(...centerOf(al), '모른 척~', '#b08aff', 18); return true; },
+  blister(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length * Math.min(0.95, SV(g, 'amt') * 2)))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.6 })) n++; float(...centerOf(al), `물집 폭발 +${n}`, '#ff8a6a', 18); return true; },
+  swell(g) { const b = run.sb[g.strain]; b.shield = SV(g, 'buff'); b.shieldMul = 1 - Math.min(0.8, SV(g, 'amt')); b.regen = SV(g, 'buff'); const al = mine(g.strain); if (al.length) float(...centerOf(al), '퉁퉁 부풀기!', '#f0c070', 18); return true; },
+  mosquito(g) { const R = run, tot = nestTotal(); if (tot < 3) { toast('둥지에 바이러스를 더 모아 주세요'); return false; } const fr = Math.min(0.9, SV(g, 'amt')), n = Math.floor(tot * fr), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.55;
+    for (const k in R.nest) R.nest[k] *= 1 - fr; let m = 0; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 60); i++) if (spawnUnit(gene, { d: d0 + rand(-20, 20), small: true })) m++; const [x, y] = pathAt(d0); burst(x, y, 14, '#7ad0ff'); float(x, y - 30, `모기 타고 ${m}마리!`, '#7ad0ff', 18); return true; },
+  fakeout(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, SV(g, 'hide')); const al = mine(g.strain); if (al.length) float(...centerOf(al), '모른 척~', '#b08aff', 18); return true; },
   paralyze(g) { const R = run, ts = R.towers.filter(t => !t.converted).map(t => [t, nearestOnPath(t.x, t.y).d]).filter(([, d]) => d > (R.frontD || 0) - 30).sort((a, b) => a[1] - b[1]).slice(0, 3);
-    if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const [t] of ts) { t.stunT = 4; burst(t.x, t.y - 20, 8, '#9affc0'); float(t.x, t.y - 48, '마비!', '#9affc0', 14); } return true; },
-  anemia(g) { run.stormT = Math.max(run.stormT || 0, 8); float(W / 2, H * 0.4, '빈혈! 탑 공격력 절반', '#ff9ad0', 20); return true; },
-  giant(g) { const R = run; if (R.nest && nestTotal() >= 1) { for (const k in R.nest) R.nest[k] *= 1.6; float(W / 2, H * 0.45, '거대 증식! 둥지 ×1.6', '#ffd06a', 20); return true; }
-    const al = mine(g.strain); if (!al.length) { toast('둥지와 길이 모두 비었어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length * 0.4))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.7 })) n++; float(...centerOf(al), `거대 증식 +${n}`, '#ffd06a', 18); return true; },
+    if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const [t] of ts) { t.stunT = SV(g, 'stun'); burst(t.x, t.y - 20, 8, '#9affc0'); float(t.x, t.y - 48, '마비!', '#9affc0', 14); } return true; },
+  anemia(g) { run.stormT = Math.max(run.stormT || 0, SV(g, 'buff')); float(W / 2, H * 0.4, '빈혈! 탑 공격력 절반', '#ff9ad0', 20); return true; },
+  giant(g) { const R = run, gm = +(1 + Math.min(1.5, SV(g, 'amt') * 2)).toFixed(2); if (R.nest && nestTotal() >= 1) { for (const k in R.nest) R.nest[k] *= gm; float(W / 2, H * 0.45, `거대 증식! 둥지 ×${gm}`, '#ffd06a', 20); return true; }
+    const al = mine(g.strain); if (!al.length) { toast('둥지와 길이 모두 비었어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length * Math.min(0.95, SV(g, 'amt'))))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.7 })) n++; float(...centerOf(al), `거대 증식 +${n}`, '#ffd06a', 18); return true; },
   // ── 사라진·순한 바이러스 스킬 ──
-  harmless(g) { const R = run; R.alert *= 0.6; for (const t of R.towers) t.cd = Math.max(t.cd, 0) + 1.5; float(W / 2, H * 0.42, '무해한 척~ 경보 −40%', '#c8c0a0', 18); return true; },
-  soothe(g) { run.calmT = 6; float(W / 2, H * 0.42, '면역 진정! 탑이 느려져요', '#9ad8c0', 18); return true; },
+  harmless(g) { const R = run; R.alert *= 1 - Math.min(0.9, SV(g, 'amt') * 2); for (const t of R.towers) t.cd = Math.max(t.cd, 0) + SV(g, 'stun') * 0.75; float(W / 2, H * 0.42, '무해한 척~ 경보 −40%', '#c8c0a0', 18); return true; },
+  soothe(g) { run.calmT = SV(g, 'buff'); float(W / 2, H * 0.42, '면역 진정! 탑이 느려져요', '#9ad8c0', 18); return true; },
   vaccinia(g) { const R = run, t = R.towers.filter(t => !t.converted).map(t => [t, nearestOnPath(t.x, t.y).d]).filter(([, d]) => d > (R.frontD || 0) - 30).sort((a, b) => a[1] - b[1])[0];
-    if (!t) { toast('앞쪽에 탑이 없어요'); return false; } t[0].converted = 6; burst(t[0].x, t[0].y - 20, 10, '#e8d8b0'); float(t[0].x, t[0].y - 50, '내 편이 됐어요!', '#e8d8b0', 15); return true; },
-  genecarry(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.4); const b = run.sb[g.strain]; b.shield = 4; b.shieldMul = 0.7; float(...centerOf(al), '유전자 배달!', '#a0c8ff', 18); return true; },
-  vanish(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, 6); const al = mine(g.strain); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.2); if (al.length) float(...centerOf(al), '조용히 사라짐…', '#9ab0ff', 18); return true; },
-  antigenic(g) { const R = run; if (!R.towers.length) { toast('아직 탑이 없어요'); return false; } for (const t of R.towers) { t.stunT = Math.max(t.stunT || 0, TOWERS[t.type].specific ? 5 : 1.5); burst(t.x, t.y - 20, 4, '#ffb0e0'); } float(W / 2, H * 0.42, '항원 대변이! 면역이 헷갈려요', '#ffb0e0', 18); return true; },
-  stampede(g) { const b = run.sb[g.strain]; b.spd = 6; b.spdMul = 1.5; const al = mine(g.strain); if (al.length) float(...centerOf(al), '소 떼 돌진!', '#d0a070', 18); shake(4); return true; },
-  superspread(g) { const b = run.sb[g.strain]; b.asym = Math.max(b.asym || 0, 8); float(W / 2, H * 0.42, '슈퍼 전파! 감염 ×1.5', '#ff9a6a', 18); return true; },
+    if (!t) { toast('앞쪽에 탑이 없어요'); return false; } t[0].converted = SV(g, 'stun') * 1.5; burst(t[0].x, t[0].y - 20, 10, '#e8d8b0'); float(t[0].x, t[0].y - 50, '내 편이 됐어요!', '#e8d8b0', 15); return true; },
+  genecarry(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * Math.min(0.9, SV(g, 'amt'))); const b = run.sb[g.strain]; b.shield = SV(g, 'stun'); b.shieldMul = 0.7; float(...centerOf(al), '유전자 배달!', '#a0c8ff', 18); return true; },
+  vanish(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, SV(g, 'hide', true)); const al = mine(g.strain); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * SV(g, 'amt', true)); if (al.length) float(...centerOf(al), '조용히 사라짐…', '#9ab0ff', 18); return true; },
+  antigenic(g) { const R = run; if (!R.towers.length) { toast('아직 탑이 없어요'); return false; } for (const t of R.towers) { t.stunT = Math.max(t.stunT || 0, SV(g, 'stun') * (TOWERS[t.type].specific ? 1 : 0.35)); burst(t.x, t.y - 20, 4, '#ffb0e0'); } float(W / 2, H * 0.42, '항원 대변이! 면역이 헷갈려요', '#ffb0e0', 18); return true; },
+  stampede(g) { const b = run.sb[g.strain]; b.spd = SV(g, 'buff'); b.spdMul = 1.5; const al = mine(g.strain); if (al.length) float(...centerOf(al), '소 떼 돌진!', '#d0a070', 18); shake(4); return true; },
+  superspread(g) { const b = run.sb[g.strain]; b.asym = Math.max(b.asym || 0, SV(g, 'buff')); float(W / 2, H * 0.42, '슈퍼 전파! 감염 ×1.5', '#ff9a6a', 18); return true; },
   // ── 전설 스킬 ──
-  hemo(g) { const R = run; if (!R.towers.length) { toast('아직 탑이 없어요'); return false; } R.stunT = 5 + (g.star >= 3 ? 1.5 : 0) + (g.branch === 'A' ? 1 : 0);
+  hemo(g) { const R = run; if (!R.towers.length) { toast('아직 탑이 없어요'); return false; } R.stunT = SV(g, 'stun') * 0.85 + (g.branch === 'A' ? 1 : 0);
     for (const t of R.towers) { burst(t.x, t.y - 20, 6, '#ff3a3a'); t.flash = 0.4; } shake(8); R.flashT = 0.3; R.flashC = '255,40,40'; float(W / 2, H * 0.4, '출혈열! 모든 탑 마비', '#ff5a5a', 22); return true; },
-  pandemic(g) { const R = run, mul = spm(g, 2); let n = 0;
+  pandemic(g) { const R = run, mul = +(1 + Math.min(1.5, SV(g, 'amt') * 2)).toFixed(2); let n = 0;
     if (R.nest && nestTotal() >= 1) { for (const k in R.nest) { const add = R.nest[k] * (mul - 1); R.nest[k] += add; n += add; } float(W / 2, H * 0.45, `대유행! 둥지 ×${mul}`, '#ffb070', 22); shake(6); return true; }
     const alive = mine(g.strain); if (!alive.length) { toast('둥지와 길이 모두 비었어요'); return false; }
-    const cap = Math.round(alive.length * 0.6); for (const u of alive.slice(0, cap)) if (spawnUnit(u.gene, { d: u.d - rand(0, 10), copy: true, small: true, hpMul: 0.7 })) n++;
+    const cap = Math.round(alive.length * Math.min(0.95, SV(g, 'amt') * 1.2)); for (const u of alive.slice(0, cap)) if (spawnUnit(u.gene, { d: u.d - rand(0, 10), copy: true, small: true, hpMul: 0.7 })) n++;
     float(...centerOf(alive), `대유행 +${n}`, '#ffb070', 20); return true; },
-  cytokine(g) { const R = run, b = R.sb[g.strain]; R.stormT = 8 + (g.star >= 3 ? 2 : 0); b.spd = R.stormT; b.spdMul = 1.4; R.flashT = 0.25; R.flashC = '120,170,255'; float(W / 2, H * 0.4, '사이토카인 폭풍!', '#7ab8ff', 22); return true; },
-  asympt(g) { const b = run.sb[g.strain], T = 8 + (g.star >= 3 ? 2 : 0); b.stealth = T; b.asym = T; const a = mine(g.strain); float(...centerOf(a), '무증상 전파', '#ff6fae', 18); return true; },
-  wart(g) { run.sb[g.strain].regen = 8 + (g.branch === 'B' ? 4 : 0) + (g.star >= 3 ? 2 : 0); return true; },
+  cytokine(g) { const R = run, b = R.sb[g.strain]; R.stormT = SV(g, 'buff'); b.spd = R.stormT; b.spdMul = 1.4; R.flashT = 0.25; R.flashC = '120,170,255'; float(W / 2, H * 0.4, '사이토카인 폭풍!', '#7ab8ff', 22); return true; },
+  asympt(g) { const b = run.sb[g.strain], T = SV(g, 'hide', true); b.stealth = T; b.asym = T; const a = mine(g.strain); float(...centerOf(a), '무증상 전파', '#ff6fae', 18); return true; },
+  wart(g) { run.sb[g.strain].regen = SV(g, 'buff') + (g.branch === 'B' ? 4 : 0); return true; },
   // ── 진짜 바이러스 특징을 살린 스킬 (20종 확장분) ──
-  joint(g) { const ts = frontT(2); if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const t of ts) { t.slowT = Math.max(t.slowT || 0, 5); float(t.x, t.y - 48, '관절 굳음!', '#ffa040', 14); } return true; },
-  cough(g) { const R = run, tot = nestTotal(); if (tot < 3) { toast('둥지에 바이러스를 더 모아 주세요'); return false; } const n = Math.floor(tot * 0.25), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.35;
-    for (const k in R.nest) R.nest[k] *= 0.75; let m = 0; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 50); i++) if (spawnUnit(gene, { d: d0 + rand(-25, 25), small: true })) m++;
-    const b = R.sb[g.strain]; b.spd = 4; b.spdMul = 1.2; const [x, y] = pathAt(d0); burst(x, y, 12, '#80d0ff'); float(x, y - 30, `기침 비말 ${m}마리!`, '#80d0ff', 18); return true; },
-  wakeup(g) { const R = run, busy = R.towers.length >= 4, b = R.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, busy ? 12 : 8); if (busy) b.asym = Math.max(b.asym || 0, 8); float(W / 2, H * 0.42, busy ? '면역이 바쁜 틈에 깨어남!' : '콩팥에 숨기', '#c0a0ff', 18); return true; },
-  mcblock(g) { const R = run, b = R.sb[g.strain]; R.frzT = Math.max(R.frzT || 0, 10); b.stealth = Math.max(b.stealth || 0, 6); float(W / 2, H * 0.42, '면역 신호 차단! 경보 멈춤', '#f0b890', 18); return true; },
-  nodisinfect(g) { const R = run, b = R.sb[g.strain]; R.medImmT = Math.max(R.medImmT || 0, 8); b.shield = 8; b.shieldMul = 0.55; b.regen = Math.max(b.regen || 0, 6); float(W / 2, H * 0.42, '소독 무시! 약이 안 들어요', '#f0e060', 18); return true; },
-  tiny(g) { run.missT = Math.max(run.missT || 0, 6); float(W / 2, H * 0.42, '너무 작아서 탑이 빗나가요', '#b0b0c0', 18); return true; },
-  roseola(g) { const R = run, b = R.sb[g.strain], s = g.strain; b.shield = 4; b.shieldMul = 0.5; (R.later = R.later || []).push({ t: 4, f: () => { const al = mine(s); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.35); if (al.length) float(...centerOf(al), '열이 내리고 발진! 회복', '#ff9ac8', 18); } });
+  joint(g) { const ts = frontT(2); if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const t of ts) { t.slowT = Math.max(t.slowT || 0, SV(g, 'stun')); float(t.x, t.y - 48, '관절 굳음!', '#ffa040', 14); } return true; },
+  cough(g) { const R = run, tot = nestTotal(); if (tot < 3) { toast('둥지에 바이러스를 더 모아 주세요'); return false; } const fr = Math.min(0.9, SV(g, 'amt')), n = Math.floor(tot * fr), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.35;
+    for (const k in R.nest) R.nest[k] *= 1 - fr; let m = 0; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 50); i++) if (spawnUnit(gene, { d: d0 + rand(-25, 25), small: true })) m++;
+    const b = R.sb[g.strain]; b.spd = SV(g, 'buff', true); b.spdMul = 1.2; const [x, y] = pathAt(d0); burst(x, y, 12, '#80d0ff'); float(x, y - 30, `기침 비말 ${m}마리!`, '#80d0ff', 18); return true; },
+  wakeup(g) { const R = run, busy = R.towers.length >= 4, b = R.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, SV(g, 'hide') + (busy ? 2 : 0)); if (busy) b.asym = Math.max(b.asym || 0, SV(g, 'buff', true)); float(W / 2, H * 0.42, busy ? '면역이 바쁜 틈에 깨어남!' : '콩팥에 숨기', '#c0a0ff', 18); return true; },
+  mcblock(g) { const R = run, b = R.sb[g.strain]; R.frzT = Math.max(R.frzT || 0, SV(g, 'hide', true)); b.stealth = Math.max(b.stealth || 0, SV(g, 'hide', true)); float(W / 2, H * 0.42, '면역 신호 차단! 경보 멈춤', '#f0b890', 18); return true; },
+  nodisinfect(g) { const R = run, b = R.sb[g.strain]; R.medImmT = Math.max(R.medImmT || 0, SV(g, 'buff')); b.shield = SV(g, 'buff'); b.shieldMul = 1 - Math.min(0.8, SV(g, 'amt')); b.regen = Math.max(b.regen || 0, SV(g, 'buff', true)); float(W / 2, H * 0.42, '소독 무시! 약이 안 들어요', '#f0e060', 18); return true; },
+  tiny(g) { run.missT = Math.max(run.missT || 0, SV(g, 'buff')); float(W / 2, H * 0.42, '너무 작아서 탑이 빗나가요', '#b0b0c0', 18); return true; },
+  roseola(g) { const R = run, b = R.sb[g.strain], s = g.strain; const hl = SV(g, 'amt'); b.shield = 4; b.shieldMul = 1 - SV(g, 'amt', true); (R.later = R.later || []).push({ t: 4, f: () => { const al = mine(s); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * hl); if (al.length) float(...centerOf(al), '열이 내리고 발진! 회복', '#ff9ac8', 18); } });
     float(W / 2, H * 0.42, '고열 버티기', '#ff9ac8', 18); return true; },
-  selfheal(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * (u.hp < u.maxHp * 0.5 ? 0.7 : 0.3)); float(...centerOf(al), '스스로 회복!', '#a0e070', 18); return true; },
-  croup(g) { const R = run, tot = nestTotal(), al = mine(g.strain), n0 = Math.min(45, Math.round(Math.max(tot * 0.4, al.length * 0.35))); if (n0 < 2) { toast('둥지와 길에 바이러스를 더 모아 주세요'); return false; } let m = 0; const gene = R.genes[0], f = R.frontD || 0;
+  selfheal(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * Math.min(0.9, SV(g, 'amt') * (u.hp < u.maxHp * 0.5 ? 2 : 1))); float(...centerOf(al), '스스로 회복!', '#a0e070', 18); return true; },
+  croup(g) { const R = run, tot = nestTotal(), al = mine(g.strain), n0 = Math.min(45, Math.round(Math.max(tot, al.length) * SV(g, 'amt'))); if (n0 < 2) { toast('둥지와 길에 바이러스를 더 모아 주세요'); return false; } let m = 0; const gene = R.genes[0], f = R.frontD || 0;
     for (let i = 0; i < n0; i++) if (spawnUnit(gene, { d: Math.max(0, f - rand(0, 60)), small: true, hpMul: 0.8 })) m++; float(W / 2, H * 0.42, `크루프 기침! +${m}마리`, '#80c0ff', 18); return true; },
-  tickbite(g) { const ts = frontT(2); if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const t of ts) { t.hp -= t.maxHp * 0.25; t.stunT = Math.max(t.stunT || 0, 3); t.bitten = 0.3; burst(t.x, t.y - 20, 8, '#b08860'); float(t.x, t.y - 48, '진드기 물기!', '#b08860', 14); } return true; },
-  pml(g) { const R = run, b = R.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, 7); (R.later = R.later || []).push({ t: 7, f: () => { for (const t of frontT(2)) { t.stunT = Math.max(t.stunT || 0, 3); float(t.x, t.y - 48, '신경 침범!', '#6070d0', 14); } } }); float(W / 2, H * 0.42, '뇌로 잠입…', '#6070d0', 18); return true; },
-  incub(g) { const R = run, b = R.sb[g.strain], s = g.strain; b.stealth = Math.max(b.stealth || 0, 6); (R.later = R.later || []).push({ t: 6, f: () => { R.sb[s].rash = Math.max(R.sb[s].rash || 0, 5); float(W / 2, H * 0.42, '잠복기 끝! 감염력 2배', '#e0c080', 18); } }); float(W / 2, H * 0.42, '긴 잠복기…', '#e0c080', 18); return true; },
+  tickbite(g) { const ts = frontT(2); if (!ts.length) { toast('앞쪽에 탑이 없어요'); return false; } for (const t of ts) { t.hp -= t.maxHp * Math.min(0.6, SV(g, 'amt')); t.stunT = Math.max(t.stunT || 0, SV(g, 'stun', true)); t.bitten = 0.3; burst(t.x, t.y - 20, 8, '#b08860'); float(t.x, t.y - 48, '진드기 물기!', '#b08860', 14); } return true; },
+  pml(g) { const R = run, b = R.sb[g.strain]; const hd = SV(g, 'hide', true), st2 = SV(g, 'stun', true); b.stealth = Math.max(b.stealth || 0, hd); (R.later = R.later || []).push({ t: hd, f: () => { for (const t of frontT(2)) { t.stunT = Math.max(t.stunT || 0, st2); float(t.x, t.y - 48, '신경 침범!', '#6070d0', 14); } } }); float(W / 2, H * 0.42, '뇌로 잠입…', '#6070d0', 18); return true; },
+  incub(g) { const R = run, b = R.sb[g.strain], s = g.strain; const hd = SV(g, 'hide', true), rs = SV(g, 'buff', true); b.stealth = Math.max(b.stealth || 0, hd); (R.later = R.later || []).push({ t: hd, f: () => { R.sb[s].rash = Math.max(R.sb[s].rash || 0, rs); float(W / 2, H * 0.42, '잠복기 끝! 감염력 2배', '#e0c080', 18); } }); float(W / 2, H * 0.42, '긴 잠복기…', '#e0c080', 18); return true; },
   tcell(g) { const R = run; let ts = R.towers.filter(t => !t.converted && TOWERS[t.type].specific).slice(0, 2); if (!ts.length) ts = frontT(2); if (!ts.length) { toast('아직 탑이 없어요'); return false; }
-    for (const t of ts) { t.converted = Math.max(+t.converted || 0, 6); burst(t.x, t.y - 20, 10, '#8050c0'); float(t.x, t.y - 50, 'T세포 감염!', '#8050c0', 15); } return true; },
-  tickswarm(g) { const al = mine(g.strain).filter(u => u.d > 0); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length * 0.4))) if (spawnUnit(u.gene, { d: Math.min(map.len - 20, u.d + rand(20, 60)), copy: true, small: true, hpMul: 0.7 })) n++; float(...centerOf(al), `진드기 떼 +${n}`, '#ff5050', 18); return true; },
-  daycare(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } const big = al.length >= 20; let n = 0; for (const u of al.slice(0, Math.ceil(al.length * (big ? 0.6 : 0.4)))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.6 })) n++; float(...centerOf(al), `${big ? '집단 유행' : '손으로 전파'} +${n}`, '#60d080', 18); return true; },
-  interferon(g) { const R = run; R.frzT = Math.max(R.frzT || 0, 8); R.stormT = Math.max(R.stormT || 0, 5); float(W / 2, H * 0.42, '인터페론 끄기! 경보 정지·탑 약화', '#c0a080', 18); return true; },
-  migrate(g) { const R = run, tot = nestTotal(), al = mine(g.strain); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.4); let m = 0;
-    if (tot >= 3) { const n = Math.floor(tot * 0.4), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.7; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 70); i++) if (spawnUnit(gene, { d: d0 + rand(-20, 20) })) m++; const [x, y] = pathAt(d0); burst(x, y, 16, '#ff7a3a'); }
+    for (const t of ts) { t.converted = Math.max(+t.converted || 0, SV(g, 'stun') * 1.5); burst(t.x, t.y - 20, 10, '#8050c0'); float(t.x, t.y - 50, 'T세포 감염!', '#8050c0', 15); } return true; },
+  tickswarm(g) { const al = mine(g.strain).filter(u => u.d > 0); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } let n = 0; for (const u of al.slice(0, Math.ceil(al.length * Math.min(0.95, SV(g, 'amt'))))) if (spawnUnit(u.gene, { d: Math.min(map.len - 20, u.d + rand(20, 60)), copy: true, small: true, hpMul: 0.7 })) n++; float(...centerOf(al), `진드기 떼 +${n}`, '#ff5050', 18); return true; },
+  daycare(g) { const al = mine(g.strain); if (!al.length) { toast('길 위에 바이러스가 없어요'); return false; } const big = al.length >= 20; let n = 0; for (const u of al.slice(0, Math.ceil(al.length * Math.min(0.95, SV(g, 'amt') * (big ? 1.5 : 1))))) if (spawnUnit(u.gene, { d: u.d - rand(2, 8), copy: true, small: true, hpMul: 0.6 })) n++; float(...centerOf(al), `${big ? '집단 유행' : '손으로 전파'} +${n}`, '#60d080', 18); return true; },
+  interferon(g) { const R = run; R.frzT = Math.max(R.frzT || 0, SV(g, 'hide', true)); R.stormT = Math.max(R.stormT || 0, SV(g, 'buff', true)); float(W / 2, H * 0.42, '인터페론 끄기! 경보 정지·탑 약화', '#c0a080', 18); return true; },
+  migrate(g) { const R = run, tot = nestTotal(), al = mine(g.strain); for (const u of al) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * SV(g, 'amt', true)); let m = 0;
+    if (tot >= 3) { const n = Math.floor(tot * SV(g, 'amt', true)), d0 = (R.frontD || 0) + (map.len - (R.frontD || 0)) * 0.7; const gene = R.genes[0]; for (let i = 0; i < Math.min(n, 70); i++) if (spawnUnit(gene, { d: d0 + rand(-20, 20) })) m++; const [x, y] = pathAt(d0); burst(x, y, 16, '#ff7a3a'); }
     if (!m && !al.length) { toast('둥지와 길이 모두 비었어요'); return false; } float(W / 2, H * 0.4, `철새 이동! ${m}마리 · 체력 회복`, '#ff7a3a', 20); return true; },
-  scab(g) { const b = run.sb[g.strain]; b.shield = 12; b.shieldMul = 0.5; b.revive = 12; float(W / 2, H * 0.42, '딱지 갑옷! 쓰러져도 다시 일어나요', '#e8c890', 18); return true; },
-  batwing(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, 8); const lead = mine(g.strain).filter(u => u.d > 0).sort((a, c) => c.d - a.d).slice(0, 22);
+  scab(g) { const b = run.sb[g.strain]; b.shield = SV(g, 'buff'); b.shieldMul = 1 - SV(g, 'amt', true); b.revive = SV(g, 'buff'); b.reviveP = Math.min(0.8, SV(g, 'amt')); float(W / 2, H * 0.42, '딱지 갑옷! 쓰러져도 다시 일어나요', '#e8c890', 18); return true; },
+  batwing(g) { const b = run.sb[g.strain]; b.stealth = Math.max(b.stealth || 0, SV(g, 'hide', true)); const lead = mine(g.strain).filter(u => u.d > 0).sort((a, c) => c.d - a.d).slice(0, Math.round(SV(g, 'amt', true) * 60));
     for (const u of lead) { const c = map.corners.find(c => c > u.d + 10); if (c) { burst(u.x, u.y, 3, '#7050a0'); u.d = c + rand(4, 16); u.fk = -1; } } float(W / 2, H * 0.42, '박쥐 날개! 굽이를 날아 넘어요', '#7050a0', 18); return true; },
-  labescape(g) { const ts = frontT(4), b = run.sb[g.strain]; for (const t of ts) { t.stunT = Math.max(t.stunT || 0, 7); burst(t.x, t.y - 20, 8, '#c0c8d8'); } b.shield = 8; b.shieldMul = 0.5; shake(6); float(W / 2, H * 0.4, '실험실 탈출! 탑 마비·철벽', '#c0c8d8', 20); return true; },
+  labescape(g) { const ts = frontT(4), b = run.sb[g.strain]; for (const t of ts) { t.stunT = Math.max(t.stunT || 0, SV(g, 'stun', true)); burst(t.x, t.y - 20, 8, '#c0c8d8'); } b.shield = SV(g, 'buff', true); b.shieldMul = 1 - SV(g, 'amt', true); shake(6); float(W / 2, H * 0.4, '실험실 탈출! 탑 마비·철벽', '#c0c8d8', 20); return true; },
 };
 const frontT = n => { const R = run; return R.towers.filter(t => !t.converted).map(t => [t, nearestOnPath(t.x, t.y).d]).filter(([, d]) => d > (R.frontD || 0) - 30).sort((a, b) => a[1] - b[1]).slice(0, n).map(x => x[0]); };
 // 스킬 상세 설명 (대상 · 수치 · ★3 · 갈래)
@@ -3432,17 +3440,52 @@ const SHORT = {
   neuro: n => `앞선 ${n} 12마리 순간이동`, hostify: () => '탑 1개를 10초간 아군으로', dive: n => `5초간 ${n} 무적·가속`,
   rash: n => `8초간 ${n} 감염력 2배`, hemo: () => '5초간 모든 탑 마비', harmless: () => '경보 −40% · 탑 1.5초 지연', soothe: () => '6초 탑 공격 속도 절반', vaccinia: () => '앞쪽 탑 1개 6초 아군', genecarry: () => '체력 40% 회복 · 4초 피해 −30%', vanish: () => '6초 투명 · 체력 20% 회복', antigenic: () => 'T세포·항체 탑 5초 멈춤', stampede: () => '6초 속도 +50%', superspread: () => '8초 감염량 ×1.5', blister: () => '개체 절반이 하나씩 더', swell: () => '8초 피해 절반·회복', mosquito: () => '둥지 30%가 길 중간으로', fakeout: () => '7초 투명', paralyze: () => '앞쪽 탑 3개 4초 마비', anemia: () => '8초 탑 공격력 절반', giant: () => '둥지 ×1.6', pandemic: () => '둥지 바이러스 즉시 2배', cytokine: () => '8초간 탑 공격 절반·속도 +40%', asympt: () => '8초간 은신 + 감염력 1.5배', decoy: () => '가짜 껍데기 16개로 탑 유인', wart: n => `8초간 ${n} 체력 회복`, capsule: () => '보호막을 즉시 가득 채움',
 };
+// ★ 스킬 설명도 등급표 숫자로 자동 생성 (등급·별이 바뀌면 숫자도 바뀜)
+const SK_TXT = (() => { const V = SV, P = x => Math.round(x * 100) + '%', F = x => +(+x).toFixed(1), M = (x, m) => Math.min(m, x);
+  return {
+    replicate: g => `길 위 바이러스의 ${P(M(V(g, 'amt') * 2, 0.95))}가 복제돼요`, capsid: g => `${V(g, 'buff')}초 동안 받는 피해 −${P(M(V(g, 'amt'), 0.8))}`,
+    outbreak: g => `대기 중인 바이러스를 한꺼번에 내보내고 ${V(g, 'buff')}초 동안 이동 +25%`, latency: g => `${V(g, 'hide')}초 동안 레이더에도 안 들켜요`,
+    shift: g => `${F(V(g, 'hide') * 0.5)}초 동안 탑이 조준을 못 해요 · 경보 절반`, spread: g => `${V(g, 'buff')}초 동안 이동 +40% · 감속 무시`,
+    neuro: g => `앞선 ${Math.round(V(g, 'amt') * 60)}마리가 다음 굽이 너머로 순간이동`, hostify: g => `탑 1개를 ${F(V(g, 'stun') * 2)}초 동안 내 편으로`,
+    dive: g => `${V(g, 'buff')}초 동안 점막 아래로 (공격 안 받음)`, rash: g => `${V(g, 'buff')}초 동안 감염력 2배`,
+    decoy: g => `미끼 ${Math.round(V(g, 'amt') * 64)}개가 공격을 대신 받아요`, wart: g => `${V(g, 'buff')}초 동안 매초 체력 12% 회복`,
+    hemo: g => `모든 탑 ${F(V(g, 'stun') * 0.85)}초 마비`, pandemic: g => `둥지 바이러스가 즉시 ×${F(1 + M(V(g, 'amt') * 2, 1.5))}`,
+    cytokine: g => `${V(g, 'buff')}초 동안 탑 공격력 절반 + 이동 +40%`, asympt: g => `${V(g, 'hide', true)}초 완전 은신 + 감염력 1.5배`,
+    blister: g => `길 위 바이러스의 ${P(M(V(g, 'amt') * 2, 0.95))}가 하나씩 더 생겨요`, swell: g => `${V(g, 'buff')}초 동안 받는 피해 −${P(M(V(g, 'amt'), 0.8))} + 체력 회복`,
+    mosquito: g => `둥지의 ${P(M(V(g, 'amt'), 0.9))}가 날아서 길 중간으로`, fakeout: g => `${V(g, 'hide')}초 동안 탑이 못 보는 투명 상태`,
+    paralyze: g => `앞쪽 탑 3개 ${V(g, 'stun')}초 마비`, anemia: g => `${V(g, 'buff')}초 동안 모든 탑 공격력 절반`,
+    giant: g => `둥지 바이러스가 즉시 ×${F(1 + M(V(g, 'amt') * 2, 1.5))}`, harmless: g => `면역 경보 −${P(M(V(g, 'amt') * 2, 0.9))} · 모든 탑 ${F(V(g, 'stun') * 0.75)}초 늦게 쏴요`,
+    soothe: g => `${V(g, 'buff')}초 동안 모든 탑이 절반 속도로 쏴요`, vaccinia: g => `앞쪽 탑 1개가 ${F(V(g, 'stun') * 1.5)}초 동안 내 편`,
+    genecarry: g => `모든 내 바이러스 체력 ${P(M(V(g, 'amt'), 0.9))} 회복 + ${V(g, 'stun')}초 피해 −30%`, vanish: g => `${V(g, 'hide', true)}초 투명 + 체력 ${P(V(g, 'amt', true))} 회복`,
+    antigenic: g => `T세포·항체 탑 ${V(g, 'stun')}초, 다른 탑 ${F(V(g, 'stun') * 0.35)}초 멈춤`, stampede: g => `${V(g, 'buff')}초 동안 이동 +50%`,
+    superspread: g => `${V(g, 'buff')}초 동안 목표 감염량 ×1.5`,
+    joint: g => `앞쪽 탑 2개가 ${V(g, 'stun')}초 동안 절반 속도로 쏴요`, cough: g => `둥지의 ${P(M(V(g, 'amt'), 0.9))}가 기침을 타고 조금 앞으로 + ${V(g, 'buff', true)}초 이동 +20%`,
+    wakeup: g => `${V(g, 'hide')}초 투명 (탑 4개 이상이면 +2초 · 감염력 1.5배)`, mcblock: g => `${V(g, 'hide', true)}초 동안 면역 경보 정지 + 투명`,
+    nodisinfect: g => `${V(g, 'buff')}초 동안 약 면역 · 받는 피해 −${P(M(V(g, 'amt'), 0.8))} · 회복`, tiny: g => `${V(g, 'buff')}초 동안 탑 공격 절반이 빗나가요`,
+    roseola: g => `4초 동안 받는 피해 −${P(V(g, 'amt', true))}, 끝나면 체력 ${P(V(g, 'amt'))} 회복`, selfheal: g => `약한 바이러스는 체력 ${P(M(V(g, 'amt') * 2, 0.9))}, 나머지는 ${P(V(g, 'amt'))} 회복`,
+    croup: g => `둥지의 ${P(V(g, 'amt'))}만큼 새 바이러스가 무리 앞쪽에 생겨요`, tickbite: g => `앞쪽 탑 2개 체력 −${P(M(V(g, 'amt'), 0.6))} + ${V(g, 'stun', true)}초 마비`,
+    pml: g => `${V(g, 'hide', true)}초 투명, 끝날 때 앞쪽 탑 2개 ${V(g, 'stun', true)}초 마비`, incub: g => `${V(g, 'hide', true)}초 투명, 끝나면 ${V(g, 'buff', true)}초 동안 감염력 2배`,
+    tcell: g => `T세포·항체 탑 2개가 ${F(V(g, 'stun') * 1.5)}초 동안 내 편`, tickswarm: g => `길 위 바이러스의 ${P(M(V(g, 'amt'), 0.95))}가 더 앞쪽에 분신`,
+    daycare: g => `길 위 바이러스의 ${P(M(V(g, 'amt'), 0.95))}가 분신 (20마리 이상이면 ×1.5)`, interferon: g => `${V(g, 'hide', true)}초 경보 정지 + ${V(g, 'buff', true)}초 동안 탑 공격력 절반`,
+    migrate: g => `둥지의 ${P(V(g, 'amt', true))}만큼 길 70% 지점에 새 무리 + 체력 ${P(V(g, 'amt', true))} 회복`, scab: g => `${V(g, 'buff')}초 동안 받는 피해 −${P(V(g, 'amt', true))} + 쓰러지면 ${P(M(V(g, 'amt'), 0.8))} 확률로 부활`,
+    batwing: g => `${V(g, 'hide', true)}초 투명 + 앞장선 ${Math.round(V(g, 'amt', true) * 60)}마리가 굽이를 날아 넘어요`, labescape: g => `앞쪽 탑 4개 ${V(g, 'stun', true)}초 마비 + ${V(g, 'buff', true)}초 받는 피해 −${P(V(g, 'amt', true))}`,
+  }; })();
+const keyByName = n => Object.keys(STRAINS).find(k => STRAINS[k].name === n);
+for (const id in SK_TXT) SHORT[id] = (n, g) => SK_TXT[id](g && g.strain ? g : { strain: keyByName(n) || 'rhino', star: 1 });
+for (const [k, d] of Object.entries(STRAINS)) { if (!d.skill || d.hero || k === 'mine') continue; const ids = d.skill.ids || [d.skill.id]; if (!ids.every(i => SK_TXT[i])) continue;
+  const fact = (d.skill.desc || '').includes(' · ') ? d.skill.desc.slice(d.skill.desc.indexOf(' · ')) : ''; d.skill.desc = ids.map(i => SK_TXT[i]({ strain: k, star: 1 })).join(' + ') + fact; }
+
 const skPopHide = () => { const e = $('skPop'); if (e) e.hidden = true; };
 function skillPop(g, anchor) {   // 스킬 이름을 누르면(판 안에서는 길게 누르면) 설명 말풍선
   if (!g) return; const d = STRAINS[g.strain], sk = geneSkill(g), ids = sk.ids || [sk.id], el = $('skPop') || Object.assign(document.createElement('div'), { id: 'skPop' }); if (!el.parentNode) $('stage').appendChild(el);
-  el.innerHTML = `<b>✨ ${sk.name}</b><span>${geneStats(g).cd}초마다</span><div>${ids.map(id => SHORT[id] ? SHORT[id](d.name) : '').filter(Boolean).join(' + ') || sk.desc || ''}</div>`;
+  el.innerHTML = `<b>✨ ${sk.name}</b><span>${geneStats(g).cd}초마다</span><div>${ids.map(id => SHORT[id] ? SHORT[id](d.name, g) : '').filter(Boolean).join(' + ') || sk.desc || ''}</div>`;
   const sr = $('stage').getBoundingClientRect(), r = anchor.getBoundingClientRect(); el.hidden = false; el.style.left = clamp(r.left - sr.left + r.width / 2 - 110, 8, sr.width - 228) + 'px';
   el.style.top = (r.top - sr.top > sr.height / 2 ? r.top - sr.top - 8 - el.offsetHeight : r.bottom - sr.top + 8) + 'px'; clearTimeout(el.t); el.t = setTimeout(() => el.hidden = true, 3500);
   el.onclick = () => el.hidden = true;
 }
 function skillHelp(g) {
   const d = STRAINS[g.strain], sk = geneSkill(g), ids = sk.ids || [sk.id], L = lineOf(g);
-  return `<b>${sk.dual ? '이중 스킬' : '스킬'} · ${sk.name}</b> <span>${geneStats(g).cd}초마다</span><div class="short">${ids.map(id => SHORT[id] ? SHORT[id](d.name) : '').join(' + ')}</div><span>★${g.star} · 스킬 세기 ×${skK(g).toFixed(2).replace(/0$/, '')}${g.star >= 5 ? ' · <b style="color:#ffd24a">각성: 쿨타임 −15%</b>' : ''}</span>${L.length >= 2 ? `<div class="short" style="color:#c8b8ff">🧬 ${genOf(g)}세대 · 혈통: ${L.map(x => STRAINS[x].name).join(' · ')}</div>` : ''}`;
+  return `<b>${sk.dual ? '이중 스킬' : '스킬'} · ${sk.name}</b> <span>${geneStats(g).cd}초마다</span><div class="short">${ids.map(id => SHORT[id] ? SHORT[id](d.name, g) : '').join(' + ')}</div><span>★${g.star} · 스킬 세기 ×${skK(g).toFixed(2).replace(/0$/, '')}${g.star >= 5 ? ' · <b style="color:#ffd24a">각성: 쿨타임 −15%</b>' : ''}</span>${L.length >= 2 ? `<div class="short" style="color:#c8b8ff">🧬 ${genOf(g)}세대 · 혈통: ${L.map(x => STRAINS[x].name).join(' · ')}</div>` : ''}`;
 }
 function skillHelpFull(g) {
   const sk = STRAINS[g.strain].skill;
@@ -3467,7 +3510,7 @@ function helpLines(id, g) {
     decoy: [`대상: ${n} 앞쪽`, `빈 껍데기 ${(sp(g, 16)) + (b === 'B' ? 12 : 0)}개를 뿌림`, '탑은 앞선 적을 먼저 쏘므로 껍데기가 공격을 대신 받음', '껍데기는 감염 못 함 · ★3: 22개'],
     wart: [`대상: ${n}만`, `${8 + (b === 'B' ? 4 : 0) + (st3 ? 2 : 0)}초간 매초 최대 체력 12% 회복`, '느리지만 단단한 무리를 끝까지 살려 보냄'],
   }[id];
-  return L || [SHORT[id] ? SHORT[id](n) : ''];
+  return L || [SHORT[id] ? SHORT[id](n, g) : ''];
 }
 // ★ 액티브 스킬은 2개(번식·지원 칸 카드 우선, 탑을 고르는 스킬은 늘 직접). 나머지는 패시브 = 준비되면 저절로
 function activeSkills(R = run) { if (R.activeSk) return R.activeSk; const sk = R.skillGenes.filter(g => !STRAINS[g.strain].hero), sq = slotGenes(), has1 = s => sk.some(g => g.strain === s);
@@ -3485,7 +3528,7 @@ function castSkill(strain) {
   if (isCore ? (run.chg || 0) < 1 : run.cds[strain] > 0) { if (isCore) toast(`본체 스킬 충전 중 ${Math.floor((run.chg || 0) * 100)}% · 바이러스가 도착하면 차요`); return; }
   const sk = geneSkill(g);
   if (isCore) { const R = run, combo = !!(R.cmb && R.cmb.by === corePair()), sb = R.sb.mine || {}, S0 = { ...sb }, T0 = R.towers.map(t => [t.stunT || 0, +t.converted || 0, t.cd || 0]), G0 = [R.stunT || 0, R.stormT || 0, R.calmT || 0, R.medImmT || 0, R.capB || 0, R.growT || 0, R.missT || 0, R.frzT || 0], N0 = nestTotal();
-    const ok = sk.aim ? (() => { const t = R.towers.filter(t => !t.converted).sort((a, b) => nearestOnPath(a.x, a.y).d - nearestOnPath(b.x, b.y).d).find(t => nearestOnPath(t.x, t.y).d > (R.frontD || 0) - 30); if (!t) { toast('앞쪽에 탑이 없어요'); return false; } t.converted = 10; burst(t.x, t.y - 20, 10, '#9fff6a'); float(t.x, t.y - 50, '숙주화!', '#9fff6a', 16); return true; })()
+    const ok = sk.aim ? (() => { const t = R.towers.filter(t => !t.converted).sort((a, b) => nearestOnPath(a.x, a.y).d - nearestOnPath(b.x, b.y).d).find(t => nearestOnPath(t.x, t.y).d > (R.frontD || 0) - 30); if (!t) { toast('앞쪽에 탑이 없어요'); return false; } t.converted = SV(Object.assign(Object.create(g), { strain: 'mine' }), 'stun') * 2; burst(t.x, t.y - 20, 10, '#9fff6a'); float(t.x, t.y - 50, '숙주화!', '#9fff6a', 16); return true; })()
       : (sk.ids ? sk.ids.map(id => SKILLS[id](Object.assign(Object.create(g), { strain: 'mine' }))).some(Boolean) : SKILLS[sk.id](Object.assign(Object.create(g), { strain: 'mine' })));
     if (!ok) return; R.chg = 0; R.skN = (R.skN || 0) + 1;
     const amp = (k = CHG.mul - 1, quiet) => { for (const f in sb) if (typeof sb[f] === 'number' && sb[f] > (S0[f] || 0) && !/Mul$/.test(f)) sb[f] += (sb[f] - (S0[f] || 0)) * k;
@@ -3685,7 +3728,7 @@ function damage(u, dmg, src) {
   u.hp -= dmg * m; u.hitT = 0.1;
   if (u.br === 'herpesA' && !u.hitOnce) { u.hitOnce = true; u.cloak = 3; }
   if (u.hp <= 0) { u.alive = false; pop(u); if (src && !u.decoy) { src.kills = (src.kills || 0) + 1; run.twKill = (run.twKill || 0) + 1; }
-    if (run.sb[u.strain] && run.sb[u.strain].revive > 0 && !u.revived && !u.decoy && Math.random() < 0.5) { u.alive = true; u.revived = true; u.hp = u.maxHp * 0.5; float(u.x, u.y - 16, '딱지 부활!', '#e8c890', 11); return; }
+    if (run.sb[u.strain] && run.sb[u.strain].revive > 0 && !u.revived && !u.decoy && Math.random() < (run.sb[u.strain].reviveP || 0.3)) { u.alive = true; u.revived = true; u.hp = u.maxHp * 0.5; float(u.x, u.y - 16, '딱지 부활!', '#e8c890', 11); return; }
     if (u.br === 'herpesB' && !u.revived && Math.random() < 0.2) { u.alive = true; u.revived = true; u.hp = u.maxHp * 0.5; float(u.x, u.y - 16, '재활성!', '#c79cff', 11); return; }
     if (u.br === 'noroA') for (const o of run.units) if (o.alive && Math.hypot(o.x - u.x, o.y - u.y) < 40) o.boost = 2;
     if (STRAINS[u.strain].split && !u.copy && Math.random() < (u.br === 'fluB' ? 0.65 : 0.35)) { run.fx.push({ x: u.x, y: u.y - 6, t: 0.35, s: 20, img: 'split' });
@@ -4570,7 +4613,7 @@ const ui = {
     const og = old ? slotGrade(old, i) : '-', ng = slotGrade(g, i);
     $('sheet').innerHTML = `<div class="sh"><button class="mX" id="shX" aria-label="닫기">✕</button><div class="hd"></div>
       <div class="shTop"><div class="pic" style="border-color:${RARITY[d.rarity].color}">${pimg(g)}</div><div style="flex:1;min-width:0"><b class="n">${gname(g)}</b> <span class="stars" style="color:#ffd27a">${stars(g.star)}</span> <span style="color:#b59f86">Lv${g.lv || 1}</span>
-        <div class="shSk">✨ ${skCat(g)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](d.name) : '').filter(Boolean).join(' · ')}</div><button class="info" id="shInfo">카드 정보·강화 ›</button></div></div>
+        <div class="shSk">✨ ${skCat(g)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](d.name, g) : '').filter(Boolean).join(' · ')}</div><button class="info" id="shInfo">카드 정보·강화 ›</button></div></div>
       ${ui.abilHtml(g)}
       <div style="margin:12px 0 6px;font-weight:800;font-size:15px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸 · ${isCur ? '지금 꽂혀 있어요' : `${old ? sname(old.strain) : '빈 칸'} → ${sname(g.strain)}`}</div>
       <div class="shPow"><small>🎯 ${organById(save.sel || 'nose').name} 전투력</small><b>${isCur ? r.pt : `${r.pf} <span class="${r.pt > r.pf ? 'up' : r.pt < r.pf ? 'dn' : ''}">→ ${r.pt}</span> <em class="${r.pp > 0 ? 'up' : r.pp < 0 ? 'dn' : ''}">${r.pp > 0 ? '+' : ''}${r.pp}%</em>`}</b></div>
@@ -4597,7 +4640,7 @@ const ui = {
     document.querySelectorAll('#modal .listRow').forEach(b => b.onclick = () => { ui.closeModal(); ui.cmpSheet(geneById(+b.dataset.u), i); });
   },
   skillsPop() { const gs = [...new Map(squadGenes().map(g => [g.strain, g])).values()]; if (!gs.length) return;
-    ui.modal(`<h3 style="margin:0 0 6px">✨ 이번 판 스킬</h3>${gs.map(g => `<div class="sub" style="text-align:left;margin:4px 0"><b>${skCat(g)}</b> · ${sname(g.strain)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](STRAINS[g.strain].name) : '').join(' · ')}</div>`).join('')}`, [{ label: '닫기' }]); },
+    ui.modal(`<h3 style="margin:0 0 6px">✨ 이번 판 스킬</h3>${gs.map(g => `<div class="sub" style="text-align:left;margin:4px 0"><b>${skCat(g)}</b> · ${sname(g.strain)} — ${(geneSkill(g).ids || [geneSkill(g).id]).map(id => SHORT[id] ? SHORT[id](STRAINS[g.strain].name, g) : '').join(' · ')}</div>`).join('')}`, [{ label: '닫기' }]); },
   // 보관함: 전체 카드 (강화·교배는 여기서)
   // ★ 내 바이러스 정렬 (보관함·성장 공통)
   sortChips(id, onPick) { const el = $(id); if (!el) return; if (!SORTS[save.sortBy]) save.sortBy = 'star'; const f = save.gfilt || 'all', cnt = k => save.genes.filter(g => { const o = save.gfilt; save.gfilt = k; const r = gFilt(g); save.gfilt = o; return r; }).length;
@@ -5088,7 +5131,7 @@ function dexView() {
   if (claim) $('dxClaim').onclick = () => { save.dexClaim[claim[0]] = true; save.dna += claim[1]; persist(); sfx('clear'); buzz(40); ui.showHub(); dexView(); toast(`도감 ${claim[0]}% 보상 · DNA +${claim[1]}`); };
   document.querySelectorAll('#modal [data-k]').forEach(x => x.onclick = () => { const k = x.dataset.k, mu = !!x.dataset.mut, d = STRAINS[k], [gd, bd] = tropOf(k), sk = d.skill;
     ui.modal(`${pimg({ strain: k, star: 1, passives: [], mut: mu }, 'hero')}<h3 style="margin:2px 0">${mu ? '변성 ' : ''}${d.name}</h3>${mu ? '<div class="sub" style="color:#ffd24a">능력 +30% · 한계를 넘은 모습</div>' : ''}<div class="sub"><span style="color:${RARITY[d.rarity].color}">${d.legend ? '전설' : RARITY[d.rarity].name}</span> · ${d.role}</div>
-      ${d.extinct ? `<div class="sub">🪦 ${d.extinct}</div>` : ''}<div class="skillbox"><b>스킬 · ${sk.name}</b><div class="short">${sk.desc || (sk.ids || [sk.id]).map(id => SHORT[id] ? SHORT[id](d.name) : '').join(' + ')}</div></div>
+      ${d.extinct ? `<div class="sub">🪦 ${d.extinct}</div>` : ''}<div class="skillbox"><b>스킬 · ${sk.name}</b><div class="short">${sk.desc || (sk.ids || [sk.id]).map(id => SHORT[id] ? SHORT[id](d.name, g) : '').join(' + ')}</div></div>
       <div class="tropRow" style="text-align:center"><span class="g">👍 ${gd.map(o => ORG_SHORT[o]).join('·') || '없음'}</span>${bd.length ? ` · <span class="b">👎 ${bd.map(o => ORG_SHORT[o]).join('·')}</span>` : ''}</div>
       <div class="row"><button class="btn" id="dxBack">도감으로</button></div>`); $('dxBack').onclick = () => dexView(); });
 }
