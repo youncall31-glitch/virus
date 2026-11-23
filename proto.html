@@ -1139,10 +1139,10 @@ const HOST0_Q = { nose: 1.0, lung: 0.88, gut: 1.2, liver: 1.1, blood: 1.2, skin:
 // 아기 몸 탑 세기(기관별). 지면 failEase로 탑도 조금씩 약해진다
 const HOST0_T = { nose: 1, lung: 1.05, gut: 2.0, liver: 2.1, blood: 2.8, skin: 2.9, lymph: 3.1 };
 // ★ 난이도 보정표: 봇 진행 테스트로 맞춘 값. 첫 1~2판은 넉넉히, 그 뒤로는 '아슬아슬하게 한 번에 / 몇 번 재도전' 수준
-const CAL = { 0: { nose: 0.2, lung: 0.18, gut: 0.7, liver: 1.15, blood: 0.98, skin: 0.42, lymph: 1.41, brain: 5.69 },
-  1: { nose: 1.56, lung: 1.24, gut: 0.74, liver: 1.74, blood: 0.88, skin: 0.48, lymph: 0.8, brain: 1.32 },
-  2: { nose: 0.9, lung: 1.11, gut: 1.65, liver: 1.43, blood: 0.78, skin: 0.58, lymph: 0.75, brain: 1.41 },
-  3: { nose: 1.82, lung: 1.09, gut: 0.91, liver: 2.15, blood: 1.06, skin: 0.8, lymph: 0.79, brain: 1.51 } };
+const CAL = { 0: { nose: 0.2, lung: 0.18, gut: 0.59, liver: 0.98, blood: 0.83, skin: 0.36, lymph: 1.2, brain: 4.84 },
+  1: { nose: 1.33, lung: 1.05, gut: 0.63, liver: 1.48, blood: 0.75, skin: 0.41, lymph: 0.68, brain: 1.12 },
+  2: { nose: 0.77, lung: 0.94, gut: 1.4, liver: 1.22, blood: 0.66, skin: 0.49, lymph: 0.64, brain: 1.2 },
+  3: { nose: 1.55, lung: 0.93, gut: 0.77, liver: 1.83, blood: 0.9, skin: 0.68, lymph: 0.67, brain: 1.28 } };
 const calK = (h, o) => (CAL[h] || {})[o] || 1;
 const HOST_Q = [1.8, 4.8, 5.8, 6.8];
 // 두 번째 몸부터 기관별 보정 (봇 측정: 첫 도전에 목표의 ~90%가 나오게)
@@ -2912,14 +2912,14 @@ const SK_TUNE = {};
 const coreK = () => { const st = STRAINS[coreStrain()] || {}, t = SKTYPE[coreStrain()] || 'boost'; return CORE_K[t][Math.min(4, st.legend ? Math.max(3, st.rarity || 0) : (st.rarity || 0))] * ((window.__skTune || SK_TUNE)[coreStrain()] || 1); };   // 첫 1회는 가득 찬 채 시작 · 도착 없어도 30초면 참
 const corePair = () => SKPAIR[SKTYPE[coreStrain()] || 'boost'];
 function comboOpen(by) { const R = run; if (!B3 || !R || by !== corePair()) return; if (R.cmbBack && R.cmbBack.t > 0) { const f = R.cmbBack.go; R.cmbBack = null; f(); } else R.cmb = { by, t: CHG.win }; }   // 순서 상관없이 3초 안에 둘 다 쓰면 콤보
-const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35 }, SPR = { cost: 0.25, tiles: 2, capUp: 0.3, atkUp: 0.12, slow: 0.4, slowT: 6, fast: 1.7, fastT: 6, cd: 8 };
+const HIDE = { max: 5, emerge: 0.4, cd: 5, spread: 1, spd: 0.35, land: false }, SPR = { cost: 0.25, tiles: 2, capUp: 0.3, atkUp: 0.12, slow: 0.4, slowT: 6, fast: 1.7, fastT: 6, cd: 8 };
 function hideTap() { const R = run, H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (R.endAt || stealthOn()) return;
   if (H.st === 'ready') { H.st = 'hid'; H.t = HIDE.max + (teamRole().tank || 0); H.acc = 0; let n = 0; for (const u of R.units) if (u.alive && !u.hero && u.d > 0) { u.hid = true; n++; } sfx('dive'); buzz(20); banner(`🫥 잠복! ${n}마리가 몸속으로 숨었다 (최대 ${HIDE.max}초)`); }
   else if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
   else if (H.st === 'cd') toast(`다시 숨으려면 ${Math.ceil(H.t)}초`); }
 function stepHide(dt) { const R = run; if (!B3 || !R || !R.ta) return; const H = R.hd || (R.hd = { st: 'ready', t: 0 }); if (H.st === 'ready') return; H.t -= dt;
   // ★ 숨어 있는 동안 땅속으로 오염이 번진다: 숨은 무리 쪽으로 1초마다 한 칸 → 그 땅에 겹친 탑은 무너진다
-  if (H.st === 'hid') { H.acc = (H.acc || 0) + dt; if (H.acc >= HIDE.spread) { H.acc -= HIDE.spread; const hd = R.units.filter(u => u.alive && u.hid); const far = hd.length ? Math.max(...hd.map(u => u.d)) : 0, done = segDone();
+  if (H.st === 'hid' && HIDE.land) { H.acc = (H.acc || 0) + dt; if (H.acc >= HIDE.spread) { H.acc -= HIDE.spread; const hd = R.units.filter(u => u.alive && u.hid); const far = hd.length ? Math.max(...hd.map(u => u.d)) : 0, done = segDone();
       if (map.seg[done] && map.seg[done].d < far && done < map.seg.length - 2) { map.seg[done].on = true; purgeContaminated(); R.frontD = Math.max(R.frontD || 0, infFront()); const [x, y] = pathAt(R.frontD); R.rings.push({ x, y, r: 8, R: 60, t: 0.5, color: '#c06ad0' }); float(x, y - 30, '땅속 오염 +1칸', '#e8a0ff', 12); } } }
   if (H.t > 0) return;
   if (H.st === 'hid') { H.st = 'up'; H.t = HIDE.emerge; comboOpen('hide'); }
@@ -2957,7 +2957,7 @@ function starterPick() { if (save.starter || !$('modal').hidden) return;
 function b3Help() { const R = run; R.mutPause = true; paused = true;
   ui.modal(`<h3 style="margin:2px 0 8px">버튼 4개로 싸워요</h3><div style="text-align:left;font-size:14px;line-height:1.6">
     <b style="color:#ff8a7a">⚔ 돌격</b> 둥지(오염된 땅)에 모인 바이러스를 길로 내보내요. 끝까지 살아서 도착한 만큼 감염돼요.<br>
-    <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 세포 속으로 흡수돼요. <b>느리게(35%) 계속 나아가고, 약·탑 침·방해물을 다 무시해요</b>. 숨어 있는 동안 <b>1초마다 땅속 오염이 숨은 무리 쪽으로 한 칸</b> 번지고, 겹친 탑은 무너져요. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
+    <b style="color:#9fd8ff">🫥 잠복</b> 길 위의 바이러스가 전부 세포 속으로 흡수돼요. <b>느리게(35%) 계속 나아가고, 약·탑 침·방해물을 다 무시해요</b>. 최대 ${HIDE.max}초, 한 번 더 누르면 튀어나와요.<br>
     <b style="color:#e8a0ff">🦠 증식</b> 둥지 최대치의 ${Math.round(SPR.cost * 100)}%를 써서 오염된 땅을 <b>목표 쪽으로 ${SPR.tiles}칸</b> 넓혀요. 최대치 +${Math.round(SPR.capUp * 100)}%, 공격 +${Math.round(SPR.atkUp * 100)}% (계속 쌓임). 대신 ${SPR.slowT}초 동안 모이는 속도가 ${Math.round(SPR.slow * 100)}%로 줄고, 그 뒤 ${SPR.fastT}초는 빠르게 차요. 그 땅의 탑은 무너져요.<br>
     <b style="color:#ffd27a">✨ 본체 스킬</b> 30초마다 저절로 차고, 바이러스가 도착하면 더 빨리 차요. <b>👑 왕관 붙은 버튼</b>이 본체의 짝이에요. 둘을 <b>3초 안에 같이</b> 쓰면(순서 상관없음) 🔥콤보 ×${CHG.mul}!<br><span style="font-size:12px;color:#bbb">막기형: 탑 멈춤 + 둥지 커짐 · 버티기형: 약 면역 + 둥지 번식 ×2 · 불리기형: 바이러스 늘리기 · 강하게형: 감염력 올리기</span><br>
     <div style="margin-top:6px;color:#b59f86;font-size:12.5px">💊 약 경고(3초)가 뜨면 → 잠복! · 둥지가 가득 차면 → 돌격 또는 증식</div></div>
