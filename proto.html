@@ -3148,16 +3148,27 @@ function spreadTap() { const R = run; if (R.endAt || stealthOn()) return; if (R.
   R.rings.push({ x: c.x1, y: c.y1, r: 8, R: 70, t: 0.6, color: '#c67aff' }); R.rings.push({ x: c.x2, y: c.y2, r: 8, R: 70, t: 0.6, color: '#c67aff' }); sfx('wall'); buzz(25); shake(3);
   banner(`🧬 세포 융합! ${BYP.open}초 동안 지름길${c.skip ? ` · 탑 ${c.skip}개 건너뛰기` : ''}`); }
 function stepBypass() { const R = run; for (const f of map.forks) if (f.byp && f.sw === 'B' && R.time >= f.until) f.sw = 'A'; if (R.bypOn && R.bypOn.sw !== 'B') R.bypOn = null; }
+// 융합 터널 = 길과 같은 재질로 길에서 길로 이어 그림 (보랏빛만 살짝) · k: 자라나는 정도
+function drawRoadSeg(g, a, b, k, time, ghost) { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, l = L * k, ang = Math.atan2(dy, dx), tx = IMG.road2, th = 44, tw = tx.width * th / tx.height;
+  g.save(); g.translate(a[0], a[1]); g.rotate(ang); g.lineCap = 'round';
+  const seg = (w, c, oy = 0) => { g.beginPath(); g.moveTo(0, oy); g.lineTo(l, oy); g.lineWidth = w; g.strokeStyle = c; g.stroke(); };
+  if (!ghost) { seg(66, 'rgba(20,0,8,.22)', 7); seg(58, 'rgba(20,0,8,.3)', 5); }
+  seg(56, '#4a0e18', 2); seg(54, '#7a2a4a', 0); seg(50, '#a4507a', -1);
+  const cap = () => { g.beginPath(); g.moveTo(0, -22); g.lineTo(l, -22); g.arc(l, 0, 22, -Math.PI / 2, Math.PI / 2); g.lineTo(0, 22); g.arc(0, 0, 22, Math.PI / 2, Math.PI * 1.5); g.closePath(); };
+  g.save(); cap(); g.clip(); for (let o = -tw; o < l + 30; o += tw) g.drawImage(tx, o, -th / 2, tw, th);
+  g.fillStyle = 'rgba(170,90,230,.26)'; g.fillRect(-30, -30, l + 60, 60);
+  g.strokeStyle = 'rgba(255,240,255,.55)'; g.lineWidth = 2.5; g.setLineDash([2, 12]); g.lineDashOffset = -time * 40; g.beginPath(); g.moveTo(0, 0); g.lineTo(l, 0); g.stroke(); g.setLineDash([]); g.restore();
+  seg(5, 'rgba(255,235,250,.22)', -9);
+  g.restore();
+  // 양 끝은 길 바닥을 다시 덮어서 길에서 갈라져 나온 것처럼 · 입구는 보랏빛으로 살짝
+  const ga = g.globalAlpha; for (const p of k >= 1 ? [a, b] : [a]) { g.save(); g.globalAlpha = 1; g.beginPath(); g.arc(p[0], p[1], 26.5, 0, TAU); g.clip(); drawWob(mapCv);
+    const rg = g.createRadialGradient(p[0], p[1], 2, p[0], p[1], 24); rg.addColorStop(0, `rgba(190,110,240,${0.45 * ga})`); rg.addColorStop(1, 'rgba(190,110,240,0)'); g.fillStyle = rg; g.fillRect(p[0] - 26, p[1] - 26, 52, 52); g.restore(); } }
 function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) return;
   for (const f of map.forks) { if (!f.byp) continue; const open = f.sw === 'B', inside = R.units.some(u => u.alive && u.fk >= 0 && map.forks[u.fk] === f); if (!open && !inside) continue;
     const [a, b] = [f.pts[0], f.pts.at(-1)]; ctx.save(); ctx.lineCap = 'round';
-    if (ART2 && has('byp')) { const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1, im = IMG.byp, bw = 50, bh = l + 44, age = R.time - (f.t0 ?? (f.t0 = R.time)), pop = Math.min(1, age / 0.35), left = f.until - R.time;
-      ctx.save(); ctx.translate(a[0], a[1]); ctx.rotate(Math.atan2(dy, dx) - Math.PI / 2);
-      ctx.globalAlpha = (open ? 1 : 0.55) * (left < 1 && open ? 0.6 + 0.4 * Math.abs(Math.sin(time * 10)) : 1);
-      ctx.shadowColor = 'rgba(20,0,10,.7)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 6;
-      ctx.drawImage(im, -bw / 2 * pop, -22, bw * pop, bh); ctx.shadowColor = 'transparent';
-      ctx.globalAlpha *= 0.55; ctx.strokeStyle = '#fff0ff'; ctx.lineWidth = 2.5; ctx.setLineDash([2, 12]); ctx.lineDashOffset = -time * 40; ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(0, l - 6); ctx.stroke(); ctx.setLineDash([]);
-      ctx.restore(); }
+    if (ART2 && has('road2')) { const age = R.time - (f.t0 ?? (f.t0 = R.time)), left = f.until - R.time;
+      ctx.globalAlpha = open ? (left < 1 ? 0.65 + 0.35 * Math.abs(Math.sin(time * 10)) : 1) : 0.6;
+      drawRoadSeg(ctx, a, b, Math.min(1, age / 0.5), time); ctx.globalAlpha = 1; }
     else {
     ctx.globalAlpha = open ? 0.5 : 0.25; ctx.shadowColor = '#c67aff'; ctx.shadowBlur = 22; ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 46; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); ctx.shadowBlur = 0;
     ctx.globalAlpha = open ? 1 : 0.5; ctx.strokeStyle = '#6a2296'; ctx.lineWidth = 34; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
@@ -3170,7 +3181,7 @@ function drawBypass(time) { const R = run; if (!B3 || !R.ta || stealthOn()) retu
     ctx.restore(); }
   // 준비됐을 때: 열릴 자리 점선 미리보기 (1초마다 다시 찾음)
   if ((R.sprCd ?? SPR.first) <= 0 && !R.bypOn) { if (!R.bypPv || time - R.bypPv.t > 1) R.bypPv = { t: time, c: bypFind() }; const c = R.bypPv.c;
-    if (c) { ctx.save(); if (ART2 && has('byp')) { const dx = c.x2 - c.x1, dy = c.y2 - c.y1, l = Math.hypot(dx, dy) || 1; ctx.save(); ctx.translate(c.x1, c.y1); ctx.rotate(Math.atan2(dy, dx) - Math.PI / 2); ctx.globalAlpha = 0.3 + 0.15 * Math.sin(time * 5); ctx.drawImage(IMG.byp, -22, -18, 44, l + 36); ctx.restore(); ctx.globalAlpha = 1; } else { ctx.globalAlpha = 0.55 + 0.2 * Math.sin(time * 5); ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 26; ctx.setLineDash([8, 8]); ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(c.x1, c.y1); ctx.lineTo(c.x2, c.y2); ctx.stroke(); ctx.setLineDash([]); }
+    if (c) { ctx.save(); if (ART2 && has('road2')) { ctx.globalAlpha = 0.3 + 0.12 * Math.sin(time * 5); drawRoadSeg(ctx, [c.x1, c.y1], [c.x2, c.y2], 1, time, true); ctx.globalAlpha = 1; } else { ctx.globalAlpha = 0.55 + 0.2 * Math.sin(time * 5); ctx.strokeStyle = '#c67aff'; ctx.lineWidth = 26; ctx.setLineDash([8, 8]); ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(c.x1, c.y1); ctx.lineTo(c.x2, c.y2); ctx.stroke(); ctx.setLineDash([]); }
       ctx.globalAlpha = 1; ctx.fillStyle = '#e8b8ff'; ctx.font = "800 12px Jua, sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const mx = (c.x1 + c.x2) / 2, my = (c.y1 + c.y2) / 2 - 22, tx = c.skip ? `🧬 여기 열려요 · 탑 ${c.skip}개 건너뜀` : '🧬 여기 열려요'; ctx.strokeText(tx, mx, my); ctx.fillText(tx, mx, my); ctx.restore(); } } }
 function stepSpread(dt) { const R = run; if (!R) return; if (R.sprCd == null && R.ta && !stealthOn()) R.sprCd = SPR.first; if (R.sprCd > 0) R.sprCd -= dt;
   if (B3 && R.ta && R.st) { const d = R.infAmt - (R.chgLast ?? R.infAmt); R.chgLast = R.infAmt; if (R.chg == null) R.chg = CHG.start; R.chg = Math.min(1, R.chg + (1 + 0.1 * (teamRole().stealth || 0)) * (dt / CHG.idle) + (1 + 0.1 * (teamRole().stealth || 0)) * (R.infAmt <= (R.st.qBase || R.st.quota) ? Math.max(0, d) : 0) / ((R.st.qBase || R.st.quota) * CHG.per)); if (R.cmb && (R.cmb.t -= dt) <= 0) R.cmb = null; if (R.cmbBack && (R.cmbBack.t -= dt) <= 0) R.cmbBack = null; if (R.medImmT > 0) R.medImmT -= dt; if (R.growT > 0) R.growT -= dt; }
@@ -5943,5 +5954,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1625</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1640</div></body>
 </html>
