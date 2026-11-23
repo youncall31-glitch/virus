@@ -3101,7 +3101,7 @@ const B3TW = 1.6, B3HP = 4 * 2;   // 탑 체력: 금방 물어뜯기지 않게
 // ★ 탑 개편: 공격 방식 6종 · 가격 순서대로 지음 · 처치 1등 👑 탑이 커짐 · 💫 면역 마비로 끔
 const TW2 = { order: ['neutro', 'cilia', 'macro', 'nk', 'tcell', 'complement'], cost: { neutro: 100, cilia: 150, macro: 200, nk: 250, tcell: 300, complement: 400 },
   nm: { neutro: '호중구', cilia: '섬모', macro: '대식세포', nk: 'NK', tcell: 'T세포', complement: '보체', dendri: '수지상', bcell: 'B세포' },
-  k: { neutro: 0.9, nk: 1.2, tcell: 3.0, complement: 0.9 }, chain: { n: 4, r: 60, decay: 0.75 }, hideSee: 0.5 };
+  k: { neutro: 0.9, nk: 1.2, tcell: 3.0, complement: 0.9 }, mode: { neutro: '⚡ 빠른 연사', cilia: '🐌 느리게', macro: '💥 광역 포격', nk: '⛓ 연쇄 공격', tcell: '🎯 원거리 저격', complement: '🔔 주변 폭발' }, chain: { n: 4, r: 60, decay: 0.75 }, hideSee: 0.5 };
 const TWK = () => window.__twk ?? 2.5;
 const CROWN = { min: 8, s1: 20, s2: 50, dmg: 0.2, size: 0.25 }, MUTE = { t: 5 };
 const tw2Off = () => Math.min(3, Math.floor(stageIx(run.st.organ.id) / 2));
@@ -4031,7 +4031,7 @@ function update(dt) {
     if (B3 && (t.type === 'neutro' || t.type === 'nk' || t.type === 'tcell')) { const tk = Math.pow(ALG.lvDmg, (t.lv || 1) - 1) * (1 + CROWN.dmg * Math.max(0, crownSt(t))) * (R.stormT > 0 ? 0.5 : 1), K = TW2.k[t.type] * TWK();
       if (t.type === 'nk') { const hit = [cand[0]]; while (hit.length < TW2.chain.n) { const l = hit.at(-1), nx = R.units.find(o => o.alive && o.d > 0 && !hit.includes(o) && !R.sb[o.strain].dive && Math.hypot(o.x - l.x, o.y - l.y) < TW2.chain.r); if (!nx) break; hit.push(nx); }
         R.bolts = R.bolts || []; R.bolts.push({ pts: [[ox, oy], ...hit.map(h => [h.x, h.y - 7])], t: 0.22, color: d.color }); hit.forEach((h, i) => damage(h, spitK(h) * K * tk * Math.pow(TW2.chain.decay, i), t)); sfx('shot'); t.cd = rate * jam; t.recoil = 1; continue; }
-      const tg = cand[0]; sfx('shot'); R.shots.push({ x: ox, y: oy, tg, tw: t, dmg: spitK(tg) * K * tk, splash: 0, color: d.color, sp: t.type === 'tcell' ? 900 : 620 }); t.cd = rate * jam; t.recoil = 1; continue; }
+      const tg = cand[0]; sfx('shot'); R.shots.push({ x: ox, y: oy, sx: ox, sy: oy, tg, tw: t, k: t.type, dmg: spitK(tg) * K * tk, splash: 0, color: d.color, sp: t.type === 'tcell' ? 1100 : 620 }); t.cd = rate * jam; t.recoil = 1; continue; }
     if (B3 && !d.sniper && !window.__noSpit) { const rr = SPIT.r * Math.pow(ALG.lvR, (t.lv || 1) - 1), pool = cand.slice(0, 30); let best = pool[0], bn = -1; const crK = (1 + CROWN.dmg * Math.max(0, crownSt(t))) * TWK();
       for (const c of pool) { let n = 0; for (const o of pool) if (Math.hypot(o.x - c.x, o.y - c.y) < rr) n++; if (n > bn) { bn = n; best = c; } }
       sfx('shot'); R.shots.push({ spit: true, x: ox, y: oy, sx: ox, sy: oy, tx: best.x, ty: best.y, t: 0, T: SPIT.fly, r: rr, lvK: Math.pow(ALG.lvDmg, (t.lv || 1) - 1) * crK, storm: R.stormT > 0, tw: t, color: d.color }); t.cd = rate * jam * (d.multi ? 1.6 : 1); t.recoil = 1; continue; }
@@ -4289,9 +4289,10 @@ function render(time) {
   if (stealthOn()) drawStealth(time);
   if (R.ta && !stealthOn()) { if (R.gap > 0) { ctx.save(); ctx.globalAlpha = 0.25 + 0.15 * Math.sin(time * 10); ctx.strokeStyle = '#9fff6a'; ctx.lineWidth = 14; ctx.strokeRect(0, 0, W, H); ctx.restore(); }
     const left = R.T - R.time; if (left <= 10 && !R.cleared) { const k = (10 - left) / 10, gr = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.75); gr.addColorStop(0, 'rgba(160,0,0,0)'); gr.addColorStop(1, `rgba(160,0,0,${0.15 + 0.3 * k * (0.6 + 0.4 * Math.sin(time * 8))})`); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H); } }
-  for (const p of R.shots) if (p.spit) { const k = Math.min(1, p.t / p.T); ctx.save(); ctx.globalAlpha = 0.25 + 0.35 * k; ctx.strokeStyle = '#ff5040'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.ellipse(p.tx, p.ty, p.r, p.r * 0.6, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 0.18 * k; ctx.fillStyle = '#ff5040'; ctx.fill(); ctx.globalAlpha = 1; ctx.fillStyle = '#d8f070'; ctx.strokeStyle = '#3a4a10'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, TAU); ctx.fill(); ctx.stroke(); ctx.restore(); }
+  for (const p of R.shots) if (p.spit) { const k = Math.min(1, p.t / p.T); ctx.save(); ctx.globalAlpha = 0.25 + 0.35 * k; ctx.strokeStyle = '#ff5040'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.ellipse(p.tx, p.ty, p.r, p.r * 0.6, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 0.18 * k; ctx.fillStyle = '#ff5040'; ctx.fill(); ctx.globalAlpha = 1; ctx.fillStyle = B3 ? (p.color || '#ff9a4d') : '#d8f070'; ctx.strokeStyle = B3 ? '#4a1a08' : '#3a4a10'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, B3 ? 7.5 : 6, 0, TAU); ctx.fill(); ctx.stroke(); if (B3) { ctx.fillStyle = 'rgba(255,240,200,.7)'; ctx.beginPath(); ctx.arc(p.x - 2.5, p.y - 2.5, 2.5, 0, TAU); ctx.fill(); } ctx.restore(); }
   drawBolts();
-  for (const p of R.shots) { if (p.spit) continue; const r = p.big ? 4 : 2.5; ctx.fillStyle = p.color; ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(p.x, p.y, r * 2.2, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill(); }
+  for (const p of R.shots) { if (p.spit || p.k !== 'tcell') continue; const u = p.tg, dx = u.x - p.sx, dy = u.y - 7 - p.sy, l = Math.hypot(dx, dy) || 1; ctx.save(); ctx.lineCap = 'round'; for (const [w, c, a] of [[7, p.color, 0.35], [3, p.color, 1], [1.2, '#fff', 1]]) { ctx.globalAlpha = a; ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(p.x - dx / l * 34, p.y - dy / l * 34); ctx.lineTo(p.x, p.y); ctx.stroke(); } ctx.restore(); }
+  for (const p of R.shots) { if (p.spit || p.k === 'tcell') continue; const r = p.big ? 4 : p.k === 'neutro' ? 3 : 2.5; if (p.k === 'neutro') { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = p.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - (p.tg.x - p.x) * 0.08, p.y - (p.tg.y - 7 - p.y) * 0.08); ctx.stroke(); ctx.restore(); } ctx.fillStyle = p.color; ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(p.x, p.y, r * 2.2, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill(); }
   for (const f of R.rings) { ctx.save(); ctx.globalAlpha = Math.min(1, f.t * 2.5) * (f.wide ? 0.8 : 0.6); ctx.strokeStyle = f.color; ctx.lineWidth = f.wide ? 10 : 3; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.stroke(); ctx.restore(); }
   for (const f of R.fx) { if (f.color) { ctx.globalAlpha = f.t * 3; ctx.fillStyle = f.color; ctx.beginPath(); ctx.arc(f.x, f.y, 3, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
     else drawSprite(ctx, IMG[f.img || 'hit'], f.x, f.y, f.s * (f.img ? 1 : 1.4 - f.t), Math.min(1, f.t * 4)); }
@@ -6012,6 +6013,7 @@ canvas.addEventListener('pointerdown', e => {
   { const a = (run.abs || []).find(a => Math.hypot(a.x - x, a.y - y) < 34); if (a) return pickAb(a); }
   if (false) { const f = map.forks.find(f => Math.hypot(f.sx - x, f.sy - y) < 30); if (f) { f.sw = f.sw === 'A' ? 'B' : 'A'; toast(f.sw === 'B' ? '지름길로! (많이 지나가면 면역이 적응해요)' : '원래 길로'); return; } }
   if (!aiming && !placing) { const t = run.towers.find(t => Math.hypot(t.x - x, t.y - 20 - y) < 26);
+    if (t && B3) { const d = TOWERS[t.type], cs = crownSt(t); $('hint').textContent = `${TW2.nm[t.type]} · ${TW2.mode[t.type] || ''} · 처치 ${t.kills || 0}${cs >= 0 ? ` · 👑 ${cs}단계` : ''}`; float(clamp(t.x, 70, W - 70), t.y - 64, `${TW2.nm[t.type]} ${TW2.mode[t.type] || ''} · 처치 ${t.kills || 0}`, d.color, 13); run.rings.push({ x: t.x, y: t.y - 20, r: 8, R: t.range, t: 0.6, color: d.color }); return; }
     if (t) { const d = TOWERS[t.type]; $('hint').textContent = `${d.name}: ${d.desc} · 사거리 ${d.range} · 처치 ${t.kills || 0}${d.aura ? '' : ` · ${TOWER_TIP[t.type]}`}`; run.rings.push({ x: t.x, y: t.y - 20, r: 8, R: t.range, t: 0.5, color: d.color }); return; } }
   if (aiming) {
     const t = run.towers.filter(t => !t.converted).sort((a, b) => Math.hypot(a.x - x, a.y - 20 - y) - Math.hypot(b.x - x, b.y - 20 - y))[0];
@@ -6044,5 +6046,5 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-1945</div></body>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1123-2000</div></body>
 </html>
