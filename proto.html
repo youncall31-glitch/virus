@@ -2886,6 +2886,10 @@ function brPaths(fd, sx, sy, gx, gy, n, box) {
   for (const x of xs) raws.push([[x, sy], [x, gy]]); for (const y of ys) raws.push([[sx, y], [gx, y]]);
   for (const x of xs) for (const y of ys) { raws.push([[sx, y], [x, y], [x, gy]]); raws.push([[x, sy], [x, y], [gx, y]]); }
   for (let i = 0; i < 2500; i++) { const x1 = R(xs), x2 = R(xs), y1 = R(ys), y2 = R(ys); raws.push([[sx, y1], [x1, y1], [x1, y2], [x2, y2], [x2, gy]]); raws.push([[x1, sy], [x1, y1], [x2, y1], [x2, y2], [gx, y2]]); }
+  // 구불구불: 가로·세로를 번갈아 3~5번 더 꺾는 길
+  for (let i = 0; i < 3500; i++) { const k = 3 + Math.floor(rnd() * 3), hz = rnd() < 0.5, mid = []; let cx = sx, cy = sy;
+    for (let j = 0; j < k; j++) { if ((j % 2 === 0) === hz) cx = R(xs); else cy = R(ys); mid.push([cx, cy]); }
+    if ((k % 2 === 0) === hz) { mid.push([gx, cy]); } else { mid.push([cx, gy]); } raws.push(mid); }
   const inB = ([x, y]) => x >= box.x0 - 1 && x <= box.x1 + 1 && y >= box.y0 - 1 && y <= box.y1 + 1, L0 = Math.abs(gx - sx) + Math.abs(gy - sy);
   const cands = [];
   for (const mid of raws) { const raw = [[sx, sy], ...mid, [gx, gy]].filter((p, i, a) => !i || Math.hypot(p[0] - a[i - 1][0], p[1] - a[i - 1][1]) > 1);
@@ -2897,21 +2901,27 @@ function brPaths(fd, sx, sy, gx, gy, n, box) {
     if (samplePath(P, 10).some(([x, y, d]) => d > 60 && trunk.len > 0 && distTo(trunk.pts, x, y) < 46)) continue;
     if (!brOverlapOk(P, [P].filter(() => false), 60, 80)) continue; P.raw = raw; cands.push(P); }
   if (!cands.length) return brWrap([mkPath([[sx, sy], [gx, gy]])]);
-  // 조합 고르기: 서로 나란히 겹치지 않고 · 길이가 비슷하고(가장 긴 게 가장 짧은 것의 1.6배 이하) · 다리는 1개가 제일 좋음
-  const ok2 = (A, B) => brOverlapOk(A, [B], 60, 80) && brOverlapOk(B, [A], 60, 80);
+  // 조합 고르기 (반드시): 처음 꺾는 방향이 서로 달라 바로 갈라지고 · 나란히 겹치지 않고 · 다리는 길 30~80% 지점에서만
+  // (가능하면): 다리 정확히 1개 · 길이 비슷 · 많이 구불구불
+  const dirOf = P => { const [x0, y0] = P.raw[0], [x1, y1] = P.raw[1]; return Math.abs(x1 - x0) > Math.abs(y1 - y0) ? (x1 > x0 ? 'R' : 'L') : (y1 > y0 ? 'D' : 'U'); };
+  const pairC = new Map(), pair = (A, B) => { const k = cands.indexOf(A) + ',' + cands.indexOf(B); if (pairC.has(k)) return pairC.get(k);
+    let r = null; if (brOverlapOk(A, [B], 60, 80) && brOverlapOk(B, [A], 60, 80)) { r = { cr: [], bad: false };
+      for (const c of brCross(A, B, 46, 60)) { if (Math.hypot(c.x - sx, c.y - sy) < 40 || Math.hypot(c.x - gx, c.y - gy) < 40) continue; const fa = nearestD(A.pts, A.cum, c.x, c.y) / A.len, fb = nearestD(B.pts, B.cum, c.x, c.y) / B.len; if (fa < 0.3 || fb < 0.3 || fa > 0.8 || fb > 0.8) r.bad = true; if (fa * A.len < 180 || fb * B.len < 180 || (1 - fa) * A.len < 110 || (1 - fb) * B.len < 110) r.never = true; r.cr.push({ ...c, ang: c.ang }); } }
+    pairC.set(k, r); return r; };
   let best = null;
-  for (let t = 0; t < 260; t++) { const set = [R(cands)];
-    for (let k = 1; k < n; k++) { let found = null; for (let q = 0; q < 60 && !found; q++) { const c = R(cands); if (set.includes(c)) continue; if (set.every(S => ok2(S, c))) found = c; } if (!found) break; set.push(found); }
+  for (const strict of [2, 1, 0]) { if (best) break;
+  for (let t = 0; t < 1600; t++) { const set = [R(cands)], used = new Set([dirOf(set[0])]);
+    for (let k = 1; k < n; k++) { let found = null; for (let q = 0; q < 50 && !found; q++) { const c = R(cands); if (set.includes(c) || (strict >= 2 && used.has(dirOf(c)))) continue; if (set.every(S => { const p = pair(S, c); return p && !p.never && (strict < 1 || !p.bad); })) found = c; } if (!found) break; set.push(found); used.add(dirOf(found)); }
     if (set.length < n) continue;
-    const lens = set.map(P => P.len), ratio = Math.max(...lens) / Math.min(...lens); if (ratio > 1.7) continue;
-    let cr = 0, near = 0; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) for (const c of brCross(set[a], set[b], 50, 70)) { cr++; if (Math.hypot(c.x - sx, c.y - sy) < 140 || Math.hypot(c.x - gx, c.y - gy) < 110) near++; }
-    let spread = 1e9; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) { const S = samplePath(set[a], 24).filter(([, , d]) => d > 80 && d < set[a].len - 90); if (S.length) spread = Math.min(spread, S.reduce((m, [x, y]) => m + distTo(set[b].pts, x, y), 0) / S.length); }
-    const score = -near * 90 - Math.abs(cr - 1) * 60 - (ratio - 1) * 80 + Math.min(spread, 160) + set.reduce((m, P) => m + P.raw.length, 0) * 4;
-    if (!best || score > best.score) best = { set, score }; }
+    const lens = set.map(P => P.len), ratio = Math.max(...lens) / Math.min(...lens); if (ratio > 1.9) continue;
+    let cr = 0; for (let a = 0; a < set.length; a++) for (let b = a + 1; b < set.length; b++) cr += pair(set[a], set[b]).cr.length;
+    const score = (cr === 1 ? 200 : cr === 0 ? 0 : -80 * (cr - 1)) - (ratio - 1) * 120 + set.reduce((m, P) => m + Math.min(P.raw.length, 7), 0) * 6;
+    if (!best || score > best.score) best = { set, score }; } }
+  if (!best && n > 2) return brPaths(fd, sx, sy, gx, gy, n - 1, box);   // 세 갈래가 안 나오는 지도는 두 갈래로
   if (!best) { const set = [cands.sort((a, b) => a.len - b.len)[0]]; return brWrap(set); }
-  return brWrap(best.set.sort((a, b) => a.pts[Math.floor(a.pts.length / 2)][0] - b.pts[Math.floor(b.pts.length / 2)][0])); }
-function brWrap(list) { const F = list.map((P, k) => ({ d1: map.brD0, d2: map.len, pts: P.pts, cum: P.cum, len: P.len, sw: 'BR', br: k, pass: 0, adapt: 0, sx: -999, sy: -999 }));
-  map.bridges = []; for (let a = 1; a < F.length; a++) for (let b = 0; b < a; b++) for (const c of brCross(F[a], F[b], 50, 70)) map.bridges.push({ ...c, top: a }); return F; }
+  return brWrap(best.set.sort((a, b) => a.pts[Math.floor(a.pts.length / 2)][0] - b.pts[Math.floor(b.pts.length / 2)][0]), (A, B) => (pair(A, B) || pair(B, A) || { cr: [] }).cr, best.set); }
+function brWrap(list, crossOf) { const F = list.map((P, k) => ({ d1: map.brD0, d2: map.len, pts: P.pts, cum: P.cum, len: P.len, sw: 'BR', br: k, pass: 0, adapt: 0, sx: -999, sy: -999 }));
+  map.bridges = []; for (let a = 1; a < F.length; a++) for (let b = 0; b < a; b++) for (const c of (crossOf ? crossOf(list[a], list[b]) : brCross(F[a], F[b], 50, 70))) { const ang = (() => { for (let i = 1; i < F[a].pts.length; i++) if (distTo([F[a].pts[i - 1], F[a].pts[i]], c.x, c.y) < 2) return Math.atan2(F[a].pts[i][1] - F[a].pts[i - 1][1], F[a].pts[i][0] - F[a].pts[i - 1][0]); return c.ang; })(); map.bridges.push({ ...c, ang, top: a }); } return F; }
 const brTowers = k => run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura && t.br === k).length;
 // 갈래 k로 둥지의 frac만큼 출발
 function sendBranch(k, frac) {
@@ -5085,7 +5095,7 @@ const ui = {
       if ($('dpSpr')) $('dpSpr').onclick = () => { spreadTap(); ui.tickDeploy(); };
       $('deploy').querySelectorAll('.brb').forEach(b => { const k = +b.dataset.b, cnt = b.querySelector('.cnt'), hf = b.querySelector('.hf');
         const stop = () => { ui._hold = null; b.classList.remove('hold'); cnt.hidden = true; hf.style.width = '0'; };
-        b.onpointerdown = e => { if (!run.br || k >= run.br.n) return toast(`3번째 길은 잠입 때 ${BR.n3}칸 이상 오염하면 열려요`); if (run.endAt) return; e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (_) {}
+        b.onpointerdown = e => { if (!run.br || k >= run.br.n) return toast((run.sthSeg || 0) >= BR.n3 ? '이 지도는 길이 2갈래예요' : `3번째 길은 잠입 때 ${BR.n3}칸 이상 오염하면 열려요`); if (run.endAt) return; e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (_) {}
           const H = ui._hold = { k, t0: performance.now() }; b.classList.add('hold'); cnt.hidden = false;
           const loop = () => { if (ui._hold !== H) return; const f = ui.holdFrac(H); cnt.textContent = `${Math.max(1, Math.round(nestTotal() * f))}마리`; hf.style.width = (f * 100) + '%'; requestAnimationFrame(loop); }; loop(); };
         b.onpointerup = () => { const H = ui._hold; if (!H || H.k !== k) return; const f = ui.holdFrac(H); stop(); sendBranch(k, f); ui.tickDeploy(); };
@@ -5158,7 +5168,7 @@ const ui = {
         const sb2 = $('dpSpr'); if (sb2) { const cd = run.sprCd == null ? SPR.first : run.sprCd, ok = cd <= 0, tot = SPR.first > 0 && (run.sprN || 0) === 0 ? SPR.first : SPR.cd;
           sb2.className = 'dp v' + (ok ? ' full' : ''); sb2.querySelector('small').textContent = ok ? `둥지 +${Math.round(nestCap() * (1 + 0.1 * (teamRole().swarm || 0)))}` : `준비 ${Math.ceil(cd)}s`; sb2.querySelector('i').style.width = (ok ? 100 : (1 - cd / tot) * 100) + '%'; }
         { const h = $('hint'); if (h && run.algInit) { const al = run.towers.filter(t => t.hp > 0 && !TOWERS[t.type].aura).length; h.textContent = `🧪 면역 경보 ${Math.floor((run.alg || 0) * 100)}% · 탑 ${al}/${twMax(run.st.organ.id)}${run.hd && run.hd.st === 'hid' ? ' · 숨는 중엔 안 참' : ''} · ❓`; } }
-        if (run.br) $('deploy').querySelectorAll('.brb').forEach(b => { const k = +b.dataset.b, sm = b.querySelector('small'); if (k >= run.br.n) { sm.textContent = `🔒 잠입 ${BR.n3}칸↑`; return; } const up = run.br.upT[k] && run.time - run.br.upT[k] < 5;
+        if (run.br) $('deploy').querySelectorAll('.brb').forEach(b => { const k = +b.dataset.b, sm = b.querySelector('small'); if (k >= run.br.n) { sm.textContent = (run.sthSeg || 0) >= BR.n3 ? '이 지도는 2갈래' : `🔒 잠입 ${BR.n3}칸↑`; return; } const up = run.br.upT[k] && run.time - run.br.upT[k] < 5;
           sm.innerHTML = `탑 ${brTowers(k)}${up ? ' <b style="color:#ff9a7a">▲</b>' : ''}`; b.classList.toggle('pair', corePair() === 'brk'); });
         const pb = $({ brk: 'dpAll', hide: 'dpHide', spr: 'dpSpr' }[corePair()]); if (pb) { pb.classList.add('pair'); const bk = run.cmbBack && run.cmbBack.t > 0; pb.classList.toggle('combo', bk); if (bk) pb.querySelector('small').textContent = `🔥 지금! ${run.cmbBack.t.toFixed(1)}s`; } }
       const ob = $('dpOut'); if (ob) { ob.className = 'dp v' + (placing ? ' gapOn' : run.outLeft ? '' : ' done'); ob.querySelector('small').textContent = `남은 ${run.outLeft}`; }
