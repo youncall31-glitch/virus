@@ -768,6 +768,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .dp.atk.big { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; } .dp.atk.big b { font-size: 18px; } .dp.atk.big small { font-size: 11px; opacity: .8; }
   #top .stage b { font-size: 14px; }
   .ph #hint { font-size: 12px !important; color: #e0d2bf !important; } #info2 .plate { font-size: 12.5px; } #liveBox b { font-size: 14px; }
+  .hubCoreLv { display: inline-flex; align-items: center; gap: 3px; font: 13px Jua, sans-serif; color: #ffd24a; padding: 0 9px; border-color: #8a6a20 !important; } .hubCoreLv span { color: #e8dccb; font-size: 11.5px; } .hubCoreLv b { color: #fff; }
 </style>
 </head>
 <body>
@@ -809,7 +810,7 @@ img.legend { animation: legGlow 3s linear infinite; }
       <button class="plate modeBtn" id="bMode" style="display:none"></button>
       <button class="plate modeBtn" id="bReset" style="display:none"></button>
       <button class="plate modeBtn" id="bDex" aria-label="도감" style="display:none"><img src="assets/codex.png" alt="" style="width:22px;height:22px"></button><button class="plate modeBtn" id="bQuest" aria-label="오늘의 임무" style="min-width:40px">📋</button><button class="plate modeBtn" id="bSnd" aria-label="설정" style="min-width:40px">⚙</button>
-      <div class="plate dna"><img src="assets/dna.png" alt=""><span id="hubDna">0</span></div>
+      <button class="plate hubCoreLv" id="hubCore" aria-label="본체 레벨">👑 <span>본체</span> <b id="hubCoreLv">Lv 1</b></button><div class="plate dna"><img src="assets/dna.png" alt=""><span id="hubDna">0</span></div>
     </div>
     <div class="view" id="viewBody">
       <div id="bodyWrap"></div>
@@ -1736,7 +1737,7 @@ function absorb(g) {
 const MAXLV = CORE_MAX, MAXSTAR = 5;
 // ★ 바이러스 레벨 상한 = 본체 레벨. 바이러스 3마리가 상한에 닿으면 본체가 저절로 진화한다 (DNA 안 듦)
 const STAR_CAP = [0, 10, 15, 20, 25, 30], lvCap = g => g ? STAR_CAP[clamp(g.star || 1, 1, 5)] : Math.max(1, coreL()), CORE_NEED = 3;   // ★ 레벨 상한 = 별 (★1 Lv10 … ★5 Lv30)
-const lvCost = g => Math.round((24 + 8.5 * (g.lv || 1)) * (0.85 + 0.15 * g.star));   // 강화 비용 추가 −30%   // 강화 비용 25% 인하
+const lvCost = g => g && g.core ? coreCost(g.lv || 1) : Math.round((24 + 8.5 * (g.lv || 1)) * (0.85 + 0.15 * g.star));   // ★ 본체 카드는 카드 창에서 올려도 본체 강화와 같은 비용   // 강화 비용 추가 −30%   // 강화 비용 25% 인하
 // ★ 돌파: ★5 Lv5(빨간 게이지 끝)를 넘어 DNA로 계속 강해진다. 한 번에 공격·체력 +8%, 마릿수 +4%. 비용은 점점 오름
 const tierCost = g => 150 + 75 * (g.tier || 0), tierMul = g => (1 + 0.08 * (g.tier || 0)) * (g.mut ? 1.3 : 1);
 // ★ 변성: 돌파를 계속 쌓으면 변성 바이러스가 된다. 약한 등급일수록 오래 걸림 (일반 12 · 희귀 9 · 영웅·신종 6 · 전설 4번)
@@ -1760,7 +1761,9 @@ function starUp(g) { if (g.star >= MAXSTAR) return 'max'; const rk = riskOf(g), 
 function levelUp(g) { const c = lvCost(g);
   if ((g.lv || 1) >= MAXLV) return 'max';
   if ((g.lv || 1) >= lvCap(g)) return 'cap';
-  if (save.dna < c) return 'dna'; save.dna -= c; g.lv = (g.lv || 1) + 1; coreCheck(); return 'lv'; }
+  if (save.dna < c) return 'dna'; save.dna -= c; g.lv = (g.lv || 1) + 1;
+  if (g.core) { if (g.lv > (save.coreL || 0)) { save.coreL = g.lv; giveReward(coreGift(save.coreL)); ui.coreUpQ = (ui.coreUpQ || []).concat([g.lv]); } normSquad(); }
+  coreCheck(); return 'lv'; }
 // 지금 DNA로 강화할 수 있는 편성 카드 수 (지면 안내·카드 표시)
 const canUp = g => (g.lv || 1) < lvCap(g) && save.dna >= lvCost(g);
 const upCount = () => { let d = save.dna, n = 0; const sq = slotGenes().filter(Boolean).map(g => ({ lv: g.lv || 1, star: g.star })); for (let k = 0; k < 200; k++) { const g = sq.filter(x => x.lv < lvCap()).sort((a, b) => a.lv - b.lv)[0]; if (!g) break; const c = lvCost(g); if (d < c) break; d -= c; g.lv++; n++; } return n; };
@@ -4840,7 +4843,7 @@ const ui = {
     $('squadRow').querySelectorAll('.sock[data-u]').forEach(b => b.onclick = () => { if (dragBlocked()) return; ui.detail(geneById(+b.dataset.u)); });
     $('squadRow').querySelectorAll('.sock.empty').forEach(b => b.onclick = () => { if (dragBlocked()) return; toast('아래 카드를 끌어다 놓아요'); });
     $('csCore').onclick = () => { if (dragBlocked()) return; $('squadRow').classList.toggle('big'); };
-    $('squadRow').querySelectorAll('.sock.lock').forEach(b => b.onclick = () => { toast(`본체를 Lv${slotNeed(+b.dataset.lock)}까지 키우면 열려요`); ui.coreModal(); });
+    $('squadRow').querySelectorAll('.sock.lock').forEach(b => b.onclick = () => { toast(`${slotNeedT(+b.dataset.lock)}에 열려요`); ui.coreModal(); });
   },
   // ★ 연구소 = 칸별 가로 줄(F) + 카드를 누르면 비교 시트(C). 보관함(전체 카드·교배)은 따로
   renderLab() {
@@ -6144,7 +6147,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-0950</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-1850</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6164,5 +6167,6 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   el.querySelector('#sbNever').onclick = () => { localStorage.setItem('sbDark', 'off'); el.remove(); };
 } catch (e) {} })();
 </script>
+<script>(function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 </body>
 </html>
