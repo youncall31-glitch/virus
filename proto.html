@@ -147,7 +147,7 @@
   .labHead { display: flex; gap: 8px; align-items: center; }
   .lhCore { position: relative; width: 92px; height: 92px; flex: none; border: 0; padding: 0; border-radius: 50%; background: radial-gradient(#4a2240, #1a0d14 70%); }
   .lhCore img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; } .lhCore.t1 img { filter: drop-shadow(0 0 8px #ffd27a); } .lhCore.t2 img, .lhCore.t3 img { filter: drop-shadow(0 0 12px #ffd27a); }
-  .lhCore .csLv { bottom: -4px; } .lhCore .crown { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 20px; font-style: normal; }
+  .lhCore .csLv { bottom: -4px; font: 13px Jua, sans-serif; padding: 1px 9px; } .lhCore .crown { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 20px; font-style: normal; }
   #labNums.lhStats { flex: 1; display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 4px !important; } #labNums.lhStats .tile b { font-size: 15px; } #labNums.lhStats .tile .lb { font-size: 10px; }
   .lhBtns { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; } .lhBtns .btn { min-height: 38px; font-size: 13px; }
   #railList { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -8px; padding: 0 0 6px 8px; scrollbar-width: none; } #railList::-webkit-scrollbar { display: none; }
@@ -641,6 +641,7 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmS { position: relative; border-radius: 12px; border: 2px solid #4a2c33; background: #1d1014; padding: 3px 2px 4px; color: #f3e6d4; text-align: center; min-height: 90px; font-family: inherit; }
   .fmS.on { border-color: #ffd24a; box-shadow: 0 0 10px rgba(255,210,74,.5); } .fmS.lock { opacity: .5; border-style: dashed; } .fmS.comp { border-color: #8a5ac0; background: #1a1022; }
   .fmS .fmL { display: block; font-size: 10.5px; color: #cdb8c8; white-space: nowrap; } .fmS img { width: 44px; height: 44px; object-fit: contain; display: block; margin: 2px auto 0; }
+  .fmS .fmSI { position: relative; display: block; padding-bottom: 6px; } .fmS .fmSLv { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); font: 11px Jua, sans-serif; font-style: normal; color: #ffd27a; background: #1a0f14; border: 1px solid #8a6a4a; border-radius: 999px; padding: 0 6px; white-space: nowrap; line-height: 15px; }
   .fmS b { display: block; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .fmE { display: grid; place-items: center; height: 44px; font-size: 22px; color: #6a5a5a; line-height: 1; } .fmE small { display: block; font-size: 10px; }
   .fmS .fmG { position: absolute; left: 6px; right: 6px; bottom: 2px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #c58cff var(--g), #3a2040 var(--g)); }
   .fmP { position: absolute; left: 50%; top: -10px; transform: translateX(-50%); padding: 0 6px; border-radius: 8px; font-size: 11px; font-weight: 900; background: #1d1014; border: 1.5px solid #8a7a6a; z-index: 2; white-space: nowrap; color: #cdb8c8; } .fmP.up { color: #9fff6a; border-color: #9fff6a; } .fmP.dn { color: #ff8a7a; border-color: #ff8a7a; }
@@ -4733,7 +4734,7 @@ const ui = {
     if ($('bSwap')) $('bSwap').onclick = () => ui.corePickList();
     if ($('bEvo')) $('bEvo').onclick = () => { if (coreGene() && L >= lvCap(coreGene())) { sfx('fail'); return toast(`★${coreGene().star} 본체는 Lv${lvCap(coreGene())}까지 · 카드를 눌러 ★을 올려요`); } if (save.dna < c) { sfx('fail'); return toast(`DNA가 부족해요 (${save.dna}/${c})`); }
       save.dna -= c; const cg = coreGene(); if (cg) cg.lv = L + 1; const first = L + 1 > (save.coreL || 0); if (first) { save.coreL = L + 1; giveReward(coreGift(save.coreL)); } normSquad(); quest('up'); persist(); $('hubDna').textContent = save.dna;
-      ui.coreUpQ = [L + 1]; ui.closeModal(); ui.coreUpShow(() => { ui.showHub('lab'); }); };
+      ui.coreUpQ = [L + 1]; ui.closeModal(); ui.showHub('lab'); ui.coreUpShow(); };   // ★ 축하 창 뒤 화면도 바로 새 레벨로
   },
   // 로드맵: Lv 1~20 길 (지나온 곳 ✓, 지금 금색)
   coreRoad() {
@@ -4899,7 +4900,7 @@ const ui = {
     const cg = compGene(), gv = save.rcG || 0, compOn = coreL() >= RC.lvComp;
     const pbest = pick ? ui.slotBest(pick, sq) : null;
     const sock = i => { const open = slotOpen(i), g = sq[i], no = pick && open && !canSlot(pick, i), pd = null, pv = pick && open && !no && g !== pick ? ui.slotPrev(pick, i) : null, isB = pbest && pbest.i === i;
-      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${isB ? ' bestS' : ''}${pv ? ' pv' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? rarBg(g) + ',#1a120e' : '#241a16'};border-color:${!pick && sel === i ? '#3ae0c0' : g ? 'rgba(255,255,255,.15)' : '#5a4430'}">${isB ? '<span class="fmBest">★ 추천</span>' : ''}<span class="fmL">${i < 4 ? SLOT_STAT[i] + (g && !pv && coreGene() && SLOT_MODE() ? ` <b style="color:${MAINST[ROLE_OF[g.strain]] === SLOT_KEY[i] || (i === 0 && ROLE_OF[g.strain] === 'heal') ? '#3ae0c0' : '#ff9a7a'}">+${Math.round(slotBonus(g, i, coreGene()) * (SLOT_KEY[i] === 'spd' ? SLOT_SPD : 1) * 100)}%</b>` : '') : '본체'}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? pimg(g) : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${pv ? '→ ' + sname(pick.strain) : g ? sname(g.strain) : open ? '비어 있음' : ''}</b>${pv ? `<span class="fmPv ${pv.match ? 'g' : 'o'}">+${pv.ob}→+${pv.nb}%${pv.match ? ' ✓' : ' 절반'}</span>` : ''}</button>`; };
+      return `<button class="fmS${!pick && sel === i ? ' on' : ''}${isB ? ' bestS' : ''}${pv ? ' pv' : ''}${pick && open && !no ? ' wig' : ''}${no ? ' no' : ''}${open ? '' : ' lock'}" data-fs="${i}" style="background:${g ? rarBg(g) + ',#1a120e' : '#241a16'};border-color:${!pick && sel === i ? '#3ae0c0' : g ? 'rgba(255,255,255,.15)' : '#5a4430'}">${isB ? '<span class="fmBest">★ 추천</span>' : ''}<span class="fmL">${i < 4 ? SLOT_STAT[i] + (g && !pv && coreGene() && SLOT_MODE() ? ` <b style="color:${MAINST[ROLE_OF[g.strain]] === SLOT_KEY[i] || (i === 0 && ROLE_OF[g.strain] === 'heal') ? '#3ae0c0' : '#ff9a7a'}">+${Math.round(slotBonus(g, i, coreGene()) * (SLOT_KEY[i] === 'spd' ? SLOT_SPD : 1) * 100)}%</b>` : '') : '본체'}</span>${pd != null ? `<span class="fmP ${pd > 0 ? 'up' : pd < 0 ? 'dn' : ''}">${pd > 0 ? '+' : ''}${pd}%</span>` : ''}${open ? (g ? `<span class="fmSI">${pimg(g)}<i class="fmSLv">Lv${g.lv || 1}</i></span>` : '<span class="fmE">+</span>') : `<span class="fmE">🔒<small>${slotNeedT(i)}</small></span>`}<b>${pv ? '→ ' + sname(pick.strain) : g ? sname(g.strain) : open ? '비어 있음' : ''}</b>${pv ? `<span class="fmPv ${pv.match ? 'g' : 'o'}">+${pv.ob}→+${pv.nb}%${pv.match ? ' ✓' : ' 절반'}</span>` : ''}</button>`; };
     const cgv = null;
     const comp = RC.lvComp > 100 ? '' : `<button class="fmComp${compOn ? '' : ' lock'}${pick && compOn ? ' wig' : ''}" data-fc="1" aria-label="동반">${cgv ? `<span class="fmP up">🎁${cgv.pp > 0 ? '+' + cgv.pp + '%' : ''}</span>` : ''}<span class="fcRing" style="--g:${compOn && cg ? Math.min(100, (gv % 1) * 100 || (gv >= 1 ? 100 : 0)).toFixed(0) : 0}%">${!compOn ? '🔒' : cg ? pimg(cg) : '+'}</span><small>🤝 동반${!compOn ? ` Lv${RC.lvComp}` : gv >= 1 ? ' 🧬' : ''}</small></button>`;
     const list = sortGenes(save.genes);
@@ -5155,7 +5156,7 @@ const ui = {
       ui.renderGrow(g.uid); $('hubDna').textContent = save.dna; });
   },
   // 본체 진화 축하 (바이러스가 상한에 닿아 저절로)
-  coreUpShow(after) { const q = ui.coreUpQ || []; ui.coreUpQ = []; if (!q.length) return after && after(); const L = q[q.length - 1];
+  coreUpShow(after) { const q = ui.coreUpQ || []; ui.coreUpQ = []; if (!q.length) return after && after(); try { if (hubTab === 'lab' && !$('hub').hidden) ui.renderLab(); } catch (e) {} const L = q[q.length - 1];
     const gifts = q.map(l => giftTxt(coreGift(l))).join(' · '), ms = q.map(l => CORE_MILE.find(m => m.l === l)).filter(Boolean);
     sfx('clear'); buzz([30, 20, 80]); ui.coreGot = ms[ms.length - 1] || null;
     ui.modal(`<div class="newfx">본체 진화!</div><div class="heroWrap">${baseCore() || slotFill().length ? `<img src="${slotFill().length ? imgSrc(mineStats(slotFill()).img, 'assets/rhino.png') : baseCore()}" style="width:120px;height:120px;object-fit:contain" alt="">` : ''}</div>
@@ -6147,7 +6148,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1124-1940</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1125-0010</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
