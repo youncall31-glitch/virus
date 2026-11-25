@@ -810,8 +810,8 @@ img.legend { animation: legGlow 3s linear infinite; }
       <div class="host" id="hostTxt"></div>
       <button class="plate modeBtn" id="bMode" style="display:none"></button>
       <button class="plate modeBtn" id="bReset" style="display:none"></button>
-      <button class="plate modeBtn" id="bDex" aria-label="도감" style="display:none"><img src="assets/codex.png" alt="" style="width:22px;height:22px"></button><button class="plate modeBtn" id="bQuest" aria-label="오늘의 임무" style="min-width:40px">📋</button><button class="plate modeBtn" id="bSnd" aria-label="설정" style="min-width:40px">⚙</button>
-      <button class="plate hubCoreLv" id="hubCore" aria-label="본체 레벨">👑 <span>본체</span> <b id="hubCoreLv">Lv 1</b></button><div class="plate dna"><img src="assets/dna.png" alt=""><span id="hubDna">0</span></div>
+      <button class="plate modeBtn" id="bDex" aria-label="도감" style="display:none"><img src="assets/codex.webp" alt="" style="width:22px;height:22px"></button><button class="plate modeBtn" id="bQuest" aria-label="오늘의 임무" style="min-width:40px">📋</button><button class="plate modeBtn" id="bSnd" aria-label="설정" style="min-width:40px">⚙</button>
+      <button class="plate hubCoreLv" id="hubCore" aria-label="본체 레벨">👑 <span>본체</span> <b id="hubCoreLv">Lv 1</b></button><div class="plate dna"><img src="assets/dna.webp" alt=""><span id="hubDna">0</span></div>
     </div>
     <div class="view" id="viewBody">
       <div id="bodyWrap"></div>
@@ -837,7 +837,7 @@ img.legend { animation: legGlow 3s linear infinite; }
 
     </div>
     <div class="view" id="viewHero" hidden></div>
-    <nav class="navBar"><button class="nv" id="tabBody"><img src="assets/tab_body.png" alt="">지도</button><button class="nv" id="tabLab"><img src="assets/tab_lab.png" alt="">연구소</button><button class="navGo" id="bGo">출격</button><button class="nv" id="navPull"><span>🎰</span>뽑기</button><button class="nv" id="tabHero"><img src="assets/codex.png" alt="">도감</button></nav>
+    <nav class="navBar"><button class="nv" id="tabBody"><img src="assets/tab_body.webp" alt="">지도</button><button class="nv" id="tabLab"><img src="assets/tab_lab.webp" alt="">연구소</button><button class="navGo" id="bGo">출격</button><button class="nv" id="navPull"><span>🎰</span>뽑기</button><button class="nv" id="tabHero"><img src="assets/codex.webp" alt="">도감</button></nav>
   </div>
 
   <div class="plate" id="hubTip" hidden></div>
@@ -907,7 +907,7 @@ const ROLE_TRAIT = { tank: '방해 절반 · 탑 물기 ×1.7', heal: '매초 �
 const roleBadge0 = rk => { const r = ROLES[rk]; return r ? `<span class="role" style="background:${r.col}"><svg viewBox="0 0 24 24">${r.svg}</svg></span>` : ''; };
 const roleBadge = (st, big) => { const r = ROLES[ROLE_OF[st]]; if (!r) return ''; const ro = typeof ROUTE !== 'undefined' && STRAINS[st] && !STRAINS[st].hero && st !== 'mine' ? ROUTE[routeOf(st)] : null; return `<span class="role${big ? ' big' : ''}" style="background:${r.col}" title="${r.name}"><svg viewBox="0 0 24 24">${r.svg}</svg></span>${ro ? `<span class="rtB" title="${ro.n}" style="border-color:${ro.c}">${ro.ic}</span>` : ''}`; };
 const SCOLOR = { rhino:'#ffd27a', adeno:'#ff9a4d', noro:'#f2e04a', herpes:'#c79cff', flu:'#6fe0ff', rota:'#7fffc8', retro:'#9fff6a', rabies:'#ff5a6a', rsv:'#ff8fd0', measles:'#ff6a3a', hepb:'#ffe066', hpv:'#d8b088' };
-// ★2 배양 때 고르는 진화 갈래: 능력 + 외형(look)이 함께 바뀐다. 그림은 assets/{계통}_{A|B}.png (없으면 기본 그림 + 갈래 표식)
+// ★2 배양 때 고르는 진화 갈래: 능력 + 외형(look)이 함께 바뀐다. 그림은 assets/{계통}_{A|B}.webp (없으면 기본 그림 + 갈래 표식)
 const BRANCHES = {
   rhino:  { A:{ name:'출아 쌍둥이', desc:'출격 수 +25%, 자가 증식 상한 +20', look:'몸에서 작은 쌍둥이가 돋아나 붙어 있다' },
             B:{ name:'점막 흡착', desc:'감염력 +25%', look:'빨판 손과 끈적한 점액 망토' } },
@@ -1044,7 +1044,7 @@ for (const [id, L] of Object.entries(LEGENDS)) {
   BRANCHES[id] = { A:{ name:'전설 각성', desc:'감염력 +20%', look:'몸 둘레에 황금 가시 왕관' }, B:{ name:'전설 결속', desc:'방어력 +30%', look:'금빛 분신이 붙은 몸' } };
 }
 
-// ★ 새 바이러스 8종: 그림은 기존 바이러스를 물들여 임시로 쓰고(전용 그림이 오면 assets/<id>.png 로 교체), 스킬이 확실히 다르게
+// ★ 새 바이러스 8종: 그림은 기존 바이러스를 물들여 임시로 쓰고(전용 그림이 오면 assets/<id>.webp 로 교체), 스킬이 확실히 다르게
 const NEWV = {
   varicella: { name:'수두',        role:'물집 증식', rarity:0, base:'rhino',   tint:'#ff8a6a', rolek:'swarm',   atk:0.2,  hp:30, spd:62, count:40, size:13, skill:{ id:'blister',  name:'물집 폭발', cd:38, desc:'살아 있는 바이러스 절반이 물집처럼 터져 하나씩 더 생겨요' } },
   mumps:     { name:'볼거리',      role:'부풀기 방패', rarity:0, base:'adeno',  tint:'#f0c070', rolek:'tank',    atk:0.14, hp:95, spd:48, count:14, size:15, skill:{ id:'swell',    name:'퉁퉁 부풀기', cd:40, desc:'8초 동안 받는 피해 절반 + 계속 체력 회복' } },
@@ -1255,7 +1255,7 @@ const has = n => IMG[n] && IMG[n].naturalWidth > 0;
 function loadAssets() {
   return Promise.all(NAMES.map(n => new Promise(res => {
     const im = new Image(); im.onload = res; im.onerror = res;
-    im.src = `assets/${n}.${JPG.has(n) ? 'jpg' : 'png'}`; IMG[n] = im;
+    im.src = `assets/${n}.webp`; IMG[n] = im;
   })));
 }
 const OLC = new Map();
@@ -1331,7 +1331,7 @@ function bakeHero(id) {
 }
 const HEROURL = {};
 const heroImg = (id, lv = heroOf(id).lv) => { const f = 'hero_' + id + (lv >= 15 ? '15' : lv >= 10 ? '10' : ''); return has(f) ? IMG[f] : has('hero_' + id) ? IMG['hero_' + id] : IMG[id]; };
-function heroURL(id, lv) { return imgSrc(heroImg(id, lv), `assets/${HEROES[id].base}.png`); }
+function heroURL(id, lv) { return imgSrc(heroImg(id, lv), `assets/${HEROES[id].base}.webp`); }
 const SRC = new WeakMap();
 function imgSrc(im, fb) { if (!im) return fb; if (im.tagName === 'IMG') return im.naturalWidth ? im.src : fb; if (!SRC.has(im)) { try { SRC.set(im, im.toDataURL()); } catch (e) { return fb; } } return SRC.get(im); }
 // 전설 카드 그림: 전용 에셋(ebola·corona·hero_smallpox·flu1918)이 있으면 쓰고, 없으면 부모 그림을 금빛으로 물들여 굽는다
@@ -1354,7 +1354,7 @@ function buildHybridImgs() { for (const id of Object.keys(HEROES)) IMG[id] = has
 const cmpLine = (c, r) => [['감염', 'atk', 2], ['방어', 'hp', 0], ['배양', 'count', 0], ['속도', 'spd', 0]].map(([l, k, f]) => { const d = c[k] - r[k]; return `${l} ${c[k].toFixed(f)}${Math.abs(d) > (f ? 0.005 : 0.5) ? `<i class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '▲' : '▼'}${Math.abs(d).toFixed(f)}</i>` : ''}`; }).join(' · ');
 const sname = st => STRAINS[st].name.split(' (')[0];
 const gname = g => (g.mut ? '변성 ' : '') + STRAINS[g.strain].name + (g.mix ? `×${STRAINS[g.mix].name}` : '') + (genOf(g) >= 3 ? ` ${genOf(g)}세대` : '');
-function stImg(st) { return imgSrc(STRAINS[st].hero ? heroImg(st) : IMG[st], `assets/${(STRAINS[st].parents || [st])[0]}.png`); }
+function stImg(st) { return imgSrc(STRAINS[st].hero ? heroImg(st) : IMG[st], `assets/${(STRAINS[st].parents || [st])[0]}.webp`); }
 const MUTC = new Map();
 function bakeMut(im, role) {   // 변성 꾸밈: 공격형 왕관 · 마릿수형 카펫 · 체력형 어깨 반지 · 속도형 후광 · 회복형 날개 + 금빛 테두리
   if (!im || !(im.width || im.naturalWidth)) return im; if (MUTC.has(im) && MUTC.get(im)[role]) return MUTC.get(im)[role];
@@ -1377,7 +1377,7 @@ function bakeMut(im, role) {   // 변성 꾸밈: 공격형 왕관 · 마릿수�
 function portrait(g, br) {                               // 카드·모달용 이미지 { src, bk }
   if (STRAINS[g.strain].hero) return { src: heroURL(g.strain), bk: false };
   const b = br || (g.branch ? g.strain + g.branch : ''), im0 = unitImg(g.strain, g.star, b, g.mix), im = g.mut ? bakeMut(im0, ROLE_OF[g.strain]) : im0;
-  return { src: imgSrc(im, `assets/${(STRAINS[g.strain].parents || [g.strain])[0]}.png`), bk: !!(im0 && im0.bk) && !g.mut };
+  return { src: imgSrc(im, `assets/${(STRAINS[g.strain].parents || [g.strain])[0]}.webp`), bk: !!(im0 && im0.bk) && !g.mut };
 }
 const pimg = (g, cls = '', br) => { const p = portrait(g, br ? g.strain + br : ''), L = g.line || [], au = L.slice(2).map(x => SCOLOR[x] || '#e8a0ff');   // 3세대 이상: 윗대 조상의 색이 몸을 감싼다
   return `<img class="${cls}${p.bk ? ' bk' : ''}${g.shiny ? ' shiny' : ''}${STRAINS[g.strain] && STRAINS[g.strain].legend ? ' legend' : ''}" src="${p.src}" alt=""${au.length && !g.shiny ? ` style="filter:${au.map((c, i) => `drop-shadow(0 0 ${4 + i * 3}px ${c})`).join(' ')}"` : ''}>`; };
@@ -1594,7 +1594,7 @@ const coreStrain = () => { const g = coreGene(); return g ? g.strain : null; };
 const isCoreG = g => !!(g && g.core);
 // 본체 그림: 본체 레벨에 따라 성장 단계 그림으로 (예: 리노 → 리노 A → 리노 A2)
 const CORE_STAGE = { rhino: ['rhino', 'rhino_A', 'rhino_A2'], rota: ['rota', 'rota_A', 'rota3'], herpes: ['herpes', 'herpes_A', 'herpes3'] };
-const coreImg = () => { const st = coreStrain(); if (!st || st === 'smallpox') return null; if (!CORE_STAGE[st] && !has(st)) return IMG[st] ? imgSrc(IMG[st], null) : null; const L = CORE_STAGE[st] || [st], t = coreTier(); return `assets/${L[Math.min(L.length - 1, t >= 3 ? 2 : t >= 2 ? 1 : 0)]}.png`; };
+const coreImg = () => { const st = coreStrain(); if (!st || st === 'smallpox') return null; if (!CORE_STAGE[st] && !has(st)) return IMG[st] ? imgSrc(IMG[st], null) : null; const L = CORE_STAGE[st] || [st], t = coreTier(); return `assets/${L[Math.min(L.length - 1, t >= 3 ? 2 : t >= 2 ? 1 : 0)]}.webp`; };
 // ★ 적응: 그 기관에서 싸울 때마다 점수 (본체 +1, 동료 +0.5) → 3점이면 그 기관을 노리는 바이러스가 된다
 const ADAPT = { need: 10, core: 1, mate: 0 };   // 본체만 적응 (기관당 10판)
 const adaptOf = (g, org) => Math.min(ADAPT.need, ((g && g.adapt) || {})[org] || 0);
@@ -2461,7 +2461,7 @@ const wkBoss = () => WK_BOSSES[wkWeek() % WK_BOSSES.length];
 function wkSave() { const w = save.wk && save.wk.id === wkWeek() ? save.wk : (save.wk = { id: wkWeek(), best: 0, got: 0, day: '', n: 0 }); if (w.day !== today()) { w.day = today(); w.n = 0; } return w; }
 const wkOpen = () => save.tutDone && (save.host > 0 || doneCount() >= WK.unlock);
 const wkMul = (b, role) => b.weak.includes(role) ? 1.3 : b.strong.includes(role) ? 0.8 : 1;
-// 그림 파일(assets/boss_wk_*.png)이 있으면 그걸 쓰고, 없으면 알약에 얼굴을 그려 임시로
+// 그림 파일(assets/boss_wk_*.webp)이 있으면 그걸 쓰고, 없으면 알약에 얼굴을 그려 임시로
 function wkArt(b) { const k = 'boss_wk_' + b.key; if (has(k) || (IMG[k] && IMG[k].tagName === 'CANVAS')) return IMG[k]; const src = IMG.pill; if (!src) return null; const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S; const g = cv.getContext('2d');
   g.save(); g.translate(S / 2, S / 2); g.rotate(-0.35); if (b.hue) g.filter = `hue-rotate(${b.hue}deg) saturate(1.2)`; g.drawImage(src, -src.width * 0.55, -src.height * 0.55, src.width * 1.1, src.height * 1.1); g.restore(); g.filter = 'none';
   g.fillStyle = '#fff'; g.strokeStyle = '#1a1a2a'; g.lineWidth = 6;
@@ -2471,7 +2471,7 @@ function wkArt(b) { const k = 'boss_wk_' + b.key; if (has(k) || (IMG[k] && IMG[k
 function wkStart() { if (!wkOpen()) return toast(`기관 ${WK.unlock}곳을 감염시키면 열려요`); const w = wkSave(); if (w.n >= WK.tries) return toast('오늘 도전을 다 썼어요 · 내일 다시!');
   w.n++; persist(); ui.closeModal(); WK_RUN = true; try { startRun(); } finally { WK_RUN = false; } }
 function wkMenu() { const b = wkBoss(), w = wkSave(), left = WK.tries - w.n, roles = r => r.map(x => `${roleBadge0(x)}${ROLES[x].name}`).join(' · '), art = wkArt(b);
-  ui.modal(`<h3 style="margin:0 0 4px">💊 주간 보스 · 이번 주 신약</h3><div style="text-align:center">${art ? `<img src="${imgSrc(art, 'assets/pill.png')}" style="width:120px;filter:drop-shadow(0 0 14px ${b.color})">` : ''}<div style="font-size:20px;font-weight:900;color:${b.color}">${b.name}</div>
+  ui.modal(`<h3 style="margin:0 0 4px">💊 주간 보스 · 이번 주 신약</h3><div style="text-align:center">${art ? `<img src="${imgSrc(art, 'assets/pill.webp')}" style="width:120px;filter:drop-shadow(0 0 14px ${b.color})">` : ''}<div style="font-size:20px;font-weight:900;color:${b.color}">${b.name}</div>
     <div class="sub">${organById(b.map).name}에서 기다려요 · ${b.ico} ${b.sk}</div></div>
     <div class="fitBox" style="margin-top:8px"><b style="color:#9fff6a">약점</b> ${roles(b.weak)} <span style="color:#9fff6a">+30%</span><br><b style="color:#ff9c8a">강함</b> ${roles(b.strong)} <span style="color:#ff9c8a">−20%</span><br><span class="sub">내성 칸 카드의 타입이 내 본체 타입이에요</span></div>
     <div class="sub" style="margin:6px 0">체력은 끝이 없어요. ${WK.time}초 동안 준 피해 <b>${WK.per.toLocaleString()}</b>마다 🧫<b>${WK.sh}</b> · 이번 주 <b>${w.got}/${WK.cap}</b> · 🏆 최고 <b>${w.best.toLocaleString()}</b></div>
@@ -3362,10 +3362,10 @@ function setStarter(id) { if (save.starter) return; save.starter = id; let g = s
   g.core = true; normSquad(); autoSquad(); normSquad(); persist(); }
 function starterPick() { if (save.starter || !$('modal').hidden) return;
   ui.modal(`<h3 style="margin:2px 0 4px">내 본체를 고르세요</h3><div class="sub">나중에 언제든 바꿀 수 있어요</div>
-    <div class="stPick">${STARTERS.map(o => `<button class="stOpt" data-id="${o.id}"><img src="assets/${o.id}.png" alt=""><div><b>${o.route} · ${sname(o.id)}</b><em>${o.play}</em><i>${o.when}</i></div></button>`).join('')}</div>`);
+    <div class="stPick">${STARTERS.map(o => `<button class="stOpt" data-id="${o.id}"><img src="assets/${o.id}.webp" alt=""><div><b>${o.route} · ${sname(o.id)}</b><em>${o.play}</em><i>${o.when}</i></div></button>`).join('')}</div>`);
   $('modalBox').querySelector('.mX').hidden = true;
   $('modalBox').querySelectorAll('.stOpt').forEach(b => b.onclick = () => { const o = STARTERS.find(x => x.id === b.dataset.id);
-    ui.modal(`<h3 style="margin:2px 0 6px">${sname(o.id)}로 시작할까요?</h3><img src="assets/${o.id}.png" alt="" style="width:110px;display:block;margin:4px auto">
+    ui.modal(`<h3 style="margin:2px 0 6px">${sname(o.id)}로 시작할까요?</h3><img src="assets/${o.id}.webp" alt="" style="width:110px;display:block;margin:4px auto">
       <div class="sub">${o.play} · ${o.when}<br><b style="color:#ffd27a">본체는 나중에 바꿀 수 있어요.</b></div>
       <div class="row" style="margin-top:10px"><button class="btn" id="stBack">다시 고를래</button><button class="btn red" id="stGo">이걸로 할래!</button></div>`);
     $('modalBox').querySelector('.mX').hidden = true;
@@ -4468,9 +4468,9 @@ function introLoop(now) {
   requestAnimationFrame(introLoop);
 }
 const STORY = [
-  { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.png')}" alt="">`, txt: '나는 막 깨어난 <b>아기 바이러스</b>.<br>바이러스 카드를 모아 <b>강해져요</b>.' },
-  { pic: () => `<img src="assets/${has('story_2') ? 'story_2.jpg' : bodyOf() ? bodyOf().img + '_skin.jpg' : 'bodymap_skin.jpg'}" alt="">`, txt: '목표는 <b>사람의 몸</b>.<br>코에서 <b>뇌</b>까지 8곳을 감염시켜요.' },
-  { pic: () => has('story_3') ? '<img src="assets/story_3.jpg" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.png" alt="">`).join(''), trio: true, txt: '<b>면역 세포</b>가 막아요.<br>숨어들었다가 <b>빈틈</b>에 출발!' },
+  { pic: () => `<img src="${imgSrc(INTRO.hero, 'assets/rhino.webp')}" alt="">`, txt: '나는 막 깨어난 <b>아기 바이러스</b>.<br>바이러스 카드를 모아 <b>강해져요</b>.' },
+  { pic: () => `<img src="assets/${has('story_2') ? 'story_2.webp' : bodyOf() ? bodyOf().img + '_skin.webp' : 'bodymap_skin.webp'}" alt="">`, txt: '목표는 <b>사람의 몸</b>.<br>코에서 <b>뇌</b>까지 8곳을 감염시켜요.' },
+  { pic: () => has('story_3') ? '<img src="assets/story_3.webp" alt="">' : ['macro', 'tcell', 'nk'].map(k => `<img src="assets/${k}.webp" alt="">`).join(''), trio: true, txt: '<b>면역 세포</b>가 막아요.<br>숨어들었다가 <b>빈틈</b>에 출발!' },
 ];
 function showStory(i) {
   const el = $('inStory'), S = STORY[i]; if (!S) return introDone(true); el.hidden = false; $('inTop').hidden = true; $('inBot').hidden = true;
@@ -4655,15 +4655,15 @@ const ui = {
       if (sel) selz = ZONE[o.id];
     }
     const skinOK = BM || has('bodymap_skin'), base = BM ? BM.img + '_skin' : skinOK ? 'bodymap_skin' : 'bodymap';
-    const bg = has('bodymap') ? `<image href="assets/${base}.jpg" x="0" y="0" width="200" height="400" preserveAspectRatio="none"/>` : `<rect width="200" height="400" fill="#120a0c"/>`;
-    const redImg = m => `<image href="assets/${BM ? BM.img + '_red' : 'bodymap_red'}.png" x="0" y="0" width="200" height="400" preserveAspectRatio="none" mask="url(#${m})"/>`;
+    const bg = has('bodymap') ? `<image href="assets/${base}.webp" x="0" y="0" width="200" height="400" preserveAspectRatio="none"/>` : `<rect width="200" height="400" fill="#120a0c"/>`;
+    const redImg = m => `<image href="assets/${BM ? BM.img + '_red' : 'bodymap_red'}.webp" x="0" y="0" width="200" height="400" preserveAspectRatio="none" mask="url(#${m})"/>`;
     wrap.innerHTML = `<svg viewBox="0 0 200 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style="overflow:visible">
       <defs><filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
         <mask id="mInf" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#fff" filter="url(#soft)">${inf}</g></mask>
         <mask id="mWeak" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#666" filter="url(#soft)">${weak}</g></mask>
         <filter id="toW"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
         <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-        <mask id="mBody" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><image href="assets/${BM ? BM.img + '_red' : 'bodymap_red'}.png" x="0" y="0" width="200" height="400" preserveAspectRatio="none" filter="url(#toW)"/></mask>
+        <mask id="mBody" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><image href="assets/${BM ? BM.img + '_red' : 'bodymap_red'}.webp" x="0" y="0" width="200" height="400" preserveAspectRatio="none" filter="url(#toW)"/></mask>
         <mask id="mInf2" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="400"><rect width="200" height="400" fill="#000"/><g fill="#fff" filter="url(#soft2)">${inf}</g></mask>
         <pattern id="pDots" width="9" height="10" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#ffc8ff" opacity=".7"/><circle cx="6.5" cy="7" r="1.4" fill="#d8ff80" opacity=".45"/></pattern>
         <radialGradient id="gInf"><stop offset="0" stop-color="#5a1480"/><stop offset="1" stop-color="#8a2ac0"/></radialGradient></defs>
@@ -4682,7 +4682,7 @@ const ui = {
       wrap.appendChild(b);
     }
     { const b = wkBoss(), w = wkSave(), open = wkOpen(), bt = document.createElement('button'), art = wkArt(b); bt.className = 'wkBtn' + (open ? '' : ' lock');
-      bt.innerHTML = `${art ? `<img src="${imgSrc(art, 'assets/pill.png')}" alt="">` : ''}주간 보스<small>${open ? `오늘 ${WK.tries - w.n}/${WK.tries}` : `기관 ${WK.unlock}곳 감염 뒤 열림`}</small>`; bt.onclick = () => open ? wkMenu() : toast(`기관 ${WK.unlock}곳을 감염시키면 열려요`); wrap.appendChild(bt); }
+      bt.innerHTML = `${art ? `<img src="${imgSrc(art, 'assets/pill.webp')}" alt="">` : ''}주간 보스<small>${open ? `오늘 ${WK.tries - w.n}/${WK.tries}` : `기관 ${WK.unlock}곳 감염 뒤 열림`}</small>`; bt.onclick = () => open ? wkMenu() : toast(`기관 ${WK.unlock}곳을 감염시키면 열려요`); wrap.appendChild(bt); }
     const o = organById(save.sel), st = stageInfo(o);
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}${save.done[o.id] ? ' <small style="color:#9fff6a">✓</small>' : ''}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
@@ -4720,7 +4720,7 @@ const ui = {
   coreModal() { ui.modal(`<div id="coreM"></div>`); ui.renderCore($('coreM')); },
   renderCore(el) { el = el || $('viewHero');
     const L = coreL(), max = L >= CORE_MAX, c = coreCost(), tier = coreTier(), next = CORE_MILE.find(m => m.l > L), fill = slotFill();
-    const ia = coreImg() || (fill.length ? imgSrc(mineStats(fill).img, 'assets/rhino.png') : baseCore()), nb = coreBonus(L + 1) - coreBonus(L), nm = CORE_MILE.find(m => m.l === L + 1);
+    const ia = coreImg() || (fill.length ? imgSrc(mineStats(fill).img, 'assets/rhino.webp') : baseCore()), nb = coreBonus(L + 1) - coreBonus(L), nm = CORE_MILE.find(m => m.l === L + 1);
     const cg = coreGene(), D = cg && STRAINS[cg.strain];
     el.innerHTML = `<div class="cvS">
         <div class="cvSPic t${tier}"><img src="${ia || ''}" alt=""></div>
@@ -4751,7 +4751,7 @@ const ui = {
   },
   // ★ 본체가 바뀌면: 옛 모습이 스르륵 사라지고 새 모습이 커지며 나타남 + 숫자가 굴러가며 바뀌고 +/− 가 떠오름
   animMine(pic, nums, ms, key) {
-    ui.prevMine = ui.prevMine || {}; const prev = ui.prevMine[key], img = imgSrc(ms.img, 'assets/rhino.png'), match = matchTotal(slotFill(), save.sel || 'nose');
+    ui.prevMine = ui.prevMine || {}; const prev = ui.prevMine[key], img = imgSrc(ms.img, 'assets/rhino.webp'), match = matchTotal(slotFill(), save.sel || 'nose');
     const cur = { img, hp: ms.s.hp, spd: ms.s.spd, atk: ms.s.atk, count: ms.s.count, match, pow: powerOf(ms.s, match), sel: save.sel };
     ui.prevMine.lab = cur; ui.prevMine.core = cur;
     if (!prev) return; const ks = ['pow', 'hp', 'spd', 'atk', 'count', 'match'], diff = ks.filter(k => Math.abs(cur[k] - prev[k]) > (k === 'atk' ? 0.004 : 0.4));
@@ -4770,7 +4770,7 @@ const ui = {
     const sel = save.heroSel && heroOf(save.heroSel).own ? save.heroSel : 'zero', H0 = HEROES[sel], o = heroOf(sel), hs = heroStats(sel), lv = o.lv, maxed = lv >= FORGE.max;
     const p = maxed ? 0 : forgeP(o), c = maxed ? 0 : FORGE.cost(lv), col = tierCol(lv);
     $('viewHero').innerHTML = `<div class="hsel">${Object.entries(HEROES).map(([id, h]) => { const ho = heroOf(id);
-        return `<button class="hc${id === sel ? ' on' : ''}${ho.own ? '' : ' lock'}" data-h="${id}"><img src="${heroURL(id)}" alt=""><b>${h.name}</b><small>${ho.own ? `+${ho.lv}` : `${has('lock') ? '<img src="assets/lock.png" alt="" style="width:14px;height:14px;vertical-align:-2px">' : ''} DNA ${h.unlock}`}</small></button>`; }).join('')}</div>
+        return `<button class="hc${id === sel ? ' on' : ''}${ho.own ? '' : ' lock'}" data-h="${id}"><img src="${heroURL(id)}" alt=""><b>${h.name}</b><small>${ho.own ? `+${ho.lv}` : `${has('lock') ? '<img src="assets/lock.webp" alt="" style="width:14px;height:14px;vertical-align:-2px">' : ''} DNA ${h.unlock}`}</small></button>`; }).join('')}</div>
       <div class="plate hmain">
         <div class="hport t${lv >= 15 ? 4 : lv >= 10 ? 3 : lv >= 5 ? 2 : 1}${fx ? ' ' + fx : ''}"><img src="${heroURL(sel)}" alt=""><div class="hlv" style="color:${col}">+${lv}</div></div>
         <div class="hinfo"><h3>${H0.name} <span style="color:${col}">+${lv}</span></h3><div class="sub">${H0.title} · ${H0.desc}</div>
@@ -4779,10 +4779,10 @@ const ui = {
       </div>
       <div class="mile">${MILESTONE.map(m => `<div class="${lv >= m.lv ? 'ok' : ''}"><b>+${m.lv} ${m.name}</b><span>${m.desc}</span></div>`).join('')}</div>
       ${!unlocked('weapon') ? `<div class="sub" style="text-align:center;padding:8px;border:1px dashed #4a3a2e;border-radius:8px">🔒 무기(DNA 말단) · 기관 ${UNLOCK.weapon[0]}곳 감염 후 열림</div>` : `<div class="tails"><b class="tl">무기 · DNA 말단</b>${[0, 1, 2].map(i => { const t = (o.tails || [])[i], open = i < slotCount(lv);
-        return !open ? `<button class="tslot lock" disabled>${has('lock') ? '<img src="assets/lock.png" alt="">' : ''}<small>+${i === 1 ? 5 : 10}에 열림</small></button>`
-          : t ? `<button class="tslot" data-s="${i}" style="border-color:${TAIL_TIER[t.tier].col}"><img src="assets/${t.strain}.png" alt=""><b style="color:${TAIL_TIER[t.tier].col}">${tailText(t)}</b><small>${TAIL_TIER[t.tier].name} · ${STRAINS[t.strain].name}</small></button>`
+        return !open ? `<button class="tslot lock" disabled>${has('lock') ? '<img src="assets/lock.webp" alt="">' : ''}<small>+${i === 1 ? 5 : 10}에 열림</small></button>`
+          : t ? `<button class="tslot" data-s="${i}" style="border-color:${TAIL_TIER[t.tier].col}"><img src="assets/${t.strain}.webp" alt=""><b style="color:${TAIL_TIER[t.tier].col}">${tailText(t)}</b><small>${TAIL_TIER[t.tier].name} · ${STRAINS[t.strain].name}</small></button>`
           : `<button class="tslot empty" data-s="${i}"><b>＋</b><small>바이러스 1장을 녹여 달기</small></button>`; }).join('')}</div>`}
-      <div class="plate forge">${has('forge') ? '<img src="assets/forge.png" alt="" class="forgeImg">' : ''}<div class="fr"><span>다음 단계 <b>+${lv} → +${lv + 1}</b></span><span>성공 <b style="color:${p >= 0.6 ? '#9fff6a' : p >= 0.35 ? '#ffcf6a' : '#ff8a7a'}">${Math.round(p * 100)}%</b></span></div>
+      <div class="plate forge">${has('forge') ? '<img src="assets/forge.webp" alt="" class="forgeImg">' : ''}<div class="fr"><span>다음 단계 <b>+${lv} → +${lv + 1}</b></span><span>성공 <b style="color:${p >= 0.6 ? '#9fff6a' : p >= 0.35 ? '#ffcf6a' : '#ff8a7a'}">${Math.round(p * 100)}%</b></span></div>
         <div class="sub">${o.pity ? `실패 보정 +${Math.round(o.pity * 100)}%p 쌓임 · ` : ''}${lv >= FORGE.dropFrom ? '<span style="color:#ff9c8a">+7부터 실패하면 40% 확률로 한 단계 하락</span>' : '+6까지는 실패해도 하락 없음'}</div>
         <button class="btn red" id="bForge" ${maxed ? 'disabled' : ''} style="width:100%;min-height:46px;font-size:16px;margin-top:6px">${maxed ? '최고 단계' : `벼리기 · DNA ${c}`}</button>
         <div id="forgeMsg" class="fmsg"></div></div>`;
@@ -4792,7 +4792,7 @@ const ui = {
     $('viewHero').querySelectorAll('.tslot[data-s]').forEach(b => b.onclick = () => ui.tailPick(sel, +b.dataset.s));
     $('bForge').onclick = () => { const r = forge(sel); if (r.r === 'dna') return toast('DNA가 부족해요'); if (r.r === 'max') return;
       ui.coreModal(); ui.renderHero(r.r === 'ok' ? 'win' : 'lose');
-      $('forgeMsg').innerHTML = (has(r.r === 'ok' ? 'forge_ok' : 'forge_fail') ? `<img src="assets/${r.r === 'ok' ? 'forge_ok' : 'forge_fail'}.png" alt="" style="height:30px;vertical-align:middle;margin-right:4px">` : '') + (r.r === 'ok' ? `<b style="color:#9fff6a">성공! +${r.lv}</b>${MILESTONE.find(m => m.lv === r.lv) ? ` · <b style="color:#ffcf4a">${MILESTONE.find(m => m.lv === r.lv).name} 해금!</b>` : ''}` : r.r === 'drop' ? `<b style="color:#ff6a5a">실패… +${r.lv}로 하락</b>` : `<b style="color:#ff9c8a">실패</b> · 다음 확률 +${Math.round(FORGE.pity * 100)}%p`); };
+      $('forgeMsg').innerHTML = (has(r.r === 'ok' ? 'forge_ok' : 'forge_fail') ? `<img src="assets/${r.r === 'ok' ? 'forge_ok' : 'forge_fail'}.webp" alt="" style="height:30px;vertical-align:middle;margin-right:4px">` : '') + (r.r === 'ok' ? `<b style="color:#9fff6a">성공! +${r.lv}</b>${MILESTONE.find(m => m.lv === r.lv) ? ` · <b style="color:#ffcf4a">${MILESTONE.find(m => m.lv === r.lv).name} 해금!</b>` : ''}` : r.r === 'drop' ? `<b style="color:#ff6a5a">실패… +${r.lv}로 하락</b>` : `<b style="color:#ff9c8a">실패</b> · 다음 확률 +${Math.round(FORGE.pity * 100)}%p`); };
   },
   tailPick(hid, slot) {
     const cur = (heroOf(hid).tails || [])[slot];
@@ -4823,7 +4823,7 @@ const ui = {
     if (i < 0 || !slotOpen(i)) return restore();
     const sq = slotGenes(), cur = sq.indexOf(g); if (cur === i) return restore(); if (cur >= 0) { sq[cur] = sq[i]; } sq[i] = g;
     const base = slotFill(), bs = base.length ? mineStats(base) : null, bm = base.length ? matchTotal(base, save.sel || 'nose') : 0;
-    const nf = fillOf(sq), ns = mineStats(nf), nm = matchTotal(nf, save.sel || 'nose'), nimg = imgSrc(ns.img, 'assets/rhino.png');
+    const nf = fillOf(sq), ns = mineStats(nf), nm = matchTotal(nf, save.sel || 'nose'), nimg = imgSrc(ns.img, 'assets/rhino.webp');
     if (base.length) mineStats(base);
     if (!ui.pvOn) ui.pvImg = img ? img.src : null; ui.pvOn = true;
     if (img) img.src = nimg; core.classList.add('pvC'); nums.classList.add('pv');
@@ -4836,7 +4836,7 @@ const ui = {
   renderStage(ms) {
     const sq = slotGenes(), tier = coreTier(), P = STAGE_POS;
     $('squadRow').innerHTML = `<svg class="csLines" viewBox="0 0 100 100" preserveAspectRatio="none">${SL.map(i => `<line x1="50" y1="60" x2="${P[i][0]}" y2="${P[i][1]}" class="${sq[i] ? 'on' : slotOpen(i) ? '' : 'lk'}"/>`).join('')}</svg>
-      <div class="csCore t${tier}${ms ? '' : ' sleep'}" id="csCore">${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="">` : '<span class="csQ">?</span>'}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b></div>`
+      <div class="csCore t${tier}${ms ? '' : ' sleep'}" id="csCore">${ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.webp')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="">` : '<span class="csQ">?</span>'}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b></div>`
       + SL.map(i => { const g = sq[i], st = `left:${P[i][0]}%;top:clamp(calc(var(--sk) / 2 + 2px), ${P[i][1]}%, calc(100% - var(--sk) / 2 - 2px))`, lab = `<span class="slab">${SLOT_ICON[i]}${SLOT_NAME[i]}</span>`;
         if (!slotOpen(i)) return `<button class="sock lock" data-lock="${i}" style="${st}">${lab}<small>🔒<br>${slotNeedT(i)}</small></button>`;
         return g ? `<button class="sock" data-sock="${i}" data-u="${g.uid}" style="${st}">${lab}${pimg(g)}<b>${SLOT_STAT[i]} <span style="color:${GRADE_COL[slotGrade(g, i)]}">${slotGrade(g, i)}</span></b></button>`
@@ -4855,7 +4855,7 @@ const ui = {
     if (box) return ui.renderBox();
     const fill = slotFill(), ms = fill.length ? mineStats(fill) : null, tier = coreTier();
     $('csCore').className = 'lhCore t' + tier;
-    $('csCore').innerHTML = `${coreImg() ? `<img src="${coreImg()}" alt="" style="object-fit:contain">` : ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.png')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="" style="opacity:.8">` : ''}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b>`;
+    $('csCore').innerHTML = `${coreImg() ? `<img src="${coreImg()}" alt="" style="object-fit:contain">` : ms ? `<img src="${imgSrc(ms.img, 'assets/rhino.webp')}" alt="">` : baseCore() ? `<img src="${baseCore()}" alt="" style="opacity:.8">` : ''}${tier >= 3 ? '<i class="crown">👑</i>' : ''}<b class="csLv">Lv ${coreL()}</b>`;
     $('csCore').onclick = () => ui.coreModal();
     $('labNums').innerHTML = ms ? ui.numsHtml(ms) : '<span class="tile" style="grid-column:1/-1"><small class="lb">아래 줄에서 카드를 눌러 꽂아요</small><b>?</b></span>';
     if (ms) ui.animMine($('csCore'), $('labNums'), ms, 'lab');
@@ -4870,7 +4870,7 @@ const ui = {
   slotDelta(g, i) {
     const sq = slotGenes(), cur = sq.indexOf(g); if (cur >= 0) sq[cur] = sq[i]; sq[i] = g;
     const base = slotFill(), bs = base.length ? mineStats(base) : null, bm = base.length ? matchTotal(base, save.sel || 'nose') : 0;
-    const nf = fillOf(sq), ns = mineStats(nf), nm = matchTotal(nf, save.sel || 'nose'), img = imgSrc(ns.img, 'assets/rhino.png');
+    const nf = fillOf(sq), ns = mineStats(nf), nm = matchTotal(nf, save.sel || 'nose'), img = imgSrc(ns.img, 'assets/rhino.webp');
     if (base.length) mineStats(base);
     const k = SLOT_KEY[i], v = x => k === 'atk' ? Math.round(x * 100) : Math.round(x);
     const pf = bs ? powerOf(bs.s, bm) : 0, pt = powerOf(ns.s, nm), pp = pf ? Math.round((pt / pf - 1) * 100) : 100;
@@ -5093,7 +5093,7 @@ const ui = {
       <div style="margin:12px 0 6px;font-weight:800;font-size:15px">${SLOT_ICON[i]} ${SLOT_NAME[i]} 칸 · ${isCur ? '지금 꽂혀 있어요' : `${old ? sname(old.strain) : '빈 칸'} → ${sname(g.strain)}`}</div>
       <div class="shPow"><small>🎯 ${organById(save.sel || 'nose').name} 전투력</small><b>${isCur ? r.pt : `${r.pf} <span class="${r.pt > r.pf ? 'up' : r.pt < r.pf ? 'dn' : ''}">→ ${r.pt}</span> <em class="${r.pp > 0 ? 'up' : r.pp < 0 ? 'dn' : ''}">${r.pp > 0 ? '+' : ''}${r.pp}%</em>`}</b></div>
       <div class="shCmp">${t(SLOT_ICON[i] + ' ' + SLOT_STAT[i], r.from, r.to)}${t(subN, r.bs ? v(sub, r.bs.s[sub]) : 0, v(sub, r.ns.s[sub]))}${t(`🧬 ${ORG_SHORT[save.sel || 'nose']} 궁합`, r.bm, r.nm, x => `${x >= 0 ? '+' : ''}${x}%`)}<div class="tile"><small class="lb">${SLOT_NAME[i]} 등급</small><b style="color:${GRADE_COL[ng]}">${isCur ? ng : `${og} → ${ng}`}</b></div></div>
-      ${isCur ? '' : `<div class="shCore">${r.bs ? `<img src="${imgSrc(IMG.mine, 'assets/rhino.png')}" style="width:68px;opacity:.6"><span style="font-size:22px;color:#ffd24a">➜</span>` : ''}<img src="${r.img}" style="width:92px;filter:drop-shadow(0 0 12px #ffd24a)"></div>`}
+      ${isCur ? '' : `<div class="shCore">${r.bs ? `<img src="${imgSrc(IMG.mine, 'assets/rhino.webp')}" style="width:68px;opacity:.6"><span style="font-size:22px;color:#ffd24a">➜</span>` : ''}<img src="${r.img}" style="width:92px;filter:drop-shadow(0 0 12px #ffd24a)"></div>`}
       <div class="shBtns">${isCur ? `<button class="btn" id="shOut">칸에서 빼기</button><button class="btn" id="shClose">닫기</button>` : `<button class="btn" id="shOther">다른 칸에</button><button class="btn red" id="shGo">${SLOT_ICON[i]} ${SLOT_NAME[i]}에 꽂기</button>`}</div>
       <div class="shSlots" id="shSlots" hidden>${others.map(j => `<button class="btn" data-j="${j}">${SLOT_ICON[j]} ${SLOT_NAME[j]}</button>`).join('')}</div></div>`;
     $('sheet').hidden = false;
@@ -5159,7 +5159,7 @@ const ui = {
   coreUpShow(after) { const q = ui.coreUpQ || []; ui.coreUpQ = []; if (!q.length) return after && after(); try { if (hubTab === 'lab' && !$('hub').hidden) ui.renderLab(); } catch (e) {} const L = q[q.length - 1];
     const gifts = q.map(l => giftTxt(coreGift(l))).join(' · '), ms = q.map(l => CORE_MILE.find(m => m.l === l)).filter(Boolean);
     sfx('clear'); buzz([30, 20, 80]); ui.coreGot = ms[ms.length - 1] || null;
-    ui.modal(`<div class="newfx">본체 진화!</div><div class="heroWrap">${baseCore() || slotFill().length ? `<img src="${slotFill().length ? imgSrc(mineStats(slotFill()).img, 'assets/rhino.png') : baseCore()}" style="width:120px;height:120px;object-fit:contain" alt="">` : ''}</div>
+    ui.modal(`<div class="newfx">본체 진화!</div><div class="heroWrap">${baseCore() || slotFill().length ? `<img src="${slotFill().length ? imgSrc(mineStats(slotFill()).img, 'assets/rhino.webp') : baseCore()}" style="width:120px;height:120px;object-fit:contain" alt="">` : ''}</div>
       <h3 style="margin:2px 0;color:#ffd24a">본체 Lv ${L}</h3><div class="sub">모든 바이러스 <b>+${Math.round(coreBonus() * 100)}%</b> · 바이러스 상한 <b>Lv${lvCap()}</b></div>
       ${ms.map(m => `<div class="coreGot" style="text-align:center;margin:4px 0">🎉 ${m.t}</div>`).join('')}<div class="sub" style="margin:6px 0">선물: <b style="color:#9fff6a">${gifts}</b></div>
       <div class="row"><button class="btn red" id="cuOk">좋아요!</button></div>`); updTix && updTix(); persist();
@@ -5244,7 +5244,7 @@ const ui = {
     if ($('mRoll')) $('mRoll').onclick = () => { const c = REROLL(g); if ((save.shards || 0) < c) { sfx('fail'); return toast(`🧫 흔적이 부족해요 (${save.shards || 0}/${c})`); } save.shards -= c; const old = fitOrgans(g).join(); rollVorg(g); persist(); sfx('clear'); ui.fx(`🧬 변이: ${fitOrgans(g).filter(o => !fitReal(g).includes(o)).map(o => ORG_SHORT[o]).join('·')}`, '#ffd27a'); ui.detail(g); };
     $('mLv').onclick = () => { const r = levelUp(g); if (r === 'dna') { sfx('fail'); return toast('DNA가 부족해요'); } if (r === 'cap') { sfx('fail'); return toast(`★${g.star}은 Lv${lvCap(g)}까지예요 · ★을 올리면 상한이 올라가요`); } quest('up'); sfx(r === 'tier' ? 'clear' : 'up'); persist(); ui.showHub();
       if (r === 'tier') { ui.fx(`돌파 +${g.tier}!`, '#7fe05a'); buzz(30); }
-      else if (r === 'mut') { buzz([60, 40, 160]); jingle('jg_legend'); ui.modal(`<div class="newfx">변성!</div><div class="heroWrap">${has('ring_new') ? '<img class="ringFx" src="assets/ring_new.png" alt="">' : ''}${pimg(g, 'hero')}</div>
+      else if (r === 'mut') { buzz([60, 40, 160]); jingle('jg_legend'); ui.modal(`<div class="newfx">변성!</div><div class="heroWrap">${has('ring_new') ? '<img class="ringFx" src="assets/ring_new.webp" alt="">' : ''}${pimg(g, 'hero')}</div>
         <h3 style="margin:2px 0;color:#ffd24a">${gname(g)} 탄생</h3><div class="sub">한계를 넘어 모습이 바뀌었어요! 능력 <b>+30%</b> · 도감에 <b>변성</b>으로 등록됐어요.</div><div class="row"><button class="btn red" onclick="ui.closeModal()">좋아요!</button></div>`); return; } else toast(`${d.name} Lv${g.lv}`);
       if (ui.coreUpQ && ui.coreUpQ.length) return ui.coreUpShow(); ui.detail(g); };
     document.querySelectorAll('#modal [data-slot]').forEach(b => b.onclick = () => { if (assignSlot(g, +b.dataset.slot)) { ui.closeModal(); ui.showHub(); } });
@@ -5257,13 +5257,13 @@ const ui = {
     const d = STRAINS[g.strain], from = g.star, need = 0; clone = false;
     if ((save.shards || 0) < starCost(g)) return toast(`🧫 흔적이 부족해요 (${save.shards || 0}/${starCost(g)})`); if (save.dna < need) return toast('DNA가 부족해요');
     const src = portrait(g).src;
-    ui.modal(`<h3 style="margin:2px 0">별 올리기 ★${from}→★${from + 1}</h3><div class="forgeBox" id="fgBox">${has('forge') ? `<img class="fx" src="assets/forge.png" style="opacity:.55;animation:none">` : ''}<img class="card" src="${src}" alt=""></div>
+    ui.modal(`<h3 style="margin:2px 0">별 올리기 ★${from}→★${from + 1}</h3><div class="forgeBox" id="fgBox">${has('forge') ? `<img class="fx" src="assets/forge.webp" style="opacity:.55;animation:none">` : ''}<img class="card" src="${src}" alt=""></div>
       <div class="sub" id="fgMsg">${clone ? '🧪 클론 보관 중…' : '배양 중…'}</div><div class="row"><button class="btn" id="fgOk" disabled>…</button></div>`);
     const r = starUp(g); if (r === 'shard') return toast('🧫 흔적이 부족해요'); persist(); shakeEl($('fgBox')); sfx('forge');
     setTimeout(() => {
       const box = $('fgBox'); if (!box) return; box.classList.add('done');
       const ok = r === 'star' || r === 'great', boom = r === 'destroy' || r === 'saved', img = ok ? 'forge_ok' : 'forge_fail';
-      box.insertAdjacentHTML('beforeend', `<img class="fx" src="assets/${img}.png" alt="">`); if (boom) box.classList.add('boom');
+      box.insertAdjacentHTML('beforeend', `<img class="fx" src="assets/${img}.webp" alt="">`); if (boom) box.classList.add('boom');
       if (ok) jingle('jg_legend'); else if (r === 'destroy') jingle('jg_break'); else if (r === 'saved') { jingle('jg_break'); setTimeout(() => sfx('skill'), 700); } else sfx('fail');
       const msg = { star: `<b style="color:#9fff6a;font-size:18px">성공! ${d.name} ${stars(g.star)}</b>`, great: `<b style="color:#ffd24a;font-size:20px">✨ 대성공! ${d.name} ${stars(g.star)}</b><br>덤으로 공격·체력 +5%`, fail: `<b style="color:#c9b9a2;font-size:16px">실패… 별은 그대로</b><br>🧫 절반 돌려받음 · 🔥 다음 성공 확률 +${RISK_UP}% (지금 ${riskOf(g) ? riskOf(g).ok : '-'}%)`,
         destroy: `<b style="color:#ff5a4a;font-size:18px">파괴!</b><br>${d.name} 카드가 사라졌어요`, saved: `<b style="color:#7fd1ff;font-size:17px">파괴 → 클론으로 복구!</b><br>${d.name} ${stars(g.star)} Lv${g.lv} 그대로 남았어요` }[r] || r;
@@ -5319,12 +5319,12 @@ const ui = {
     quest('breed'); const r = breed(a, b), sa = geneStats(a), sb2 = geneStats(b);
     save.genes = save.genes.filter(x => x !== a && x !== b); unSquad(a.uid); unSquad(b.uid);
     if (r.fail) { const back = Math.round(RULES.breed * 0.3); save.dna += back; persist(); ui.showHub();
-      return ui.modal(`<img class="hero" src="assets/${has('jar_broken') ? 'jar_broken' : 'defective'}.png" alt=""><h3>교배 실패 · 결손 입자</h3><div class="sub">성공 확률 ${Math.round(r.p * 100)}%였어요. 게놈 유형이 다를수록 어렵습니다. DNA ${back} 환급.</div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); }
+      return ui.modal(`<img class="hero" src="assets/${has('jar_broken') ? 'jar_broken' : 'defective'}.webp" alt=""><h3>교배 실패 · 결손 입자</h3><div class="sub">성공 확률 ${Math.round(r.p * 100)}%였어요. 게놈 유형이 다를수록 어렵습니다. DNA ${back} 환급.</div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); }
     save.genes.push(r.child); markSeen(r.child.strain); persist(); ui.showHub(); const c = r.child, sc = geneStats(c);
     const mainP = r.isNew ? null : (a.strain === c.strain ? sa : sb2);
     const td = (v, ref, f = x => x) => `<td>${f(v)}${v > ref * 1.005 ? '<i class="up">▲</i>' : v < ref * 0.995 ? '<i class="dn">▼</i>' : ''}</td>`, best = k => mainP ? mainP[k] : Math.max(sa[k], sb2[k]);
     const rows = [['감염력', 'atk', x => x.toFixed(2)], ['방어력', 'hp'], ['배양력', 'count'], ['속도', 'spd'], ['쿨타임', 'cd']];
-    ui.modal(`${r.isNew ? `<div class="newfx">${c.firstFind ? '신종 발견!' : '신종 탄생'}</div>` : ''}<div class="heroWrap">${r.isNew && has('ring_new') ? '<img class="ringFx" src="assets/ring_new.png" alt="">' : ''}${pimg(c, 'hero')}</div><h3 style="margin:2px 0">${gname(c)} ${stars(c.star)} 탄생</h3>
+    ui.modal(`${r.isNew ? `<div class="newfx">${c.firstFind ? '신종 발견!' : '신종 탄생'}</div>` : ''}<div class="heroWrap">${r.isNew && has('ring_new') ? '<img class="ringFx" src="assets/ring_new.webp" alt="">' : ''}${pimg(c, 'hero')}</div><h3 style="margin:2px 0">${gname(c)} ${stars(c.star)} 탄생</h3>
       <div class="sub">${r.isNew ? `${STRAINS[c.strain].role} · 이중 스킬 <b>${STRAINS[c.strain].skill.name}</b>` : `${STRAINS[c.strain].name}의 스킬 + ${STRAINS[c.mix].name} 능력 25% + 잡종 강세`} · ${r.mutation ? (r.mutation.good ? '좋은 돌연변이! <b>능력 +6%</b>' : '해로운 돌연변이') : '돌연변이 없음'}</div>
       <table class="cmpT"><tr><th></th><th>${gname(a)}</th><th>${gname(b)}</th><th>새끼</th></tr>
       ${rows.map(([l, k, f = x => x]) => `<tr><td>${l}</td><td>${f(sa[k])}</td><td>${f(sb2[k])}</td>${k === 'cd' ? `<td>${sc.cd}</td>` : td(sc[k], best(k), f)}</tr>`).join('')}
@@ -5345,7 +5345,7 @@ const ui = {
   openMutate() { if (!run || run.endAt) return; paused = true; run.mutPause = true;
     const rows = run.groups.filter(g => !g.reawake).map((g, i) => { const k = g.strain, n = run.towers.filter(t => t.spec === k).length, vx = save.host >= 2 && save.vax === k && !run.variant[k], cd = run.mutCd[k] || 0;
       const ok = g.charge >= 0.4 && cd <= 0; return `<button class="btn mutb" data-k="${k}" ${ok ? '' : 'disabled'} style="display:flex;align-items:center;gap:8px;text-align:left;margin:4px 0">${pimg(g.gene)}<span><b>${STRAINS[k].name}</b> 변이 ${run.variant[k] || 0}차<br><small>${n ? `전용 탑 ${n}개가 노림` : '노리는 탑 없음'}${vx ? ' · 백신 표식' : ''}${cd > 0 ? ` · 대기 ${Math.ceil(cd)}s` : g.charge < 0.4 ? ' · 충전 40% 필요' : ''}</small></span></button>`; }).join('');
-    ui.modal(`<h3 style="margin:0 0 4px;display:flex;align-items:center;gap:6px">${has('mutate') ? '<img src="assets/mutate.png" alt="" style="width:30px">' : ''}항원 변이</h3><div class="sub">표면 단백질을 바꿔 전용 T세포·항체를 따돌려요. 그 탑들은 6초 동안 다시 알아보느라 쉬어요. 대가: 그 계통 충전 40%.</div>${rows}<div class="row"><button class="btn" onclick="ui.closeModal()">닫기</button></div>`);
+    ui.modal(`<h3 style="margin:0 0 4px;display:flex;align-items:center;gap:6px">${has('mutate') ? '<img src="assets/mutate.webp" alt="" style="width:30px">' : ''}항원 변이</h3><div class="sub">표면 단백질을 바꿔 전용 T세포·항체를 따돌려요. 그 탑들은 6초 동안 다시 알아보느라 쉬어요. 대가: 그 계통 충전 40%.</div>${rows}<div class="row"><button class="btn" onclick="ui.closeModal()">닫기</button></div>`);
     document.querySelectorAll('.mutb').forEach(b => b.onclick = () => { mutate(b.dataset.k); ui.closeModal(); }); },
   showRun() {
     $('bottom').classList.toggle('ta', !!run.ta); $('outChooser').classList.toggle('taOut', !!run.ta);
@@ -5391,9 +5391,9 @@ const ui = {
       $('deploy').innerHTML = (hOK ? `<button class="dp v hero" id="dpHero" aria-label="슈퍼바이러스">${pimg(hg)}<div><b>${HEROES[hg.strain].name}</b><small></small></div></button>` : '')
         + (run.single ? [] : run.groups).map((g, i) => `<button class="dp v" data-i="${i}" aria-label="${STRAINS[g.strain].name} 방출">${pimg(g.gene)}<div><b>${g.reawake ? '재활성' : STRAINS[g.strain].name}</b><small></small>${g.reawake ? '' : '<em></em>'}</div><i></i></button>`).join('')
         + (run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && activeSkills().includes(g.strain)).map(g => `<button class="dp v sk2" data-sk="${g.strain}" aria-label="${geneSkill(g).name}">${pimg(g)}<div><b>${skCat(g)}</b><small></small></div><i></i></button>`).join('') : '')
-        + (oOK && !nestOn() && !run.single ? `<button class="dp v" id="dpOut" aria-label="감염 거점"><img src="assets/out_cauldron.png" alt=""><div><b>거점</b><small></small></div></button>` : '')
-        + (unlocked('mutate') ? `<button class="dp v" id="dpMut" aria-label="항원 변이">${has('mutate') ? '<img src="assets/mutate.png" alt="">' : '<div class="mutic">🧬</div>'}<div><b>변이</b><small></small></div></button>` : '')
-        + (nestOn() ? `<button class="dp v atk" id="dpAll"><div><b style="font-size:12px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div></button>` : `<button class="dp v all" id="dpAll">${has('deploy_all') ? '<img src="assets/deploy_all.png" alt="">' : ''}<div><b>전부</b><small>방출</small></div></button>`);
+        + (oOK && !nestOn() && !run.single ? `<button class="dp v" id="dpOut" aria-label="감염 거점"><img src="assets/out_cauldron.webp" alt=""><div><b>거점</b><small></small></div></button>` : '')
+        + (unlocked('mutate') ? `<button class="dp v" id="dpMut" aria-label="항원 변이">${has('mutate') ? '<img src="assets/mutate.webp" alt="">' : '<div class="mutic">🧬</div>'}<div><b>변이</b><small></small></div></button>` : '')
+        + (nestOn() ? `<button class="dp v atk" id="dpAll"><div><b style="font-size:12px">돌격</b><small style="color:#ffd8c8">둥지 0</small></div></button>` : `<button class="dp v all" id="dpAll">${has('deploy_all') ? '<img src="assets/deploy_all.webp" alt="">' : ''}<div><b>전부</b><small>방출</small></div></button>`);
       $('deploy').querySelectorAll('.dp[data-i]').forEach(b => b.onclick = () => { if (run.endAt) return; if (nestOn()) return toast('바이러스는 저절로 둥지에 모여요 · [출발]으로 출발!'); release(run.groups[+b.dataset.i]); ui.tickDeploy(); });
       $('dpAll').onclick = () => { if (run.endAt) return; if (nestOn()) breakout(); else { goAll(); toast('전부 방출!'); } ui.tickDeploy(); };
       if (hOK) $('dpHero').onclick = () => { if (!run.hero.out) spawnHero(); else castSkill(hg.strain); ui.tickDeploy(); };
@@ -5407,7 +5407,7 @@ const ui = {
       return;
     }
     $('deploy').innerHTML = `<button class="dp hero" id="dpHero" aria-label="슈퍼바이러스 출격">${pimg(hg)}<div><b>${HEROES[hg.strain].name} +${heroOf(hg.strain).lv}</b><small></small></div></button>` + run.groups.map((g, i) => `<button class="dp" data-i="${i}" aria-label="${STRAINS[g.strain].name} 출격">${pimg(g.gene)}<div><b>${g.reawake ? '재활성 헤르페스' : gname(g.gene)}</b><small></small></div><i></i></button>`).join('')
-      + `<button class="dp all" id="dpAll">${has('deploy_all') ? '<img src="assets/deploy_all.png" alt="" style="height:24px">' : ''}<span style="font-size:10px">전원 출격</span></button>`;
+      + `<button class="dp all" id="dpAll">${has('deploy_all') ? '<img src="assets/deploy_all.webp" alt="" style="height:24px">' : ''}<span style="font-size:10px">전원 출격</span></button>`;
     $('deploy').querySelectorAll('.dp[data-i]').forEach(b => b.onclick = () => { const g = run.groups[+b.dataset.i]; if (run.ta) { if (!run.endAt) release(g); ui.tickDeploy(); return; } if (!g.list.length) return; g.go = !g.go; toast(g.go ? `${STRAINS[g.strain].name} 출격!` : `${STRAINS[g.strain].name} 대기`); ui.tickDeploy(); });
     $('dpAll').onclick = () => { goAll(); toast(run.ta ? '전부 방출!' : '전원 출격!'); ui.tickDeploy(); };
     if (!unlocked('hero')) $('dpHero').remove(); else $('dpHero').onclick = () => { spawnHero(); ui.tickDeploy(); };
@@ -5421,7 +5421,7 @@ const ui = {
     const f = (K.dmg % WK.per) / WK.per, n = K.cells % 10; $('wkCells').innerHTML = Array.from({ length: 10 }, (_, i) => `<i class="${i < n ? 'f' : i === n ? 'p' : ''}" ${i === n ? `style="--f:${(f * 100).toFixed(0)}%"` : ''}></i>`).join('');
     $('wkGs').textContent = `이번 판 🧫${K.sh} · 이번 주 ${w.got + (K.ended ? 0 : K.sh)}/${WK.cap}`; },
   tickRc() { const b = $('rcChip'); if (!b) return; b.hidden = true; return;   // 동반 게이지는 판 중엔 숨김 (결과 화면에서만) const cg = run && run.ta && !run.over ? compGene() : null; b.hidden = !cg; if (!cg) return;
-    const v = (save.rcG || 0) + rcGainOf(run), f = v >= 1 ? 1 : v % 1; if (b.dataset.u != cg.uid) { b.dataset.u = cg.uid; b.querySelector('img').src = imgSrc(IMG[cg.strain], 'assets/rhino.png'); }
+    const v = (save.rcG || 0) + rcGainOf(run), f = v >= 1 ? 1 : v % 1; if (b.dataset.u != cg.uid) { b.dataset.u = cg.uid; b.querySelector('img').src = imgSrc(IMG[cg.strain], 'assets/rhino.webp'); }
     b.style.setProperty('--p', (f * 100).toFixed(1) + '%'); b.querySelector('b').textContent = v >= 1 ? '준비!' : Math.floor(f * 100) + '%'; b.classList.toggle('full', v >= 1);
     if (v >= 1 && !run.rcPing && (save.rcG || 0) < 1) { run.rcPing = true; float(W / 2, H * 0.3, '🧬 재조합 준비 완료! 판이 끝나면 옮겨 심어요', '#e9a3ff', 16); sfx('up'); buzz(30); } },
   tickDeploy() {
@@ -5461,13 +5461,13 @@ const ui = {
       hb.querySelector('small').textContent = !run.hero.out ? '탭: 출격' : hu && hu.alive ? `캡슐 ${Math.round(hu.cap)} · 체력 ${Math.round(hu.hp)}` : run.heroDone ? '침투 성공' : '쓰러짐'; }
   },
   renderSkills() {
-    const out = !unlocked('out') ? '' : `<button class="sk" id="skOut" aria-label="감염 거점"><div class="orb"><img src="assets/out_cauldron.png" alt=""><div class="cd"></div></div><span>감염 거점</span><small>남은 ${run.outLeft}</small></button>`;
+    const out = !unlocked('out') ? '' : `<button class="sk" id="skOut" aria-label="감염 거점"><div class="orb"><img src="assets/out_cauldron.webp" alt=""><div class="cd"></div></div><span>감염 거점</span><small>남은 ${run.outLeft}</small></button>`;
     $('skills').innerHTML = run.skillGenes.map(g => { const d = STRAINS[g.strain]; return `<button class="sk" data-s="${g.strain}" aria-label="${d.skill.name}">
       <div class="orb">${pimg(g)}<div class="cd"></div></div>${run.ta && !d.hero ? '<em class="auto">자동</em>' : ''}<span>${d.skill.name}</span><small>${d.name} ${stars(g.star)}</small></button>`; }).join('') + out;
     $('skills').querySelectorAll('.sk[data-s]').forEach(b => b.onclick = () => castSkill(b.dataset.s));
     if ($('skOut')) $('skOut').onclick = () => ui.openOut();
     ui.openOut = () => { if (!run.outLeft) return toast('거점을 모두 썼어요'); aiming = null; const ch = $('outChooser'); ch.hidden = !ch.hidden; if (ch.hidden) { placing = null; return; }
-      ch.innerHTML = Object.entries(OUTPOSTS).map(([k, o]) => `<button data-o="${k}"><img src="assets/${k}.png" alt="">${o.name}<small>${o.desc}</small></button>`).join('');
+      ch.innerHTML = Object.entries(OUTPOSTS).map(([k, o]) => `<button data-o="${k}"><img src="assets/${k}.webp" alt="">${o.name}<small>${o.desc}</small></button>`).join('');
       ch.querySelectorAll('button').forEach(b => b.onclick = () => { placing = b.dataset.o; ch.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); $('hint').textContent = '빈 받침을 눌러 설치하세요'; }); };
     ui.tick();
   },
@@ -5791,7 +5791,7 @@ document.addEventListener('dragstart', e => { if (e.target.closest && e.target.c
 document.addEventListener('pointercancel', e => dragEnd(e, true));
 // ★ 장착 연출: 카드를 꽂거나 본체를 강화하면 가운데에 본체가 크게 떠서, 바뀐 모습과 숫자를 보여 준다 (누르면 바로 닫힘)
 function matchTotal(cards, org) { if (!cards.length) return 0; return Math.round((tropMul(cards, org) - 1) * 100); }
-function snapMine() { const c = slotFill(); if (!c.length) return null; const ms = mineStats(c); return { img: imgSrc(ms.img, 'assets/rhino.png'), s: { ...ms.s }, match: matchTotal(c, save.sel || 'nose'), tier: coreTier() }; }
+function snapMine() { const c = slotFill(); if (!c.length) return null; const ms = mineStats(c); return { img: imgSrc(ms.img, 'assets/rhino.webp'), s: { ...ms.s }, match: matchTotal(c, save.sel || 'nose'), tier: coreTier() }; }
 function equipFx(before, o = {}) {
   const after = snapMine(); if (!after) return; const old = $('eqFx'); if (old) old.remove();
   const el = document.createElement('div'); el.id = 'eqFx'; const b = before || { s: { hp: 0, spd: 0, atk: 0, count: 0 }, match: after.match };
@@ -6052,7 +6052,7 @@ const sndBtns = () => { const o = sndOpt(); return `<button class="btn ${o.bgm ?
 function bindSnd(after) { const o = sndOpt(), ref = () => { persist(); applyVol(); updSndIcon(); if (after) after(); else { $('sBgm').outerHTML = sndBtns().split('</button>')[0] + '</button>'; $('sSfx').outerHTML = sndBtns().split('</button>')[1] + '</button>'; $('sVib').outerHTML = sndBtns().split('</button>')[2] + '</button>'; $('sLow').outerHTML = sndBtns().split('</button>')[3] + '</button>'; bindSnd(); } };
   $('sBgm').onclick = () => { o.bgm = !o.bgm; if (o.bgm && SND.want) playBgm(SND.want, true); ref(); }; $('sSfx').onclick = () => { o.sfx = !o.sfx; ref(); }; if ($('sVib')) $('sVib').onclick = () => { o.vib = o.vib === false; if (o.vib) buzz(30); ref(); }; if ($('sLow')) $('sLow').onclick = () => { setLowQ(!LOWQ); ref(); }; }
 const updSndIcon = () => { $('bSnd').textContent = '⚙'; };
-$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">⚙ 설정</h3><div class="sub">소리 · 진동 · 화면</div><div class="row">${sndBtns()}</div><div class="row"><button class="btn" id="sReset" style="flex-basis:100%;color:#ffb4a8">⟲ 처음부터 다시 하기 (저장 지움)</button><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sReset').onclick = () => { ui.closeModal(); $('bReset').onclick(); }; $('sClose').onclick = ui.closeModal; };
+$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">⚙ 설정</h3><div class="sub">소리 · 진동 · 화면</div><div class="row">${sndBtns()}</div><div class="sub" style="margin:8px 0 2px;font-size:12px;opacity:.75">💾 기록은 이 기기의 브라우저에만 저장돼요. 브라우저 기록을 지우면 함께 지워져요.</div><div class="sub" style="margin:0 0 6px;font-size:12px"><a href="privacy.html#privacy" style="color:inherit">개인정보처리방침</a> · <a href="privacy.html#contact" style="color:inherit">문의하기</a></div><div class="row"><button class="btn" id="sReset" style="flex-basis:100%;color:#ffb4a8">⟲ 처음부터 다시 하기 (저장 지움)</button><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sReset').onclick = () => { ui.closeModal(); $('bReset').onclick(); }; $('sClose').onclick = ui.closeModal; };
 updSndIcon();
 $('bReset').onclick = () => {
   ui.modal(`<h3 style="margin:0 0 6px">처음부터 다시 할까요?</h3><div class="sub">바이러스, DNA, 감염한 기관, 슈퍼바이러스 강화, 영구 변이, 도감이 모두 지워지고 처음 상태로 돌아갑니다. 되돌릴 수 없어요.</div>
@@ -6148,7 +6148,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1125-0010</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1125-1028</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6169,5 +6169,86 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 } catch (e) {} })();
 </script>
 <script>(function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
+<script>
+/* ★ 버전 · 새 버전 확인 · 익명 통계 */
+const GAME_VER = 'v1125-1028';
+(function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
+
+/* 1) 옛 버전이 계속 열리는 것 막기
+   version.json(캐시 안 씀)을 열 때·돌아올 때·10분마다 확인 → 새 버전이면
+   - 다른 앱에 갔다 돌아왔고 지도/연구소 화면(판 밖, 창 없음)이면 저장 후 조용히 새로 고침
+   - 그 밖에는 판 밖일 때만 위쪽에 '새 버전' 알약 버튼을 보여 줌
+   새 주소(?v=새버전)로 열어 브라우저에 남은 옛 파일을 피함. 같은 버전으로는 한 번만 시도(무한 새로 고침 방지). */
+(function () {
+  const KEY = /proto/.test(location.pathname) ? 'proto' : 'main';
+  try { const u = new URL(location.href); if (u.searchParams.get('v') === GAME_VER) { u.searchParams.delete('v'); history.replaceState(null, '', u.pathname + u.search + u.hash); } } catch (e) {}
+  let pend = null, lastChk = 0, pill = null;
+  const safe = () => { try { return !run && $('modal').hidden; } catch (e) { return false; } };
+  const tried = v => { try { return sessionStorage.getItem('virus-updTried') === v; } catch (e) { return true; } };
+  const go = v => {
+    try { sessionStorage.setItem('virus-updTried', v); } catch (e) {}
+    try { persist(); } catch (e) {}
+    const u = new URL(location.href); u.searchParams.set('v', v); location.replace(u.toString());
+  };
+  async function check(auto) {
+    const n = Date.now(); if (n - lastChk < 30000) return; lastChk = n;
+    try {
+      const r = await fetch('version.json?t=' + n, { cache: 'no-store' }); if (!r.ok) return;
+      const v = (await r.json())[KEY];
+      if (typeof v !== 'string' || !/^v\d{4}-\d{4}$/.test(v) || v === GAME_VER || tried(v)) return;
+      pend = v; if (auto && safe()) go(v);
+    } catch (e) {}
+  }
+  setInterval(() => {   // 알약 버튼: 판 밖일 때만 보이고, 판에 들어가면 숨김
+    if (!pend || tried(pend)) return;
+    if (!pill) { pill = document.createElement('button'); pill.id = 'updPill'; pill.textContent = '새 버전이 나왔어요 · 업데이트';
+      pill.style.cssText = 'position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);transform:translateX(-50%);z-index:99990;border:0;border-radius:999px;padding:8px 16px;background:rgba(255,255,255,.92);color:#1d1d1f;font:600 13px/1.2 -apple-system,system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25)';
+      pill.onclick = () => go(pend); document.body.appendChild(pill); }
+    pill.style.display = safe() ? '' : 'none';
+  }, 2000);
+  setTimeout(() => check(false), 4000); setInterval(() => check(false), 10 * 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) check(true); });
+  addEventListener('pageshow', e => { if (e.persisted) { lastChk = 0; check(true); } });
+})();
+
+/* 2) 익명 이용 통계 (지구게임 방식과 같음)
+   방문마다 새 무작위 번호 하나로, 이번 방문의 실제 플레이 시간·진행·시작한 판 수만 보낸다.
+   이름·기기 고유번호·IP는 보내지 않는다. 테스트판(proto)·내 컴퓨터·자동 실행(봇)은 세지 않는다.
+   D님 기기 빼기: 주소 뒤에 ?nostat=1 을 한 번 붙여 열기 (?nostat=0 이면 다시 셈) */
+(function () {
+  const STAT_URL = '';   // 받는 곳이 열리면 채움 (비어 있으면 아무것도 보내지 않음)
+  try { const q = location.search.match(/[?&]nostat=([01])/); if (q) localStorage.setItem('virus-nostat', q[1]); if (localStorage.getItem('virus-nostat') === '1') return; } catch (e) { return; }
+  if (!STAT_URL || /proto/.test(location.pathname) || !/\./.test(location.hostname) || /^(127\.|192\.168\.)/.test(location.hostname) || navigator.webdriver) return;
+  if (!navigator.sendBeacon || !window.crypto) return;
+  const ss = (k, mk) => { try { let v = sessionStorage.getItem(k); if (v == null) { v = String(mk()); sessionStorage.setItem(k, v); } return v; } catch (e) { return String(mk()); } };
+  const prog = () => { try { return Math.max(0, Math.min(40, (save.host | 0) * 8 + Object.keys(save.done || {}).length)); } catch (e) { return 0; } };
+  const tut = () => { try { return save.tutDone ? 1 : 0; } catch (e) { return 0; } };
+  // 새 버전으로 다시 열려도(같은 탭) 같은 방문으로 이어서 센다
+  const sid = ss('virus-sid', () => [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, '0')).join(''));
+  const ref = ss('virus-ref', () => {
+    try { const q = new URLSearchParams(location.search), f = q.get('from') || q.get('utm_source'); if (f && /^[a-z0-9_-]{1,20}$/i.test(f)) return 'from-' + f.toLowerCase(); } catch (e) {}
+    try { const h = new URL(document.referrer).hostname.replace(/^www\./, ''); return h && h !== location.hostname ? h.slice(0, 60) : ''; } catch (e) { return ''; }
+  });
+  const p0 = +ss('virus-p0', prog), t0 = +ss('virus-t0', tut);
+  const ret = +ss('virus-ret', () => { try { return (save.introSeen || prog() > 0 || save.tutDone) ? 1 : 0; } catch (e) { return 0; } });
+  const dev = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'm' : 'd';
+  let sec = +ss('virus-sec', () => 0), runs = +ss('virus-runs', () => 0), lastRun = null, last = Date.now(), act = Date.now(), sentKey = '', sentAt = 0;
+  ['pointerdown', 'keydown', 'touchstart'].forEach(e => addEventListener(e, () => { act = Date.now(); }, { passive: true, capture: true }));
+  const send = () => {
+    if (sec < 3 && runs === 0) return;
+    const b = { g: 'virus', s: sid, sec: Math.round(sec), p0, p: prog(), t0, t: tut(), n: runs, r: ref, d: dev, ret, v: GAME_VER };
+    try { navigator.sendBeacon(STAT_URL, new Blob([JSON.stringify(b)], { type: 'text/plain' })); } catch (e) {}
+    sentKey = b.p + '|' + b.t + '|' + b.n; sentAt = Date.now();
+    try { sessionStorage.setItem('virus-sec', String(Math.round(sec))); sessionStorage.setItem('virus-runs', String(runs)); } catch (e) {}
+  };
+  setInterval(() => { try { if (run && run !== lastRun) runs++; lastRun = run; } catch (e) {} }, 1000);
+  setInterval(() => {
+    const n = Date.now(); if (!document.hidden && n - act < 120000) sec += Math.min(10, (n - last) / 1000); last = n;   // 2분 넘게 손대지 않으면 시간에 넣지 않음
+    if (prog() + '|' + tut() + '|' + runs !== sentKey || n - sentAt > 60000) send();
+  }, 5000);
+  addEventListener('pagehide', send);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) send(); });
+})();
+</script>
 </body>
 </html>
