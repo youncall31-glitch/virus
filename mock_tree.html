@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=390">
+<style>
+  body { margin: 0; width: 390px; height: 844px; background: radial-gradient(120% 70% at 50% 0%, #3a1426, #140810 70%); color: #fff; font-family: 'Noto Serif CJK KR', 'Noto Sans CJK KR', system-ui, sans-serif; overflow: hidden; }
+  .top { display: flex; align-items: center; gap: 10px; padding: 14px 14px 6px; }
+  .cell { width: 62px; height: 62px; border-radius: 50%; background: radial-gradient(circle at 60% 40%, #4a0f34 0 18%, #b8337f55 19% 70%, #ff9ae6 71% 74%, transparent 75%); box-shadow: 0 0 18px #ff5fbf66; position: relative; }
+  .cell img { position: absolute; left: 12px; top: 10px; width: 38px; height: 38px; object-fit: contain; opacity: .9; }
+  h1 { font-size: 19px; margin: 0; } .sub { color: #e8c8dc; font-size: 12px; margin-top: 2px; }
+  .pts { margin-left: auto; text-align: center; background: #ffd27a; color: #2a1a00; border-radius: 12px; padding: 6px 10px; font-size: 12px; line-height: 1.2; }
+  .pts b { font-size: 20px; display: block; }
+  .tree { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 10px 0; }
+  .br { text-align: center; }
+  .bh { font-size: 13px; padding: 6px 0; border-radius: 10px; background: #ffffff10; margin-bottom: 8px; } .bh small { display: block; color: #d9b8cc; font-size: 10px; }
+  .node { position: relative; margin: 0 auto 14px; width: 74px; min-height: 64px; border-radius: 14px; background: #24161c; border: 1.5px solid #ffffff22; padding: 6px 4px; box-sizing: border-box; font-size: 10.5px; line-height: 1.25; color: #e8d6e0; }
+  .node .ic { font-size: 18px; display: block; }
+  .node .c { position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); background: #120608; border: 1px solid #ffffff33; border-radius: 8px; padding: 0 5px; font-size: 10px; color: #ffd6f0; }
+  .node.on { background: linear-gradient(#5a2a12, #3a1a0e); border-color: #ffd27a; color: #fff; box-shadow: 0 0 10px #ffd27a55; }
+  .node.next { border-color: #ff9ae6; border-style: dashed; }
+  .node.lock { opacity: .4; }
+  .link { width: 2px; height: 10px; background: #ffffff22; margin: -14px auto 4px; } .link.on { background: #ffd27a; }
+  .detail { position: absolute; left: 10px; right: 10px; bottom: 74px; background: #24161c; border: 1.5px solid #ff9ae6; border-radius: 16px; padding: 10px 12px; font-size: 13px; }
+  .detail b { color: #ffd27a; } .detail .row { display: flex; gap: 8px; margin-top: 8px; }
+  .btn { flex: 1; text-align: center; border-radius: 12px; padding: 9px; font-size: 14px; background: #3a2030; } .btn.go { background: #e05cc0; color: #fff; }
+  .foot { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; font-size: 11px; color: #c9a8bc; }
+  .note { position: absolute; background: #ffe36e; color: #2a1a00; font-size: 10.5px; padding: 3px 7px; border-radius: 8px; box-shadow: 0 2px 6px #0008; }
+</style></head><body>
+<div class="top">
+  <div class="cell"><img src="assets/adeno.webp"></div>
+  <div><h1>본체 · 공장 세포</h1><div class="sub">Lv 12 · 아데노(🛡 방패) 본체 · 특기: 세포벽 단단</div></div>
+  <div class="pts">남은 점수<b>3</b>Lv당 1점</div>
+</div>
+<div class="tree">
+  <div class="br"><div class="bh">🏭 생산<small>에너지</small></div>
+    <div class="node on"><span class="ic">⚡</span>충전 +10%<span class="c">1</span></div><div class="link on"></div>
+    <div class="node on"><span class="ic">🔋</span>시작 에너지 +2<span class="c">2</span></div><div class="link on"></div>
+    <div class="node next"><span class="ic">📦</span>최대 에너지 +2<span class="c">2</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">⚡</span>충전 +15%<span class="c">3</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">♻</span>탑 깨면 에너지 +1<span class="c">3</span></div>
+  </div>
+  <div class="br"><div class="bh">💥 분출<small>마리 수</small></div>
+    <div class="node on"><span class="ic">➕</span>출격 +1마리<span class="c">1</span></div><div class="link on"></div>
+    <div class="node next"><span class="ic">🌋</span>대분출 +30%<span class="c">2</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">💸</span>제일 비싼 카드 −1<span class="c">2</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">➕</span>출격 +1마리<span class="c">3</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">🔁</span>대분출 뒤 에너지 3<span class="c">3</span></div>
+  </div>
+  <div class="br"><div class="bh">🧱 세포벽<small>버티기</small></div>
+    <div class="node on"><span class="ic">🛡</span>방패 체력 +15%<span class="c">1</span></div><div class="link on"></div>
+    <div class="node on"><span class="ic">🧱</span>방어선 피해 −10%<span class="c">2</span></div><div class="link on"></div>
+    <div class="node on"><span class="ic">🩹</span>공장 습격 −30%<span class="c">2</span></div><div class="link on"></div>
+    <div class="node next"><span class="ic">🦠</span>탑 깨는 힘 +15%<span class="c">3</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">🏰</span>대분출 때 무적 2초<span class="c">3</span></div>
+  </div>
+  <div class="br"><div class="bh">🧬 변이<small>상성</small></div>
+    <div class="node next"><span class="ic">👻</span>숨기 들킴 −25%<span class="c">1</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">💨</span>돌격 감속 절반<span class="c">2</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">🎯</span>상성 유리 +15%<span class="c">2</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">🔭</span>2구간 앞까지 보기<span class="c">3</span></div><div class="link"></div>
+    <div class="node lock"><span class="ic">👑</span>보스 피해 +25%<span class="c">3</span></div>
+  </div>
+</div>
+<div class="detail"><b>🦠 탑 깨는 힘 +15%</b> · 점수 3<br>방어선에서 탑을 무는 힘이 세져요. 방패 본체와 잘 맞아요.
+  <div class="row"><div class="btn">닫기</div><div class="btn go">찍기 (3점)</div></div></div>
+<div class="foot">한 줄마다 위에서부터 차례로 · 전부 찍으려면 44점(Lv 30은 30점) → 고르는 재미 · 초기화는 DNA</div>
+<div class="note" style="left:200px;top:96px">본체 레벨업마다 1점</div>
+<div class="note" style="left:8px;top:500px">찍은 칸 = 금색</div>
+<div class="note" style="left:118px;top:505px">다음에 찍을 수 있는 칸 = 점선</div>
+</body></html>

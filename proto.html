@@ -2586,15 +2586,23 @@ function shake(a) { if (run) run.shk = Math.max(run.shk || 0, a); }
 // 손맛: 휴대폰 진동(설정에서 끌 수 있음) · 순간 멈춤(히트스톱)
 function buzz(p) { try { if (sndOpt().vib !== false && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
 function hitStop(t) { if (run) run.hitStop = Math.max(run.hitStop || 0, t); }
-function popBig(u, c) { const R = run, T = STRAINS.mine && STRAINS.mine.ctype, h = u.size || 8, big = T === 'tank', n = LOWQ ? (big ? 7 : 3) : (big ? 16 : 7);
+function popBig(u, c) { const R = run, T = u.ctype, h = u.size || 8, big = T === 'tank', n = LOWQ ? (big ? 7 : 3) : (big ? 16 : 7);
   for (let i = 0; i < n; i++) { const a = Math.random() * TAU, sp = rand(60, big ? 230 : 160); R.parts.push({ x: u.x, y: u.y - h * 0.5, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 70, t: rand(0.4, 0.75), c: i % 3 ? c : '#fff4e0', r: rand(1.2, big ? 3.6 : 2.4) }); }
   R.fx.push({ x: u.x, y: u.y - h * 0.5, t: 0.22, s: h * (big ? 3.2 : 2.2), color: c });   // 막이 찢어지는 고리
   const sp = R.splats = R.splats || []; if (sp.length < (LOWQ ? 30 : 90)) sp.push({ x: u.x + rand(-3, 3), y: u.y - 2, t: big ? 3 : 1.8, c, r: h * (big ? 0.9 : 0.6) });
   if (big) { const now = R.time || 0; if (!R._popShk || now - R._popShk > 0.18) { R._popShk = now; R.shk = Math.max(R.shk || 0, 2.2); } } }
-function pop(u, col) { if (run) run.deadN = (run.deadN || 0) + 1; sfx('pop'); if (run && u && u.strain === 'mine' && !u.decoy) try { popBig(u, col || SCOLOR.mine || '#ffd27a'); } catch (e) {} const c = col || SCOLOR[u.strain] || '#ffd27a'; if (run) { const sp = run.splats = run.splats || []; if (sp.length < (LOWQ ? 30 : 80)) sp.push({ x: u.x, y: u.y - 4, t: 1.4, c, r: rand(4, 7) }); } for (let i = 0; i < 6; i++) { const a = Math.random() * TAU, sp = rand(40, 110); run.parts.push({ x: u.x, y: u.y - 8, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, t: 0.45, c, r: rand(1.5, 3) }); } }
+function pop(u, col) { if (run) run.deadN = (run.deadN || 0) + 1; sfx('pop'); if (run && u && u.ctype && !u.decoy) try { popBig(u, col || SCOLOR[u.strain] || '#ffd27a'); } catch (e) {} const c = col || SCOLOR[u.strain] || '#ffd27a'; if (run) { const sp = run.splats = run.splats || []; if (sp.length < (LOWQ ? 30 : 80)) sp.push({ x: u.x, y: u.y - 4, t: 1.4, c, r: rand(4, 7) }); } for (let i = 0; i < 6; i++) { const a = Math.random() * TAU, sp = rand(40, 110); run.parts.push({ x: u.x, y: u.y - 8, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, t: 0.45, c, r: rand(1.5, 3) }); } }
 function stepJuice(dt) { const R = run; R.parts = R.parts || []; const cap = LOWQ ? 70 : 220; if (R.parts.length > cap) R.parts.splice(0, R.parts.length - cap); for (const p of R.parts) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.smoke) p.r += dt * 6; else p.vy += 260 * dt; } R.parts = R.parts.filter(p => p.t > 0);
   R.shk = Math.max(0, (R.shk || 0) - dt * 18); for (const c of R.collapse || []) c.t -= dt; if (R.collapse) R.collapse = R.collapse.filter(c => c.t > 0); if (R.winFx) R.winFx.t += dt; R.flashT = Math.max(0, (R.flashT || 0) - dt); }
-function drawJuiceUnder(time) { const R = run;
+function drawFactory(time) { const R = run; if (!R || !R.four || !nestOn()) return;   // ★ 공장 세포: 감염 맨 앞에서 바이러스를 품고 있다가 뿜어냄
+  const [x, y] = pathAt(Math.max(map.d0 || 0, (R.frontD || 0) - 34)), e = (R.en || 0) / FOUR.cap; R.cellPop = Math.max(0, (R.cellPop || 0) - 1 / 60);
+  const beat = 1 + 0.05 * Math.sin(time * (3 + 4 * e)) + R.cellPop * 0.5, r = (15 + 13 * e) * beat; ctx.save();
+  ctx.globalAlpha = 0.8; ctx.fillStyle = 'rgba(150,40,110,.55)'; ctx.strokeStyle = '#ff9ae6'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(x, y - r * 0.6, r * (1 + R.cellPop * 0.3), r * (1 - R.cellPop * 0.25), 0, 0, TAU); ctx.fill(); ctx.stroke();
+  ctx.globalAlpha = 0.9; ctx.fillStyle = '#4a0f34'; ctx.beginPath(); ctx.arc(x + r * 0.2, y - r * 0.7, r * 0.3, 0, TAU); ctx.fill();
+  const n = Math.floor((R.en || 0)); for (let i = 0; i < n; i++) { const a = i * 2.4 + time * 0.8, rr = r * (0.35 + 0.4 * ((i * 37) % 10) / 10); ctx.fillStyle = SCOLOR[(R.groups[i % R.groups.length] || {}).strain] || '#ffd27a'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * rr, y - r * 0.6 + Math.sin(a) * rr * 0.8, 2.2, 0, TAU); ctx.fill(); }
+  if (e >= 0.999) { ctx.globalAlpha = 0.5 + 0.4 * Math.sin(time * 10); ctx.strokeStyle = '#ffe36e'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y - r * 0.6, r + 5, r + 5, 0, 0, TAU); ctx.stroke(); }
+  ctx.restore(); }
+function drawJuiceUnder(time) { const R = run; try { drawFactory(time); } catch (e) {}
   if (R.splats) { for (const p of R.splats) { p.t -= 1 / 60; ctx.globalAlpha = Math.max(0, Math.min(0.45, p.t * 0.5)); ctx.fillStyle = p.c; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r * 1.4, p.r * 0.7, 0, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; R.splats = R.splats.filter(p => p.t > 0); }
   for (const c of R.collapse || []) { const k = 1 - c.t / 0.9; ctx.save(); ctx.globalAlpha = 1 - k; ctx.translate(c.x + Math.sin(k * 40) * 3 * (1 - k), c.y + 4 + k * 14); ctx.rotate(c.dir * k * 0.9); ctx.scale(1 + k * 0.2, 1 - k * 0.6);
     drawSprite(ctx, IMG[c.type], 0, 0, 42, 1, true); ctx.restore();
@@ -2679,6 +2687,23 @@ const CTYPE = {
 function coreType(strain) { const r = ROLE_OF[strain], d = STRAINS[strain] || {};
   if (r === 'swarm') return 'swarm'; if (r === 'tank' || r === 'heal') return 'tank'; if (r === 'stealth') return 'stealth'; if (r === 'dps') return 'rush';
   if (d.stealth) return 'stealth'; if ((d.spd || 0) >= 75) return 'rush'; if ((d.hp || 0) >= 50) return 'tank'; return 'swarm'; }
+// ★ 4장 출격 (11/25 D 결정, 테스트판 전용): 본체 합체 대신 카드 4장을 에너지로 골라 보낸다. 한 번에 몇 마리만(바글바글하지 않게)
+const FOUR_ON = () => !!window.__FOUR || /proto/.test(location.pathname);
+const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, swarm: 3, stealth: 3, rush: 2 }, rate: 1.6, cap: 10, start: 6, hp: 1, atk: 1, bite: 4,
+  m: { tank: { hp: 3.2, size: 1.9, spd: 0.85 }, swarm: { hp: 0.8, size: 0.8, spd: 1 }, stealth: { hp: 1.2, size: 1.05, spd: 1 }, rush: { hp: 1.1, size: 1.05, spd: 1.4 } },
+  dmg: { '💥': { swarm: 2, tank: 0.5, rush: 1.2 }, '🎯': { tank: 2, swarm: 0.45, stealth: 1.2 }, '🕸': { rush: 1.6, tank: 0.8 } } };
+function fourAhead() { const R = run, f = R.frontD || 0, c = {}; for (const t of R.towers) { if (!(t.hp > 0) || t.converted > 0) continue; const d = t.slot ? t.slot.d : nearestOnPath(t.x, t.y).d;
+    if (d < f - 40 || d > f + 520) continue; const fm = TW_FAM[t.type]; if (fm) c[fm] = (c[fm] || 0) + 1; } return c; }
+function fourRecType(c, types) {   // 앞 구간 탑 구성에서 피해를 가장 덜 받는 타입
+  let best = null, bv = 1e9; for (const T of types) { let v = 0, n = 0; for (const [fm, k] of Object.entries(c)) { if (fm === '🔦') continue; v += k * ((FOUR.dmg[fm] || {})[T] ?? 1); n += k; }
+    if (!n) v = T === 'rush' ? -1 : 0; else { v /= n; if (T === 'stealth' && !c['🔦']) v *= 0.7; if (T === 'stealth' && c['🔦']) v *= 1.4; } if (v < bv) { bv = v; best = T; } } return best; }
+function fourSend(i) { const R = run, gr = R && R.groups[i]; if (!gr || !R.four || !nestOn() || R.endAt || R.over) return false; const T = coreType(gr.strain), c = FOUR.cost[T];
+  if ((R.en || 0) < c) { toast('에너지가 부족해요'); return false; } R.en -= c; const n = FOUR.sq[T];
+  for (let k = 0; k < n; k++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]); gr.go = true; gr.rate = 26; gr.wait = 0; R.released += n; R.fourN = (R.fourN || 0) + 1; R.cellPop = 0.3; sfx('breakout'); buzz(25);
+  const [x, y] = pathAt(Math.max(map.d0 || 0, (R.frontD || 0) - 20)); R.rings.push({ x, y, r: 8, R: 50, t: 0.4, color: SCOLOR[gr.strain] || '#e8a0ff' }); float(x, y - 24, `${CTYPE[T].i} ${STRAINS[gr.strain].name} ×${n}`, '#ffe2a8', 14); return true; }
+function fourBurst() { const R = run; if (!R || !R.four || !nestOn() || R.endAt || R.over || (R.en || 0) < FOUR.cap - 0.01) return false; R.en = 0;   // ★ 대분출: 공장 세포가 터지며 4종을 한꺼번에
+  R.groups.forEach(gr => { const T = coreType(gr.strain), n = Math.round(FOUR.sq[T] * 1.2); for (let k = 0; k < n; k++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]); gr.go = true; gr.rate = 30; gr.wait = 0; R.released += n; });
+  R.burstN = (R.burstN || 0) + 1; R.cellPop = 0.6; try { swellBurst(); } catch (e) {} sfx('breakout'); banner('💥 대분출!'); return true; }
 // 기관별 추천 본체 (실제 면역 구성 기준 · 탑 구성과 짝)
 const ORGAN_REC = { nose: 'tank', lung: 'tank', gut: 'swarm', liver: 'rush', blood: 'rush', skin: 'stealth', lymph: 'swarm', brain: null };
 const CT_VS = { '💥': { swarm: 2, tank: 0.5, rush: 1.2 }, '🎯': { tank: 2, swarm: 0.45, stealth: 1.2 } };   // ★ C안 상성: 범위 공격은 떼에, 저격은 방패에 강함
@@ -3511,7 +3536,7 @@ function biteTowers(dt) {
     let tg = null, bd = TOWER_HP.near * TOWER_HP.near; for (const t of R.towers) { if (t.converted > 0) continue; const dx = t.x - u.x, dy = t.y - 18 - u.y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; tg = t; } }
     if (!tg) continue;
     const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'tank' ? 1.7 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
-    tg.hp -= (B3 ? tg.maxHp * BITE.p * clamp(Math.sqrt((u.atk / (R.st.mul || 1)) / BITE.r0), 0.5, 2) : u.atk * TOWER_HP.bite) * m * (u.rally > 0 ? HORN.buff : 1) * (R.med && R.med.guard && R.med.w <= 0 ? MED.counter : 1); tg.bitten = 0.2; tg.squash = 0.16; sfx('bite'); biteHit(R, tg); if (Math.random() < 0.5) { const a = rand(-2.6, -0.5), sp = rand(60, 130); R.parts.push({ x: tg.x + rand(-8, 8), y: tg.y - 22, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.45, c: Math.random() < 0.5 ? TOWERS[tg.type].color : '#d8c0b0', r: rand(1.5, 2.8) }); }
+    tg.hp -= (R.four && !u.hero ? FOUR.bite : 1) * (B3 ? tg.maxHp * BITE.p * clamp(Math.sqrt((u.atk / (R.st.mul || 1)) / BITE.r0), 0.5, 2) : u.atk * TOWER_HP.bite) * m * (u.rally > 0 ? HORN.buff : 1) * (R.med && R.med.guard && R.med.w <= 0 ? MED.counter : 1); tg.bitten = 0.2; tg.squash = 0.16; sfx('bite'); biteHit(R, tg); if (Math.random() < 0.5) { const a = rand(-2.6, -0.5), sp = rand(60, 130); R.parts.push({ x: tg.x + rand(-8, 8), y: tg.y - 22, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.45, c: Math.random() < 0.5 ? TOWERS[tg.type].color : '#d8c0b0', r: rand(1.5, 2.8) }); }
     if (tg.maxHp && tg.hp / tg.maxHp < 0.33 && Math.random() < 0.25) R.parts.push({ x: tg.x + rand(-10, 10), y: tg.y - 30, vx: rand(-10, 10), vy: -40, t: 0.7, c: 'rgba(90,70,70,.55)', r: rand(3, 5), smoke: 1 }); u.atkT = 0.28; u.atkTx = tg.x; u.atkTy = tg.y - 18; u.atkCd = 0.75 + Math.random() * 0.3; u.biting = 0.5;
     if (Math.random() < 0.35) R.fx.push({ x: tg.x + rand(-10, 10), y: tg.y - 18 + rand(-10, 8), t: 0.22, s: 10, color: SCOLOR[u.strain] || '#e8a0ff' }); }
   for (const t of R.towers.filter(t => t.hp <= 0)) {
@@ -3705,7 +3730,7 @@ function startRun() {
   const organ = wk ? organById(wk.map) : organById(save.sel); if (!wk && !organOpen(organ)) return toast('대뇌는 다른 기관 5곳을 감염시킨 뒤 열립니다');
   { let leg = (() => { const c = compGene(); return c && STRAINS[c.strain].legend ? 1 : 0; })(); normSquad(); save.squad = SL.map(i => { const u = save.squad[i], g = geneById(u); if (!g) return null; if (!STRAINS[g.strain].legend) return u; if (leg >= legCap()) return null; leg++; return u; }); }
   const cards = slotFill(); if (!cards.length) return toast('연구소에서 내 바이러스에 카드를 꽂아 주세요');
-  const genes = TA() ? [buildMine(cards)] : cards;
+  const four = TA() && FOUR_ON(), mineG = TA() ? buildMine(cards) : null, genes = four ? [...new Map(cards.filter(g => g && !STRAINS[g.strain].hero && !isComp(g)).map(g => [g.strain, g])).values()].slice(0, 4) : TA() ? [mineG] : cards;
   const cfx = TA() ? compFx(compGene()) : null; if (cfx) { if (cfx.cnt) STRAINS.mine.count *= cfx.cnt; if (cfx.atk) STRAINS.mine.atk *= cfx.atk; if (cfx.hp) STRAINS.mine.hp *= cfx.hp; }
   const fit = false;   // 예전 '기관 적성(역할) +40%'는 궁합 하나로 합침
   const trop = TA() ? tropMul(cards, organ.id) : 1; STRAINS.mine.atk *= trop; STRAINS.mine.hp *= trop;   // 기관 궁합
@@ -3737,6 +3762,7 @@ function startRun() {
           sb: Object.fromEntries(Object.keys(STRAINS).map(k => [k, { shieldMul: 1, spdMul: 1 }])), mono: strains.length === 1,
           cds: Object.fromEntries([...strains, ...skillGenes.map(g => g.strain), hid].map(s => [s, 3])), single: TA(), cards, bodyStrain: cards[0].strain, skillGenes, genes, total: groups.reduce((a, g) => a + g.total, 0), antiviral: [0.45, 0.8], av: null };
   run.roleN = B3 && !window.__noRole ? roleCnt(cards) : {};   // ★ 역할 팀 효과
+  run.four = four; if (four) { run.en = FOUR.start; run.single = false; }
   run.variant = {}; run.mutCd = {}; if (save.host > 0) setTimeout(() => toast(`${hostRule().icon} ${hostRule().title}`), 300);
   if (save.host >= 2) for (const sx of (save.mem || [])) { if (!strains.includes(sx) || !plan.slots.length) continue;
     const mid = map.len * 0.45, sl = plan.slots.sort((a, b) => Math.abs(a.d - mid) - Math.abs(b.d - mid))[0]; plan.slots = plan.slots.filter(c => c !== sl);
@@ -3758,10 +3784,10 @@ function startRun() {
 }
 function spawnUnit(gene, o = {}) { if (run && !o.decoy && !o.copy) run.spawnN = (run.spawnN || 0) + 1;
   if (run.units.length > 320) { run.units = run.units.filter(u => u.alive); if (run.units.length > 320) return null; }
-  const s = geneStats(gene), d = STRAINS[gene.strain], hp = s.hp * (o.hpMul || 1);
-  const u = { gene, strain: gene.strain, star: gene.star, hp, maxHp: hp, atk: o.decoy ? 0 : s.atk * (o.copy ? 0.5 : 1) * (run.mono ? RULES.monoBonus : 1) * (1 + (run.sprAtk || 0)),
-    spd: s.spd * rand(0.94, 1.06) * (run.ta ? RULES.ta.spd : 1), d: o.d ?? (run.frontD || 0) - rand(0, 24), lane: o.lane ?? rand(-14, 14), stack: rand(0, 14),
-    size: d.size * RULES.unitScale * (o.small ? 0.82 : 1) * (gene.star >= 3 ? 1.15 : 1) * (gene.branch ? 1.1 : 1), br: gene.branch ? gene.strain + gene.branch : '', mix: gene.mix || '', fk: -1, fd: 0, valvePass: gene.strain === 'rota' && gene.branch === 'B' && Math.random() < 0.3, decoy: !!o.decoy, inv: 0, boost: 0, cloak: 0, revived: false, hitOnce: false, alive: true, copy: !!o.copy, born: run.time, hitT: 0, x: 0, y: 0, wob: rand(0, TAU) };
+  const s = geneStats(gene), d = STRAINS[gene.strain], CTf = run && run.four && !o.decoy && gene.strain !== 'mine' ? coreType(gene.strain) : null, FM = CTf ? FOUR.m[CTf] : null, hp = s.hp * (o.hpMul || 1) * (FM ? FM.hp * FOUR.hp : 1);
+  const u = { gene, strain: gene.strain, star: gene.star, hp, maxHp: hp, atk: o.decoy ? 0 : s.atk * (FM ? FOUR.atk : 1) * (o.copy ? 0.5 : 1) * (run.mono ? RULES.monoBonus : 1) * (1 + (run.sprAtk || 0)),
+    spd: s.spd * rand(0.94, 1.06) * (run.ta ? RULES.ta.spd : 1) * (FM ? FM.spd : 1), d: o.d ?? (run.frontD || 0) - rand(0, 24), lane: o.lane ?? rand(-14, 14), stack: rand(0, 14),
+    size: d.size * RULES.unitScale * (o.small ? 0.82 : 1) * (gene.star >= 3 ? 1.15 : 1) * (gene.branch ? 1.1 : 1) * (FM ? FM.size : 1), ctype: CTf || (gene.strain === 'mine' && STRAINS.mine ? STRAINS.mine.ctype : null), br: gene.branch ? gene.strain + gene.branch : '', mix: gene.mix || '', fk: -1, fd: 0, valvePass: gene.strain === 'rota' && gene.branch === 'B' && Math.random() < 0.3, decoy: !!o.decoy, inv: 0, boost: 0, cloak: 0, revived: false, hitOnce: false, alive: true, copy: !!o.copy, born: run.time, hitT: 0, x: 0, y: 0, wob: rand(0, TAU) };
   if (gene.reawake && !run.reawakeShown) { run.reawakeShown = true; const [x, y] = pathAt(90); float(x, y - 30, '잠복 감염 재활성화 +8', '#c79cff', 15); }
   if (run.tpow > 1) { u.hp *= run.tpow; u.maxHp *= run.tpow; u.atk *= 1 + (run.tpow - 1) * 0.5; }
   if (o.ambush) { u.atk *= 1 + (ALARM ? AL.gapBonus : RULES.ta.gapBonus); u.ambush = true; }
@@ -4024,6 +4050,7 @@ function update(dt) {
   if (!run || run.over || paused) return;
   stepJuice(dt); tutTick();
   if (stealthOn()) return stepStealth(dt);
+  if (run.four && nestOn()) { run.en = Math.min(FOUR.cap, (run.en || 0) + FOUR.rate * dt); if (run.nest) for (const k in run.nest) run.nest[k] = 0; for (const gr of run.groups) gr.charge = 0; }
   const R = run; R.time += dt;
   for (const k in R.cds) R.cds[k] = Math.max(0, R.cds[k] - dt); autoSkills(dt);
   R.stunT = Math.max(0, (R.stunT || 0) - dt); R.stormT = Math.max(0, (R.stormT || 0) - dt); R.missT = Math.max(0, (R.missT || 0) - dt); R.frzT = Math.max(0, (R.frzT || 0) - dt);
@@ -4085,7 +4112,9 @@ function update(dt) {
     if (R.horn && !u.hero && u.d > 0 && !(u.fk >= 0)) { const g = R.horn.d - u.d; s *= g > 10 ? 1 + clamp(g / 140, 0.4, 2.4) : 0.3; }
     if (marked(u)) s *= 0.85;
     if (u.inZone > 0) { u.inZone -= dt; s *= (R.hz && R.hz.slow) || 1; }
-    if (!B.noSlow && !B.dive) { let slow = 1; for (const a of slows) if (Math.hypot(a.x - u.x, a.y - 20 - u.y) < a.range) slow = Math.min(slow, TOWERS[a.type].aura === 'slow' ? (u.strain === 'mine' && STRAINS.mine.ctype === 'rush' ? 0.4 : u.strain === 'mine' && STRAINS.mine.ctype === 'tank' ? 0.75 : 0.6) : 0.85); s *= slow; }   // ★ C안: 돌격은 끈끈이에 더 약함
+    if (R.four && !u.hero && !(u.fk >= 0) && !(u.ctype === 'stealth' && !u.revealed)) { for (const t of R.towers) { if (!(t.hp > 0) || t.converted > 0) continue;   // ★ 방어선: 탑을 깨야 지나감
+        const td = t.slot ? t.slot.d : (t._pd ?? (t._pd = nearestOnPath(t.x, t.y).d)); if (td > u.d - 6 && Math.hypot(t.x - u.x, t.y - 18 - u.y) < TOWER_HP.near + 4) { s = 0; u.blocked = 0.2; break; } } }
+    if (!B.noSlow && !B.dive) { let slow = 1; for (const a of slows) if (Math.hypot(a.x - u.x, a.y - 20 - u.y) < a.range) slow = Math.min(slow, TOWERS[a.type].aura === 'slow' ? (u.ctype === 'rush' ? 0.4 : u.ctype === 'tank' ? 0.75 : 0.6) : 0.85); s *= slow; }   // ★ C안: 돌격은 끈끈이에 더 약함
     let pos = null;
     if (u.fk >= 0) { const f = map.forks[u.fk]; u.fd += s * dt;
       if (u.fd >= f.len) { u.d = f.d2 + (u.fd - f.len); u.fk = -1; if (R.br) u.brDone = true; } else { u.d = f.d1 + (f.d2 - f.d1) * u.fd / f.len; pos = pathAt(u.fd, f); } }
@@ -4192,7 +4221,7 @@ function damage(u, dmg, src) {
   m *= (u.esc ? 0.75 : 1) * (1 - (u.mimiAura || 0));
   if (marked(u)) m *= 1.35;
   if (src && src.type && run.res) m *= 1 - (run.res[src.type] || 0);
-  if (src && src.type && u.strain === 'mine' && STRAINS.mine.ctype) { const cv = CT_VS[TW_FAM[src.type]]; if (cv && cv[STRAINS.mine.ctype]) m *= cv[STRAINS.mine.ctype]; }
+  if (src && src.type && u.ctype) { const cv = (run.four ? FOUR.dmg : CT_VS)[TW_FAM[src.type]]; if (cv && cv[u.ctype]) m *= cv[u.ctype]; }
   if (run.cfx && run.cfx.dmg) m *= run.cfx.dmg;
   if (run.fever > 0 && !u.hero && ROLE_OF[u.strain] !== 'stealth') m *= 1.4;
   if (u.inv > 0) return;
@@ -4393,15 +4422,18 @@ function render(time) {
         ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(tx, bx, by + 0.5); ctx.restore(); }
       if (n > 1) { const im = outlined(unitImg(u.strain, u.star, u.br, u.mix)), k2 = Math.min(3, n - 1);   // 뒤에 겹친 무리: 작고 어둡게, 좌우로 살짝 비켜서
         for (let q = k2; q >= 1; q--) { const sd = q % 2 ? -1 : 1, off = h * (0.22 + 0.1 * q); ctx.save(); ctx.filter = 'brightness(.62)'; drawSprite(ctx, im, u.x + sd * off, u.y - 2 - q * 3, h * (0.78 - 0.06 * q), 0.95, true); ctx.restore(); } }
-      const CT = u.strain === 'mine' ? STRAINS.mine.ctype : null;   // ★ C안: 타입이 눈에 보이게
+      const CT = u.ctype || null;   // ★ 타입이 눈에 보이게
       const a = (u.hid ? 0.28 : u.decoy ? 0.6 : u.revealed ? 1 : 0.78) * (CT === 'stealth' && !u.revealed ? 0.5 + 0.18 * Math.sin(time * 5 + u.wob) : 1), bob = Math.abs(Math.sin(time * 9 + u.wob)) * 1.6;
       if (CT === 'rush') { const px = u._px ?? u.x, py = u._py ?? u.y, dx = u.x - px, dy = u.y - py, L = Math.hypot(dx, dy); if (L > 0.05) { u._dx = dx / L; u._dy = dy / L; } u._px = u.x; u._py = u.y;
-        if (u._dx != null) { ctx.save(); ctx.strokeStyle = SCOLOR.mine || '#ffd27a'; ctx.lineCap = 'round'; for (let q = 0; q < 3; q++) { const o2 = (q - 1) * h * 0.22; ctx.globalAlpha = 0.45 - q * 0.1; ctx.lineWidth = Math.max(1, h * 0.1);
+        if (u._dx != null) { ctx.save(); ctx.strokeStyle = SCOLOR[u.strain] || '#ffd27a'; ctx.lineCap = 'round'; for (let q = 0; q < 3; q++) { const o2 = (q - 1) * h * 0.22; ctx.globalAlpha = 0.45 - q * 0.1; ctx.lineWidth = Math.max(1, h * 0.1);
           ctx.beginPath(); ctx.moveTo(u.x - u._dx * h * 0.35 - u._dy * o2, u.y - h * 0.4 + u._dx * o2); ctx.lineTo(u.x - u._dx * h * (1.1 + q * 0.15) - u._dy * o2, u.y - h * 0.4 + u._dx * o2 - u._dy * h * (0.75 + q * 0.15)); ctx.stroke(); } ctx.restore(); } }
       drawSprite(ctx, outlined(u.decoy && has('decoy_shell') ? IMG.decoy_shell : unitImg(u.strain, u.star, u.br, u.mix)), u.x, u.y - bob + 1.5, u.decoy ? h * 0.8 : h, a, true); ctx.globalAlpha = 1;
-      if (CT === 'tank' && !u.decoy) { const cy = u.y - bob - h * 0.45, r = h * 0.58, hpk = Math.max(0, u.hp / u.maxHp); ctx.save(); ctx.globalAlpha = 0.9; ctx.strokeStyle = '#2a1a12'; ctx.lineWidth = Math.max(3, h * 0.16); ctx.beginPath(); ctx.arc(u.x, cy, r, Math.PI * 0.95, Math.PI * 2.05); ctx.stroke();
-        ctx.strokeStyle = hpk > 0.5 ? '#d8c39a' : hpk > 0.25 ? '#c99a6a' : '#b0583e'; ctx.lineWidth = Math.max(2, h * 0.1); ctx.beginPath(); ctx.arc(u.x, cy, r, Math.PI * (0.95 + (1 - hpk) * 0.5), Math.PI * 2.05); ctx.stroke();
-        ctx.fillStyle = '#f2e6c8'; for (let q = 0; q < 3; q++) { const an = Math.PI * (1.25 + q * 0.25); ctx.beginPath(); ctx.arc(u.x + Math.cos(an) * r, cy + Math.sin(an) * r, Math.max(1, h * 0.05), 0, TAU); ctx.fill(); } ctx.restore(); }
+      if (CT === 'tank' && !u.decoy) { const cy = u.y - bob - h * 0.45, r = h * 0.56, hpk = Math.max(0, u.hp / u.maxHp); ctx.save(); ctx.globalAlpha = 0.35 + 0.6 * hpk;   // ★ 방패 C: 등껍질 무늬
+        ctx.strokeStyle = '#3a2614'; ctx.lineWidth = Math.max(2.5, h * 0.13); ctx.beginPath(); ctx.arc(u.x, cy, r, 0, TAU); ctx.stroke();
+        ctx.strokeStyle = '#e2cc9a'; ctx.lineWidth = Math.max(1.6, h * 0.075); ctx.beginPath(); ctx.arc(u.x, cy, r, 0, TAU); ctx.stroke();
+        ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(226,204,154,.55)'; for (let q = 0; q < 6; q++) { const an = q * TAU / 6 + 0.26; ctx.beginPath(); ctx.moveTo(u.x + Math.cos(an) * r * 0.62, cy + Math.sin(an) * r * 0.62); ctx.lineTo(u.x + Math.cos(an) * r, cy + Math.sin(an) * r); ctx.stroke(); }
+        if (hpk < 0.6) { ctx.strokeStyle = '#1a0e08'; ctx.lineWidth = 1.4; const nC = hpk < 0.3 ? 3 : 1; for (let q = 0; q < nC; q++) { const an = (u.wob || 0) + q * 2.1; ctx.beginPath(); ctx.moveTo(u.x + Math.cos(an) * r * 1.05, cy + Math.sin(an) * r * 1.05); ctx.lineTo(u.x + Math.cos(an + 0.25) * r * 0.75, cy + Math.sin(an + 0.25) * r * 0.75); ctx.lineTo(u.x + Math.cos(an - 0.1) * r * 0.55, cy + Math.sin(an - 0.1) * r * 0.55); ctx.stroke(); } }
+        ctx.restore(); }
       if (n >= 4) { const bx = u.x + h * 0.42, by = u.y - h * 0.92, tx = '×' + n; ctx.save(); ctx.font = "800 11px 'Jua', sans-serif"; const tw = ctx.measureText(tx).width + 10;
         ctx.fillStyle = 'rgba(16,8,10,.88)'; ctx.strokeStyle = SCOLOR[u.strain] || '#ffd27a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx - tw / 2, by - 8, tw, 16, 8) : ctx.rect(bx - tw / 2, by - 8, tw, 16); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(tx, bx, by + 0.5); ctx.restore(); }
@@ -5403,6 +5435,13 @@ const ui = {
       $('deploy').innerHTML = (run.single ? [] : run.groups).concat(run.single ? run.skillGenes.filter(g => !STRAINS[g.strain].hero && (B3 ? g.strain === coreStrain() : activeSkills().includes(g.strain))).map(g => ({ gene: g, strain: g.strain, sk: true })) : []).map((g, i) => g.sk ? `<button class="dp v done">${pimg(g.gene)}<div><b>${STRAINS[g.strain].skill.name}</b><small>침투 때 사용</small></div></button>` : `<button class="dp v ${g.gene === T.lead ? 'hero' : 'done'}">${pimg(g.gene)}<div><b>${STRAINS[g.strain].name}${g.gene === T.lead ? ' 👑' : ''}</b><small>${g.gene === T.lead ? '잠입 중' : '대기'}</small></div></button>`).join('')
         + (B3 ? `<button class="dp atk big" id="dpAtk"><b>⚔ 공격 시작</b><small>숨어들기를 끝내고 싸워요</small></button>` : `<button class="dp v atk" id="dpAtk"><div><b style="font-size:12px">공격</b><b style="font-size:12px">개시</b></div></button>`);
       $('dpAtk').onclick = () => stealthEnd('', true); tutHi(); return; }
+    if (run.four && nestOn()) { const G = run.groups; $('deploy').style.flexWrap = 'wrap';   // ★ 4장 출격: 에너지 + 카드 4장
+      $('deploy').innerHTML = `<div id="fourEn" style="flex-basis:100%;display:flex;align-items:center;gap:6px;color:#ffd6f0;font-size:12px;margin:0 2px 2px">🧬<div style="flex:1;display:flex;gap:2px">${Array.from({ length: FOUR.cap }, () => '<i style="flex:1;height:8px;border-radius:3px;background:#ffffff1a"></i>').join('')}</div><b>0/${FOUR.cap}</b></div>`
+        + G.map((g, i) => { const T = coreType(g.strain), C = CTYPE[T]; return `<button class="dp v fourB" data-f="${i}" style="position:relative">${pimg(g.gene)}<div><b style="font-size:12px">${C.i} ${C.n}</b><small>🧬${FOUR.cost[T]} · ${FOUR.sq[T]}마리</small></div><span class="fRec" hidden style="position:absolute;top:-8px;right:-4px;background:#ffd27a;color:#2a1a00;font-size:10px;padding:1px 5px;border-radius:7px">추천</span></button>`; }).join('') + `<button class="dp v atk" id="fourBurst" style="flex:0 0 58px"><div><b style="font-size:12px">💥 대분출</b><small>가득 차면</small></div></button>`;
+      $('deploy').querySelectorAll('.fourB').forEach(b => b.onclick = () => { fourSend(+b.dataset.f); ui.tickDeploy(); });
+      $('fourBurst').onclick = () => { if (!fourBurst()) toast('에너지가 가득 차야 해요'); ui.tickDeploy(); };
+      return; }
+    $('deploy').style.flexWrap = '';
     if (run.ta && B3 && nestOn()) { const al = run.skillGenes.filter(g => !STRAINS[g.strain].hero), sk = al.filter(g => activeSkills().includes(g.strain)), cs = coreStrain(), lead = (cs && al.find(g => g.strain === cs)) || sk[0];
       $('deploy').innerHTML = (lead ? `<button class="dp v sk2 coreSk" data-sk="${lead.strain}" aria-label="본체 스킬"><span class="skLb">👑 본체 스킬</span>${pimg(lead)}<div><b style="font-size:12px">${geneSkill(lead).name}</b><small></small></div><i></i></button>` : '')
         + (run.br ? '' : `<button class="dp v bypB" id="dpSpr" aria-label="면역 마비"><div class="b3ic">💫</div><div><b>면역 마비</b><small></small></div><i></i></button>`)
@@ -5465,6 +5504,15 @@ const ui = {
     if (v >= 1 && !run.rcPing && (save.rcG || 0) < 1) { run.rcPing = true; float(W / 2, H * 0.3, '🧬 재조합 준비 완료! 판이 끝나면 옮겨 심어요', '#e9a3ff', 16); sfx('up'); buzz(30); } },
   tickDeploy() {
     if (!run) return; ui.tickHorn(); ui.tickRc(); if (run.wk) ui.wkHud(); const idle = run.idle > 1.2;
+    if (run.four && nestOn() && $('fourEn')) { const e = run.en || 0;   // ★ 4장 출격: 에너지 칸 · 낼 수 있는 카드 · 추천 · 앞 구간 안내
+      $('fourEn').querySelectorAll('i').forEach((sg, k) => sg.style.background = k + 1 <= e ? '#e05cc0' : k < e ? `linear-gradient(90deg,#e05cc0 ${Math.round((e - k) * 100)}%,#ffffff1a 0)` : '#ffffff1a'); $('fourEn').querySelector('b').textContent = `${Math.floor(e)}/${FOUR.cap}`;
+      const types = run.groups.map(g => coreType(g.strain)), c = fourAhead(), rec = fourRecType(c, types);
+      if ($('fourBurst')) $('fourBurst').style.opacity = e >= FOUR.cap - 0.01 ? 1 : 0.4;
+      $('deploy').querySelectorAll('.fourB').forEach((b, i) => { const T = types[i], on = T === rec; b.style.opacity = e >= FOUR.cost[T] ? 1 : 0.45; b.querySelector('.fRec').hidden = !on; b.style.borderColor = on ? '#ffd27a' : ''; });
+      let tip = $('fourTip'); if (!tip) { tip = Object.assign(document.createElement('div'), { id: 'fourTip' }); tip.style.cssText = 'position:absolute;left:50%;top:96px;transform:translateX(-50%);z-index:30;background:rgba(16,8,10,.88);border:1.5px solid #ffd27a;color:#fff;font:13px Jua,sans-serif;padding:4px 10px;border-radius:999px;white-space:nowrap;pointer-events:none'; $('stage').appendChild(tip); }
+      const ic = Object.entries(c).sort((a, b) => b[1] - a[1]).map(([f, n]) => f.repeat(Math.min(3, n))).join(''); tip.hidden = false;
+      tip.innerHTML = `${ic ? '앞 ' + ic : '앞에 탑 없음'} → <b style="color:#ffd27a">${rec ? CTYPE[rec].i + ' ' + CTYPE[rec].n : ''}</b>`; }
+    else if ($('fourTip')) $('fourTip').hidden = true;
     if (run.ta) { const gap = run.gap > 0;
       $('deploy').querySelectorAll('.dp[data-i]').forEach(b => { const g = run.groups[+b.dataset.i], n = Math.round(g.charge * g.max), cd = run.cds[g.strain] || 0, em = b.querySelector('em');
         b.className = 'dp v' + (gap && !nestOn() ? ' gapOn' : g.charge >= 1 ? ' full' : '') + (g.list.length ? ' go' : '') + (cd <= 0 ? ' skReady' : '');
