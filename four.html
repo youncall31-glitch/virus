@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="color-scheme" content="light dark">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>우쭈쭈 바이러스 — 몸속 정복 대작전</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
@@ -138,7 +138,7 @@
   .slot.empty small { margin-top: 10px; text-align: center; line-height: 1.3; }
   .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; } #viewLab .actions { grid-template-columns: 1.1fr .9fr 1fr 1.1fr; gap: 5px; }
   .skLine { display: flex; align-items: center; gap: 6px; margin-top: 3px; } .skLine .skRow { flex: 1; min-width: 0; margin: 0; } .pager.pBox { flex: none; gap: 4px; } .pager.pBox .btn { min-height: 26px; width: 32px; padding: 0; }
-  .navBar { flex: none; display: grid; grid-template-columns: 1fr 1fr 1.35fr 1fr 1fr; align-items: end; gap: 2px; margin: 0 -8px -8px; padding: 0 4px calc(4px + env(safe-area-inset-bottom)); background: #1d1014; border-top: 1px solid #4a2c33; height: 62px; }
+  .navBar { flex: none; display: grid; grid-template-columns: 1fr 1fr 1.35fr 1fr 1fr; align-items: end; gap: 2px; margin: 0 -8px -8px; padding: 0 4px calc(4px + env(safe-area-inset-bottom) + var(--padB, 0px)); background: #1d1014; border-top: 1px solid #4a2c33; height: calc(62px + var(--padB, 0px)); }
   .nv { background: none; border: 0; color: #9c8a76; font: inherit; font-size: 11.5px; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 0 4px; } .nv img { width: 26px; height: 26px; } .nv span { font-size: 21px; line-height: 26px; }
   .nv.on { color: #ff9ab0; } .nv.on img { filter: drop-shadow(0 0 5px #ff6a8a); }
   .navGo { margin-top: -22px; height: 74px; border-radius: 20px; border: 2px solid #ffb0a0; background: linear-gradient(#ff6a5a, #b0242a); color: #fff; font: inherit; font-size: 15px; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; box-shadow: 0 4px 14px rgba(224,69,63,.5); }
@@ -334,11 +334,12 @@
   .sk .auto { position: absolute; top: -4px; right: 2px; font-size: 8.5px; padding: 0 4px; border-radius: 6px; background: #12304a; color: #9fe8ff; border: 1px solid #3f7aa0; font-style: normal; } .sk { position: relative; }
   .modeBtn { font-size: 11.5px; font-weight: 800; padding: 6px 9px; border-radius: 20px; color: #9fe8ff; }
   #domTag { color: #b9f27a; } #alertTag { color: #ffb4a8; border-color: #c23a3f; }
-  #bottom.ta { height: 124px; } #bottom.ta #skills { display: none; } #bottom.ta ~ #outChooser, .taOut { bottom: 130px !important; }
+  #bottom.ta { height: calc(124px + env(safe-area-inset-bottom, 0px) + var(--padB, 0px)); }
+  #bottom.ta.four { height: calc(146px + env(safe-area-inset-bottom, 0px) + var(--padB, 0px)); } #bottom.four .ph { display: none; } #bottom.four #deploy { padding-bottom: 0; }   /* 11/26: 4장 출격 버튼이 화면 밖으로 11px 나가던 것 */ #bottom.ta #skills { display: none; } #bottom.ta ~ #outChooser, .taOut { bottom: 130px !important; }
   .dp.v { flex-direction: column; justify-content: center; height: 76px; gap: 1px; padding: 3px 2px; text-align: center; }
   .dp.v img { height: 30px; } .dp.v div b { font-size: 10px; } .dp.v small { font-size: 9px; } .dp.v em { font-style: normal; font-size: 8.5px; color: #9fe8ff; white-space: nowrap; }
   .dp.v.skReady em { color: #9fff6a; }
-  #bottom { bottom: 0; height: 206px; padding: 6px 4px 12px; background: linear-gradient(rgba(16,9,11,.86), #0d0809 35%); border-top: 1.5px solid #6e3a36; box-shadow: 0 -10px 24px rgba(0,0,0,.7); }
+  #bottom { bottom: 0; height: calc(206px + env(safe-area-inset-bottom, 0px) + var(--padB, 0px)); padding: 6px 4px calc(12px + env(safe-area-inset-bottom, 0px) + var(--padB, 0px)); background: linear-gradient(rgba(16,9,11,.86), #0d0809 35%); border-top: 1.5px solid #6e3a36; box-shadow: 0 -10px 24px rgba(0,0,0,.7); }
   .ph { display: flex; justify-content: space-between; font-size: 11px; color: #b59f86; padding: 0 6px 5px; }
   #hint { flex: 1; min-width: 0; margin-right: 8px; line-height: 1.3; max-height: 2.7em; overflow: hidden; }
   #skills { display: flex; justify-content: space-around; }
@@ -476,7 +477,7 @@
   /* ---------- 결과 · 모달 · 뽑기 ---------- */
   #result { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); gap: 8px; background: rgba(13,8,9,.96); }
   #result .resBody { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; justify-content: safe center; }
-  #result .resBtns { flex: none; margin-top: 0; position: fixed; z-index: 70; left: 50%; transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom)); width: calc(min(100vw, 100dvh * 9 / 16) - 28px); }
+  #result .resBtns { flex: none; margin-top: 0; position: fixed; z-index: 70; left: 50%; transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + var(--padB, 0px)); width: calc(min(100vw, 100dvh * 9 / 16) - 28px); }
   #result .resBody { padding-bottom: 70px; } #result .resBtns .btn { min-height: 54px !important; font-size: 17px; }
   #result .ending { padding: 6px 10px; font-size: 12.5px; margin: 0; } #result .ending .sub { font-size: 11px; }
   #result .starRow { margin: 2px 0; } #result .starRow div { padding: 2px; } #result .starRow div b { font-size: 18px; }
@@ -2697,7 +2698,7 @@ const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, 
   dmg: { '💥': { swarm: 2, tank: 0.5, rush: 1.2 }, '🎯': { tank: 2, swarm: 0.45, stealth: 1.2 }, '🕸': { rush: 1.6, tank: 0.8 } } };   // 11/25 봇: 3배·0.3배로 키우면 판이 너무 어려워져(몸2 20판+) 원래 값 유지
 // ★ 11/25 23시 D: 너무 쉬움 → 판별 목표 배율(봇 '아무거나·추천' 처음 만날 때 평균 ÷ 목표 1.15, 코 1.6·폐 1.3). 봇 dev2/bot/four 로 다시 잼
 const FOUR_Q = {"0:nose": 9.55, "0:lung": 4.04, "0:gut": 1.34, "0:liver": 0.8, "0:blood": 1.15, "0:skin": 1.94, "0:lymph": 0.83, "0:brain": 0.88, "1:nose": 0.78, "1:lung": 0.62, "1:gut": 0.5, "1:liver": 1.11, "1:blood": 2.07, "1:skin": 1.7, "1:lymph": 1.78, "1:brain": 1.46, "2:nose": 2.62, "2:lung": 1.46, "2:gut": 0.8, "2:liver": 1.99, "2:blood": 2.02, "2:skin": 2.01, "2:lymph": 1.97, "2:brain": 1.86, "3:nose": 1.2, "3:lung": 1.19, "3:gut": 1.32, "3:liver": 1.19, "3:blood": 1.46, "3:skin": 1.15, "3:lymph": 1.82, "3:brain": 1.53};
-const FOUR_NAME = '공장 세포';   // ★ 이름 후보(11/25 D: 나중에 정함): 둥지 · 여왕 바이러스 · 모체 · 감염 기지 · 번식 둥지 · 마더 셀
+const FOUR_NAME = '부화장';   // ★ 11/26 D 결정 (옛 이름: 공장 세포)
 const FOUR_FAM = ['💥', '🎯', '🕸', '🔦'];
 function fourDeck() { return [...new Map(slotGenes().slice(0, 4).filter(g => g && !STRAINS[g.strain].hero && !isComp(g)).map(g => [g.strain, g])).values()].slice(0, 4); }   // ★ 칸에 꽂은 카드만(빈 칸 채우기·본체 자리 없음)
 function fourVs(T) {   // ★ 이 타입이 강한/약한 탑 (판 안·연구소에 보여 주기)
@@ -4986,7 +4987,7 @@ const ui = {
   },
   fourTypeHelp(T) { const C = CTYPE[T], m = FOUR.m[T], v = fourVs(T);
     ui.modal(`<h3 style="margin:2px 0 6px">${C.i} ${C.n}</h3><div class="sub" style="font-size:13px;line-height:1.6">한 번에 <b>${FOUR.sq[T]}마리</b> · 에너지 <b>🧬${FOUR.cost[T]}</b><br>체력 ×${m.hp} · 속도 ×${m.spd} · 감염량 ×${FOUR.inf[T]}<br>강한 탑: <b style="color:#9fff6a">${v.good.join(' ') || '없음'}</b><br>약한 탑: <b style="color:#ffb4a8">${v.bad.join(' ') || '없음'}</b><br><small>💥 범위 공격 · 🎯 저격 · 🕸 느리게 · 🔦 찾기</small></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
-  fourTree() { ui.modal(`<h3 style="margin:2px 0 6px">🌳 공장 세포 성장 트리</h3><div class="sub" style="font-size:13px;line-height:1.6">생산 · 분출 · 세포벽 · 변이 4갈래 × 5칸.<br>레벨마다 1점, 다 찍을 수 없어서 골라야 해요.<br>첫 칸 = <b>4번째 카드 칸</b>.<br><br><b style="color:#ffd27a">시안 확인 중 — 아직 만들지 않았어요.</b></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
+  fourTree() { ui.modal(`<h3 style="margin:2px 0 6px">🌳 ${FOUR_NAME} 성장 트리</h3><div class="sub" style="font-size:13px;line-height:1.6">생산 · 분출 · 세포벽 · 변이 4갈래 × 5칸.<br>레벨마다 1점, 다 찍을 수 없어서 골라야 해요.<br>첫 칸 = <b>4번째 카드 칸</b>.<br><br><b style="color:#ffd27a">시안 확인 중 — 아직 만들지 않았어요.</b></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
   // 이 카드를 i번 칸에 꽂으면? (지금 → 바뀐 값). 계산 뒤 본체 모습은 원래대로 되돌림
   // ★ 칸 미리보기: 그 칸에 넣으면 칸 보너스가 몇 %→몇 %, 역할이 맞는지
   slotPrev(g, i) { const c = coreGene(); if (!c || !SLOT_MODE() || i > 3) return null; const k = SLOT_KEY[i] === 'spd' ? SLOT_SPD : 1, old = slotGenes()[i];
@@ -5496,7 +5497,7 @@ const ui = {
         + `<button id="dpHide" aria-label="숨기" style="${sBtn}">🫥 <span>숨기</span><i style="position:absolute;left:0;bottom:0;height:3px;background:#9fd0ff;width:100%"></i></button>`
         + `<button id="fourBurst" aria-label="대분출" style="${sBtn};border-color:#ff8fd0">💥 대분출</button></div>`
         + G.map((g, i) => { const T = coreType(g.strain), C = CTYPE[T]; return `<button class="dp v fourB" data-f="${i}" style="position:relative">${pimg(g.gene)}<div><b style="font-size:13px;white-space:nowrap">${C.i} ${C.n}</b><small style="white-space:nowrap">🧬${FOUR.cost[T]}</small></div><span class="fRec" hidden style="position:absolute;top:-8px;right:-4px;background:#ffd27a;color:#2a1a00;font-size:10px;padding:1px 5px;border-radius:7px">추천</span></button>`; }).join('');
-      $('dpHide').onclick = () => { hideTap(); ui.tickDeploy(); };
+      $('dpHide').onclick = () => { hideTap(); ui.tickDeploy(); }; $('bottom').classList.add('four');
       $('deploy').querySelectorAll('.fourB').forEach(b => b.onclick = () => { fourSend(+b.dataset.f); ui.tickDeploy(); });
       $('fourBurst').onclick = () => { if (!fourBurst()) toast('에너지가 가득 차야 해요'); ui.tickDeploy(); };
       return; }
@@ -6202,8 +6203,9 @@ function bestDonor() { const sq = new Set(save.squad.filter(Boolean)), fill = sl
 const sndBtns = () => { const o = sndOpt(); return `<button class="btn ${o.bgm ? 'green' : ''}" id="sBgm">🎵 음악 ${o.bgm ? '켬' : '끔'}</button><button class="btn ${o.sfx ? 'green' : ''}" id="sSfx">🔊 효과음 ${o.sfx ? '켬' : '끔'}</button><button class="btn ${o.vib !== false ? 'green' : ''}" id="sVib">📳 진동 ${o.vib !== false ? '켬' : '끔'}</button><button class="btn ${LOWQ ? 'green' : ''}" id="sLow">🪶 가벼운 화면 ${LOWQ ? '켬' : '끔'}</button>`; };
 function bindSnd(after) { const o = sndOpt(), ref = () => { persist(); applyVol(); updSndIcon(); if (after) after(); else { $('sBgm').outerHTML = sndBtns().split('</button>')[0] + '</button>'; $('sSfx').outerHTML = sndBtns().split('</button>')[1] + '</button>'; $('sVib').outerHTML = sndBtns().split('</button>')[2] + '</button>'; $('sLow').outerHTML = sndBtns().split('</button>')[3] + '</button>'; bindSnd(); } };
   $('sBgm').onclick = () => { o.bgm = !o.bgm; if (o.bgm && SND.want) playBgm(SND.want, true); ref(); }; $('sSfx').onclick = () => { o.sfx = !o.sfx; ref(); }; if ($('sVib')) $('sVib').onclick = () => { o.vib = o.vib === false; if (o.vib) buzz(30); ref(); }; if ($('sLow')) $('sLow').onclick = () => { setLowQ(!LOWQ); ref(); }; }
+const applyPadB = () => { try { document.documentElement.style.setProperty('--padB', (save.padB || 0) + 'px'); } catch (e) {} }; applyPadB();   // ★ 11/26 D: 갤럭시 아래 버튼에 가림 → 설정에서 아래 여백
 const updSndIcon = () => { $('bSnd').textContent = '⚙'; };
-$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">⚙ 설정</h3><div class="sub">소리 · 진동 · 화면</div><div class="row">${sndBtns()}</div><div class="sub" style="margin:8px 0 2px;font-size:12px;opacity:.75">💾 기록은 이 기기의 브라우저에만 저장돼요. 브라우저 기록을 지우면 함께 지워져요.</div><div class="sub" style="margin:0 0 6px;font-size:12px"><a href="privacy.html#privacy" style="color:inherit">개인정보처리방침</a> · <a href="privacy.html#contact" style="color:inherit">문의하기</a></div><div class="row"><button class="btn" id="sReset" style="flex-basis:100%;color:#ffb4a8">⟲ 처음부터 다시 하기 (저장 지움)</button><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sReset').onclick = () => { ui.closeModal(); $('bReset').onclick(); }; $('sClose').onclick = ui.closeModal; };
+$('bSnd').onclick = () => { ui.modal(`<h3 style="margin:0 0 6px">⚙ 설정</h3><div class="sub">소리 · 진동 · 화면</div><div class="row">${sndBtns()}</div><div class="sub" style="margin:8px 0 2px;font-size:13px">📱 아래 버튼이 가려지면</div><div class="row" id="sPadB">${[[0, '그대로'], [24, '조금 올리기'], [48, '많이 올리기']].map(([v, t]) => `<button class="btn${(save.padB || 0) === v ? ' on' : ''}" data-pb="${v}" style="flex:1;min-height:34px;font-size:13px${(save.padB || 0) === v ? ';border-color:#3ae0c0;color:#3ae0c0' : ''}">${t}</button>`).join('')}</div><div class="sub" style="margin:8px 0 2px;font-size:12px;opacity:.75">💾 기록은 이 기기의 브라우저에만 저장돼요. 브라우저 기록을 지우면 함께 지워져요.</div><div class="sub" style="margin:0 0 6px;font-size:12px"><a href="privacy.html#privacy" style="color:inherit">개인정보처리방침</a> · <a href="privacy.html#contact" style="color:inherit">문의하기</a></div><div class="row"><button class="btn" id="sReset" style="flex-basis:100%;color:#ffb4a8">⟲ 처음부터 다시 하기 (저장 지움)</button><button class="btn" id="sClose" style="flex-basis:100%">닫기</button></div>`); bindSnd(); $('sPadB').querySelectorAll('[data-pb]').forEach(b => b.onclick = () => { save.padB = +b.dataset.pb; persist(); applyPadB(); $('bSnd').onclick(); }); $('sReset').onclick = () => { ui.closeModal(); $('bReset').onclick(); }; $('sClose').onclick = ui.closeModal; };
 updSndIcon();
 $('bReset').onclick = () => {
   ui.modal(`<h3 style="margin:0 0 6px">처음부터 다시 할까요?</h3><div class="sub">바이러스, DNA, 감염한 기관, 슈퍼바이러스 강화, 영구 변이, 도감이 모두 지워지고 처음 상태로 돌아갑니다. 되돌릴 수 없어요.</div>
@@ -6299,7 +6301,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1125-2348</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1126-0622</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6319,11 +6321,11 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   el.querySelector('#sbNever').onclick = () => { localStorage.setItem('sbDark', 'off'); el.remove(); };
 } catch (e) {} })();
 </script>
-<script>(function(){ try { if (/four/.test(location.pathname)) { const c = document.getElementById('hubCore'); if (c) { c.firstChild.textContent = '🏭 '; c.querySelector('span').textContent = '공장'; c.setAttribute('aria-label', '공장 세포 레벨'); } } } catch (e) {} })();
+<script>(function(){ try { if (/four/.test(location.pathname)) { const c = document.getElementById('hubCore'); if (c) { c.firstChild.textContent = '🥚 '; c.querySelector('span').textContent = '부화장'; c.setAttribute('aria-label', '부화장 레벨'); } } } catch (e) {} })();
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1125-2348';
+const GAME_VER = 'v1126-0622';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
