@@ -2689,8 +2689,8 @@ function coreType(strain) { const r = ROLE_OF[strain], d = STRAINS[strain] || {}
   if (d.stealth) return 'stealth'; if ((d.spd || 0) >= 75) return 'rush'; if ((d.hp || 0) >= 50) return 'tank'; return 'swarm'; }
 // ★ 4장 출격 (11/25 D 결정, 테스트판 전용): 본체 합체 대신 카드 4장을 에너지로 골라 보낸다. 한 번에 몇 마리만(바글바글하지 않게)
 const FOUR_ON = () => !!window.__FOUR || /four/.test(location.pathname);   // ★ 체험판 four.html 에서만 (B3 규칙 없이)
-const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, swarm: 3, stealth: 3, rush: 2 }, rate: 1.6, cap: 10, start: 6, hp: 1, atk: 1, bite: 2, hold: 1.5,
-  m: { tank: { hp: 2.4, size: 1.9, spd: 0.85 }, swarm: { hp: 0.55, size: 0.8, spd: 1 }, stealth: { hp: 0.9, size: 1.05, spd: 1 }, rush: { hp: 0.8, size: 1.05, spd: 1.4 } },
+const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, swarm: 3, stealth: 3, rush: 2 }, rate: 0.9, cap: 10, start: 4, hp: 1, atk: 1, bite: 2, hold: 1.5,
+  m: { tank: { hp: 3.2, size: 2.1, spd: 0.75 }, swarm: { hp: 0.45, size: 0.65, spd: 1.05 }, stealth: { hp: 0.9, size: 1.05, spd: 1 }, rush: { hp: 0.75, size: 1.1, spd: 1.65 } },
   dmg: { '💥': { swarm: 2, tank: 0.5, rush: 1.2 }, '🎯': { tank: 2, swarm: 0.45, stealth: 1.2 }, '🕸': { rush: 1.6, tank: 0.8 } } };
 function fourAhead() { const R = run, f = R.frontD || 0, c = {}; for (const t of R.towers) { if (!(t.hp > 0) || t.converted > 0) continue; const d = t.slot ? t.slot.d : nearestOnPath(t.x, t.y).d;
     if (d < f - 40 || d > f + 520) continue; const fm = TW_FAM[t.type]; if (fm) c[fm] = (c[fm] || 0) + 1; } return c; }
@@ -3549,7 +3549,7 @@ function biteTowers(dt) {
     R.towers = R.towers.filter(x => x !== t); R.rings.push({ x: t.x, y: t.y - 20, r: 8, R: 70, t: 0.7, color: '#c06ad0' }); burst(t.x, t.y - 20, 10, '#e8a0ff');
     float(t.x, t.y - 50, `${TOWERS[t.type].name} 붕괴!`, '#e8a0ff', 15);
     R.ruins = R.ruins || []; R.ruins.push({ x: t.x, y: t.y, t: TOWER_HP.block });
-    if (P) { P.built = Math.max(0, P.built - 1); if (t.slot) { t.slot.block = R.time + TOWER_HP.block; P.slots.push(t.slot); } P.next = Math.min(P.next ?? Infinity, R.time + TOWER_HP.rebuild); }
+    if (P) { P.built = Math.max(0, P.built - 1); if (t.slot) { t.slot.block = R.time + TOWER_HP.block * (R.four ? 2 : 1); P.slots.push(t.slot); } P.next = Math.min(P.next ?? Infinity, R.time + TOWER_HP.rebuild * (R.four ? 5.6 : 1)); }
   }
   if (R.ruins) { for (const r of R.ruins) r.t -= dt; R.ruins = R.ruins.filter(r => r.t > 0); }
 }
@@ -4073,7 +4073,7 @@ function update(dt) {
   else { const P = R.plan; if (P && P.built < P.n) {
       const fast = save.host === 3 ? 0.67 : 1;
       if (P.next == null && P.seenN > 0) P.next = R.time + 1.5 * fast;
-      if (P.next != null && R.time >= P.next) { immuneBuild(); P.next = R.time + clamp(((R.T || 70) * 0.5) / P.n, 3, 8) * fast * (B3 ? TW2.cost[tw2Peek()] / 200 : 1); } } }
+      if (P.next != null && R.time >= P.next) { immuneBuild(); P.next = R.time + clamp(((R.T || 70) * 0.5) / P.n, 3, 8) * fast * (B3 ? TW2.cost[tw2Peek()] / 200 : 1) * (R.four ? 1.7 : 1); } } }
   if (save.host === 3) { R.feverT = (R.feverT ?? 12) - dt; if (R.feverT <= 0) { R.feverT = 18; R.fever = 5; banner('발열! 은신 계통 외 받는 피해 +40%'); } R.fever = Math.max(0, (R.fever || 0) - dt); }
   for (const k in (R.mutCd || {})) R.mutCd[k] = Math.max(0, R.mutCd[k] - dt);
   for (const gr of R.groups) {
@@ -6235,7 +6235,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1125-1423</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1125-1443</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6258,7 +6258,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 <script>(function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1125-1423';
+const GAME_VER = 'v1125-1443';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
