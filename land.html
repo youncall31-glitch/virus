@@ -48,9 +48,9 @@
 </head>
 <body>
 <div id="app">
-  <div class="top"><b>폐 · 세 입구</b><div class="prog" id="prog"><i></i><s style="left:50%"></s></div><span class="stars" id="stars"><span>★</span><span>★</span><span>★</span></span><span class="pill" id="time">60</span></div>
+  <div class="top"><b>폐 · 세 입구</b><div class="prog" id="prog" title="핵심 방어막"><i></i></div><span class="stars" id="stars"><span>★</span><span>★</span><span>★</span></span><span class="pill" id="time">60</span></div>
   <div id="wrap"><canvas id="cv"></canvas>
-    <div class="tag">land v1126-3</div>
+    <div class="tag">land v1126-4</div>
   </div>
   <div class="hint" id="hint">카드를 고르고 <b>보라색 땅</b>을 누르세요</div>
   <div class="en">🧬<div class="bar" id="ebar"></div><span id="enum">0</span></div>
@@ -72,7 +72,7 @@ const TOWER = {
   finder: { rng: 80, dmg: 0.8, cd: 0.8, splash: 0, hp: 18 },
   slow:   { rng: 70, dmg: 0.5, cd: 0.6, splash: 0, hp: 18 } };
 const VS = { splash: { swarm: 2.0, tank: 0.5, rush: 1.2 }, sniper: { tank: 2.0, swarm: 0.45, stealth: 1.2 }, slow: { rush: 1.6, tank: 0.8 }, finder: {} };
-const K = { twdmg: 4, twhp: 3, cure: 1.0, ecell: 0.6, tlim: 60, cmb: 2.5, eBase: 0.45, ePer: 0.035, eCap: 10, eStart: 5 };
+const K = { stealthCore: 0.5, coreHp: 40, coreLink: 2, hatchEvery: 2.2, chunkR: 48, star3T: 40, twdmg: 4, twhp: 3, cure: 1.0, ecell: 0.6, tlim: 75, cmb: 2.5, eBase: 0.45, ePer: 0.035, eCap: 10, eStart: 5 };
 const ROWS = 11, COLS = 9;
 const CARD = {   // 화면에 보이는 카드: 좋아하는 목표 한 줄
   tank:    { i: '🛡', n: '방패', t: '탑부터 · 맞아 줌', col: '#7A4FC4' },
@@ -88,7 +88,8 @@ const IMG = {}; const IMGN = { bg: 'bg_lung', core: 'goal_lung', splash: 'macro'
 for (const [k, n] of Object.entries(IMGN)) { const im = new Image(); im.src = 'assets/' + n + '.webp'; IMG[k] = im; }
 const ok = im => im && im.complete && im.naturalWidth > 0;
 const drawImg = (im, x, y, h) => { const w = h * im.naturalWidth / im.naturalHeight; ctx.drawImage(im, x - w / 2, y - h / 2, w, h); };
-const STAGE = { name: '폐 · 세 입구', walls: { 5: [1, 4, 7] }, towers: [['splash', 4, 1], ['sniper', 3, 4], ['slow', 4, 7]], core: [0, 4] };
+const STAGE = { name: '폐 · 세 입구', walls: { 5: [1, 4, 7] }, towers: [['splash', 4, 1], ['sniper', 3, 4], ['slow', 4, 7], ['finder', 1, 3]], core: [0, 4],
+  entries: [{ n: '왼쪽 기관지', rc: [9, 1] }, { n: '가운데 기관', rc: [10, 4] }, { n: '오른쪽 혈관', rc: [9, 7] }] };
 
 const pos = (r, c) => [30 + c * 37 + (r % 2 ? 18 : 0), 30 + r * 32];
 const d2 = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -96,7 +97,7 @@ function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Ma
 
 // ===== 판 =====
 class Game {
-  constructor(stage, deck, seed) {
+  constructor(stage, deck, seed, entry) {
     this.rnd = mulberry(seed || 1); this.stage = stage; this.deck = deck.slice();
     this.cells = [];
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { const p = pos(r, c); if (p[0] > 330) continue;
@@ -106,13 +107,19 @@ class Game {
     for (const c of this.cells) c.nb = this.cells.filter(o => o !== c && !o.wall && d2(o.p, c.p) < 44).map(o => o.i);
     for (const [k, r, c] of stage.towers) this.by[r + ',' + c].tower = { k, hp: TOWER[k].hp * K.twhp, mhp: TOWER[k].hp * K.twhp, cd: 0, cure: 0, tk: -9, shot: 0 };
     this.core = this.by[stage.core.join(',')];
-    for (const c of this.cells) if (c.r >= ROWS - 2 && !c.wall) c.inf = true;
+    const en = stage.entries[entry || 0]; this.entry = entry || 0; this.hatch = this.by[en.rc.join(',')];   // 침투 지점 → 부화장
+    for (const c of this.cells) if (!c.wall && d2(c.p, this.hatch.p) <= 44) c.inf = true;
+    this.coreHp = K.coreHp; this.won = false; this.hatchT = 0; this.conn = new Set(); this.linkCore();
     this.units = []; this.t = 0; this.e = K.eStart; this.ci = 0; this.sent = { tank: 0, swarm: 0, stealth: 0, rush: 0 }; this.lost = 0; this.fx = []; this.over = false;
   }
   towers() { return this.cells.filter(c => c.tower && c.tower.hp > 0); }
   walkable(c) { return !c.wall && !(c.tower && c.tower.hp > 0); }
-  healthy() { return this.cells.filter(c => !c.wall && !c.inf && !(c.tower && c.tower.hp > 0)); }
-  frontier() { const inf = this.cells.filter(c => c.inf); const f = inf.filter(c => c.nb.some(j => !this.cells[j].inf)); return f.length ? f : inf; }
+  healthy() { return this.cells.filter(c => !c.wall && !c.inf && c !== this.core && !(c.tower && c.tower.hp > 0)); }
+  linkCore() { const S = new Set([this.hatch.i]), q = [this.hatch.i];   // 부화장과 이어진 점막만 내 땅
+    for (let h = 0; h < q.length; h++) for (const j of this.cells[q[h]].nb) { const c = this.cells[j]; if (c.inf && !S.has(j)) { S.add(j); q.push(j); } }
+    this.conn = S; }
+  coreLinked() { return this.core.nb.some(j => this.conn.has(j)); }
+  frontier() { const inf = this.cells.filter(c => c.inf && this.conn.has(c.i)); const f = inf.filter(c => c.nb.some(j => !this.cells[j].inf)); return f.length ? f : inf; }
   pct() { const o = this.cells.filter(c => !c.wall); return o.filter(c => c.inf).length / o.length; }
   covered(p) { return this.towers().filter(t => d2(t.p, p) <= TOWER[t.tower.k].rng); }
   bfs(s) { const dist = new Map([[s, 0]]), prev = new Map([[s, null]]), q = [s];
@@ -123,15 +130,16 @@ class Game {
   targetFor(k, s) {
     const [dist, prev] = this.bfs(s), tw = this.towers().filter(t => dist.has(t.i)); let t = null;
     const near = a => a.reduce((b, c) => !b || dist.get(c.i) < dist.get(b.i) ? c : b, null);
-    if (k === 'tank' && tw.length) t = near(tw);
-    else if (k === 'stealth' && !this.core.inf && dist.has(this.core.i)) t = this.core;
+    if (k !== 'stealth' && k !== 'tank' && !this.won && this.coreLinked() && dist.has(this.core.i)) t = this.core;   // 점막이 핵심에 닿으면 모두 핵심으로
+    else if (k === 'tank' && tw.length) t = near(tw);
+    else if (k === 'stealth' && !this.won && dist.has(this.core.i)) t = this.core;
     else { let hs = this.healthy().filter(c => dist.has(c.i));
       if (k === 'rush') { const safe = hs.filter(c => !this.covered(c.p).length); if (safe.length) hs = safe; }
-      let cand = hs.concat(k === 'rush' && hs.length ? [] : tw); if (!cand.length) cand = tw; if (!cand.length) return [null, null]; t = near(cand); }
+      let cand = hs.concat(k === 'rush' && hs.length ? [] : tw); if (!cand.length) cand = tw; if (!cand.length && dist.has(this.core.i)) cand = [this.core]; if (!cand.length) return [null, null]; t = near(cand); }
     return [t, this.path(prev, t.i)]; }
   danger(k, pth) { let s = 0; for (const i of pth) for (const t of this.covered(this.cells[i].p)) { const tk = t.tower.k; if (tk === 'finder' && k !== 'stealth') continue; s += TOWER[tk].dmg * (VS[tk][k] || 1) / TOWER[tk].cd; } return s; }
   deploy(k, cell) {
-    if (this.e < COST[k] || !cell || !cell.inf) return false;
+    if (this.e < COST[k] || !cell || !cell.inf || !this.conn.has(cell.i)) return false;
     const U = UNIT[k]; this.e -= COST[k]; this.sent[k]++;
     for (let n = 0; n < U.n; n++) this.units.push({ k, p: [cell.p[0] + (this.rnd() - .5) * 12, cell.p[1] + (this.rnd() - .5) * 12], at: cell.i, hp: U.hp, mhp: U.hp, path: [], tgt: null, work: 0, slow: 0, seen: 0 });
     this.fx.push({ p: cell.p, t: 0, k: 'drop' }); return true; }
@@ -146,10 +154,13 @@ class Game {
     return [k, best || pick(fr)]; }
   step(DT) {
     if (this.over) return; this.t += DT;
-    const ninf = this.cells.filter(c => c.inf).length;
+    this.linkCore(); const ninf = this.conn.size;
+    this.hatchT += DT; if (this.hatchT >= K.hatchEvery) { this.hatchT = 0;   // 부화장 혼자 번짐(가장 가까운 빈 땅 하나)
+      const cand = this.healthy().filter(c => c.nb.some(j => this.conn.has(j)) && !this.covered(c.p).length);
+      if (cand.length) { const c = cand.reduce((b, c) => d2(c.p, this.hatch.p) < d2(b.p, this.hatch.p) ? c : b); c.inf = true; c.flash = .4; } }
     this.e = Math.min(K.eCap, this.e + (K.eBase + K.ePer * K.ecell * ninf) * DT);
     for (const tc of this.towers()) { const tw = tc.tower; tw.cure += K.cure * DT;   // 면역 반격
-      if (tw.cure >= 1) { tw.cure -= 1; const cand = this.cells.filter(c => c.inf && !c.tower && c !== this.core && d2(c.p, tc.p) <= TOWER[tw.k].rng && !this.units.some(u => d2(u.p, c.p) < 14));
+      if (tw.cure >= 1) { tw.cure -= 1; const cand = this.cells.filter(c => c.inf && !c.tower && c !== this.core && c !== this.hatch && c.nb.some(j => !this.cells[j].inf) && d2(c.p, tc.p) <= TOWER[tw.k].rng && !this.units.some(u => d2(u.p, c.p) < 14));
         if (cand.length) { const c = cand.reduce((b, c) => d2(c.p, tc.p) < d2(b.p, tc.p) ? c : b); c.inf = false; c.flash = 0.6; this.fx.push({ p: c.p, t: 0, k: 'cure', from: tc.p }); } } }
     for (const tc of this.towers()) { const T = TOWER[tc.tower.k], tw = tc.tower; tw.cd -= DT; tw.shot = Math.max(0, tw.shot - DT);
       const inr = this.units.filter(u => d2(u.p, tc.p) <= T.rng);
@@ -175,23 +186,26 @@ class Game {
       if (t.tower && t.tower.hp > 0) { if (u.k === 'tank') t.tower.tk = this.t;
         const cmb = u.k === 'swarm' && this.t - t.tower.tk < 1 ? K.cmb : 1; t.tower.hp -= U.bite * cmb * DT;
         if (cmb > 1 && this.rnd() < .02) this.fx.push({ p: t.p, t: 0, k: 'txt', s: '방패+떼!' });
-        if (t.tower.hp <= 0) { t.inf = true; this.fx.push({ p: t.p, t: 0, k: 'boom' }); } }
+        if (t.tower.hp <= 0) { t.inf = true; for (const c of this.cells) if (!c.wall && c !== this.core && !(c.tower && c.tower.hp > 0) && d2(c.p, t.p) <= K.chunkR) { c.inf = true; c.flash = .6; } this.fx.push({ p: t.p, t: 0, k: 'boom' }); this.fx.push({ p: t.p, t: 0, k: 'txt', s: '탑 파괴! 점막 확보' }); } }
+      else if (t === this.core) { if (this.won) { u.tgt = null; continue; } const link = this.coreLinked() ? K.coreLink : 1; this.coreHp -= U.bite * link * (u.k === 'stealth' ? K.stealthCore : 1) * DT;   // 핵심 방어막: 점막이 이어지면 보급 2배
+        if (this.rnd() < .03) this.fx.push({ p: t.p, t: 0, k: 'txt', s: link > 1 ? '보급 ×2!' : '방어막 깨는 중' });
+        if (this.coreHp <= 0) { this.won = true; this.wonT = this.t; this.core.inf = true; for (const c of this.cells) if (!c.wall && !(c.tower && c.tower.hp > 0) && d2(c.p, t.p) <= K.chunkR) c.inf = true; this.fx.push({ p: t.p, t: 0, k: 'boom' }); } }
       else { u.work += DT; if (u.work >= U.inf) { t.inf = true; t.flash = 0.5; u.tgt = null; } } }
     const dead = this.units.filter(u => u.hp <= 0); this.lost += dead.length; for (const u of dead) this.fx.push({ p: u.p, t: 0, k: 'pop' });
     this.units = this.units.filter(u => u.hp > 0);
     for (const c of this.cells) if (c.flash > 0) c.flash -= DT;
     for (const f of this.fx) f.t += DT; this.fx = this.fx.filter(f => f.t < (f.k === 'txt' ? 1 : .5));
-    if (this.t >= K.tlim || this.pct() >= .999) this.over = true;
+    if (this.t >= K.tlim || this.won) this.over = true;
   }
-  stars() { const p = this.pct(); return [p >= .5, this.core.inf, p >= .999]; }
+  stars() { return [this.won, this.won && !this.towers().length, this.won && this.wonT <= K.star3T]; }
 }
 // 봇 (시험용): window.botRun(['tank','rush'], 'smart'|'rand'|'worst', seed)
-window.botRun = (deck, pol, seed) => { const g = new Game(STAGE, deck, seed); while (!g.over) { const ch = g.botChoose(pol); if (ch) g.deploy(ch[0], ch[1]); g.step(0.1); }
-  return { pct: +g.pct().toFixed(3), stars: g.stars().filter(Boolean).length, core: g.core.inf, lost: g.lost }; };
+window.botRun = (deck, pol, seed, entry) => { const g = new Game(STAGE, deck, seed, entry); while (!g.over) { const ch = g.botChoose(pol); if (ch) g.deploy(ch[0], ch[1]); g.step(0.1); }
+  return { pct: +g.pct().toFixed(3), stars: g.stars().filter(Boolean).length, won: g.won, t: +(g.wonT || g.t).toFixed(1), towers: g.towers().length, lost: g.lost }; };
 
 // ===== 화면 =====
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-let G = null, sel = null, deck = ['tank', 'swarm', 'stealth', 'rush'], info = null, scale = 1, ox = 0, oy = 0;
+let scouting = false, entrySel = 1, G = null, sel = null, deck = ['tank', 'swarm', 'stealth', 'rush'], info = null, scale = 1, ox = 0, oy = 0;
 const W = 360, H = 360;
 function fit() { const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = r.width * dpr; cv.height = r.height * dpr;
   scale = Math.min(r.width / W, r.height / H) * dpr; ox = (cv.width - W * scale) / 2; oy = (cv.height - H * scale) / 2; }
@@ -201,6 +215,21 @@ const toMap = (cx, cy) => { const r = cv.getBoundingClientRect(), dpr = cv.width
 const cellAt = p => { let b = null, bd = 24; for (const c of G.cells) { const d = d2(c.p, p); if (d < bd) { bd = d; b = c; } } return b; };
 const hint = h => document.getElementById('hint').innerHTML = h;
 
+const lay = document.createElement('canvas'), lctx = lay.getContext('2d');
+function drawCreep(fr) {   // 점막: 칸 대신 이어진 얼룩 (이어진 곳 보라, 끊긴 곳 회색)
+  const S = 2; if (lay.width !== W * S) { lay.width = W * S; lay.height = (H + 20) * S; }
+  lctx.setTransform(1, 0, 0, 1, 0, 0); lctx.clearRect(0, 0, lay.width, lay.height); lctx.setTransform(S, 0, 0, S, 0, 0);
+  const tt = performance.now() / 600, inf = G.cells.filter(c => c.inf && c !== G.core);
+  const pass = (rad, col, sel) => { lctx.fillStyle = col; lctx.beginPath(); for (const c of inf) { if (!sel(c)) continue; const r = rad + Math.sin(tt + c.i * 1.7) * 1.2 + (c.flash > 0 ? 3 : 0); lctx.moveTo(c.p[0] + r, c.p[1]); lctx.arc(c.p[0], c.p[1], r, 0, 7); } lctx.fill(); };
+  if (fr) pass(31, '#FFC531', c => fr.has(c.i));
+  pass(27, '#5B2AA8', c => G.conn.has(c.i)); pass(27, '#7D7488', c => !G.conn.has(c.i));
+  pass(23, '#8E5BD9', c => G.conn.has(c.i)); pass(23, '#A9A1B3', c => !G.conn.has(c.i));
+  lctx.fillStyle = 'rgba(255,255,255,.18)'; for (const c of inf) { if (!G.conn.has(c.i)) continue; lctx.beginPath(); lctx.arc(c.p[0] - 5 + Math.sin(tt * .7 + c.i) * 2, c.p[1] - 5, 3.2, 0, 7); lctx.fill(); }
+  ctx.globalAlpha = .82; ctx.drawImage(lay, 0, 0, W, H + 20); ctx.globalAlpha = 1;
+  const h = G.hatch, pul = 1 + Math.sin(performance.now() / 300) * .06;   // 부화장
+  ctx.beginPath(); ctx.ellipse(h.p[0], h.p[1], 19 * pul, 15 * pul, 0, 0, 7); ctx.fillStyle = '#3E1675'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#C9A2FF'; ctx.stroke();
+  for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(h.p[0] + Math.cos(k * 1.26 + tt) * 8, h.p[1] + Math.sin(k * 1.26 + tt) * 6, 3, 0, 7); ctx.fillStyle = '#E6CCFF'; ctx.fill(); }
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('부화장', h.p[0], h.p[1] + 28); }
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
   if (!G) return; ctx.setTransform(scale, 0, 0, scale, ox, oy);
@@ -214,12 +243,11 @@ function draw() {
     ctx.fillStyle = '#9C4A68'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
     for (const r in rows) { const gates = G.cells.filter(c => c.r == r && !c.wall); for (const g of gates) ctx.fillText('입구', g.p[0], g.p[1] + 25); } }
   const fr = sel ? new Set(G.frontier().map(c => c.i)) : null;
-  for (const c of G.cells) { ctx.beginPath(); ctx.arc(c.p[0], c.p[1], c.wall ? 15 : 13, 0, 7);
-    if (c.wall) continue;
-    ctx.fillStyle = c.inf ? (c.flash > 0 ? 'rgba(190,150,245,.9)' : 'rgba(126,72,214,.78)') : (c.flash > 0 ? 'rgba(255,255,255,.95)' : 'rgba(255,236,228,.42)'); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = c.inf ? 'rgba(80,40,150,.5)' : 'rgba(255,255,255,.55)'; ctx.stroke();
-    if (fr && fr.has(c.i)) { ctx.lineWidth = 2.5; ctx.strokeStyle = '#FFC531'; ctx.stroke(); } }
-  { const c = G.core; ctx.beginPath(); ctx.arc(c.p[0], c.p[1], 17, 0, 7); ctx.fillStyle = c.inf ? 'rgba(126,72,214,.85)' : 'rgba(255,216,107,.9)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#C98B00'; ctx.stroke();
-    if (ok(IMG.core)) drawImg(IMG.core, c.p[0], c.p[1] - 4, 34); ctx.fillStyle = '#4A3200'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('핵심', c.p[0], c.p[1] + 26); }
+  drawCreep(fr);
+  if (scouting) for (const [n, e] of STAGE.entries.entries()) { const c = G.by[e.rc.join(',')]; ctx.beginPath(); ctx.arc(c.p[0], c.p[1], 16, 0, 7); ctx.fillStyle = n === entrySel ? 'rgba(255,197,49,.95)' : 'rgba(255,255,255,.85)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#C98B00'; ctx.stroke(); ctx.fillStyle = '#4A3200'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(String(n + 1), c.p[0], c.p[1] + 5); }
+  { const c = G.core; ctx.beginPath(); ctx.arc(c.p[0], c.p[1], 18, 0, 7); ctx.fillStyle = G.won ? 'rgba(126,72,214,.9)' : 'rgba(255,216,107,.92)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#C98B00'; ctx.stroke();
+    if (!G.won) { ctx.beginPath(); ctx.arc(c.p[0], c.p[1], 22, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * G.coreHp / K.coreHp); ctx.lineWidth = 4; ctx.strokeStyle = G.coreLinked() ? '#FF6BA8' : '#4FB3FF'; ctx.stroke(); }
+    if (ok(IMG.core)) drawImg(IMG.core, c.p[0], c.p[1] - 4, 34); ctx.fillStyle = '#4A3200'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(G.won ? '장악!' : '핵심 · 방어막', c.p[0], c.p[1] + 32); }
   for (const tc of G.towers()) { const tw = tc.tower, I = TWI[tw.k], x = tc.p[0], y = tc.p[1];
     ctx.textAlign = 'center';
     if (ok(IMG[tw.k])) { const pul = tw.shot > 0 ? 1.12 : 1; ctx.beginPath(); ctx.ellipse(x, y + 13, 15, 5, 0, 0, 7); ctx.fillStyle = 'rgba(60,20,30,.25)'; ctx.fill(); drawImg(IMG[tw.k], x, y - 2, 38 * pul); }
@@ -262,13 +290,15 @@ function place(p) {
   if (sel && (!c || !c.inf)) { const near = G.frontier().reduce((b, f) => { const d = d2(f.p, p); return d < 46 && (!b || d < d2(b.p, p)) ? f : b; }, null); if (near) c = near; }   // 손가락 오차: 가까운 보라 땅으로
   if (!c) return;
   if (!sel) { hint('먼저 아래 카드를 고르세요'); return; }
-  if (!c.inf) { hint('<b>보라색 땅</b>(감염한 곳)에만 놓을 수 있어요'); return; }
+  if (!c.inf || !G.conn.has(c.i)) { hint(c.inf ? '끊긴 점막(회색)에는 못 놓아요 · 부화장과 다시 이어 주세요' : '<b>보라 점막</b> 위에만 놓을 수 있어요'); return; }
   if (G.e < COST[sel]) { hint('🧬 에너지가 모자라요 · 감염한 땅이 많을수록 빨리 차요'); return; }
   G.deploy(sel, c); hint(CARD[sel].i + ' ' + CARD[sel].n + ': ' + CARD[sel].t); }
-cv.addEventListener('pointerdown', ev => { if (G && !G.over) place(toMap(ev.clientX, ev.clientY)); });
+cv.addEventListener('pointerdown', ev => { if (!G) return; const p = toMap(ev.clientX, ev.clientY);
+  if (scouting) { STAGE.entries.forEach((e, n) => { if (d2(G.by[e.rc.join(',')].p, p) < 34) setEntry(n); }); return; }
+  if (!G.over) place(p); });
 
 function upd() {
-  if (!G) return; const p = G.pct(), st = G.stars();
+  if (!G) return; const p = 1 - Math.max(0, G.coreHp) / K.coreHp, st = G.stars();
   document.querySelector('#prog i').style.width = (p * 100).toFixed(1) + '%';
   document.querySelectorAll('#stars span').forEach((s, i) => s.className = st[i] ? 'on' : '');
   document.getElementById('time').textContent = Math.max(0, Math.ceil(K.tlim - G.t));
@@ -285,16 +315,24 @@ function scout() {   // 정찰 → 덱 고르기
     <div class="row"><span class="tw" style="background:#3BB273">+</span><div><b>면역 반격</b><small>탑이 주변 감염을 되돌려요</small></div></div></div>
     <p style="margin:10px 0 0"><b>덱 고르기</b> (1~4장)</p>
     <div class="pick">${Object.keys(CARD).map(k => `<button data-k="${k}" class="${deck.includes(k) ? 'on' : ''}"><img src="assets/${IMGN[k]}.webp" alt="" style="height:30px;vertical-align:middle"> <b>${CARD[k].n}</b> 🧬${COST[k]}<small>${CARD[k].t}</small></button>`).join('')}</div>
-    <p style="font-size:12px;margin:0">별: ★ 50% 감염 · ★ 핵심 감염 · ★ 100% · ${K.tlim}초</p><div class="grow"></div>
-    <div class="stick"><button class="go" id="bGo">감염 시작</button></div>`; ov.scrollTop = 0;
+    <div class="row"><span class="tw" style="background:#8E5BD9">점</span><div><b>점막</b><small>부화장과 이어진 보라 점막에만 카드를 놓아요 · 넓을수록 에너지 ↑ · 끊기면 회색</small></div></div>
+    <p style="font-size:12px;margin:6px 0 0">목표: 핵심 방어막 깨기(점막이 핵심까지 이어지면 모두 몰려가고 2배) · ★ 장악 ★ 탑 전부 파괴 ★ ${K.star3T}초 안 · 제한 ${K.tlim}초</p><div class="grow"></div>
+    <div class="stick"><button class="go" id="bGo">다음: 침투 지점 고르기</button></div>`; ov.scrollTop = 0;
   ov.querySelectorAll('.pick button').forEach(b => b.onclick = () => { const k = b.dataset.k;
     if (deck.includes(k)) { if (deck.length > 1) deck = deck.filter(x => x !== k); } else deck = [...deck, k].sort((a, b) => Object.keys(CARD).indexOf(a) - Object.keys(CARD).indexOf(b));
     ov.querySelectorAll('.pick button').forEach(x => x.classList.toggle('on', deck.includes(x.dataset.k))); });
-  document.getElementById('bGo').onclick = start; }
-function start() { G = new Game(STAGE, deck, (Math.random() * 1e9) | 0); sel = deck[0]; document.getElementById('ov').hidden = true; cardsUI(); upd(); hint('카드를 고르고 <b>노란 테두리 땅</b>을 누르거나, 카드를 끌어다 놓으세요'); last = performance.now(); }
+  document.getElementById('bGo').onclick = pickEntry; }
+function pickEntry() {   // 지도를 보며 침투 지점 고르기
+  scouting = true; document.getElementById('ov').hidden = true; G = new Game(STAGE, deck, 1, entrySel); fit();
+  hint('<b>침투할 곳</b>을 고르세요 · 가까운 입구와 탑이 달라져요');
+  document.getElementById('cards').innerHTML = STAGE.entries.map((e, n) => `<button class="cd${n === entrySel ? ' sel' : ''}" data-e="${n}"><div class="ic" style="font-size:22px;font-weight:800;color:#8E5BD9">${n + 1}</div><b style="font-size:13px">${e.n}</b></button>`).join('') + `<button class="cd" id="bStart" style="background:var(--yel);border-color:var(--yelD)"><div class="ic">🦠</div><b>시작</b></button>`;
+  document.querySelectorAll('.cd[data-e]').forEach(b => b.onclick = () => setEntry(+b.dataset.e)); document.getElementById('bStart').onclick = start; }
+function setEntry(n) { entrySel = n; G = new Game(STAGE, deck, 1, n); document.querySelectorAll('.cd[data-e]').forEach(b => b.classList.toggle('sel', +b.dataset.e === n)); }
+function start() { scouting = false; G = new Game(STAGE, deck, (Math.random() * 1e9) | 0, entrySel); sel = deck[0]; document.getElementById('ov').hidden = true; cardsUI(); upd(); hint('카드를 고르고 <b>보라 점막</b>(노란 테두리)을 누르거나 끌어다 놓으세요'); last = performance.now(); }
 function result() { const st = G.stars(), n = st.filter(Boolean).length, ov = document.getElementById('ov'); ov.hidden = false;
-  ov.innerHTML = `<h2>${n ? '감염 성공' : '면역에 막혔어요'} ${'★'.repeat(n)}${'☆'.repeat(3 - n)}</h2><p>감염 ${(G.pct() * 100).toFixed(0)}% · 핵심 ${G.core.inf ? '감염 ✓' : '못 함'} · 잃은 바이러스 ${G.lost}마리<br>보낸 카드: ${deck.map(k => CARD[k].i + G.sent[k]).join(' ')}</p>
-    <div class="row"><div><b>생각해 볼 점</b><small>${G.core.inf ? '핵심까지 갔어요. 다른 입구나 덱으로 더 빨리 해 보세요.' : '숨기는 찾기 탑이 없는 길로 핵심에 가요. 방패는 탑을 맡고, 그 옆에 떼를 놓으면 탑이 빨리 깨져요.'}</small></div></div>
+  ov.innerHTML = `<h2>${G.won ? '핵심 장악!' : '면역에 막혔어요'} ${'★'.repeat(n)}${'☆'.repeat(3 - n)}</h2><p>${G.won ? '장악 ' + G.wonT.toFixed(0) + '초' : '방어막 ' + Math.round(100 - 100 * G.coreHp / K.coreHp) + '% 깸'} · 남은 탑 ${G.towers().length}개 · 점막 ${(G.pct() * 100).toFixed(0)}% · 잃은 바이러스 ${G.lost}마리<br>침투: ${STAGE.entries[G.entry].n} · 보낸 카드: ${deck.map(k => CARD[k].i + G.sent[k]).join(' ')}</p>
+    <div class="row"><div><b>별</b><small>${st[0] ? '★' : '☆'} 핵심 장악 · ${st[1] ? '★' : '☆'} 탑 전부 파괴 · ${st[2] ? '★' : '☆'} ${K.star3T}초 안</small></div></div>
+    <div class="row"><div><b>생각해 볼 점</b><small>${G.won ? (st[1] ? '다른 침투 지점이나 덱으로 더 빨리 해 보세요.' : '탑을 다 부수고 장악하면 별이 하나 더예요. 방패 옆에 떼를 놓으면 탑이 빨리 깨져요.') : '점막을 핵심까지 이으면 모두 핵심으로 몰려가고 방어막이 2배로 깨져요. 숨기는 혼자 몰래 가지만 힘이 약해요.'}</small></div></div>
     <div class="grow"></div><div class="stick"><button class="go" id="bAgain">다시 정찰</button></div>`; ov.scrollTop = 0; document.getElementById('bAgain').onclick = scout; }
 
 let last = performance.now(), acc = 0;
