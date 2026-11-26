@@ -26,7 +26,7 @@
   .en .bar { flex: 1; display: flex; gap: 2px; } .en .bar i { flex: 1; height: 10px; border-radius: 3px; background: #F0DCD3; } .en .bar i.on { background: var(--pur); }
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .cd { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 7px 2px 6px; min-height: 76px; text-align: center; font: inherit; color: var(--ink); touch-action: none; user-select: none; }
-  .cd .ic { font-size: 22px; line-height: 1.1; } .cd b { display: block; font-size: 14px; } .cd small { display: block; font-size: 11px; color: var(--sub); white-space: nowrap; } .cd .cost { font-size: 12px; color: var(--pur); font-weight: 700; }
+  .cd .ic { height: 36px; display: flex; align-items: center; justify-content: center; } .cd b { display: block; font-size: 14px; } .cd small { display: block; font-size: 11px; color: var(--sub); white-space: nowrap; } .cd .cost { font-size: 12px; color: var(--pur); font-weight: 700; }
   .cd.sel { border-color: var(--pur); background: #F4EEFF; } .cd.low { opacity: .45; }
   .ov { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; padding: calc(10px + env(safe-area-inset-top)) 14px 0; z-index: 5; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .ov > .grow { flex: 1 0 8px; }
@@ -50,7 +50,7 @@
 <div id="app">
   <div class="top"><b>폐 · 세 입구</b><div class="prog" id="prog"><i></i><s style="left:50%"></s></div><span class="stars" id="stars"><span>★</span><span>★</span><span>★</span></span><span class="pill" id="time">60</span></div>
   <div id="wrap"><canvas id="cv"></canvas>
-    <div class="tag">land v1126-2</div>
+    <div class="tag">land v1126-3</div>
   </div>
   <div class="hint" id="hint">카드를 고르고 <b>보라색 땅</b>을 누르세요</div>
   <div class="en">🧬<div class="bar" id="ebar"></div><span id="enum">0</span></div>
@@ -84,6 +84,10 @@ const TWI = {
   splash: { n: '범위', l: '범', col: '#F0A030', t: '뭉친 무리에 큰 피해 · 떼에 2배' },
   finder: { n: '찾기', l: '찾', col: '#3A8DDE', t: '숨기를 드러냄(피해는 없음)' },
   slow:   { n: '느림', l: '느', col: '#2BB3A3', t: '느리게 함 · 돌격에 1.6배' } };
+const IMG = {}; const IMGN = { bg: 'bg_lung', core: 'goal_lung', splash: 'macro', sniper: 'tcell', finder: 'dendri', slow: 'cilia', tank: 'adeno', swarm: 'rhino', stealth: 'herpes', rush: 'rota' };
+for (const [k, n] of Object.entries(IMGN)) { const im = new Image(); im.src = 'assets/' + n + '.webp'; IMG[k] = im; }
+const ok = im => im && im.complete && im.naturalWidth > 0;
+const drawImg = (im, x, y, h) => { const w = h * im.naturalWidth / im.naturalHeight; ctx.drawImage(im, x - w / 2, y - h / 2, w, h); };
 const STAGE = { name: '폐 · 세 입구', walls: { 5: [1, 4, 7] }, towers: [['splash', 4, 1], ['sniper', 3, 4], ['slow', 4, 7]], core: [0, 4] };
 
 const pos = (r, c) => [30 + c * 37 + (r % 2 ? 18 : 0), 30 + r * 32];
@@ -200,6 +204,7 @@ const hint = h => document.getElementById('hint').innerHTML = h;
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
   if (!G) return; ctx.setTransform(scale, 0, 0, scale, ox, oy);
+  if (ok(IMG.bg)) { const im = IMG.bg, bw = W + 40, bh = bw * im.naturalHeight / im.naturalWidth; ctx.save(); ctx.beginPath(); ctx.roundRect(-14, 4, W + 28, H + 4, 18); ctx.clip(); ctx.drawImage(im, -20, (H - bh) / 2, bw, bh); ctx.fillStyle = 'rgba(255,240,232,.18)'; ctx.fillRect(-20, 0, bw, H + 20); ctx.restore(); }
   for (const tc of G.towers()) { const T = TOWER[tc.tower.k]; ctx.beginPath(); ctx.arc(tc.p[0], tc.p[1], T.rng, 0, 7); ctx.fillStyle = TWI[tc.tower.k].col + '14'; ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = TWI[tc.tower.k].col + '88'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.setLineDash([]); }
   { const rows = {}; for (const c of G.cells) if (c.wall) (rows[c.r] = rows[c.r] || []).push(c);   // 세포막: 이어진 띠로
     ctx.strokeStyle = '#C9708F'; ctx.lineCap = 'round'; ctx.lineWidth = 22;
@@ -211,16 +216,20 @@ function draw() {
   const fr = sel ? new Set(G.frontier().map(c => c.i)) : null;
   for (const c of G.cells) { ctx.beginPath(); ctx.arc(c.p[0], c.p[1], c.wall ? 15 : 13, 0, 7);
     if (c.wall) continue;
-    ctx.fillStyle = c.inf ? (c.flash > 0 ? '#B78CF0' : '#8E5BD9') : (c.flash > 0 ? '#FFFFFF' : '#F6CDBE'); ctx.fill();
+    ctx.fillStyle = c.inf ? (c.flash > 0 ? 'rgba(190,150,245,.9)' : 'rgba(126,72,214,.78)') : (c.flash > 0 ? 'rgba(255,255,255,.95)' : 'rgba(255,236,228,.42)'); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = c.inf ? 'rgba(80,40,150,.5)' : 'rgba(255,255,255,.55)'; ctx.stroke();
     if (fr && fr.has(c.i)) { ctx.lineWidth = 2.5; ctx.strokeStyle = '#FFC531'; ctx.stroke(); } }
-  { const c = G.core; ctx.beginPath(); ctx.arc(c.p[0], c.p[1], 15, 0, 7); ctx.fillStyle = c.inf ? '#8E5BD9' : '#FFD86B'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#C98B00'; ctx.stroke();
-    ctx.fillStyle = '#4A3200'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('핵심', c.p[0], c.p[1] + 4); }
+  { const c = G.core; ctx.beginPath(); ctx.arc(c.p[0], c.p[1], 17, 0, 7); ctx.fillStyle = c.inf ? 'rgba(126,72,214,.85)' : 'rgba(255,216,107,.9)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#C98B00'; ctx.stroke();
+    if (ok(IMG.core)) drawImg(IMG.core, c.p[0], c.p[1] - 4, 34); ctx.fillStyle = '#4A3200'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('핵심', c.p[0], c.p[1] + 26); }
   for (const tc of G.towers()) { const tw = tc.tower, I = TWI[tw.k], x = tc.p[0], y = tc.p[1];
-    ctx.fillStyle = tw.shot > 0 ? '#fff' : I.col; ctx.beginPath(); ctx.roundRect(x - 14, y - 14, 28, 28, 7); ctx.fill();
-    ctx.fillStyle = tw.shot > 0 ? I.col : '#fff'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(I.l, x, y + 5);
+    ctx.textAlign = 'center';
+    if (ok(IMG[tw.k])) { const pul = tw.shot > 0 ? 1.12 : 1; ctx.beginPath(); ctx.ellipse(x, y + 13, 15, 5, 0, 0, 7); ctx.fillStyle = 'rgba(60,20,30,.25)'; ctx.fill(); drawImg(IMG[tw.k], x, y - 2, 38 * pul); }
+    else { ctx.fillStyle = I.col; ctx.beginPath(); ctx.roundRect(x - 14, y - 14, 28, 28, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif'; ctx.fillText(I.l, x, y + 5); }
     ctx.fillStyle = '#0002'; ctx.fillRect(x - 14, y + 17, 28, 4); ctx.fillStyle = I.col; ctx.fillRect(x - 14, y + 17, 28 * Math.max(0, tw.hp / tw.mhp), 4);
     ctx.fillStyle = I.col; ctx.font = 'bold 10px sans-serif'; ctx.fillText(I.n, x, y + 32); }
-  for (const u of G.units) { const x = u.p[0], y = u.p[1]; ctx.globalAlpha = u.k === 'stealth' && !(u.seen > 0) ? .45 : 1; ctx.fillStyle = CARD[u.k].col; ctx.beginPath();
+  const USZ = { tank: 27, swarm: 17, stealth: 21, rush: 20 };
+  for (const u of G.units) { const x = u.p[0], y = u.p[1]; ctx.globalAlpha = u.k === 'stealth' && !(u.seen > 0) ? .45 : 1;
+    if (ok(IMG[u.k])) { drawImg(IMG[u.k], x, y - 3, USZ[u.k]); if (u.hp < u.mhp) { ctx.fillStyle = '#0005'; ctx.fillRect(x - 6, y + USZ[u.k] / 2 - 2, 12, 2.5); ctx.fillStyle = '#7CFC9A'; ctx.fillRect(x - 6, y + USZ[u.k] / 2 - 2, 12 * Math.max(0, u.hp / u.mhp), 2.5); } ctx.globalAlpha = 1; continue; }
+    ctx.fillStyle = CARD[u.k].col; ctx.beginPath();
     if (u.k === 'tank') { ctx.arc(x, y, 7, 0, 7); ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#3B2430'; ctx.stroke(); }
     else if (u.k === 'swarm') { ctx.arc(x, y, 3.2, 0, 7); ctx.fill(); }
     else if (u.k === 'rush') { ctx.ellipse(x, y, 5.5, 3, 0, 0, 7); ctx.fill(); }
@@ -240,7 +249,7 @@ function draw() {
 }
 
 function cardsUI() {
-  document.getElementById('cards').innerHTML = deck.map(k => `<button class="cd" data-k="${k}"><div class="ic">${CARD[k].i}</div><b>${CARD[k].n}</b><small>${CARD[k].t.split(' · ')[0]}</small><span class="cost">🧬${COST[k]}</span></button>`).join('');
+  document.getElementById('cards').innerHTML = deck.map(k => `<button class="cd" data-k="${k}"><div class="ic"><img src="assets/${IMGN[k]}.webp" alt="" style="height:34px"></div><b>${CARD[k].n}</b><small>${CARD[k].t.split(' · ')[0]}</small><span class="cost">🧬${COST[k]}</span></button>`).join('');
   document.querySelectorAll('.cd').forEach(b => {
     b.onpointerdown = ev => { if (!G || G.over) return; sel = b.dataset.k; drag = { k: sel, moved: false, sx: ev.clientX, sy: ev.clientY }; b.setPointerCapture(ev.pointerId); upd(); };
     b.onpointermove = ev => { if (drag && Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy) > 12) drag.moved = true; };
@@ -272,10 +281,10 @@ function scout() {   // 정찰 → 덱 고르기
   const ov = document.getElementById('ov'); ov.hidden = false;
   const tws = STAGE.towers.map(t => t[0]);
   ov.innerHTML = `<h2>🔍 정찰: 폐</h2><p>분홍 막은 못 지나가요 · 입구 3곳 · 바이러스는 <b>놓은 자리에서</b> 좋아하는 목표로 가요</p>
-    <div class="tws">${[...new Set(tws)].map(k => `<div class="row"><span class="tw" style="background:${TWI[k].col}">${TWI[k].l}</span><div><b>${TWI[k].n}</b> ×${tws.filter(x => x === k).length}<small>${TWI[k].t}</small></div></div>`).join('')}
+    <div class="tws">${[...new Set(tws)].map(k => `<div class="row"><img src="assets/${IMGN[k]}.webp" alt="" style="height:34px;flex:0 0 auto"><div><b style="color:${TWI[k].col}">${TWI[k].n}</b> ×${tws.filter(x => x === k).length}<small>${TWI[k].t}</small></div></div>`).join('')}
     <div class="row"><span class="tw" style="background:#3BB273">+</span><div><b>면역 반격</b><small>탑이 주변 감염을 되돌려요</small></div></div></div>
     <p style="margin:10px 0 0"><b>덱 고르기</b> (1~4장)</p>
-    <div class="pick">${Object.keys(CARD).map(k => `<button data-k="${k}" class="${deck.includes(k) ? 'on' : ''}">${CARD[k].i} <b>${CARD[k].n}</b> 🧬${COST[k]}<small>${CARD[k].t}</small></button>`).join('')}</div>
+    <div class="pick">${Object.keys(CARD).map(k => `<button data-k="${k}" class="${deck.includes(k) ? 'on' : ''}"><img src="assets/${IMGN[k]}.webp" alt="" style="height:30px;vertical-align:middle"> <b>${CARD[k].n}</b> 🧬${COST[k]}<small>${CARD[k].t}</small></button>`).join('')}</div>
     <p style="font-size:12px;margin:0">별: ★ 50% 감염 · ★ 핵심 감염 · ★ 100% · ${K.tlim}초</p><div class="grow"></div>
     <div class="stick"><button class="go" id="bGo">감염 시작</button></div>`; ov.scrollTop = 0;
   ov.querySelectorAll('.pick button').forEach(b => b.onclick = () => { const k = b.dataset.k;
