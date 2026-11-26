@@ -9,7 +9,7 @@
   :root { --bg: #FFF4EC; --ink: #3B2430; --sub: #8A6A74; --card: #FFFFFF; --line: #F0D9CF; --yel: #FFC531; --yelD: #C98B00; --pur: #8E5BD9; --padB: 0px; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif; overscroll-behavior: none; }
-  #app { max-width: 480px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; padding: env(safe-area-inset-top) 10px calc(10px + env(safe-area-inset-bottom) + var(--padB)); }
+  #app { position: relative; max-width: 480px; margin: 0 auto; height: 100vh; height: var(--vh, 100dvh); display: flex; flex-direction: column; padding: env(safe-area-inset-top) 10px calc(10px + env(safe-area-inset-bottom) + var(--padB)); }
   .top { display: flex; align-items: center; gap: 8px; padding: 8px 2px 6px; }
   .top b { font-size: 17px; }
   .pill { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 3px 10px; font-size: 13px; color: var(--sub); }
@@ -25,13 +25,16 @@
   .en { display: flex; align-items: center; gap: 6px; margin: 2px 2px 6px; font-size: 13px; color: var(--sub); }
   .en .bar { flex: 1; display: flex; gap: 2px; } .en .bar i { flex: 1; height: 10px; border-radius: 3px; background: #F0DCD3; } .en .bar i.on { background: var(--pur); }
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .cd { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 6px 2px 5px; text-align: center; font: inherit; color: var(--ink); touch-action: none; user-select: none; }
+  .cd { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 7px 2px 6px; min-height: 76px; text-align: center; font: inherit; color: var(--ink); touch-action: none; user-select: none; }
   .cd .ic { font-size: 22px; line-height: 1.1; } .cd b { display: block; font-size: 14px; } .cd small { display: block; font-size: 11px; color: var(--sub); white-space: nowrap; } .cd .cost { font-size: 12px; color: var(--pur); font-weight: 700; }
   .cd.sel { border-color: var(--pur); background: #F4EEFF; } .cd.low { opacity: .45; }
-  .ov { position: absolute; inset: 0; background: rgba(255,244,236,.94); display: flex; flex-direction: column; justify-content: center; padding: 14px; z-index: 5; overflow: auto; }
+  .ov { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; padding: calc(10px + env(safe-area-inset-top)) 14px 0; z-index: 5; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .ov > .grow { flex: 1 0 8px; }
+  .ov .stick { position: sticky; bottom: 0; background: var(--bg); padding: 8px 0 calc(12px + env(safe-area-inset-bottom) + var(--padB)); margin-top: 6px; }
+  .tws { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .tws .row { margin: 0; padding: 6px 8px; align-items: flex-start; } .tws .row small { font-size: 11px; line-height: 1.35; }
   .ov h2 { margin: 0 0 4px; font-size: 21px; } .ov p { margin: 4px 0 10px; color: var(--sub); font-size: 14px; line-height: 1.5; }
   .row { display: flex; gap: 8px; align-items: center; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 7px 10px; margin: 5px 0; font-size: 14px; }
-  .row .tw { width: 30px; height: 30px; border-radius: 8px; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .row .tw { width: 26px; height: 26px; border-radius: 8px; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .row small { color: var(--sub); display: block; font-size: 12px; }
   .pick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin: 6px 0 10px; }
   .pick button { font: inherit; background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 8px; text-align: left; color: var(--ink); }
@@ -47,12 +50,12 @@
 <div id="app">
   <div class="top"><b>폐 · 세 입구</b><div class="prog" id="prog"><i></i><s style="left:50%"></s></div><span class="stars" id="stars"><span>★</span><span>★</span><span>★</span></span><span class="pill" id="time">60</span></div>
   <div id="wrap"><canvas id="cv"></canvas>
-    <div class="ov" id="ov"></div>
-    <div class="tag">land v1126-1</div>
+    <div class="tag">land v1126-2</div>
   </div>
   <div class="hint" id="hint">카드를 고르고 <b>보라색 땅</b>을 누르세요</div>
   <div class="en">🧬<div class="bar" id="ebar"></div><span id="enum">0</span></div>
   <div class="cards" id="cards"></div>
+  <div class="ov" id="ov"></div>
 </div>
 <script>
 'use strict';
@@ -188,9 +191,10 @@ let G = null, sel = null, deck = ['tank', 'swarm', 'stealth', 'rush'], info = nu
 const W = 360, H = 360;
 function fit() { const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = r.width * dpr; cv.height = r.height * dpr;
   scale = Math.min(r.width / W, r.height / H) * dpr; ox = (cv.width - W * scale) / 2; oy = (cv.height - H * scale) / 2; }
-window.addEventListener('resize', fit);
+const setVH = () => { document.documentElement.style.setProperty('--vh', window.innerHeight + 'px'); fit(); };
+window.addEventListener('resize', setVH); if (window.visualViewport) visualViewport.addEventListener('resize', setVH);
 const toMap = (cx, cy) => { const r = cv.getBoundingClientRect(), dpr = cv.width / r.width; return [((cx - r.left) * dpr - ox) / scale, ((cy - r.top) * dpr - oy) / scale]; };
-const cellAt = p => { let b = null, bd = 20; for (const c of G.cells) { const d = d2(c.p, p); if (d < bd) { bd = d; b = c; } } return b; };
+const cellAt = p => { let b = null, bd = 24; for (const c of G.cells) { const d = d2(c.p, p); if (d < bd) { bd = d; b = c; } } return b; };
 const hint = h => document.getElementById('hint').innerHTML = h;
 
 function draw() {
@@ -242,8 +246,12 @@ function cardsUI() {
     b.onpointermove = ev => { if (drag && Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy) > 12) drag.moved = true; };
     b.onpointerup = ev => { if (drag && drag.moved) { const r = cv.getBoundingClientRect(); if (ev.clientY < r.bottom && ev.clientY > r.top) place(toMap(ev.clientX, ev.clientY)); } drag = null; }; }); }
 let drag = null;
-function place(p) { const c = cellAt(p); if (!c) return;
-  if (c.tower && c.tower.hp > 0) { info = c; setTimeout(() => { if (info === c) info = null; }, 2600); return; }
+function place(p) {
+  const tw = G.towers().reduce((b, t) => { const d = d2(t.p, p); return d < 26 && (!b || d < d2(b.p, p)) ? t : b; }, null);
+  if (tw) { info = tw; setTimeout(() => { if (info === tw) info = null; }, 2600); return; }
+  let c = cellAt(p);
+  if (sel && (!c || !c.inf)) { const near = G.frontier().reduce((b, f) => { const d = d2(f.p, p); return d < 46 && (!b || d < d2(b.p, p)) ? f : b; }, null); if (near) c = near; }   // 손가락 오차: 가까운 보라 땅으로
+  if (!c) return;
   if (!sel) { hint('먼저 아래 카드를 고르세요'); return; }
   if (!c.inf) { hint('<b>보라색 땅</b>(감염한 곳)에만 놓을 수 있어요'); return; }
   if (G.e < COST[sel]) { hint('🧬 에너지가 모자라요 · 감염한 땅이 많을수록 빨리 차요'); return; }
@@ -263,13 +271,13 @@ function scout() {   // 정찰 → 덱 고르기
   G = new Game(STAGE, deck, 1); fit(); draw(); sel = null;
   const ov = document.getElementById('ov'); ov.hidden = false;
   const tws = STAGE.towers.map(t => t[0]);
-  ov.innerHTML = `<h2>🔍 정찰: 폐</h2><p>막(분홍 벽)은 못 지나가요. 입구 3곳 중 어디로 갈지 정하세요.<br>바이러스는 <b>놓은 자리에서</b> 각자 좋아하는 목표로 가요.</p>
-    ${[...new Set(tws)].map(k => `<div class="row"><span class="tw" style="background:${TWI[k].col}">${TWI[k].l}</span><div><b>${TWI[k].n} 탑</b> ×${tws.filter(x => x === k).length}<small>${TWI[k].t}</small></div></div>`).join('')}
-    <div class="row"><span class="tw" style="background:#3BB273">+</span><div><b>면역 반격</b><small>살아 있는 탑은 주변 감염을 되돌려요 · 탑을 깨야 땅이 지켜져요</small></div></div>
-    <p style="margin-top:10px"><b>덱 고르기</b> (1~4장)</p>
+  ov.innerHTML = `<h2>🔍 정찰: 폐</h2><p>분홍 막은 못 지나가요 · 입구 3곳 · 바이러스는 <b>놓은 자리에서</b> 좋아하는 목표로 가요</p>
+    <div class="tws">${[...new Set(tws)].map(k => `<div class="row"><span class="tw" style="background:${TWI[k].col}">${TWI[k].l}</span><div><b>${TWI[k].n}</b> ×${tws.filter(x => x === k).length}<small>${TWI[k].t}</small></div></div>`).join('')}
+    <div class="row"><span class="tw" style="background:#3BB273">+</span><div><b>면역 반격</b><small>탑이 주변 감염을 되돌려요</small></div></div></div>
+    <p style="margin:10px 0 0"><b>덱 고르기</b> (1~4장)</p>
     <div class="pick">${Object.keys(CARD).map(k => `<button data-k="${k}" class="${deck.includes(k) ? 'on' : ''}">${CARD[k].i} <b>${CARD[k].n}</b> 🧬${COST[k]}<small>${CARD[k].t}</small></button>`).join('')}</div>
-    <button class="go" id="bGo">감염 시작</button>
-    <p style="font-size:12px;margin-top:8px">별: ★ 50% 감염 · ★ 핵심 감염 · ★ 100% · 시간 ${K.tlim}초</p>`;
+    <p style="font-size:12px;margin:0">별: ★ 50% 감염 · ★ 핵심 감염 · ★ 100% · ${K.tlim}초</p><div class="grow"></div>
+    <div class="stick"><button class="go" id="bGo">감염 시작</button></div>`; ov.scrollTop = 0;
   ov.querySelectorAll('.pick button').forEach(b => b.onclick = () => { const k = b.dataset.k;
     if (deck.includes(k)) { if (deck.length > 1) deck = deck.filter(x => x !== k); } else deck = [...deck, k].sort((a, b) => Object.keys(CARD).indexOf(a) - Object.keys(CARD).indexOf(b));
     ov.querySelectorAll('.pick button').forEach(x => x.classList.toggle('on', deck.includes(x.dataset.k))); });
@@ -278,13 +286,13 @@ function start() { G = new Game(STAGE, deck, (Math.random() * 1e9) | 0); sel = d
 function result() { const st = G.stars(), n = st.filter(Boolean).length, ov = document.getElementById('ov'); ov.hidden = false;
   ov.innerHTML = `<h2>${n ? '감염 성공' : '면역에 막혔어요'} ${'★'.repeat(n)}${'☆'.repeat(3 - n)}</h2><p>감염 ${(G.pct() * 100).toFixed(0)}% · 핵심 ${G.core.inf ? '감염 ✓' : '못 함'} · 잃은 바이러스 ${G.lost}마리<br>보낸 카드: ${deck.map(k => CARD[k].i + G.sent[k]).join(' ')}</p>
     <div class="row"><div><b>생각해 볼 점</b><small>${G.core.inf ? '핵심까지 갔어요. 다른 입구나 덱으로 더 빨리 해 보세요.' : '숨기는 찾기 탑이 없는 길로 핵심에 가요. 방패는 탑을 맡고, 그 옆에 떼를 놓으면 탑이 빨리 깨져요.'}</small></div></div>
-    <button class="go" id="bAgain">다시 정찰</button>`; document.getElementById('bAgain').onclick = scout; }
+    <div class="grow"></div><div class="stick"><button class="go" id="bAgain">다시 정찰</button></div>`; ov.scrollTop = 0; document.getElementById('bAgain').onclick = scout; }
 
 let last = performance.now(), acc = 0;
 function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now;
   if (G && document.getElementById('ov').hidden && !G.over) { acc += dt; while (acc >= 1 / 30) { G.step(1 / 30); acc -= 1 / 30; } upd(); if (G.over) result(); }
   draw(); requestAnimationFrame(loop); }
-cardsUI(); scout(); requestAnimationFrame(loop);
+setVH(); cardsUI(); scout(); requestAnimationFrame(loop);
 </script>
 </body>
 </html>
