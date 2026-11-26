@@ -772,6 +772,44 @@ img.legend { animation: legGlow 3s linear infinite; }
   .ph #hint { font-size: 12px !important; color: #e0d2bf !important; } #info2 .plate { font-size: 12.5px; } #liveBox b { font-size: 14px; }
   .hubCoreLv { display: inline-flex; align-items: center; gap: 3px; font: 13px Jua, sans-serif; color: #ffd24a; padding: 0 9px; border-color: #8a6a20 !important; } .hubCoreLv span { color: #e8dccb; font-size: 11.5px; } .hubCoreLv b { color: #fff; }
   .fmS .fmSLv { top: -2px !important; bottom: auto !important; left: auto !important; right: -2px !important; transform: none !important; font-size: 10px !important; }   /* 11/25 D: 레벨이 이름을 가림 → 오른쪽 위로 */
+
+  /* ===== 11/26 밝은 화면 (4장 출격 체험판, body.lt) — 클래시 로얄식: 밝은 바탕 + 흰 카드 + 주 버튼 하나만 진하게 ===== */
+  body.lt { --lt-bg: #FFF4EC; --lt-card: #FFFFFF; --lt-line: #F0D9CF; --lt-ink: #3B2430; --lt-sub: #8A6A74; --lt-pur: #8E5BD9; --lt-yel: #FFC531; }
+  html:has(body.lt), body.lt { background: var(--lt-bg) !important; color: var(--lt-ink) !important; }
+  body.lt #hub { background: var(--lt-bg) !important; }
+  body.lt .plate, body.lt .chip, body.lt .tab, body.lt .btn, body.lt .sumRow .tile, body.lt .fmS, body.lt .fmC, body.lt .fmP, body.lt .fmRc, body.lt .sortRow button,
+  body.lt .rc, body.lt .card, body.lt .listRow, body.lt .modal .box, body.lt #sheet .sh, body.lt .organ .weak, body.lt .cvTop, body.lt .dp, body.lt .orb, body.lt .skChip, body.lt .mpc, body.lt .gRow, body.lt .fmPanel, body.lt .fmCard, body.lt .fitBox
+    { background: var(--lt-card) !important; color: var(--lt-ink) !important; border-color: var(--lt-line) !important; box-shadow: 0 2px 0 rgba(120,70,60,.12) !important; text-shadow: none !important; }
+  body.lt .fmTop { background: var(--lt-bg) !important; box-shadow: none !important; }
+  body.lt .navBar { background: #FFFFFF !important; border-top: 1.5px solid var(--lt-line) !important; }
+  body.lt .navBar * { color: var(--lt-sub); text-shadow: none !important; }
+  body.lt .navGo, body.lt .navGo * { background: var(--lt-yel) !important; color: #4A3200 !important; box-shadow: 0 5px 0 #C98B00 !important; text-shadow: none !important; }
+  body.lt .navGo * { box-shadow: none !important; background: none !important; }
+  body.lt .lhCore { background: radial-gradient(#FFE3F2, #F6C9DE 70%) !important; }
+  body.lt .tab.on, body.lt .sortRow button.on { background: var(--lt-pur) !important; color: #fff !important; border-color: var(--lt-pur) !important; }
+  body.lt .fmS, body.lt .fmC { border-width: 2px !important; }
+  body.lt .fmC.in, body.lt .fmS.sel { border-color: var(--lt-pur) !important; background: #F4EEFF !important; }
+  body.lt .fmH, body.lt .fmH *, body.lt .modal .box h3, body.lt .sub, body.lt .lb { color: var(--lt-ink) !important; text-shadow: none !important; }
+  body.lt .fmH small, body.lt .sub small, body.lt .tile small { color: var(--lt-sub) !important; }
+  body.lt .modal { background: rgba(80,40,50,.35) !important; }
+  body.lt #sheet { background: rgba(80,40,50,.35) !important; }
+  body.lt .fmTag { background: #EAF7E4 !important; color: #2E7A2A !important; border-color: #BFE3B4 !important; }
+  body.lt .fmS .fmSLv, body.lt .csLv { background: var(--lt-pur) !important; color: #fff !important; }
+  body.lt #bottom { background: linear-gradient(rgba(255,244,236,.0), rgba(255,244,236,.96) 18%, #FFF4EC 40%) !important; border-top: 0 !important; box-shadow: none !important; }
+  body.lt #bottom .dp b, body.lt #bottom .dp small, body.lt #fourEn, body.lt #fourEn b { color: var(--lt-ink) !important; }
+  body.lt #fourEn i { background: #F0DCD3 !important; }
+  body.lt #dpHide, body.lt #fourBurst { background: #FFFFFF !important; color: var(--lt-ink) !important; border-color: var(--lt-line) !important; }
+  body.lt #hint { color: var(--lt-ink) !important; text-shadow: none !important; }
+  body.lt .organ .lbl, body.lt .organ .lbl * { color: #fff !important; text-shadow: 0 1px 2px #000, 0 0 4px #000 !important; }
+  body.lt .hubCoreLv, body.lt .hubCoreLv span, body.lt .hubCoreLv b { color: var(--lt-ink) !important; }
+  body.lt .sumRow .tile, body.lt .sumRow .tile *:not(img) { color: var(--lt-ink) !important; } body.lt .sumRow .tile .lb { color: var(--lt-sub) !important; }
+  body.lt #hub .hubTop > div:first-child, body.lt #hub .hubTop > div:first-child * { color: var(--lt-ink) !important; text-shadow: none !important; }
+  body.lt .plate.dna span { color: var(--lt-ink) !important; }
+  /* 어두운 바탕용 밝은 글자색(인라인) → 밝은 바탕에서 읽히는 색 */
+  body.lt [style*="color:#9fff6a"], body.lt [style*="color: #9fff6a"] { color: #2E8B3A !important; }
+  body.lt [style*="color:#ffd27a"], body.lt [style*="color: #ffd27a"], body.lt [style*="color:#ffd24a"], body.lt [style*="color: #ffd24a"] { color: #A86A00 !important; }
+  body.lt [style*="color:#ffb4a8"], body.lt [style*="color: #ffb4a8"] { color: #C2413A !important; }
+  body.lt [style*="color:#cdb"], body.lt [style*="color: #cdb"] { color: var(--lt-sub) !important; }
 </style>
 </head>
 <body>
@@ -1222,21 +1260,21 @@ const HOSTS = [
 ];
 const ORGANS = [
   { id:'nose',  name:'코·인두 점막', diff:0.5, path:'h', towers:3, valves:0, x:-30, y:12, ax:50, ay:25.6, lab:'매우 취약',
-    w:{ cilia:5, neutro:2, macro:1, dendri:1 }, tint:'#3a1c20', fact:'바이러스가 제일 처음 들어오는 문이에요. 얇고 촉촉해서 들어가기 쉬워요.' },
+    w:{ cilia:5, neutro:1, dendri:1 }, tint:'#3a1c20', fact:'바이러스가 제일 처음 들어오는 문이에요. 얇고 촉촉해서 들어가기 쉬워요.' },
   { id:'lung',  name:'폐',          diff:0.9,  path:'v', towers:4, valves:0, x:-30, y:36, ax:42, ay:37, lab:'취약',
-    w:{ macro:4, neutro:2, complement:1, cilia:1, dendri:1 }, tint:'#2a1a24', fact:'숨을 쉴 때마다 길이 커졌다 작아져요. 작은 털(섬모)이 밀어내요.' },
+    w:{ macro:4, complement:2, neutro:1 }, tint:'#2a1a24', fact:'숨을 쉴 때마다 길이 커졌다 작아져요. 작은 털(섬모)이 밀어내요.' },
   { id:'gut',   name:'위장·장 점막', diff:1.0,  path:'h', towers:4, valves:1, x:130, y:60, ax:55, ay:45.7, lab:'보통',
-    w:{ tcell:2, nk:3, neutro:1, complement:1 }, tint:'#33201a', fact:'길이 꿀렁꿀렁 움직이고 위산이 있어요. 버티는 힘이 필요해요.' },
+    w:{ nk:3, tcell:2, dendri:2 }, tint:'#33201a', fact:'길이 꿀렁꿀렁 움직이고 위산이 있어요. 버티는 힘이 필요해요.' },
   { id:'liver', name:'간',          diff:1.1,  path:'s', towers:5, valves:0, x:-30, y:60, ax:43.7, ay:43.8, lab:'보통',
-    w:{ nk:3, macro:2, tcell:1, neutro:1 }, tint:'#2e1414', fact:'몸의 청소부예요. 녹이는 물질이 길 위를 왔다 갔다 해요.' },
+    w:{ macro:3, nk:3 }, tint:'#2e1414', fact:'몸의 청소부예요. 녹이는 물질이 길 위를 왔다 갔다 해요.' },
   { id:'blood', name:'혈관',        diff:1.2,  path:'h', towers:4, valves:2, x:-30, y:84, ax:28, ay:44, lab:'다소 강함',
-    w:{ complement:2, tcell:2, neutro:2, nk:1 }, tint:'#3a0e14', fact:'심장이 뛸 때마다 물살 방향이 바뀌어요. 문(판막)이 길을 막기도 해요.' },
+    w:{ cilia:3, complement:3 }, tint:'#3a0e14', fact:'심장이 뛸 때마다 물살 방향이 바뀌어요. 문(판막)이 길을 막기도 해요.' },
   { id:'skin',  name:'피부 상처',    diff:1.35, path:'h', towers:5, valves:0, x:130, y:84, ax:59.6, ay:62.4, lab:'강함',
-    w:{ neutro:3, macro:2, nk:2 }, tint:'#2e2218', fact:'튼튼한 벽이에요. 딱딱한 각질이 자라서 길을 막아요.' },
+    w:{ tcell:4, nk:2, neutro:1 }, tint:'#2e2218', fact:'튼튼한 벽이에요. 딱딱한 각질이 자라서 길을 막아요.' },
   { id:'lymph', name:'림프절',       diff:1.5,  path:'s', towers:6, valves:1, x:130, y:36, ax:49.5, ay:30.6, lab:'매우 강함',
-    w:{ tcell:3, nk:3, dendri:3 }, tint:'#1e1e2a', fact:'면역 세포들의 본부예요. 그물이 훑고 지나가요.' },
+    w:{ dendri:4, tcell:2, nk:1 }, tint:'#1e1e2a', fact:'면역 세포들의 본부예요. 그물이 훑고 지나가요.' },
   { id:'brain', name:'대뇌',         diff:1.8,  path:'s', towers:6, valves:2, x:130, y:12, ax:50, ay:20,  lab:'최종',
-    w:{ macro:3, tcell:3, dendri:2, complement:2, cilia:1 }, tint:'#24142a', fact:'마지막 목표예요. 번개가 떨어지고 문이 잘 안 열려요. 다른 기관 5곳을 감염시켜야 갈 수 있어요.' },
+    w:{ macro:2, tcell:2, dendri:2, complement:1, cilia:2 }, tint:'#24142a', fact:'마지막 목표예요. 번개가 떨어지고 문이 잘 안 열려요. 다른 기관 5곳을 감염시켜야 갈 수 있어요.' },
 ];
 const BRAIN_UNLOCK = 5;
 
@@ -2697,7 +2735,10 @@ const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, 
   m: { tank: { hp: 3.2, size: 2.1, spd: 0.95 }, swarm: { hp: 0.45, size: 0.65, spd: 1.1 }, stealth: { hp: 0.9, size: 1.05, spd: 0.9 }, rush: { hp: 0.6, size: 1.1, spd: 1.4 } },   // 11/25 18시 봇: 돌격만 보내기가 거의 모든 기관 1등이라 속도·체력 낮춤
   dmg: { '💥': { swarm: 2, tank: 0.5, rush: 1.2 }, '🎯': { tank: 2, swarm: 0.45, stealth: 1.2 }, '🕸': { rush: 1.6, tank: 0.8 } } };   // 11/25 봇: 3배·0.3배로 키우면 판이 너무 어려워져(몸2 20판+) 원래 값 유지
 // ★ 11/25 23시 D: 너무 쉬움 → 판별 목표 배율(봇 '아무거나·추천' 처음 만날 때 평균 ÷ 목표 1.15, 코 1.6·폐 1.3). 봇 dev2/bot/four 로 다시 잼
-const FOUR_Q = {"0:nose": 9.55, "0:lung": 4.04, "0:gut": 1.34, "0:liver": 0.8, "0:blood": 1.15, "0:skin": 1.94, "0:lymph": 0.83, "0:brain": 0.88, "1:nose": 0.78, "1:lung": 0.62, "1:gut": 0.5, "1:liver": 1.11, "1:blood": 2.07, "1:skin": 1.7, "1:lymph": 1.78, "1:brain": 1.46, "2:nose": 2.62, "2:lung": 1.46, "2:gut": 0.8, "2:liver": 1.99, "2:blood": 2.02, "2:skin": 2.01, "2:lymph": 1.97, "2:brain": 1.86, "3:nose": 1.2, "3:lung": 1.19, "3:gut": 1.32, "3:liver": 1.19, "3:blood": 1.46, "3:skin": 1.15, "3:lymph": 1.82, "3:brain": 1.53};
+const FOUR_Q = {"0:nose": 8.07, "0:lung": 7.97, "0:gut": 1.31, "0:liver": 0.95, "0:blood": 1.01, "0:skin": 1.36, "0:lymph": 0.76, "0:brain": 1.36, "1:nose": 0.96, "1:lung": 1.29, "1:gut": 0.98, "1:liver": 0.93, "1:blood": 1.48, "1:skin": 1.56, "1:lymph": 1.31, "1:brain": 1.47, "2:nose": 1.94, "2:lung": 1.42, "2:gut": 0.8, "2:liver": 1.76, "2:blood": 1.77, "2:skin": 1.79, "2:lymph": 1.51, "2:brain": 1.72, "3:nose": 1.06, "3:lung": 1.29, "3:gut": 1.41, "3:liver": 1.17, "3:blood": 1.27, "3:skin": 1.31, "3:lymph": 1.72, "3:brain": 1.41};
+const FAM_INFO = { '💥': { n: '범위', col: '#F0A030', t: '뭉친 무리에 큰 피해' }, '🎯': { n: '저격', col: '#E0603A', t: '한 마리씩 세게(체력 큰 것부터)' }, '🔦': { n: '찾기', col: '#3A8DDE', t: '숨기를 드러냄' }, '🕸': { n: '느림', col: '#2BB3A3', t: '느리게 만듦' } };
+function famLine(f) { const I = FAM_INFO[f], v = FOUR.dmg[f] || {}, up = Object.entries(v).filter(([, m]) => m > 1).map(([k, m]) => CTYPE[k].i + CTYPE[k].n + ' ' + m + '배'), dn = Object.entries(v).filter(([, m]) => m < 1).map(([k, m]) => CTYPE[k].i + CTYPE[k].n + ' ' + m + '배');
+  return `${f} ${I.n} 탑 · ${I.t}${up.length ? ' · 강함: ' + up.join(', ') : ''}${dn.length ? ' · 약함: ' + dn.join(', ') : ''}`; }
 const FOUR_NAME = '부화장';   // ★ 11/26 D 결정 (옛 이름: 공장 세포)
 const FOUR_FAM = ['💥', '🎯', '🕸', '🔦'];
 function fourDeck() { return [...new Map(slotGenes().slice(0, 4).filter(g => g && !STRAINS[g.strain].hero && !isComp(g)).map(g => [g.strain, g])).values()].slice(0, 4); }   // ★ 칸에 꽂은 카드만(빈 칸 채우기·본체 자리 없음)
@@ -2705,6 +2746,13 @@ function fourVs(T) {   // ★ 이 타입이 강한/약한 탑 (판 안·연구�
   const good = [], bad = []; for (const f of ['💥', '🎯', '🕸']) { const v = (FOUR.dmg[f] || {})[T] ?? 1; if (v < 1) good.push(f); else if (v > 1) bad.push(f); }
   if (T === 'stealth') { good.unshift('숨음'); bad.unshift('🔦'); } return { good, bad }; }
 function fourVsTxt(T) { const v = fourVs(T); return `<span style="color:#9fff6a">✓${v.good.join('') || '-'}</span> <span style="color:#ffb4a8">✗${v.bad.join('') || '-'}</span>`; }
+function fourPair(o) {   // ★ 11/26: 기관 탑 구성 → 유리한 2장 조합 (상성 배율 평균, 숨기는 찾기 탑이 없으면 크게 유리)
+  const c = {}; let n = 0; for (const [k, v] of Object.entries(o.w || {})) { const f = TW_FAM[k]; if (f) { c[f] = (c[f] || 0) + v; n += v; } }
+  const fam = Object.keys(c).filter(f => f !== '🔦'), dn = fam.reduce((a, f) => a + c[f], 0) || 1, fz = (c['🔦'] || 0) / (n || 1);
+  const sc = T => { let m = fam.reduce((a, f) => a + c[f] * ((FOUR.dmg[f] || {})[T] ?? 1), 0) / dn; if (T === 'stealth') m *= fz > 0 ? 1 + fz * 2 : 0.6; return m; };
+  const r = ['tank', 'swarm', 'stealth', 'rush'].map(T => [T, sc(T)]).sort((a, b) => a[1] - b[1]);
+  return Object.keys(c).length >= 4 ? null : [r[0][0], r[1][0]]; }
+const pairTxt = pr => pr ? pr.map(T => CTYPE[T].i + ' ' + CTYPE[T].n).join(' + ') : '4장 고르게';
 function fourOrganRec(o) { const c = {}; for (const [k, n] of Object.entries(o.w || {})) { const f = TW_FAM[k]; if (f) c[f] = (c[f] || 0) + n; } return fourRecType(c, ['tank', 'swarm', 'stealth', 'rush']); }
 function fourFactorySvg(L) {   // 공장 세포 그림(연구소용): 막 + 안에 덱 4종 색
   const d = fourDeck(), col = d.map(g => SCOLOR[g.strain] || '#e8a0ff');
@@ -4424,6 +4472,8 @@ function render(time) {
   for (const o of R.outposts) list.push({ y: o.y, o });
   // 유닛은 작게, 하나하나 그대로 (길 폭에 셋이 나란히 들어가는 크기)
   for (const u of R.units) if (u.alive && u.d > -4) { u._n = 1; u._tail = 0; u._head = false; u._big = 0; list.push({ y: u.y, u }); }
+  if (R.four) for (const t of R.towers) { if (t.hp <= 0 || t.converted > 0) continue; const I = FAM_INFO[TW_FAM[t.type]]; if (!I) continue;   // ★ 11/26: 탑 사거리 늘 보이게
+    ctx.save(); ctx.beginPath(); ctx.arc(t.x, t.y - 20, t.range, 0, TAU); ctx.globalAlpha = 0.07; ctx.fillStyle = I.col; ctx.fill(); ctx.globalAlpha = 0.45; ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5; ctx.strokeStyle = I.col; ctx.stroke(); ctx.restore(); }
   list.sort((a, b) => a.y - b.y);
   for (const e of list) {
     if (e.t) { const t = e.t;
@@ -4436,6 +4486,8 @@ function render(time) {
       if (mut) ctx.filter = 'grayscale(1) brightness(.6)'; else if (t.bitten > 0.1) ctx.filter = 'brightness(2.2) saturate(.4)'; else if (B3 && crownSt(t) > 0) { ctx.shadowColor = '#ff2040'; ctx.shadowBlur = 10 + 8 * crownSt(t); }
       if (IMG[t.type] && (t.type !== 'bcell' || has('bcell'))) drawSprite(ctx, IMG[t.type], 0, 0, TW_H, 1, true); else { ctx.filter = 'hue-rotate(150deg) saturate(1.4)'; drawSprite(ctx, IMG.nk, 0, 0, TW_H, 1, true); ctx.filter = 'none'; ctx.strokeStyle = '#5fe0d0'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(0, -38); ctx.moveTo(0, -38); ctx.lineTo(-5, -44); ctx.moveTo(0, -38); ctx.lineTo(5, -44); ctx.stroke(); } drawCracks(t); ctx.filter = 'none'; ctx.restore();
       if (B3) drawTw2Badge(t, time);
+      if (R.four && !(t.converted > 0)) { const I = FAM_INFO[TW_FAM[t.type]]; if (I) { ctx.save(); ctx.font = "800 11px 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif"; ctx.textAlign = 'center'; const tx = `${TW_FAM[t.type]}${I.n}`, w = ctx.measureText(tx).width + 10;   // ★ 탑 이름표
+        ctx.fillStyle = I.col; ctx.beginPath(); ctx.roundRect(t.x - w / 2, t.y + 18, w, 15, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillText(tx, t.x, t.y + 29); ctx.restore(); } }
       if (t.relearn > 0) { ctx.save(); ctx.font = "800 14px sans-serif"; ctx.textAlign = 'center'; ctx.fillStyle = '#9fff6a'; ctx.fillText('?', t.x - 15, t.y - 32); ctx.restore(); }
       if (t.memory) { ctx.save(); ctx.font = "800 11px sans-serif"; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText('기억', t.x, t.y + 16); ctx.fillStyle = '#9fd8ff'; ctx.fillText('기억', t.x, t.y + 16); ctx.restore(); }
       if (t.spec) { const bx = t.x + 15, by = t.y - 36, c = SCOLOR[t.spec] || '#7fc0ff'; ctx.save(); ctx.fillStyle = 'rgba(10,6,8,.85)'; ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fill(); ctx.stroke();
@@ -4792,8 +4844,8 @@ const ui = {
     const towerNames = Object.keys(o.w).sort((a, b) => o.w[b] - o.w[a]).slice(0, 3).map(k => TOWERS[k].name);
     $('organInfo').innerHTML = `<h3><span>${o.name}${save.done[o.id] ? ' <small style="color:#9fff6a">✓</small>' : ''}</span><span style="font-size:12px;color:#ffd27a">${organOpen(o) ? DIFF_TXT(o.diff * st.host.mul) : '잠김'}</span></h3>
       ${ui.matchHtml(o.id)}
-      ${FOUR_ON() ? (() => { const rec = fourOrganRec(o), has = rec && fourDeck().some(g => coreType(g.strain) === rec);   // ★ 4장 출격: 기관 탑 구성 → 추천 카드 타입(판 안 추천과 같은 계산)
-        return `<div class="sub" style="font-size:12px;margin:2px 0">면역 ${organImmune(o)} · 추천 카드 <b style="color:#ffd27a">${rec ? CTYPE[rec].i + ' ' + CTYPE[rec].n : '섞어서'}</b>${rec ? (has ? ' <b style="color:#9fff6a">✓ 덱에 있음</b>' : ' <b style="color:#ffb4a8">덱에 없음</b>') : ''}</div>`; })() : ''}
+      ${FOUR_ON() ? (() => { const rec = fourOrganRec(o), pr = fourPair(o), dk = fourDeck().map(g => coreType(g.strain)), has = pr ? pr.filter(T => dk.includes(T)).length : 2;   // ★ 기관 탑 구성 → 추천 2장 조합
+        return `<div class="sub" style="font-size:12px;margin:2px 0">탑 ${organImmune(o)} · 추천 조합 <b style="color:#ffd27a">${pairTxt(pr)}</b>${pr ? (has === 2 ? ' <b style="color:#9fff6a">✓ 덱에 있음</b>' : ` <b style="color:#ffb4a8">덱에 ${has}/2</b>`) : ''}</div>`; })() : ''}
       ${FOUR_ON() ? '' : (() => { const rec = ORGAN_REC[o.id], cg = coreGene(), ct = cg ? coreType(cg.strain) : null, ok = rec ? ct === rec : null;   // ★ C안: 기관 면역 + 추천 본체
         return `<div class="sub" style="font-size:12px;margin:2px 0">면역 ${organImmune(o)} · 추천 본체 <b style="color:#ffd27a">${rec ? CTYPE[rec].i + ' ' + CTYPE[rec].n : '섞어서'}</b>${ct ? ` · 지금 ${CTYPE[ct].i} ${CTYPE[ct].n}${ok === true ? ' <b style="color:#9fff6a">✓</b>' : ok === false ? ' <b style="color:#ffb4a8">✗</b>' : ''}` : ''}</div>`; })()}
       ${B3 && HZ_FAV[o.id] && ORGAN_HZ[o.id] ? `<div class="sub" style="font-size:12px;margin:2px 0">💡 ${ORGAN_HZ[o.id].name} → <b style="color:${hzFav(o.id) ? '#9fff6a' : '#ffd27a'}">${SKT_NAME[HZ_FAV[o.id]]}</b> 본체가 유리 (방해물 약해짐)${hzFav(o.id) ? ' ✓' : ''}</div>` : ''}
@@ -4978,8 +5030,8 @@ const ui = {
     $('csCore').className = 'lhCore';
     $('csCore').innerHTML = `${fourFactorySvg(L)}<b class="csLv" style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);font-size:12px;background:#5a1440;padding:0 8px;border-radius:8px;white-space:nowrap">Lv ${L}</b>`;
     $('csCore').style.position = 'relative'; $('csCore').onclick = () => ui.coreModal();
-    const o = organById(save.sel || 'nose'), rec = o ? fourOrganRec(o) : null;
-    const oInfo = o ? `<span class="tile" style="grid-column:1/-1;flex-basis:100%;padding:4px 8px;border-color:#7a5a2a" onclick="ui.showHub('body')"><b style="font-size:13px">다음 판 <span style="color:#ffd27a">${o.name.split('·')[0].trim()}</span>${rec ? ` · 추천 ${CTYPE[rec].i} ${CTYPE[rec].n}` : ''}</b></span>` : '';
+    const o = organById(save.sel || 'nose'), rec = o ? fourOrganRec(o) : null, pr = o ? fourPair(o) : null;
+    const oInfo = o ? `<span class="tile" style="grid-column:1/-1;flex-basis:100%;padding:4px 8px;border-color:#7a5a2a" onclick="ui.showHub('body')"><b style="font-size:13px">다음 판 <span style="color:#ffd27a">${o.name.split('·')[0].trim()}</span></b><small style="font-size:11.5px">탑 ${organImmune(o) || '-'} · 추천 조합 <b>${pairTxt(pr)}</b></small></span>` : '';
     const tile = (g, i) => !g ? `<span class="tile" style="opacity:.45"><b style="font-size:12px">${i < nOpen ? '빈 칸' : '🔒'}</b></span>`
       : `<span class="tile" onclick="ui.fourTypeHelp('${coreType(g.strain)}')"><b style="font-size:13px">${CTYPE[coreType(g.strain)].i} ${sname(g.strain)}</b><small class="lb">Lv ${g.lv || 1}</small></span>`;
     $('labNums').style.flexWrap = 'wrap';
@@ -6269,6 +6321,7 @@ canvas.addEventListener('pointerdown', e => {
   if (false) { const f = map.forks.find(f => Math.hypot(f.sx - x, f.sy - y) < 30); if (f) { f.sw = f.sw === 'A' ? 'B' : 'A'; toast(f.sw === 'B' ? '지름길로! (많이 지나가면 면역이 적응해요)' : '원래 길로'); return; } }
   if (!aiming && !placing) { const t = run.towers.find(t => Math.hypot(t.x - x, t.y - 20 - y) < 26);
     if (t && B3) { const d = TOWERS[t.type], cs = crownSt(t); $('hint').textContent = `${TW2.nm[t.type]} · ${TW2.mode[t.type] || ''} · 처치 ${t.kills || 0}${cs >= 0 ? ` · 👑 ${cs}단계` : ''}`; float(clamp(t.x, 70, W - 70), t.y - 64, `${TW2.nm[t.type]} ${TW2.mode[t.type] || ''} · 처치 ${t.kills || 0}`, d.color, 13); run.rings.push({ x: t.x, y: t.y - 20, r: 8, R: t.range, t: 0.6, color: d.color }); return; }
+    if (t && run.four && TW_FAM[t.type]) { const f = TW_FAM[t.type]; $('hint').textContent = famLine(f); float(clamp(t.x, 90, W - 90), t.y - 66, `${f} ${FAM_INFO[f].n}: ${FAM_INFO[f].t}`, FAM_INFO[f].col, 13); run.rings.push({ x: t.x, y: t.y - 20, r: 8, R: t.range, t: 0.6, color: FAM_INFO[f].col }); return; }
     if (t) { const d = TOWERS[t.type]; $('hint').textContent = `${d.name}: ${d.desc} · 사거리 ${d.range} · 처치 ${t.kills || 0}${d.aura ? '' : ` · ${TOWER_TIP[t.type]}`}`; run.rings.push({ x: t.x, y: t.y - 20, r: 8, R: t.range, t: 0.5, color: d.color }); return; } }
   if (aiming) {
     const t = run.towers.filter(t => !t.converted).sort((a, b) => Math.hypot(a.x - x, a.y - 20 - y) - Math.hypot(b.x - x, b.y - 20 - y))[0];
@@ -6301,7 +6354,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1126-0622</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1126-1301</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6321,11 +6374,11 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   el.querySelector('#sbNever').onclick = () => { localStorage.setItem('sbDark', 'off'); el.remove(); };
 } catch (e) {} })();
 </script>
-<script>(function(){ try { if (/four/.test(location.pathname)) { const c = document.getElementById('hubCore'); if (c) { c.firstChild.textContent = '🥚 '; c.querySelector('span').textContent = '부화장'; c.setAttribute('aria-label', '부화장 레벨'); } } } catch (e) {} })();
+<script>(function(){ try { if (/four/.test(location.pathname)) { document.body.classList.add('lt'); const c = document.getElementById('hubCore'); if (c) { c.firstChild.textContent = '🥚 '; c.querySelector('span').textContent = '부화장'; c.setAttribute('aria-label', '부화장 레벨'); } } } catch (e) {} })();
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1126-0622';
+const GAME_VER = 'v1126-1301';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
