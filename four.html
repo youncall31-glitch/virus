@@ -812,6 +812,8 @@ img.legend { animation: legGlow 3s linear infinite; }
   body.lt [style*="color:#cdb"], body.lt [style*="color: #cdb"] { color: var(--lt-sub) !important; }
   .fmFit { display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; font-size: 10px; line-height: 1.3; margin-top: 1px; }
   .fmFit .ok { color: #2E8B3A; } .fmFit .no { color: #8A6A74; font-weight: 400; } .fmFit .r { padding: 0 4px; border-radius: 6px; color: #fff; } .fmFit .tk { background: #7A4FC4; } .fmFit .pt { background: #E0603A; }
+  .fmBtn { font: inherit; font-size: 12.5px; padding: 5px 10px; border-radius: 12px; border: 1.5px solid #F0D9CF; background: #fff; color: #3B2430; }
+  .fmBtn.go { background: #FFC531; border-color: #C98B00; color: #4A3200; font-weight: 800; }
 </style>
 </head>
 <body>
@@ -5056,6 +5058,17 @@ const ui = {
   },
   fourTypeHelp(T) { const C = CTYPE[T], m = FOUR.m[T], v = fourVs(T);
     ui.modal(`<h3 style="margin:2px 0 6px">${C.i} ${C.n}</h3><div class="sub" style="font-size:13px;line-height:1.6">한 번에 <b>${FOUR.sq[T]}마리</b> · 에너지 <b>🧬${FOUR.cost[T]}</b><br>체력 ×${m.hp} · 속도 ×${m.spd} · 감염량 ×${FOUR.inf[T]}<br>강한 탑: <b style="color:#9fff6a">${v.good.join(' ') || '없음'}</b><br>약한 탑: <b style="color:#ffb4a8">${v.bad.join(' ') || '없음'}</b><br><small>💥 범위 공격 · 🎯 저격 · 🕸 느리게 · 🔦 찾기</small></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
+  fourClear() { save.squad = SL.map(i => i === 4 ? (save.squad || [])[4] || null : null); normSquad(); persist(); ui.showHub('lab'); toast('편성을 모두 뺐어요'); },
+  fourAuto() {   // ★ 11/27 D: 기관에 맞는 카드·등급 위주 추천 배치 — 방패(필수) → 기관 짝꿍 → 나머지는 '힘 × 기관 궁합' 순
+    const org = save.sel || 'nose', open = SLOT_ORDER.filter(i => i < 4 && slotOpen(i)); if (!open.length) return;
+    const pw = g => { const st = geneStats(g); return (st.hp / TEAM_REF.hp + st.atk / TEAM_REF.atk) / 2; }, sc = g => pw(g) * cardTrop(g, org);
+    const pool = save.genes.filter(g => !STRAINS[g.strain].hero && !isComp(g) && canSlot(g, open[0])).sort((a, b) => sc(b) - sc(a));
+    const pick = [], has = st => pick.some(g => g.strain === st), take = f => { const g = pool.find(g => !has(g.strain) && f(g)); if (g) pick.push(g); return g; };
+    take(g => coreType(g.strain) === 'tank'); if (pick.length < open.length) take(g => coreType(g.strain) === FOUR_PARTNER[org]);
+    while (pick.length < open.length) { const types = new Set(pick.map(g => coreType(g.strain))); if (!take(g => !types.has(coreType(g.strain))) && !take(() => true)) break; }   // 3·4번째: 아직 없는 타입 먼저(그중 힘×궁합 높은 것)
+    save.squad = SL.map(i => i === 4 ? (save.squad || [])[4] || null : null); open.forEach((i, k) => { if (pick[k]) save.squad[i] = pick[k].uid; });
+    normSquad(); persist(); ui.showHub('lab');
+    const nf = pick.filter(g => tropG(g, org) > 0).length; toast(`추천 배치: ${pick.map(g => CTYPE[coreType(g.strain)].i + sname(g.strain)).join(' ')} · 👍 ${ORG_SHORT[org]}에 맞는 카드 ${nf}장`); },
   fourTree() { ui.modal(`<h3 style="margin:2px 0 6px">🌳 ${FOUR_NAME} 성장 트리</h3><div class="sub" style="font-size:13px;line-height:1.6">생산 · 분출 · 세포벽 · 변이 4갈래 × 5칸.<br>레벨마다 1점, 다 찍을 수 없어서 골라야 해요.<br>첫 칸 = <b>4번째 카드 칸</b>.<br><br><b style="color:#ffd27a">시안 확인 중 — 아직 만들지 않았어요.</b></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
   // 이 카드를 i번 칸에 꽂으면? (지금 → 바뀐 값). 계산 뒤 본체 모습은 원래대로 되돌림
   // ★ 칸 미리보기: 그 칸에 넣으면 칸 보너스가 몇 %→몇 %, 역할이 맞는지
@@ -5104,7 +5117,7 @@ const ui = {
     const best = ds ? [...ds].reduce((a, x) => !a || x[1] > a[1] ? x : a, null) : null;
     const cards = list.map(g => { const i = inSq.get(g), d = ds && ds.get(g), D = STRAINS[g.strain];
       return `<button class="fmC${STRAINS[g.strain].legend ? ' foil' : ''}${i != null ? ' in' : ''}${best && best[0] === g && best[1] > 0 ? ' best' : ''}${pick === g ? ' pick' : pick ? ' dim' : ''}${g === cg ? ' cp' : ''}${sel != null && !pick ? (canSlot(g, sel) ? ' fit' : sq[sel] === g ? '' : ' dimS') : ''}" data-fu="${g.uid}" style="${cardBg(g)}">${i != null ? `<em class="fmMk ${isCoreG(g) ? 'cr' : 'eq'}">${isCoreG(g) ? '👑' : '✓'}</em>` : d != null && d !== 0 ? `<em class="fmMk ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}%</em>` : ''}<span class="fmPic">${pimg(g)}</span><b>${sname(g.strain)}</b><small class="fmSt">${stars(g.star)}<i>${'☆'.repeat(Math.max(0, 5 - g.star))}</i></small><small class="fmLv">Lv${g.lv || 1} · ${FOUR_ON() ? CTYPE[coreType(g.strain)].i + ' ' + CTYPE[coreType(g.strain)].n : `<span style="color:${(ROLES[ROLE_OF[g.strain]] || {}).col || '#ccc'}">${((ROLES[ROLE_OF[g.strain]] || {}).name || '').replace('형', '')}</span>`}</small>${FOUR_ON() ? cardFit(g) : ''}</button>`; }).join('');
-    const head = FOUR_ON() ? `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요` : '카드 4장까지 · 칸을 누르고 카드를 고르세요'}</small></div>` : `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · <span style="color:#3ae0c0">민트 ✓ = 역할 맞음</span> · <span style="color:#ff9a7a">주황 = 절반</span>` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const rc = roleCnt(sq.filter(Boolean)), wk = ORG_WEAK[save.sel], wn = rc[wk] || 0, R = r => (ROLES[r] || {}).name.replace('형', '');
+    const head = FOUR_ON() ? `<div class="fmH" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="flex:1;min-width:150px">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요` : '칸을 누르고 카드를 고르세요'}</small></span><button class="fmBtn" onclick="ui.fourClear()">전체 해제</button><button class="fmBtn go" onclick="ui.fourAuto()">★ 추천 배치</button></div>` : `<div class="fmH">편성 <small>${pick ? `👆 <b style="color:#ffd24a">${sname(pick.strain)}</b> 넣을 칸을 누르세요 · <span style="color:#3ae0c0">민트 ✓ = 역할 맞음</span> · <span style="color:#ff9a7a">주황 = 절반</span>` : sel != null ? `밝은 카드를 누르면 꽂혀요 (본체 Lv${coreL()} 이하만)` : (() => { const rc = roleCnt(sq.filter(Boolean)), wk = ORG_WEAK[save.sel], wn = rc[wk] || 0, R = r => (ROLES[r] || {}).name.replace('형', '');
   return `<span class="fmPanel"><em>팀 보너스</em>${Object.keys(rc).length ? Object.entries(rc).map(([r, n]) => `<b>${ROLE_FX[r].t.replace(/\d+/, m => +m * n)}</b>`).join(' ') : '카드를 넣으면 생겨요'}<i>·</i><em>보스 약점</em><b style="color:#ff9c8a">${R(wk)}</b>${wn ? ` <b>+${wn * 15}%</b>` : ''}</span>`; })()}</small>${gv >= 1 && cg ? '<button class="fmRc" id="bRcGo">🧬 재조합 ›</button>' : ''}<button class="fmAuto" id="bAuto2">자동 편성</button>${comp}</div>`;
     $('railList').innerHTML = `<div class="fmWrap"><div class="fmTop">${head}<div class="fmRow">${[0, 3, 1, 2].map(sock).join('')}</div></div>
       <div class="fmH2">내 바이러스 <span>${save.genes.length}장</span></div><div class="sortRow" id="sortRail"></div><div class="fmGrid">${cards}</div></div>${pick ? `<div class="fmSheet" id="fmSheet">${ui.fmCard(pick, sq)}</div>` : ''}`;
@@ -6371,7 +6384,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1346</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1810</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6395,7 +6408,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1127-1346';
+const GAME_VER = 'v1127-1810';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
