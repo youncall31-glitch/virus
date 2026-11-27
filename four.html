@@ -2744,7 +2744,7 @@ function coreType(strain) { const r = ROLE_OF[strain], d = STRAINS[strain] || {}
   if (d.stealth) return 'stealth'; if ((d.spd || 0) >= 75) return 'rush'; if ((d.hp || 0) >= 50) return 'tank'; return 'swarm'; }
 // ★ 4장 출격 (11/25 D 결정, 테스트판 전용): 본체 합체 대신 카드 4장을 에너지로 골라 보낸다. 한 번에 몇 마리만(바글바글하지 않게)
 const FOUR_ON = () => !!window.__FOUR || /four/.test(location.pathname);   // ★ 체험판 four.html 에서만 (B3 규칙 없이)
-const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, swarm: 3, stealth: 3, rush: 2 }, rate: 0.9, cap: 10, start: 4, hp: 1, atk: 1, bite: 2, hold: 1.5, twd: 1, thp: 1, solo: 0.3, biteT: { tank: 0.4, swarm: 1, stealth: 0.8, rush: 0.8 },   // biteT: 탑 깨는 힘(방패는 맞아 주기, 떼가 깨기)
+const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, swarm: 3, stealth: 3, rush: 2 }, rate: 0.9, cap: 10, start: 4, hp: 1, atk: 1, bite: 2, hold: 1.5, twd: 1, thp: 1, solo: 0.3, biteT: { tank: 0.4, swarm: 1.8, stealth: 0.5, rush: 0.5 }, off: { t: 3, cd: 5 },   // biteT: 탑 깨는 힘(방패는 맞아 주기, 떼가 깨기)
     // solo: 카드 한 장 능력치 배율(같은 카드 4장 덱 = 예전 덱 힘)
   cmb: { bite: 2.5, rush: 1.6, rushT: 5, holdBad: 1.6, holdGood: 0.7 },   // ★ 조합: 방패가 탑을 맡으면 떼가 2.5배로 깸 · 탑이 깨진 뒤 5초 안 돌격 감염 ×1.6 · 틀린 타입은 방어선에 더 오래
   inf: { tank: 7.5, swarm: 2.3, stealth: 4.7, rush: 2.8 },   // inf: 한 마리가 들어갈 때 감염량 배율(돌격=뚫린 길 채우기)
@@ -2759,7 +2759,7 @@ function famLine(f) { const I = FAM_INFO[f], v = FOUR.dmg[f] || {}, up = Object.
 const FOUR_NAME = '부화장';   // ★ 11/26 D 결정 (옛 이름: 공장 세포)
 let FOUR_CS = {};
 const cardTrop = (g, org) => 1 + (tropG(g, org) > 0 ? FIT_B + mastB(g, org) : FIT_B * adaptOf(g, org) / ADAPT.need);
-const FOUR_PARTNER = { nose: 'rush', lung: 'rush', gut: 'rush', liver: 'rush', blood: 'rush', skin: 'swarm', lymph: 'rush', brain: 'swarm' };   // 11/27 봇 실측: 방패 짝꿍 1등
+const FOUR_PARTNER = { nose: 'swarm', lung: 'swarm', gut: 'rush', liver: 'rush', blood: 'rush', skin: 'rush', lymph: 'stealth', brain: 'rush' };   // 11/27 18:50 역할 개편 뒤 봇 실측(6회): 방패 짝꿍 1등
 function cardFit(g, org) {   // ★ 카드에 보이는 기관 적합성: 맞는 기관(+%) · 방패 필수 · 이 기관 짝꿍
   org = org || save.sel || 'nose'; const ok = tropG(g, org) > 0, pct = Math.round((cardTrop(g, org) - 1) * 100), T = coreType(g.strain);
   const role = T === 'tank' ? '<b class="r tk">필수</b>' : FOUR_PARTNER[org] === T ? '<b class="r pt">짝꿍</b>' : '';
@@ -2796,7 +2796,7 @@ function fourNext(types) {   // ★ 다음에 보낼 카드 추천 (조합 기�
   const tankOn = R.units.some(u => u.alive && u.ctype === 'tank' && u.blocked > 0), br = R.breachT != null && R.time - R.breachT < FOUR.cmb.rushT - 1.5;
   if (br && has('rush')) return ['rush', '탑이 뚫렸어요 → 돌격!'];
   if (tankOn) return pick(['swarm', '방패가 막는 중 → 떼!'], ['rush', '방패가 막는 중 → 돌격']) || [null, ''];
-  if (!c['🔦'] && has('stealth') && (c['🎯'] || 0) <= (c['💥'] || 0)) return ['stealth', '찾는 탑 없음 → 숨기는 안 맞고 깸'];
+  if (!c['🔦'] && has('stealth') && (c['🎯'] || 0) <= (c['💥'] || 0)) return ['stealth', '찾는 탑 없음 → 숨기로 탑 끄기'];
   if ((c['🎯'] || 0) > (c['💥'] || 0)) return pick(['swarm', '저격 탑 → 떼'], ['stealth', '저격 탑 → 숨기'], ['tank', '방패 먼저']) || [null, ''];
   return pick(['tank', '탑 앞 → 방패 먼저'], ['swarm', '탑 앞 → 떼'], ['stealth', '탑 앞 → 숨기']) || [null, '']; }
 function fourSend(i) { const R = run, gr = R && R.groups[i]; if (!gr || !R.four || !nestOn() || R.endAt || R.over) return false; const T = coreType(gr.strain), c = FOUR.cost[T];
@@ -3638,7 +3638,8 @@ function biteTowers(dt) {
     let tg = null, bd = (TOWER_HP.near + (R.four ? 12 : 0)) ** 2; for (const t of R.towers) { if (t.converted > 0) continue;   /* 4장 출격: 방어선에 멈춘 자리(near+4)에서도 물 수 있게 */ const dx = t.x - u.x, dy = t.y - 18 - u.y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; tg = t; } }
     if (!tg) continue;
     const m = (ROLE_OF[u.strain] === 'dps' ? 2 : ROLE_OF[u.strain] === 'tank' ? 1.7 : ROLE_OF[u.strain] === 'stealth' ? 0.5 : 1) * (u.hero ? 4 : 1);
-    if (R.four && u.ctype === 'tank') tg.tankT = R.time;   // ★ 조합: 방패가 이 탑을 맡는 중
+    if (R.four && u.ctype === 'tank') tg.tankT = R.time;
+    if (R.four && u.ctype === 'stealth' && !u.revealed && !(tg.off > 0) && !(tg.offCd > 0) && FOUR.off) { tg.off = FOUR.off.t; tg.offCd = FOUR.off.t + FOUR.off.cd; R.offN = (R.offN || 0) + 1; float(tg.x, tg.y - 56, '💤 숨기가 탑을 껐어요', '#8a6ad8', 13); }   /* ★ 11/27: 숨기 = 탑 3초 끄기(🔦 근처면 들켜서 못 함), 다시 끄려면 5초 */   // ★ 조합: 방패가 이 탑을 맡는 중
     const cmbB = R.four && u.ctype === 'swarm' && R.time - (tg.tankT ?? -9) < 1 ? FOUR.cmb.bite : 1; if (cmbB > 1 && Math.random() < 0.08) float(tg.x, tg.y - 44, '방패+떼!', '#ffd27a', 12);
     tg.hp -= (R.four && !u.hero ? FOUR.bite * cmbB * ((FOUR.biteT || {})[u.ctype] ?? 1) : 1) * (B3 ? tg.maxHp * BITE.p * clamp(Math.sqrt((u.atk / (R.st.mul || 1)) / BITE.r0), 0.5, 2) : u.atk * TOWER_HP.bite) * m * (u.rally > 0 ? HORN.buff : 1) * (R.med && R.med.guard && R.med.w <= 0 ? MED.counter : 1); tg.bitten = 0.2; tg.squash = 0.16; sfx('bite'); biteHit(R, tg); if (Math.random() < 0.5) { const a = rand(-2.6, -0.5), sp = rand(60, 130); R.parts.push({ x: tg.x + rand(-8, 8), y: tg.y - 22, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0.45, c: Math.random() < 0.5 ? TOWERS[tg.type].color : '#d8c0b0', r: rand(1.5, 2.8) }); }
     if (tg.maxHp && tg.hp / tg.maxHp < 0.33 && Math.random() < 0.25) R.parts.push({ x: tg.x + rand(-10, 10), y: tg.y - 30, vx: rand(-10, 10), vy: -40, t: 0.7, c: 'rgba(90,70,70,.55)', r: rand(3, 5), smoke: 1 }); u.atkT = 0.28; u.atkTx = tg.x; u.atkTy = tg.y - 18; u.atkCd = 0.75 + Math.random() * 0.3; u.biting = 0.5;
@@ -4260,6 +4261,7 @@ function update(dt) {
     t.flash = Math.max(0, t.flash - dt); t.recoil = Math.max(0, t.recoil - dt * 4);
     if (t.converted > 0) { t.converted -= dt; continue; }
     if (t.stunT > 0) { t.stunT -= dt; continue; }   // 폴리오 마비
+    if (t.offCd > 0) t.offCd -= dt; if (t.off > 0) { t.off -= dt; continue; }   // ★ 숨기가 끈 탑: 공격 안 함
     if (d.aura) continue;
     let jam = conv.some(c => c.conv3 && Math.hypot(c.x - t.x, c.y - t.y) < 130) ? 1.5 : 1;
     if (slime.some(o => Math.hypot(o.x - t.x, o.y - t.y) < 90)) jam *= 1.6;
@@ -4502,6 +4504,9 @@ function render(time) {
   // 유닛은 작게, 하나하나 그대로 (길 폭에 셋이 나란히 들어가는 크기)
   for (const u of R.units) if (u.alive && u.d > -4) { u._n = 1; u._tail = 0; u._head = false; u._big = 0; list.push({ y: u.y, u }); }
   if (R.four) for (const t of R.towers) { if (t.hp <= 0 || t.converted > 0) continue; const I = FAM_INFO[TW_FAM[t.type]]; if (!I) continue;   // ★ 11/26: 탑 사거리 늘 보이게
+    if (t.off > 0) { ctx.save(); ctx.beginPath(); ctx.arc(t.x, t.y - 20, 34 + 3 * Math.sin(R.time * 6), 0, TAU); ctx.lineWidth = 3; ctx.strokeStyle = '#8a6ad8'; ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = "900 13px 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif"; ctx.textAlign = 'center'; const tx = `💤 꺼짐 ${t.off.toFixed(1)}`, w = ctx.measureText(tx).width + 14, yy = t.y - 58;
+      ctx.fillStyle = '#6a4ac8'; ctx.beginPath(); ctx.roundRect(t.x - w / 2, yy - 13, w, 20, 10); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillText(tx, t.x, yy + 2); ctx.restore(); continue; }
     ctx.save(); ctx.beginPath(); ctx.arc(t.x, t.y - 20, t.range, 0, TAU); ctx.globalAlpha = 0.07; ctx.fillStyle = I.col; ctx.fill(); ctx.globalAlpha = 0.45; ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5; ctx.strokeStyle = I.col; ctx.stroke(); ctx.restore(); }
   list.sort((a, b) => a.y - b.y);
   for (const e of list) {
@@ -5076,8 +5081,8 @@ const ui = {
       + T(`👍 ${ORG_SHORT[org]} 맞음 ${nf}/${nOpen}`, `+${pc(S.pw, S.pw0)}%`, '', nf ? 'ok' : 'warn')
       + T('🛡 방패·짝꿍', `${tank ? '🛡✓' : '🛡✗'} ${CTYPE[FOUR_PARTNER[org]].i}${pt ? '✓' : '✗'}`, '', tank ? '' : 'warn');
   },
-  fourTypeHelp(T) { const C = CTYPE[T], m = FOUR.m[T], v = fourVs(T);
-    ui.modal(`<h3 style="margin:2px 0 6px">${C.i} ${C.n}</h3><div class="sub" style="font-size:13px;line-height:1.6">한 번에 <b>${FOUR.sq[T]}마리</b> · 에너지 <b>🧬${FOUR.cost[T]}</b><br>체력 ×${m.hp} · 속도 ×${m.spd} · 감염량 ×${FOUR.inf[T]}<br>강한 탑: <b style="color:#9fff6a">${v.good.join(' ') || '없음'}</b><br>약한 탑: <b style="color:#ffb4a8">${v.bad.join(' ') || '없음'}</b><br><small>💥 범위 공격 · 🎯 저격 · 🕸 느리게 · 🔦 찾기</small></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
+  fourTypeHelp(T) { const C = CTYPE[T], m = FOUR.m[T], v = fourVs(T), JOB = { tank: '맞아 주기 — 탑은 방패부터 때려요', swarm: '탑 부수기 — 탑 깨는 힘이 가장 셈(방패 옆이면 더)', stealth: `탑 끄기 — 붙으면 그 탑 ${FOUR.off.t}초 멈춤 (🔦 근처면 들킴)`, rush: `깨진 뒤 감염 — 탑이 깨지고 ${FOUR.cmb.rushT}초 안에 들어가면 감염 ×${FOUR.cmb.rush}` };
+    ui.modal(`<h3 style="margin:2px 0 6px">${C.i} ${C.n}</h3><div class="sub" style="font-size:13px;line-height:1.6"><b style="color:#C2410C">할 일: ${JOB[T]}</b><br>한 번에 <b>${FOUR.sq[T]}마리</b> · 에너지 <b>🧬${FOUR.cost[T]}</b><br>체력 ×${m.hp} · 속도 ×${m.spd} · 감염량 ×${FOUR.inf[T]} · 탑 깨는 힘 ×${FOUR.biteT[T]}<br>강한 탑: <b style="color:#9fff6a">${v.good.join(' ') || '없음'}</b><br>약한 탑: <b style="color:#ffb4a8">${v.bad.join(' ') || '없음'}</b><br><small>💥 범위 공격 · 🎯 저격 · 🕸 느리게 · 🔦 찾기</small></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
   fourClear() { save.squad = SL.map(i => i === 4 ? (save.squad || [])[4] || null : null); normSquad(); persist(); ui.showHub('lab'); toast('편성을 모두 뺐어요'); },
   fourAuto() {   // ★ 11/27 D: 기관에 맞는 카드·등급 위주 추천 배치 — 방패(필수) → 기관 짝꿍 → 나머지는 '힘 × 기관 궁합' 순
     const org = save.sel || 'nose', open = SLOT_ORDER.filter(i => i < 4 && slotOpen(i)); if (!open.length) return;
@@ -6404,7 +6409,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1825</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1850</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6428,7 +6433,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1127-1825';
+const GAME_VER = 'v1127-1850';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
