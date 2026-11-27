@@ -1734,7 +1734,8 @@ const fillOf = a => { const f = a.find(Boolean); if (!f) return []; const out = 
   a.forEach((g, i) => { if (i >= 3 && g) { out.push(g); sl.push(i); } }); out.slots = sl; return out; };
 const slotFill = () => fillOf(slotGenes());
 const normSquad = () => { const cg = coreGene(); save.squad = SL.map(i => { if (i === 4) return cg ? cg.uid : null; const u = slotOpen(i) ? (save.squad || [])[i] || null : null; if (u == null) return u;
-    const g = (save.genes || []).find(x => x.uid === u); if (!g) return null; if (i === 0 && !(/four/.test(location.pathname) || window.__FOUR)) return cg && (g === cg || g.strain === cg.strain || (!coreFree() && (g.lv || 1) > coreL())) ? null : u; return canSlot(g, i) ? u : null; }); };
+    const g = (save.genes || []).find(x => x.uid === u); if (!g) return null; if (i === 0 && !(/four/.test(location.pathname) || window.__FOUR)) return cg && (g === cg || g.strain === cg.strain || (!coreFree() && (g.lv || 1) > coreL())) ? null : u; return canSlot(g, i) ? u : null; });
+  if (/four/.test(location.pathname) || window.__FOUR) { const seen = new Set(); for (const i of SLOT_ORDER) { if (i > 3 || !save.squad[i]) continue; const g = (save.genes || []).find(x => x.uid === save.squad[i]), T = g && coreType(g.strain); if (seen.has(T)) save.squad[i] = null; else seen.add(T); } } };   /* ★ 11/27 D: 4장 출격은 같은 타입 한 장씩만 */
 const unSquad = uid => { if (coreGene() && coreGene().uid === uid) { toast('본체는 편성에서 뺄 수 없어요'); return; } save.squad = SL.map(i => save.squad[i] === uid ? null : (save.squad[i] || null)); };
 const organById = id => ORGANS.find(o => o.id === id);
 const doneCount = () => ORGANS.filter(o => o.id !== 'brain' && save.done[o.id]).length;
@@ -2769,7 +2770,7 @@ function cardFit(g, org) {   // ★ 카드에 보이는 기관 적합성: 맞는
   const home = ok ? `<b class="ok">${ORG_SHORT[org]}에 강함 +${pct}%</b>` : `<span class="no">맞는 곳 ${fitOrgans(g).slice(0, 2).map(o => ORG_SHORT[o]).join('·') || '없음'}${pct > 0 ? ' · 적응 +' + pct + '%' : ''}</span>`;
   return `<small class="fmFit">${home}${role}</small>`; }
 const FOUR_FAM = ['💥', '🎯', '🕸', '🔦'];
-function fourDeck() { return [...new Map(slotGenes().slice(0, 4).filter(g => g && !STRAINS[g.strain].hero && !isComp(g)).map(g => [g.strain, g])).values()].slice(0, 4); }   // ★ 칸에 꽂은 카드만(빈 칸 채우기·본체 자리 없음)
+function fourDeck() { const seen = new Set(); return slotGenes().slice(0, 4).filter(g => { if (!g || STRAINS[g.strain].hero || isComp(g)) return false; const T = coreType(g.strain); if (seen.has(T)) return false; seen.add(T); return true; }); }   // ★ 칸에 꽂은 카드만(빈 칸 채우기·본체 자리 없음)
 function fourVs(T) {   // ★ 이 타입이 강한/약한 탑 (판 안·연구소에 보여 주기)
   const good = [], bad = []; for (const f of ['💥', '🎯', '🕸']) { const v = (FOUR.dmg[f] || {})[T] ?? 1; if (v < 1) good.push(f); else if (v > 1) bad.push(f); }
   if (T === 'stealth') { good.unshift('숨음'); bad.unshift('🔦'); } return { good, bad }; }
@@ -5095,10 +5096,10 @@ const ui = {
     const pool = save.genes.filter(g => !STRAINS[g.strain].hero && !isComp(g) && canSlot(g, open[0])).sort((a, b) => sc(b) - sc(a));
     const pick = [], has = st => pick.some(g => g.strain === st), take = f => { const g = pool.find(g => !has(g.strain) && f(g)); if (g) pick.push(g); return g; };
     take(g => coreType(g.strain) === 'tank'); if (pick.length < open.length) take(g => coreType(g.strain) === FOUR_PARTNER[org]);
-    while (pick.length < open.length) { const types = new Set(pick.map(g => coreType(g.strain))); if (!take(g => !types.has(coreType(g.strain))) && !take(() => true)) break; }   // 3·4번째: 아직 없는 타입 먼저(그중 힘×궁합 높은 것)
+    while (pick.length < open.length) { const types = new Set(pick.map(g => coreType(g.strain))); if (!take(g => !types.has(coreType(g.strain)))) break; }   // 3·4번째: 아직 없는 타입 먼저(그중 힘×궁합 높은 것)
     save.squad = SL.map(i => i === 4 ? (save.squad || [])[4] || null : null); open.forEach((i, k) => { if (pick[k]) save.squad[i] = pick[k].uid; });
     normSquad(); persist(); ui.showHub('lab');
-    const nf = pick.filter(g => tropG(g, org) > 0).length; toast(`추천 배치: ${pick.map(g => CTYPE[coreType(g.strain)].i + sname(g.strain)).join(' ')} · 👍 ${ORG_SHORT[org]}에 맞는 카드 ${nf}장`); },
+    const nf = pick.filter(g => tropG(g, org) > 0).length; toast(`추천 배치: ${pick.map(g => CTYPE[coreType(g.strain)].i + sname(g.strain)).join(' ')} · ${ORG_SHORT[org]}에 맞는 카드 ${nf}장`); },
   fourTree() { ui.modal(`<h3 style="margin:2px 0 6px">🌳 ${FOUR_NAME} 성장 트리</h3><div class="sub" style="font-size:13px;line-height:1.6">생산 · 분출 · 세포벽 · 변이 4갈래 × 5칸.<br>레벨마다 1점, 다 찍을 수 없어서 골라야 해요.<br>첫 칸 = <b>4번째 카드 칸</b>.<br><br><b style="color:#ffd27a">시안 확인 중 — 아직 만들지 않았어요.</b></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
   // 이 카드를 i번 칸에 꽂으면? (지금 → 바뀐 값). 계산 뒤 본체 모습은 원래대로 되돌림
   // ★ 칸 미리보기: 그 칸에 넣으면 칸 보너스가 몇 %→몇 %, 역할이 맞는지
@@ -6015,6 +6016,7 @@ function assignSlot(g, i) {
   if (STRAINS[g.strain].legend && cur < 0 && save.comp !== g.uid && legCount(sq[i]) >= legCap()) { toast(`전설은 팀에 ${legCap()}장까지예요 (본체 포함)`); return false; }
   if (save.comp === g.uid) save.comp = null;
   if (cur >= 0) { const o = sq[i] && geneById(sq[i]); sq[cur] = o && canSlot(o, cur) ? sq[i] : null; sq[i] = g.uid; } else sq[i] = g.uid;
+  if (FOUR_ON()) { const T = coreType(g.strain); for (let k = 0; k < 4; k++) { if (k === i || !sq[k]) continue; const o = geneById(sq[k]); if (o && coreType(o.strain) === T) { sq[k] = null; toast(`${CTYPE[T].n}${T === 'rush' ? '은' : '는'} 한 장만 넣을 수 있어요 — ${sname(o.strain)}를 뺐어요`); } } }   /* ★ 같은 타입은 바꿔 끼움 */
   save.squad = sq; normSquad(); persist(); return true;
 }
 // ★ 끌어다 놓기: 카드를 손가락으로 끌어 본체 둘레 칸에 놓는다 (본체 위에 놓으면 빈 칸으로). 꽂힌 카드를 밖으로 끌면 빠짐
@@ -6414,7 +6416,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1910</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1917</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6438,7 +6440,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1127-1910';
+const GAME_VER = 'v1127-1917';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
