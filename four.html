@@ -1712,7 +1712,7 @@ function migrate(s) {
 const geneById = id => save.genes.find(g => g.uid === id);
 const squadGenes = () => SL.map(i => slotOpen(i) ? geneById(save.squad[i]) : null).filter(Boolean);
 // ★ 카드 자리 5칸: [대장, 속도, 공격, 번식, 지원]. 잠긴 칸·빈 칸은 null (빼도 다른 카드가 자리를 옮기지 않는다)
-const coreL = () => { const g = coreGene(); return g ? clamp(g.lv || 1, 1, CORE_MAX) : clamp(save.coreL || 0, 0, CORE_MAX); };
+const coreL = () => { const g = coreGene(); if ((/four/.test(location.pathname) || window.__FOUR) && save.hatchL) return clamp(save.hatchL, 1, CORE_MAX);   /* ★ 11/27: 4장 출격은 부화장 레벨이 따로(카드 ★ 제한 없음, Lv30까지) */ return g ? clamp(g.lv || 1, 1, CORE_MAX) : clamp(save.coreL || 0, 0, CORE_MAX); };
 // ★ 본체 = 아무 바이러스나 (동료 제외) · 언제든 바꿈. 본체 등급이 높을수록 칸이 많다 (일반 2 · 희귀 3 · 영웅 4 · 전설 4 + 레벨 제한 없음)
 const coreRarOf = g => { const d = g && STRAINS[g.strain]; return !d ? 0 : d.legend ? 4 : clamp(d.rarity || 0, 0, 3); }, coreFreeOf = g => false;
 const coreRar = () => { const g = coreGene(), d = g && STRAINS[g.strain]; return !d ? -1 : d.legend ? 4 : clamp(d.rarity || 0, 0, 3); };
@@ -1823,7 +1823,7 @@ function levelUp(g) { const c = lvCost(g);
   if ((g.lv || 1) >= MAXLV) return 'max';
   if ((g.lv || 1) >= lvCap(g)) return 'cap';
   if (save.dna < c) return 'dna'; save.dna -= c; g.lv = (g.lv || 1) + 1;
-  if (g.core) { if (g.lv > (save.coreL || 0)) { save.coreL = g.lv; giveReward(coreGift(save.coreL)); ui.coreUpQ = (ui.coreUpQ || []).concat([g.lv]); } normSquad(); }
+  if (g.core && !FOUR_ON()) { if (g.lv > (save.coreL || 0)) { save.coreL = g.lv; giveReward(coreGift(save.coreL)); ui.coreUpQ = (ui.coreUpQ || []).concat([g.lv]); } normSquad(); }
   coreCheck(); return 'lv'; }
 // 지금 DNA로 강화할 수 있는 편성 카드 수 (지면 안내·카드 표시)
 const canUp = g => (g.lv || 1) < lvCap(g) && save.dna >= lvCost(g);
@@ -4935,8 +4935,8 @@ const ui = {
         ${coreGene() && !FOUR_ON() ? `<button class="cvSSw2" id="bSwap">👑 본체 바꾸기</button>` : ''}
       </div>`;
     if ($('bSwap')) $('bSwap').onclick = () => ui.corePickList();
-    if ($('bEvo')) $('bEvo').onclick = () => { if (coreGene() && L >= lvCap(coreGene())) { sfx('fail'); return toast(`★${coreGene().star} 본체는 Lv${lvCap(coreGene())}까지 · 카드를 눌러 ★을 올려요`); } if (save.dna < c) { sfx('fail'); return toast(`DNA가 부족해요 (${save.dna}/${c})`); }
-      save.dna -= c; const cg = coreGene(); if (cg) cg.lv = L + 1; const first = L + 1 > (save.coreL || 0); if (first) { save.coreL = L + 1; giveReward(coreGift(save.coreL)); } normSquad(); quest('up'); persist(); $('hubDna').textContent = save.dna;
+    if ($('bEvo')) $('bEvo').onclick = () => { if (!FOUR_ON() && coreGene() && L >= lvCap(coreGene())) { sfx('fail'); return toast(`★${coreGene().star} 본체는 Lv${lvCap(coreGene())}까지 · 카드를 눌러 ★을 올려요`); } if (save.dna < c) { sfx('fail'); return toast(`DNA가 부족해요 (${save.dna}/${c})`); }
+      save.dna -= c; const cg = coreGene(); if (FOUR_ON()) save.hatchL = L + 1; else if (cg) cg.lv = L + 1; const first = L + 1 > (save.coreL || 0); if (first) { save.coreL = L + 1; giveReward(coreGift(save.coreL)); } normSquad(); quest('up'); persist(); $('hubDna').textContent = save.dna;
       ui.coreUpQ = [L + 1]; ui.closeModal(); ui.showHub('lab'); ui.coreUpShow(); };   // ★ 축하 창 뒤 화면도 바로 새 레벨로
   },
   // 로드맵: Lv 1~20 길 (지나온 곳 ✓, 지금 금색)
@@ -5067,6 +5067,7 @@ const ui = {
   },
   // ★ 체험판 4장 출격: 연구소 위쪽 = 공장 세포(레벨) + 덱 카드 타입 4칸 + 성장 트리 (본체 고르기 대신)
   fourLabHead() {   // ★ 11/25 D: 단순하게 — 본체 그림 + 레벨, 다음 판 한 줄, 덱 4칸(타입·이름·레벨)
+    if (!save.hatchL && coreL() > 0) { save.hatchL = coreL(); persist(); }   // 부화장 레벨을 따로 저장(지금 레벨에서 이어감)
     const L = coreL(), d = fourDeck(), nOpen = Math.min(4, slotsOpenN());
     $('csCore').className = 'lhCore';
     $('csCore').innerHTML = `${fourFactorySvg(L)}<b class="csLv" style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);font-size:12px;background:#5a1440;padding:0 8px;border-radius:8px;white-space:nowrap">Lv ${L}</b>`;
@@ -6416,7 +6417,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1917</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1948</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6440,7 +6441,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1127-1917';
+const GAME_VER = 'v1127-1948';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
