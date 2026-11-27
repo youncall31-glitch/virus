@@ -814,6 +814,11 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmFit .ok { color: #2E8B3A; } .fmFit .no { color: #8A6A74; font-weight: 400; } .fmFit .r { padding: 0 4px; border-radius: 6px; color: #fff; } .fmFit .tk { background: #7A4FC4; } .fmFit .pt { background: #E0603A; }
   .fmBtn { font: inherit; font-size: 12.5px; padding: 5px 10px; border-radius: 12px; border: 1.5px solid #F0D9CF; background: #fff; color: #3B2430; }
   .fmBtn.go { background: #FFC531; border-color: #C98B00; color: #4A3200; font-weight: 800; }
+  #labNums.four4 { grid-template-columns: 1fr 1fr !important; grid-auto-rows: auto; align-items: stretch; }   /* 11/27: 본체 오른쪽 칸 정렬 — 다음 판 한 줄 + 2×2 */
+  #labNums.four4 .tile.dk { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 58px; padding: 4px 4px; min-width: 0; }
+  #labNums.four4 .tile.dk .nm { font-size: 12.5px !important; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  #labNums.four4 .tile.dk .lb { font-size: 10px; } #labNums.four4 .fmFit { font-size: 9.5px; flex-wrap: nowrap; white-space: nowrap; }
+  #labNums.four4 .fmFit .ok, #labNums.four4 .fmFit .no { font-size: 9.5px; }
 </style>
 </head>
 <body>
@@ -5051,9 +5056,9 @@ const ui = {
     $('csCore').style.position = 'relative'; $('csCore').onclick = () => ui.coreModal();
     const o = organById(save.sel || 'nose'), rec = o ? fourOrganRec(o) : null, pr = o ? fourPair(o) : null;
     const oInfo = o ? `<span class="tile" style="grid-column:1/-1;flex-basis:100%;padding:4px 8px;border-color:#7a5a2a" onclick="ui.showHub('body')"><b style="font-size:13px">다음 판 <span style="color:#ffd27a">${o.name.split('·')[0].trim()}</span></b><small style="font-size:11.5px">탑 ${organImmune(o) || '-'} · 추천 <b>🛡 방패(필수) + ${CTYPE[FOUR_PARTNER[o.id]].i} ${CTYPE[FOUR_PARTNER[o.id]].n}</b> · 👍 = 이 기관에 맞는 카드</small></span>` : '';
-    const tile = (g, i) => !g ? `<span class="tile" style="opacity:.45"><b style="font-size:12px">${i < nOpen ? '빈 칸' : '🔒'}</b></span>`
-      : `<span class="tile" onclick="ui.fourTypeHelp('${coreType(g.strain)}')"><b style="font-size:13px">${CTYPE[coreType(g.strain)].i} ${sname(g.strain)}</b><small class="lb">Lv ${g.lv || 1}</small>${cardFit(g)}</span>`;
-    $('labNums').style.flexWrap = 'wrap';
+    const tile = (g, i) => !g ? `<span class="tile dk" style="opacity:.45"><b class="nm">${i < nOpen ? '빈 칸' : '🔒 Lv5'}</b></span>`
+      : `<span class="tile dk" onclick="ui.fourTypeHelp('${coreType(g.strain)}')"><b class="nm">${CTYPE[coreType(g.strain)].i} ${sname(g.strain)}</b><small class="lb">Lv ${g.lv || 1}</small>${cardFit(g)}</span>`;
+    $('labNums').style.flexWrap = 'wrap'; $('labNums').classList.add('four4');
     $('labNums').innerHTML = oInfo + [0, 1, 2, 3].map(i => tile(d[i], i)).join('');
   },
   fourTypeHelp(T) { const C = CTYPE[T], m = FOUR.m[T], v = fourVs(T);
@@ -6408,7 +6413,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1127-1810';
+const GAME_VER = 'v1127-1814';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
