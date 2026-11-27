@@ -2754,10 +2754,10 @@ const FOUR = { sq: { tank: 3, swarm: 9, stealth: 3, rush: 4 }, cost: { tank: 4, 
   cmb: { bite: 2.5, rush: 1.6, rushT: 5, holdBad: 1.6, holdGood: 0.7 },   // ★ 조합: 방패가 탑을 맡으면 떼가 2.5배로 깸 · 탑이 깨진 뒤 5초 안 돌격 감염 ×1.6 · 틀린 타입은 방어선에 더 오래
   inf: { tank: 7.5, swarm: 2.3, stealth: 4.7, rush: 2.8 },   // inf: 한 마리가 들어갈 때 감염량 배율(돌격=뚫린 길 채우기)
  
-  m: { tank: { hp: 3.2, size: 2.1, spd: 1 }, swarm: { hp: 0.45, size: 0.65, spd: 1 }, stealth: { hp: 0.9, size: 1.05, spd: 1 }, rush: { hp: 0.6, size: 1.1, spd: 1 } }, spd0: 62, dash: 1.4, cd: 10, s0: 12, rarK: 0.12, burstCd: true,   // 11/25 18시 봇: 돌격만 보내기가 거의 모든 기관 1등이라 속도·체력 낮춤
+  m: { tank: { hp: 3.2, size: 2.1, spd: 1 }, swarm: { hp: 0.45, size: 0.65, spd: 1 }, stealth: { hp: 0.9, size: 1.05, spd: 1 }, rush: { hp: 0.6, size: 1.1, spd: 1 } }, spd0: 62, dash: 1.4, cd: { tank: 14, swarm: 9, stealth: 12, rush: 6 }, s0: 12, rarK: 0.12, burstCd: true,   // 11/25 18시 봇: 돌격만 보내기가 거의 모든 기관 1등이라 속도·체력 낮춤
   dmg: { '💥': { swarm: 2, tank: 0.5, rush: 1.2 }, '🎯': { tank: 2, swarm: 0.45, stealth: 1.2 }, '🕸': { rush: 1.6, tank: 0.8 } } };   // 11/25 봇: 3배·0.3배로 키우면 판이 너무 어려워져(몸2 20판+) 원래 값 유지
 // ★ 11/25 23시 D: 너무 쉬움 → 판별 목표 배율(봇 '아무거나·추천' 처음 만날 때 평균 ÷ 목표 1.15, 코 1.6·폐 1.3). 봇 dev2/bot/four 로 다시 잼
-const FOUR_Q = {"0:nose": 229.51, "0:lung": 89.07, "0:gut": 15.61, "0:liver": 10.16, "0:blood": 14.47, "0:skin": 20.96, "0:lymph": 7.31, "0:brain": 11.41, "1:nose": 7.75, "1:lung": 7.66, "1:gut": 6.34, "1:liver": 6.47, "1:blood": 11.26, "1:skin": 10.67, "1:lymph": 7.78, "1:brain": 8.78, "2:nose": 10.78, "2:lung": 8.09, "2:gut": 4.75, "2:liver": 11.31, "2:blood": 10.98, "2:skin": 12.77, "2:lymph": 10.34, "2:brain": 10.3, "3:nose": 5.65, "3:lung": 8.05, "3:gut": 7.84, "3:liver": 6.79, "3:blood": 6.65, "3:skin": 7.43, "3:lymph": 7.54, "3:brain": 6.72};
+const FOUR_Q = {"0:nose": 275.51, "0:lung": 104.63, "0:gut": 20.29, "0:liver": 13.0, "0:blood": 12.65, "0:skin": 23.79, "0:lymph": 8.08, "0:brain": 10.03, "1:nose": 9.97, "1:lung": 9.7, "1:gut": 5.0, "1:liver": 6.9, "1:blood": 12.42, "1:skin": 9.56, "1:lymph": 8.95, "1:brain": 8.38, "2:nose": 10.83, "2:lung": 7.79, "2:gut": 4.25, "2:liver": 11.05, "2:blood": 11.74, "2:skin": 9.83, "2:lymph": 10.5, "2:brain": 9.96, "3:nose": 5.28, "3:lung": 7.6, "3:gut": 6.52, "3:liver": 7.56, "3:blood": 8.49, "3:skin": 7.7, "3:lymph": 8.06, "3:brain": 7.53};
 const FAM_INFO = { '💥': { n: '범위', col: '#F0A030', t: '뭉친 무리에 큰 피해' }, '🎯': { n: '저격', col: '#E0603A', t: '한 마리씩 세게(체력 큰 것부터)' }, '🔦': { n: '찾기', col: '#3A8DDE', t: '숨기를 드러냄' }, '🕸': { n: '느림', col: '#2BB3A3', t: '느리게 만듦' } };
 function famLine(f) { const I = FAM_INFO[f], v = FOUR.dmg[f] || {}, up = Object.entries(v).filter(([, m]) => m > 1).map(([k, m]) => CTYPE[k].i + CTYPE[k].n + ' ' + m + '배'), dn = Object.entries(v).filter(([, m]) => m < 1).map(([k, m]) => CTYPE[k].i + CTYPE[k].n + ' ' + m + '배');
   return `${f} ${I.n} 탑 · ${I.t}${up.length ? ' · 강함: ' + up.join(', ') : ''}${dn.length ? ' · 약함: ' + dn.join(', ') : ''}`; }
@@ -2766,6 +2766,7 @@ let FOUR_CS = {};
 const cardTrop = (g, org) => 1 + (tropG(g, org) > 0 ? FIT_B + mastB(g, org) : FIT_B * adaptOf(g, org) / ADAPT.need);
 function fourPw(g) { const st = geneStats(g), b0 = geneStats(Object.assign({}, g, { lv: 1, star: 1 })), D0 = STRAINS[g.strain];   // ★ 카드 힘 = 레벨·별 성장 × 등급 (바이러스 원래 체력은 안 섞음)
   return (st.hp / b0.hp + st.atk / b0.atk) / 2 * (1 + FOUR.rarK * (D0.legend ? 3 : D0.hybrid ? 2.5 : D0.rarity || 0)); }
+const fourCd = T => typeof FOUR.cd === 'object' ? FOUR.cd[T] || 0 : FOUR.cd || 0;   // ★ 타입별 쿨타임(초)
 const FOUR_PARTNER = { nose: 'swarm', lung: 'swarm', gut: 'rush', liver: 'rush', blood: 'rush', skin: 'rush', lymph: 'stealth', brain: 'rush' };   // 11/27 18:50 역할 개편 뒤 봇 실측(6회): 방패 짝꿍 1등
 function cardFit(g, org) {   // ★ 카드에 보이는 기관 적합성: 맞는 기관(+%) · 방패 필수 · 이 기관 짝꿍
   org = org || save.sel || 'nose'; const ok = tropG(g, org) > 0, pct = Math.round((cardTrop(g, org) - 1) * 100), T = coreType(g.strain);
@@ -2808,11 +2809,11 @@ function fourNext(types) {   // ★ 다음에 보낼 카드 추천 (조합 기�
   return pick(['tank', '탑 앞 → 방패 먼저'], ['swarm', '탑 앞 → 떼'], ['stealth', '탑 앞 → 숨기']) || [null, '']; }
 function fourSend(i) { const R = run, gr = R && R.groups[i]; if (!gr || !R.four || !nestOn() || R.endAt || R.over) return false; const T = coreType(gr.strain), c = FOUR.cost[T];
   if (R.time < (gr.cdU || 0)) { toast(`${CTYPE[T].n} 카드는 ${Math.ceil(gr.cdU - R.time)}초 뒤에 다시 낼 수 있어요`); return false; }   /* ★ 11/27 D: 카드마다 쿨타임 — 같은 카드만 연달아 못 냄 */
-  if ((R.en || 0) < c) { toast('에너지가 부족해요'); return false; } R.en -= c; gr.cdU = R.time + (FOUR.cd || 0); const n = FOUR.sq[T];
+  if ((R.en || 0) < c) { toast('에너지가 부족해요'); return false; } R.en -= c; gr.cdU = R.time + fourCd(T); const n = FOUR.sq[T];
   for (let k = 0; k < n; k++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]); gr.go = true; gr.rate = 26; gr.wait = 0; R.released += n; R.fourN = (R.fourN || 0) + 1; R.cellPop = 0.3; sfx('breakout'); buzz(25);
   const [x, y] = pathAt(Math.max(map.d0 || 0, (R.frontD || 0) - 20)); R.rings.push({ x, y, r: 8, R: 50, t: 0.4, color: SCOLOR[gr.strain] || '#e8a0ff' }); float(x, y - 24, `${CTYPE[T].i} ${STRAINS[gr.strain].name} ×${n}`, '#ffe2a8', 14); return true; }
 function fourBurst() { const R = run; if (!R || !R.four || !nestOn() || R.endAt || R.over || (R.en || 0) < FOUR.cap - 0.01) return false; R.en = 0;   // ★ 대분출: 공장 세포가 터지며 4종을 한꺼번에
-  R.groups.forEach(gr => { const T = coreType(gr.strain), n = Math.round(FOUR.sq[T] * 1.2); for (let k = 0; k < n; k++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]); gr.go = true; gr.rate = 30; gr.wait = 0; R.released += n; if (FOUR.burstCd) gr.cdU = R.time + (FOUR.cd || 0); });   /* ★ 대분출 뒤엔 모든 카드 쿨타임(쿨타임 우회 막기) */
+  R.groups.forEach(gr => { const T = coreType(gr.strain), n = Math.round(FOUR.sq[T] * 1.2); for (let k = 0; k < n; k++) gr.list.push(gr.src[(gr.rot = ((gr.rot || 0) + 1)) % gr.src.length]); gr.go = true; gr.rate = 30; gr.wait = 0; R.released += n; if (FOUR.burstCd) gr.cdU = R.time + fourCd(T); });   /* ★ 대분출 뒤엔 모든 카드 쿨타임(쿨타임 우회 막기) */
   R.burstN = (R.burstN || 0) + 1; R.cellPop = 0.6; try { swellBurst(); } catch (e) {} sfx('breakout'); banner('💥 대분출!'); return true; }
 // 기관별 추천 본체 (실제 면역 구성 기준 · 탑 구성과 짝)
 const ORGAN_REC = { nose: 'tank', lung: 'tank', gut: 'swarm', liver: 'rush', blood: 'rush', skin: 'stealth', lymph: 'swarm', brain: null };
@@ -5095,7 +5096,7 @@ const ui = {
       + T(`방패 · ${CTYPE[FOUR_PARTNER[org]].n}(짝꿍)`, tank && pt ? '둘 다 있음' : !tank && !pt ? '둘 다 없음' : !tank ? '방패 없음' : CTYPE[FOUR_PARTNER[org]].n + ' 없음', '', tank && pt ? 'ok' : 'warn');
   },
   fourTypeHelp(T) { const C = CTYPE[T], m = FOUR.m[T], v = fourVs(T), JOB = { tank: '맞아 주기 — 탑은 방패부터 때려요', swarm: '탑 부수기 — 탑 깨는 힘이 가장 셈(방패 옆이면 더)', stealth: `탑 끄기 — 붙으면 그 탑 ${FOUR.off.t}초 멈춤 (🔦 근처면 들킴)`, rush: `깨진 뒤 질주 — 탑이 깨지고 ${FOUR.cmb.rushT}초 동안 속도 ×${FOUR.dash}, 그때 나온 돌격은 감염 ×${FOUR.cmb.rush}` };
-    ui.modal(`<h3 style="margin:2px 0 6px">${C.i} ${C.n}</h3><div class="sub" style="font-size:13px;line-height:1.6"><b style="color:#C2410C">할 일: ${JOB[T]}</b><br>한 번에 <b>${FOUR.sq[T]}마리</b> · 에너지 <b>${FOUR.cost[T]}</b> · 다시 내기 <b>${FOUR.cd}초</b><br>체력 ×${m.hp} · 감염량 ×${FOUR.inf[T]} · 탑 깨는 힘 ×${FOUR.biteT[T]}<br>강한 탑: <b style="color:#9fff6a">${v.good.join(' ') || '없음'}</b><br>약한 탑: <b style="color:#ffb4a8">${v.bad.join(' ') || '없음'}</b><br><small>💥 범위 공격 · 🎯 저격 · 🕸 느리게 · 🔦 찾기</small></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
+    ui.modal(`<h3 style="margin:2px 0 6px">${C.i} ${C.n}</h3><div class="sub" style="font-size:13px;line-height:1.6"><b style="color:#C2410C">할 일: ${JOB[T]}</b><br>한 번에 <b>${FOUR.sq[T]}마리</b> · 에너지 <b>${FOUR.cost[T]}</b> · 다시 내기 <b>${fourCd(T)}초</b><br>체력 ×${m.hp} · 감염량 ×${FOUR.inf[T]} · 탑 깨는 힘 ×${FOUR.biteT[T]}<br>강한 탑: <b style="color:#9fff6a">${v.good.join(' ') || '없음'}</b><br>약한 탑: <b style="color:#ffb4a8">${v.bad.join(' ') || '없음'}</b><br><small>💥 범위 공격 · 🎯 저격 · 🕸 느리게 · 🔦 찾기</small></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
   fourClear() { save.squad = SL.map(i => i === 4 ? (save.squad || [])[4] || null : null); normSquad(); persist(); ui.showHub('lab'); toast('편성을 모두 뺐어요'); },
   fourAuto() {   // ★ 11/27 D: 기관에 맞는 카드·등급 위주 추천 배치 — 방패(필수) → 기관 짝꿍 → 나머지는 '힘 × 기관 궁합' 순
     const org = save.sel || 'nose', open = SLOT_ORDER.filter(i => i < 4 && slotOpen(i)); if (!open.length) return;
@@ -5616,7 +5617,7 @@ const ui = {
       $('deploy').innerHTML = `<div id="fourEn" style="flex-basis:100%;display:flex;align-items:center;gap:5px;color:#ffd6f0;font-size:12px;margin:0 2px 3px">🧬<div style="flex:1;display:flex;gap:2px">${Array.from({ length: FOUR.cap }, () => '<i style="flex:1;height:8px;border-radius:3px;background:#ffffff1a"></i>').join('')}</div><b>0/${FOUR.cap}</b>`
         + `<button id="dpHide" aria-label="숨기" style="${sBtn}">🫥 <span>숨기</span><i style="position:absolute;left:0;bottom:0;height:3px;background:#9fd0ff;width:100%"></i></button>`
         + `<button id="fourBurst" aria-label="대분출" style="${sBtn};border-color:#ff8fd0">💥 대분출</button></div>`
-        + G.map((g, i) => { const T = coreType(g.strain), C = CTYPE[T]; return `<button class="dp v fourB" data-f="${i}" style="position:relative">${pimg(g.gene)}<div><b style="font-size:13px;white-space:nowrap">${C.i} ${C.n}</b><small style="white-space:nowrap">🧬${FOUR.cost[T]}</small></div><span class="fCd" hidden></span><span class="fRec" hidden style="position:absolute;top:-8px;right:-4px;background:#ffd27a;color:#2a1a00;font-size:10px;padding:1px 5px;border-radius:7px">추천</span></button>`; }).join('');
+        + G.map((g, i) => { const T = coreType(g.strain), C = CTYPE[T]; return `<button class="dp v fourB" data-f="${i}" style="position:relative">${pimg(g.gene)}<div><b style="font-size:13px;white-space:nowrap">${C.i} ${C.n}</b><small style="white-space:nowrap">에너지 ${FOUR.cost[T]} · ${fourCd(T)}초</small></div><span class="fCd" hidden></span><span class="fRec" hidden style="position:absolute;top:-8px;right:-4px;background:#ffd27a;color:#2a1a00;font-size:10px;padding:1px 5px;border-radius:7px">추천</span></button>`; }).join('');
       $('dpHide').onclick = () => { hideTap(); ui.tickDeploy(); }; $('bottom').classList.add('four');
       $('deploy').querySelectorAll('.fourB').forEach(b => b.onclick = () => { fourSend(+b.dataset.f); ui.tickDeploy(); });
       $('fourBurst').onclick = () => { if (!fourBurst()) toast('에너지가 가득 차야 해요'); ui.tickDeploy(); };
@@ -6423,7 +6424,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-2100</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-2143</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6447,7 +6448,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1127-2100';
+const GAME_VER = 'v1127-2143';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
