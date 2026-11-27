@@ -814,11 +814,17 @@ img.legend { animation: legGlow 3s linear infinite; }
   .fmFit .ok { color: #2E8B3A; } .fmFit .no { color: #8A6A74; font-weight: 400; } .fmFit .r { padding: 0 4px; border-radius: 6px; color: #fff; } .fmFit .tk { background: #7A4FC4; } .fmFit .pt { background: #E0603A; }
   .fmBtn { font: inherit; font-size: 12.5px; padding: 5px 10px; border-radius: 12px; border: 1.5px solid #F0D9CF; background: #fff; color: #3B2430; }
   .fmBtn.go { background: #FFC531; border-color: #C98B00; color: #4A3200; font-weight: 800; }
-  #labNums.four4 { grid-template-columns: 1fr 1fr !important; grid-auto-rows: auto; align-items: stretch; }   /* 11/27: 본체 오른쪽 칸 정렬 — 다음 판 한 줄 + 2×2 */
-  #labNums.four4 .tile.dk { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 58px; padding: 4px 4px; min-width: 0; }
-  #labNums.four4 .tile.dk .nm { font-size: 12.5px !important; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-  #labNums.four4 .tile.dk .lb { font-size: 10px; } #labNums.four4 .fmFit { font-size: 9.5px; flex-wrap: nowrap; white-space: nowrap; }
-  #labNums.four4 .fmFit .ok, #labNums.four4 .fmFit .no { font-size: 9.5px; }
+  #labNums.four4 { grid-template-columns: 1.15fr 1fr 1fr !important; grid-auto-rows: auto; align-items: stretch; }   /* 11/27: 본체 오른쪽 칸 정렬 — 다음 판 한 줄 + 2×2 */
+  #labNums.four4 .tile { min-width: 0; margin: 0; }
+  #labNums.four4 .tile.hd { grid-column: 1/-1; display: flex; flex-direction: row !important; justify-content: flex-start !important; height: 30px; align-items: baseline; gap: 6px; padding: 4px 8px; white-space: nowrap; overflow: hidden; }
+  #labNums.four4 .tile.hd b { font-size: 13px; } #labNums.four4 .tile.hd small { font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+  #labNums.four4 .tile.st { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; height: 44px; padding: 2px 6px; gap: 1px; }
+  #labNums.four4 .tile.st small { font-size: 10px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; opacity: .85; }
+  #labNums.four4 .tile.st small em { font-style: normal; color: #2E8B3A; font-weight: 700; }
+  #labNums.four4 .tile.st b { font-size: 15px; line-height: 1.15; white-space: nowrap; } #labNums.four4 .tile.st b small { font-size: 11px; opacity: .7; }
+  #labNums.four4 .tile.st i { font-style: normal; font-size: 11px; margin-left: 4px; } #labNums.four4 i.up { color: #2E8B3A; } #labNums.four4 i.dn { color: #D0342C; }
+  #labNums.four4 .tile.ok b { color: #2E8B3A; }
+  #labNums.four4 .tile.warn { border-color: #E0603A !important; } #labNums.four4 .tile.warn b { color: #D0342C; }
 </style>
 </head>
 <body>
@@ -2786,7 +2792,7 @@ function fourRecType(c, types) {   // 앞 구간 탑 구성에서 피해를 가�
     if (!n) v = T === 'rush' ? -1 : 0; else { v /= n; if (T === 'stealth' && !c['🔦']) v *= 0.7; if (T === 'stealth' && c['🔦']) v *= 1.4; } if (v < bv) { bv = v; best = T; } } return best; }
 function fourNext(types) {   // ★ 다음에 보낼 카드 추천 (조합 기준): [타입, 이유]
   const R = run, c = fourAhead(), n = Object.entries(c).filter(([k]) => k !== '🔦').reduce((a, [, v]) => a + v, 0), has = T => types.includes(T), pick = (...L) => L.find(([T]) => has(T));
-  if (!n) return pick(['rush', '앞이 비었어요 → 돌격으로 채우기'], ['swarm', '앞이 비었어요 → 떼'], ['stealth', '앞이 비었어요'], ['tank', '앞이 비었어요']) || [null, ''];
+  if (!n) return pick(['rush', '앞에 탑 없음 → 빠른 돌격으로 전진'], ['swarm', '앞에 탑 없음 → 떼로 전진'], ['stealth', '앞에 탑 없음'], ['tank', '앞에 탑 없음']) || [null, ''];
   const tankOn = R.units.some(u => u.alive && u.ctype === 'tank' && u.blocked > 0), br = R.breachT != null && R.time - R.breachT < FOUR.cmb.rushT - 1.5;
   if (br && has('rush')) return ['rush', '탑이 뚫렸어요 → 돌격!'];
   if (tankOn) return pick(['swarm', '방패가 막는 중 → 떼!'], ['rush', '방패가 막는 중 → 돌격']) || [null, ''];
@@ -5055,11 +5061,20 @@ const ui = {
     $('csCore').innerHTML = `${fourFactorySvg(L)}<b class="csLv" style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);font-size:12px;background:#5a1440;padding:0 8px;border-radius:8px;white-space:nowrap">Lv ${L}</b>`;
     $('csCore').style.position = 'relative'; $('csCore').onclick = () => ui.coreModal();
     const o = organById(save.sel || 'nose'), rec = o ? fourOrganRec(o) : null, pr = o ? fourPair(o) : null;
-    const oInfo = o ? `<span class="tile" style="grid-column:1/-1;flex-basis:100%;padding:4px 8px;border-color:#7a5a2a" onclick="ui.showHub('body')"><b style="font-size:13px">다음 판 <span style="color:#ffd27a">${o.name.split('·')[0].trim()}</span></b><small style="font-size:11.5px">탑 ${organImmune(o) || '-'} · 추천 <b>🛡 방패(필수) + ${CTYPE[FOUR_PARTNER[o.id]].i} ${CTYPE[FOUR_PARTNER[o.id]].n}</b> · 👍 = 이 기관에 맞는 카드</small></span>` : '';
-    const tile = (g, i) => !g ? `<span class="tile dk" style="opacity:.45"><b class="nm">${i < nOpen ? '빈 칸' : '🔒 Lv5'}</b></span>`
-      : `<span class="tile dk" onclick="ui.fourTypeHelp('${coreType(g.strain)}')"><b class="nm">${CTYPE[coreType(g.strain)].i} ${sname(g.strain)}</b><small class="lb">Lv ${g.lv || 1}</small>${cardFit(g)}</span>`;
+    const oInfo = o ? `<span class="tile hd" onclick="ui.showHub('body')"><b>다음 판 <span style="color:#C2410C">${o.name.split('·')[0].trim()}</span></b><small>탑 ${organImmune(o) || '-'} · 추천 🛡+${CTYPE[FOUR_PARTNER[o.id]].i}</small></span>` : '';
+    /* ★ 11/27 D: 칸에 바이러스 이름 반복 X → 덱 스탯과 변동만. 값 = 꽂은 카드 합(기관 궁합 포함), 괄호 % = 기관 궁합 덕분에 오른 몫, ▲▼ = 방금 바꾼 편성 차이 */
+    const org = o ? o.id : 'nose', S = { pw: 0, pw0: 0 };   /* 판에서 쓰는 값과 같은 식: 카드 힘 = (체력/기준 + 공격/기준)/2 × 기관 궁합 */
+    for (const g of d) { const st = geneStats(g), w = (st.hp / TEAM_REF.hp + st.atk / TEAM_REF.atk) / 2; S.pw += w * cardTrop(g, org); S.pw0 += w; }
+    const P = ui._f4p, same = P && P.org === org, nf = d.filter(g => tropG(g, org) > 0).length, tank = d.some(g => coreType(g.strain) === 'tank'), pt = d.some(g => coreType(g.strain) === FOUR_PARTNER[org]);
+    const fmt = v => Math.round(v).toLocaleString(), pc = (a, b) => b > 0 ? Math.round((a / b - 1) * 100) : 0;
+    const dl = k => { const v = same ? Math.round(S[k] - P[k]) : 0; return v ? `<i class="${v > 0 ? 'up' : 'dn'}">${v > 0 ? '▲' : '▼'}${Math.abs(v).toLocaleString()}</i>` : ''; };
+    const T = (lb, val, sub, cls) => `<span class="tile st${cls ? ' ' + cls : ''}"><small>${lb}</small><b>${val}${sub || ''}</b></span>`;
+    ui._f4p = { org, pw: S.pw };
     $('labNums').style.flexWrap = 'wrap'; $('labNums').classList.add('four4');
-    $('labNums').innerHTML = oInfo + [0, 1, 2, 3].map(i => tile(d[i], i)).join('');
+    $('labNums').innerHTML = oInfo
+      + T('💪 덱 힘', d.length ? fmt(S.pw) : '-', dl('pw'))
+      + T(`👍 ${ORG_SHORT[org]} 맞음 ${nf}/${nOpen}`, `+${pc(S.pw, S.pw0)}%`, '', nf ? 'ok' : 'warn')
+      + T('🛡 방패·짝꿍', `${tank ? '🛡✓' : '🛡✗'} ${CTYPE[FOUR_PARTNER[org]].i}${pt ? '✓' : '✗'}`, '', tank ? '' : 'warn');
   },
   fourTypeHelp(T) { const C = CTYPE[T], m = FOUR.m[T], v = fourVs(T);
     ui.modal(`<h3 style="margin:2px 0 6px">${C.i} ${C.n}</h3><div class="sub" style="font-size:13px;line-height:1.6">한 번에 <b>${FOUR.sq[T]}마리</b> · 에너지 <b>🧬${FOUR.cost[T]}</b><br>체력 ×${m.hp} · 속도 ×${m.spd} · 감염량 ×${FOUR.inf[T]}<br>강한 탑: <b style="color:#9fff6a">${v.good.join(' ') || '없음'}</b><br>약한 탑: <b style="color:#ffb4a8">${v.bad.join(' ') || '없음'}</b><br><small>💥 범위 공격 · 🎯 저격 · 🕸 느리게 · 🔦 찾기</small></div><div class="row"><button class="btn" onclick="ui.closeModal()">확인</button></div>`); },
@@ -6389,7 +6404,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
   if (save.heroBack) { const n = save.heroBack; delete save.heroBack; persist(); setTimeout(() => toast(`슈퍼바이러스가 '본체 강화'로 바뀌어 DNA ${n}을 돌려드렸어요`), 2500); }
   requestAnimationFrame(frame); $('inGo').textContent = save.introSeen ? '▶ 이어하기' : '▶ 감염 시작'; requestAnimationFrame(introLoop); });
 </script>
-<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1814</div><script>
+<div id="verTag" style="position:fixed;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.35);z-index:9999;pointer-events:none">v1127-1825</div><script>
 /* ★ 삼성 인터넷 다크 모드 안내: 삼성 인터넷은 다크 모드에서 사이트 색을 억지로 바꾸고, 사이트 쪽에서 끌 방법이 없음 (삼성 공식 답변)
    → 처음 한 번 알려주고, 크롬으로 바로 열기 + 삼성 인터넷 설정 방법을 보여준다 */
 (function () { try {
@@ -6413,7 +6428,7 @@ loadAssets().then(() => { buildHybridImgs(); buildLegendImgs(); buildNewImgs(); 
 (function(){ const upd = () => { try { const e = document.getElementById('hubCoreLv'); if (e && typeof coreL === 'function') { const t = 'Lv ' + coreL(); if (e.textContent !== t) e.textContent = t; } } catch (x) {} }; setInterval(upd, 400); document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#hubCore') && typeof ui !== 'undefined') ui.coreModal(); }); })();</script>
 <script>
 /* ★ 버전 · 새 버전 확인 · 익명 통계 */
-const GAME_VER = 'v1127-1814';
+const GAME_VER = 'v1127-1825';
 (function () { const t = document.getElementById('verTag'); if (t) t.textContent = GAME_VER; })();
 
 /* 1) 옛 버전이 계속 열리는 것 막기
