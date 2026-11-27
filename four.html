@@ -6016,7 +6016,7 @@ function assignSlot(g, i) {
   if (STRAINS[g.strain].legend && cur < 0 && save.comp !== g.uid && legCount(sq[i]) >= legCap()) { toast(`전설은 팀에 ${legCap()}장까지예요 (본체 포함)`); return false; }
   if (save.comp === g.uid) save.comp = null;
   if (cur >= 0) { const o = sq[i] && geneById(sq[i]); sq[cur] = o && canSlot(o, cur) ? sq[i] : null; sq[i] = g.uid; } else sq[i] = g.uid;
-  if (FOUR_ON()) { const T = coreType(g.strain); for (let k = 0; k < 4; k++) { if (k === i || !sq[k]) continue; const o = geneById(sq[k]); if (o && coreType(o.strain) === T) { sq[k] = null; toast(`${CTYPE[T].n}${T === 'rush' ? '은' : '는'} 한 장만 넣을 수 있어요 — ${sname(o.strain)}를 뺐어요`); } } }   /* ★ 같은 타입은 바꿔 끼움 */
+  if (FOUR_ON()) { const T = coreType(g.strain); for (let k = 0; k < 4; k++) { if (k === i || !sq[k]) continue; const o = geneById(sq[k]); if (o && coreType(o.strain) === T) { sq[k] = null; toast(`${CTYPE[T].n}${T === 'rush' ? '은' : '는'} 한 장만 넣을 수 있어요 — ${sname(o.strain)}${(c => c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? '을' : '를')(sname(o.strain).charCodeAt(sname(o.strain).length - 1))} 뺐어요`); } } }   /* ★ 같은 타입은 바꿔 끼움 */
   save.squad = sq; normSquad(); persist(); return true;
 }
 // ★ 끌어다 놓기: 카드를 손가락으로 끌어 본체 둘레 칸에 놓는다 (본체 위에 놓으면 빈 칸으로). 꽂힌 카드를 밖으로 끌면 빠짐
